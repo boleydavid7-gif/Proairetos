@@ -14,7 +14,7 @@ import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/r
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
-import { groupLifeRecords, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
+import { canArchiveLifeRecord, groupLifeRecords, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
 import { Sym } from '../../lamplight/icons';
@@ -91,6 +91,10 @@ export default function ConnectionsPage() {
   const [busyId, setBusyId] = useState('');
   const [error, setError] = useState('');
   const [visibleCount, setVisibleCount] = useState(30);
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set());
+  const [bulkValueId, setBulkValueId] = useState('');
+  const [bulkBusy, setBulkBusy] = useState(false);
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
@@ -159,37 +163,93 @@ export default function ConnectionsPage() {
     [records, view],
   );
 
-  useEffect(() => setVisibleCount(30), [category, view, range, sortOrder, valueId, sourceApp, query]);
+  useEffect(() => {
+    setVisibleCount(30);
+    setSelectedKeys(new Set());
+  }, [category, view, range, sortOrder, valueId, sourceApp, query]);
   const visibleRecords = scoped.slice(0, visibleCount);
   const groups = useMemo(() => groupLifeRecords(visibleRecords, groupBy), [visibleRecords, groupBy]);
+  const selectedRecords = useMemo(
+    () => scoped.filter((record) => selectedKeys.has(record.key)),
+    [scoped, selectedKeys],
+  );
+  const selectedSavedCount = selectedRecords.filter((record) => favoriteKeys.has(record.key)).length;
+  const selectedArchivableCount = selectedRecords.filter(canArchiveLifeRecord).length;
+  const selectedLinkedCount = selectedRecords.filter((record) => bulkValueId && record.valueIds.includes(bulkValueId)).length;
+  const allResultsSelected = scoped.length > 0 && selectedRecords.length === scoped.length;
+
+  async function setRecordArchived(record: LifeRecord, archived: boolean): Promise<() => Promise<void>> {
+    const updatedAt = new Date().toISOString();
+
+    if (record.kind === 'reflection') {
+      if (archived) await reflectionService.archive(record.sourceId);
+      else await reflectionService.restore(record.sourceId);
+      return async () => {
+        if (archived) await reflectionService.restore(record.sourceId);
+        else await reflectionService.archive(record.sourceId);
+      };
+    }
+
+    if (record.kind === 'decision') {
+      if (archived) await decisionService.archive(record.sourceId);
+      else await decisionService.restore(record.sourceId);
+      return async () => {
+        if (archived) await decisionService.restore(record.sourceId);
+        else await decisionService.archive(record.sourceId);
+      };
+    }
+
+    if (record.kind === 'life') {
+      if (archived) await lifeService.archive(record.sourceId);
+      else await lifeService.restore(record.sourceId);
+      return async () => {
+        if (archived) await lifeService.restore(record.sourceId);
+        else await lifeService.archive(record.sourceId);
+      };
+    }
+
+    if (record.kind === 'note' && record.sourceApp === 'mneme') {
+      const current = mnemeNotes.get(record.sourceId);
+      if (!current) throw new Error('That note no longer exists.');
+      mnemeNotes.put({ ...current, archived, updatedAt });
+      return async () => {
+        mnemeNotes.put({ ...current, archived: Boolean(current.archived), updatedAt: new Date().toISOString() });
+      };
+    }
+
+    if (record.kind === 'pursuit') {
+      const current = allPursuits.find((entry) => entry.id === record.sourceId);
+      if (!current) throw new Error('That pursuit no longer exists.');
+
+      if (archived) {
+        await pursuits.put({
+          ...current,
+          status: 'archived',
+          archivedStatus: current.status === 'archived' ? current.archivedStatus : current.status,
+          updatedAt,
+        });
+        return async () => {
+          const { archivedStatus: previous, ...rest } = current;
+          await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt: new Date().toISOString() });
+        };
+      }
+
+      const { archivedStatus: previous, ...rest } = current;
+      await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt });
+      return async () => {
+        await pursuits.put({ ...current, updatedAt: new Date().toISOString() });
+      };
+    }
+
+    throw new Error('This entry cannot be archived from the Library.');
+  }
 
   async function archive(record: LifeRecord) {
     setBusyId(record.key);
     setError('');
     try {
-      if (record.kind === 'reflection') {
-        await reflectionService.archive(record.sourceId);
-        offerUndo('Reflection archived', () => reflectionService.restore(record.sourceId).then(() => undefined));
-      } else if (record.kind === 'decision') {
-        await decisionService.archive(record.sourceId);
-        offerUndo('Decision archived', () => decisionService.restore(record.sourceId).then(() => undefined));
-      } else if (record.kind === 'life') {
-        await lifeService.archive(record.sourceId);
-        offerUndo('Life item archived', () => lifeService.restore(record.sourceId).then(() => undefined));
-      } else if (record.kind === 'note' && record.sourceApp === 'mneme') {
-        const current = mnemeNotes.get(record.sourceId);
-        if (!current) throw new Error('That note no longer exists.');
-        mnemeNotes.put({ ...current, archived: true, updatedAt: new Date().toISOString() });
-        offerUndo('Note archived', async () => { mnemeNotes.put({ ...current, archived: false, updatedAt: new Date().toISOString() }); });
-      } else if (record.kind === 'pursuit') {
-        const current = allPursuits.find((entry) => entry.id === record.sourceId);
-        if (!current) throw new Error('That pursuit no longer exists.');
-        await pursuits.put({ ...current, status: 'archived', archivedStatus: current.status === 'archived' ? current.archivedStatus : current.status, updatedAt: new Date().toISOString() });
-        offerUndo('Pursuit archived', async () => {
-          const { archivedStatus: previous, ...rest } = current;
-          await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt: new Date().toISOString() });
-        });
-      }
+      const undo = await setRecordArchived(record, true);
+      offerUndo('Entry archived', undo);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That record could not be archived.');
     } finally {
@@ -201,19 +261,8 @@ export default function ConnectionsPage() {
     setBusyId(record.key);
     setError('');
     try {
-      if (record.kind === 'reflection') await reflectionService.restore(record.sourceId);
-      else if (record.kind === 'decision') await decisionService.restore(record.sourceId);
-      else if (record.kind === 'life') await lifeService.restore(record.sourceId);
-      else if (record.kind === 'note' && record.sourceApp === 'mneme') {
-        const current = mnemeNotes.get(record.sourceId);
-        if (!current) throw new Error('That note no longer exists.');
-        mnemeNotes.put({ ...current, archived: false, updatedAt: new Date().toISOString() });
-      } else if (record.kind === 'pursuit') {
-        const current = allPursuits.find((entry) => entry.id === record.sourceId);
-        if (!current) throw new Error('That pursuit no longer exists.');
-        const { archivedStatus: previous, ...rest } = current;
-        await pursuits.put({ ...rest, status: previous ?? 'active', updatedAt: new Date().toISOString() });
-      }
+      const undo = await setRecordArchived(record, false);
+      offerUndo('Entry restored', undo);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That record could not be restored.');
     } finally {
@@ -221,26 +270,33 @@ export default function ConnectionsPage() {
     }
   }
 
+  async function disconnectValueFromRecord(record: LifeRecord, linkedValueId: string) {
+    const libraryLinks = valueConnections.find((connection) => connection.id === record.key)?.valueIds ?? [];
+    const hasLibraryLink = libraryLinks.includes(linkedValueId);
+    const hasNativeLink = sourceRecords.find((entry) => entry.key === record.key)?.valueIds.includes(linkedValueId) ?? false;
+
+    if (hasLibraryLink) setLibraryValueConnection(record.key, linkedValueId, false);
+    if (!hasNativeLink) return;
+
+    if (record.kind === 'reflection') await reflectionService.disconnectValue(record.sourceId, linkedValueId);
+    else if (record.kind === 'decision') await decisionService.disconnectValue(record.sourceId, linkedValueId);
+    else if (record.kind === 'life') await lifeService.disconnectValue(record.sourceId, linkedValueId);
+    else if (record.kind === 'pursuit') {
+      const current = allPursuits.find((entry) => entry.id === record.sourceId);
+      if (!current) throw new Error('That pursuit no longer exists.');
+      const notes = { ...(current.valueNotes ?? {}) };
+      delete notes[linkedValueId];
+      const { valueNotes: _previous, ...rest } = current;
+      await pursuits.put(Object.keys(notes).length ? { ...current, valueNotes: notes } : rest);
+    }
+  }
+
   async function unlink(record: LifeRecord, linkedValueId: string) {
     if (!linkedValueId) return;
-    if (valueConnections.find((connection) => connection.id === record.key)?.valueIds.includes(linkedValueId)) {
-      setLibraryValueConnection(record.key, linkedValueId, false);
-      return;
-    }
     setBusyId(record.key);
     setError('');
     try {
-      if (record.kind === 'reflection') await reflectionService.disconnectValue(record.sourceId, linkedValueId);
-      else if (record.kind === 'decision') await decisionService.disconnectValue(record.sourceId, linkedValueId);
-      else if (record.kind === 'life') await lifeService.disconnectValue(record.sourceId, linkedValueId);
-      else if (record.kind === 'pursuit') {
-        const current = allPursuits.find((entry) => entry.id === record.sourceId);
-        if (!current) throw new Error('That pursuit no longer exists.');
-        const notes = { ...(current.valueNotes ?? {}) };
-        delete notes[linkedValueId];
-        const { valueNotes: _previous, ...rest } = current;
-        await pursuits.put(Object.keys(notes).length ? { ...current, valueNotes: notes } : rest);
-      }
+      await disconnectValueFromRecord(record, linkedValueId);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'That connection could not be removed.');
     } finally {
@@ -251,6 +307,104 @@ export default function ConnectionsPage() {
   function linkValue(record: LifeRecord, linkedValueId: string) {
     if (!linkedValueId || record.valueIds.includes(linkedValueId)) return;
     setLibraryValueConnection(record.key, linkedValueId, true);
+  }
+
+  function toggleSelected(record: LifeRecord, selected: boolean) {
+    setSelectedKeys((current) => {
+      const next = new Set(current);
+      if (selected) next.add(record.key);
+      else next.delete(record.key);
+      return next;
+    });
+  }
+
+  function toggleSelectionMode() {
+    if (selectionMode) {
+      setSelectedKeys(new Set());
+      setSelectionMode(false);
+    } else {
+      setSelectionMode(true);
+    }
+  }
+
+  function toggleSelectAllResults() {
+    setSelectedKeys(allResultsSelected ? new Set() : new Set(scoped.map((record) => record.key)));
+  }
+
+  function clearSelection() {
+    setSelectedKeys(new Set());
+  }
+
+  function setSelectedFavorites(saved: boolean) {
+    selectedRecords.forEach((record) => setLibraryFavorite(record.key, saved));
+    clearSelection();
+  }
+
+  async function bulkSetArchiveState(archived: boolean) {
+    const eligible = selectedRecords.filter(canArchiveLifeRecord);
+    if (!eligible.length || bulkBusy) return;
+
+    setBulkBusy(true);
+    setError('');
+    const undoActions: Array<() => Promise<void>> = [];
+    const failedTitles: string[] = [];
+
+    try {
+      for (const record of eligible) {
+        try {
+          undoActions.push(await setRecordArchived(record, archived));
+        } catch {
+          failedTitles.push(record.title);
+        }
+      }
+
+      if (undoActions.length) {
+        const verb = archived ? 'archived' : 'restored';
+        offerUndo(`${undoActions.length} entries ${verb}`, async () => {
+          for (const undo of [...undoActions].reverse()) await undo();
+        });
+      }
+
+      clearSelection();
+      if (failedTitles.length) {
+        setError(`${failedTitles.length} entr${failedTitles.length === 1 ? 'y could' : 'ies could'} not be ${archived ? 'archived' : 'restored'}.`);
+      }
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  function bulkConnectValue() {
+    if (!bulkValueId || !selectedRecords.length || bulkBusy) return;
+    const targets = selectedRecords.filter((record) => !record.valueIds.includes(bulkValueId));
+    targets.forEach((record) => setLibraryValueConnection(record.key, bulkValueId, true));
+    clearSelection();
+    setError(targets.length ? '' : 'Every selected entry is already connected to that value.');
+  }
+
+  async function bulkDisconnectValue() {
+    if (!bulkValueId || !selectedLinkedCount || bulkBusy) return;
+    const targets = selectedRecords.filter((record) => record.valueIds.includes(bulkValueId));
+    setBulkBusy(true);
+    setError('');
+    const failedTitles: string[] = [];
+
+    try {
+      for (const record of targets) {
+        try {
+          await disconnectValueFromRecord(record, bulkValueId);
+        } catch {
+          failedTitles.push(record.title);
+        }
+      }
+
+      clearSelection();
+      if (failedTitles.length) {
+        setError(`${failedTitles.length} entr${failedTitles.length === 1 ? 'y could' : 'ies could'} not be disconnected.`);
+      }
+    } finally {
+      setBulkBusy(false);
+    }
   }
 
   function clearAllFilters() {
@@ -324,6 +478,9 @@ export default function ConnectionsPage() {
         <div className="connections-mode__summary">
           <span className="connections-total">{visibleRecords.length < scoped.length ? 'Showing ' + visibleRecords.length + ' of ' + scoped.length : scoped.length + (scoped.length === 1 ? ' entry' : ' entries')}</span>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all</button>}
+          <button type="button" className="connections-select-toggle button-quiet" aria-pressed={selectionMode} onClick={toggleSelectionMode}>
+            {selectionMode ? 'Done selecting' : 'Select'}
+          </button>
         </div>
       </div>
 
@@ -379,6 +536,54 @@ export default function ConnectionsPage() {
         </div>
       </details>
 
+      {selectionMode && (
+        <section className="connections-bulk" aria-label="Bulk library actions">
+          <div className="connections-bulk__header">
+            <p><strong>{selectedRecords.length}</strong> selected <span>of {scoped.length} results</span></p>
+            <div className="connections-bulk__selection-actions">
+              <button type="button" className="button-quiet" disabled={!scoped.length || bulkBusy} onClick={toggleSelectAllResults}>
+                {allResultsSelected ? 'Clear selection' : `Select all ${scoped.length}`}
+              </button>
+              <button type="button" className="button-quiet" disabled={!selectedRecords.length || bulkBusy} onClick={clearSelection}>Clear</button>
+            </div>
+          </div>
+
+          {selectedRecords.length > 0 ? (
+            <div className="connections-bulk__body">
+              <div className="connections-bulk__actions">
+                {selectedSavedCount < selectedRecords.length && (
+                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(true)}>Save selected</button>
+                )}
+                {selectedSavedCount > 0 && (
+                  <button type="button" className="button-quiet" disabled={bulkBusy} onClick={() => setSelectedFavorites(false)}>Remove saved</button>
+                )}
+                {selectedArchivableCount > 0 && (
+                  <button type="button" className="button-accent" disabled={bulkBusy} onClick={() => void bulkSetArchiveState(view !== 'archived')}>
+                    {bulkBusy ? 'Working…' : view === 'archived' ? `Restore ${selectedArchivableCount}` : `Archive ${selectedArchivableCount}`}
+                  </button>
+                )}
+              </div>
+
+              <div className="connections-bulk__connections">
+                <label>
+                  <span>Compass value</span>
+                  <select className="field-input" value={bulkValueId} onChange={(event) => setBulkValueId(event.target.value)}>
+                    <option value="">Choose a value</option>
+                    {valueOptions.map((value) => <option key={value.id} value={value.id}>{value.name}</option>)}
+                  </select>
+                </label>
+                <button type="button" className="button-accent" disabled={!bulkValueId || bulkBusy || !selectedRecords.some((record) => !record.valueIds.includes(bulkValueId))} onClick={bulkConnectValue}>Connect selected</button>
+                <button type="button" className="button-quiet" disabled={!bulkValueId || bulkBusy || !selectedLinkedCount} onClick={() => void bulkDisconnectValue()}>
+                  Disconnect{selectedLinkedCount ? ` ${selectedLinkedCount}` : ''}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="connections-bulk__hint">Select entries below to save, archive, restore or connect them to a Compass value.</p>
+          )}
+        </section>
+      )}
+
       {error && <p className="connections-error" role="alert">{error}</p>}
 
       {scoped.length === 0 ? (
@@ -404,10 +609,13 @@ export default function ConnectionsPage() {
                     key={record.key}
                     record={record}
                     saved={favoriteKeys.has(record.key)}
+                    selectionMode={selectionMode}
+                    selected={selectedKeys.has(record.key)}
                     availableValues={valueOptions}
                     relatedRecords={relatedLifeRecords(record, relationPool, 3)}
-                    busy={busyId === record.key}
+                    busy={bulkBusy || busyId === record.key}
                     onToggleFavorite={toggleFavorite}
+                    onToggleSelected={toggleSelected}
                     onOpen={openRecord}
                     onArchive={(entry) => void archive(entry)}
                     onRestore={(entry) => void restore(entry)}
