@@ -117,10 +117,29 @@
   font-variant-numeric: tabular-nums;
 }
 
+.connections-mode__summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
 .connections-total {
   color: var(--color-text-muted);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.connections-clear-all {
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent-strong);
+  font-size: var(--text-xs);
+  white-space: nowrap;
 }
 
 /* Type filters sit on one quiet line and scroll naturally on narrow screens. */
@@ -196,7 +215,7 @@
 
 .connections-refine__fields {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
   padding: 0 0 var(--space-3);
 }
@@ -477,5 +496,12 @@
   .connections-search,
   .connections-category {
     transition: none;
+  }
+}
+
+/* Give the library room to breathe on larger screens without widening the rest of the app. */
+@media (min-width: 48rem) {
+  .app-shell:has(.connections-page) .app-shell__content {
+    max-width: 64rem;
   }
 }
