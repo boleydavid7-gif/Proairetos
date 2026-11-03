@@ -8,6 +8,8 @@ import {
   joinHousehold,
   leaveHousehold,
   makeHousehold,
+  removeHouseholdMember,
+  setMemberRole,
   pendingHouseholdInvite,
   restorePart,
   shareApp,
@@ -30,7 +32,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const { offerUndo } = useOverlays();
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const added = useAddedApps();
-  const { list, parts, members, states } = useHousehold();
+  const { list, parts, members, states, roles, currentUserId, currentRole, rolesReady, canManageMembers, canManageRoles } = useHousehold();
   const [invite, setInvite] = useState(pendingHouseholdInvite);
   const [name, setName] = useState('Home');
   const [busy, setBusy] = useState<string | null>(null);
@@ -39,6 +41,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState('');
+  const [removeConfirm, setRemoveConfirm] = useState<string | null>(null);
   const { incoming, outgoing } = useInvites();
   const signedIn = sync.phase !== 'signed-out' && sync.phase !== 'unavailable';
 
@@ -174,35 +177,103 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
     <div className="settings-sections household">
       <section className="settings-card">
         <h2 className="household__name">{list.name}</h2>
-        {members.length > 0 && (
-          <ul className="household__members">
-            {members.map((member) => (
-              <li key={member.id}>
-                <span>{member.name}</span>
-                {member.email && <span className="household__email">{member.email}</span>}
-              </li>
-            ))}
-          </ul>
+        <section className="household__people" aria-label="Family members">
+          <div className="household__people-heading">
+            <h3>People</h3>
+            <span>{members.length} {members.length === 1 ? 'member' : 'members'}</span>
+          </div>
+          {members.length > 0 && (
+            <ul className="household__members">
+              {members.map((member) => {
+                const userId = member.id.slice('member:'.length);
+                const role = roles[userId] ?? 'member';
+                const isSelf = userId === currentUserId;
+                const canRemove = canManageMembers && !isSelf && (role !== 'admin' || canManageRoles);
+                return (
+                  <li key={member.id} className="household__member">
+                    <span className="household__avatar" aria-hidden="true">{member.name.trim().charAt(0).toUpperCase() || '?'}</span>
+                    <span className="household__member-info">
+                      <span className="household__member-name">{member.name}{isSelf ? ' · You' : ''}</span>
+                      {member.email && <span className="household__email">{member.email}</span>}
+                    </span>
+                    <span className={`household__role household__role--${role}`}>{rolesReady ? role : '…'}</span>
+                    {(canManageRoles && !isSelf) || canRemove ? (
+                      <div className="household__member-actions">
+                        {canManageRoles && !isSelf && (
+                          <button
+                            type="button"
+                            className="text-link"
+                            disabled={busy !== null}
+                            onClick={() => void run(`role:${userId}`, () => setMemberRole(userId, role === 'admin' ? 'member' : 'admin'))}
+                          >
+                            {role === 'admin' ? 'Remove admin' : 'Make admin'}
+                          </button>
+                        )}
+                        {canRemove && (
+                          <button
+                            type="button"
+                            className="text-link household__remove-member"
+                            disabled={busy !== null}
+                            onClick={() => setRemoveConfirm(removeConfirm === userId ? null : userId)}
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    ) : null}
+                    {removeConfirm === userId && canRemove && (
+                      <div className="household__remove-confirm">
+                        <span>Remove {member.name} from this family? Their server access ends on their next sync, but they can rejoin with an existing family link. Copies already downloaded to their devices cannot be recalled.</span>
+                        <div className="button-row">
+                          <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => setRemoveConfirm(null)}>Cancel</button>
+                          <button
+                            type="button"
+                            className="button-danger"
+                            disabled={busy !== null}
+                            onClick={() => void run(`remove:${userId}`, async () => {
+                              await removeHouseholdMember(userId);
+                              setRemoveConfirm(null);
+                            })}
+                          >
+                            Remove member
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+        {canManageMembers ? (
+          <>
+            <form
+              className="field household__invite"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const to = email.trim();
+                void run('invite', async () => {
+                  await inviteByEmail(to, list);
+                  setEmail('');
+                  setSent(to);
+                });
+              }}
+            >
+              <span className="field__label">Invite by email</span>
+              <input className="input" type="email" autoComplete="email" aria-label="Email" value={email} onChange={(event) => { setEmail(event.target.value); setSent(''); }} />
+              <button type="submit" className="button-accent account-wide" disabled={busy !== null || !email.trim()}>Invite</button>
+            </form>
+            {sent && <p className="hint" role="status">Invite sent to {sent}. It shows when they open any of the apps.</p>}
+            <button type="button" className="button-quiet account-wide" onClick={() => void share()}>Send a link instead</button>
+            <p className="hint household__permissions-note">Anyone with this link can join the household. Share it only with people you trust.</p>
+            {copied && <p className="hint" role="status">Link copied.</p>}
+          </>
+        ) : rolesReady ? (
+          <p className="hint household__permissions-note">Only the owner and administrators can invite or manage members.</p>
+        ) : (
+          <p className="hint household__permissions-note">Member management needs the latest Family server update. Apply migration 20261104000000_household_member_roles.sql in Supabase first.</p>
         )}
-        <form
-          className="field household__invite"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const to = email.trim();
-            void run('invite', async () => {
-              await inviteByEmail(to, list);
-              setEmail('');
-              setSent(to);
-            });
-          }}
-        >
-          <span className="field__label">Invite by email</span>
-          <input className="input" type="email" autoComplete="email" aria-label="Email" value={email} onChange={(event) => { setEmail(event.target.value); setSent(''); }} />
-          <button type="submit" className="button-accent account-wide" disabled={busy !== null || !email.trim()}>Invite</button>
-        </form>
-        {sent && <p className="hint" role="status">Invite sent to {sent}. It shows when they open any of the apps.</p>}
-        <button type="button" className="button-quiet account-wide" onClick={() => void share()}>Send a link instead</button>
-        {copied && <p className="hint" role="status">Link copied.</p>}
       </section>
 
       {waiting.length > 0 && (
@@ -271,7 +342,9 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         </section>
       </section>
 
-      {leaving ? (
+      {currentRole === 'owner' ? (
+        <p className="hint household__permissions-note">You own this household. Ownership transfer is not available yet.</p>
+      ) : leaving ? (
         <section className="settings-card">
           <p className="section-description">Leave {list.name}? You will stop receiving household updates. Copies already saved on this device remain here.</p>
           <div className="button-row">

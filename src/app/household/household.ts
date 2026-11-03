@@ -51,6 +51,9 @@ export const household = (): SharedListRef | undefined => households.sharedLists
 // ---------- Where this device stands with each part ----------
 
 let states: Partial<Record<HouseholdApp, PartState>> = {};
+export type HouseholdRole = 'owner' | 'admin' | 'member';
+type RoleState = { householdId?: string; ownerId?: string; admins: string[]; userId?: string; loaded: boolean; fetchedAt?: number };
+let roleState: RoleState = { admins: [], loaded: false };
 let statesVersion = 0;
 const stateListeners = new Set<() => void>();
 const setStates = (next: Partial<Record<HouseholdApp, PartState>>) => {
@@ -58,6 +61,43 @@ const setStates = (next: Partial<Record<HouseholdApp, PartState>>) => {
   statesVersion += 1;
   for (const listener of stateListeners) listener();
 };
+
+const setRoleState = (next: RoleState) => {
+  roleState = next;
+  statesVersion += 1;
+  for (const listener of stateListeners) listener();
+};
+
+async function refreshRoleState(householdId: string, userId?: string): Promise<void> {
+  if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 60_000) return;
+  try {
+    const client = await supabase();
+    const [{ data: householdRow, error: householdError }, { data: adminRows, error: rolesError }] = await Promise.all([
+      client.from('shared_lists').select('created_by').eq('id', householdId).maybeSingle(),
+      client.from('household_member_roles').select('user_id').eq('household_id', householdId),
+    ]);
+    if (householdError || !householdRow) {
+      setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+      return;
+    }
+    const ownerId = (householdRow as { created_by: string }).created_by;
+    if (rolesError) {
+      // Even if the role migration is not installed yet, we can still identify the owner and prevent an orphaned home.
+      setRoleState({ householdId, ownerId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+      return;
+    }
+    setRoleState({
+      householdId,
+      ownerId,
+      admins: ((adminRows ?? []) as { user_id: string }[]).map((row) => row.user_id),
+      userId,
+      loaded: true,
+      fetchedAt: Date.now(),
+    });
+  } catch {
+    setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+  }
+}
 
 async function me(): Promise<string | undefined> {
   return (await signedInAs())?.id;
@@ -94,11 +134,16 @@ export function syncHousehold(): Promise<void> {
   if (running) return running;
   running = (async () => {
     const list = household();
-    if (!list) return setStates({});
+    if (!list) {
+      setStates({});
+      setRoleState({ admins: [], loaded: false });
+      return;
+    }
     await households.refreshList(list);
     const items = households.sharedItems(list);
     const user = await signedInAs();
     const userId = user?.id;
+    await refreshRoleState(list.id, userId);
     const name = displayName().trim() || user?.email.split('@')[0] || 'Someone';
     const mine = userId ? items.find((item) => item.id === memberId(userId)) : undefined;
     if (user && userId && (!mine || (mine.kind === 'member' && (mine.name !== name || mine.email !== user.email)))) {
@@ -152,6 +197,7 @@ export async function shareApp(app: HouseholdApp): Promise<void> {
   // Persist the access rule before publishing the encrypted app-list reference to the household.
   await setAppShare(list.id, app, shared.id, true);
   households.changeItem(list, partId(app), { id: partId(app), kind: 'part', app, list: { id: shared.id, key: shared.key, name: shared.name }, at: new Date().toISOString() });
+  await households.refreshList(list);
   setStates({ ...states, [app]: 'shared' });
 }
 
@@ -163,6 +209,7 @@ export async function stopSharing(app: HouseholdApp): Promise<HouseholdItem | un
   if (before?.kind !== 'part') return undefined;
   await setAppShare(list.id, app, before.list.id, false);
   households.changeItem(list, partId(app), null);
+  await households.refreshList(list);
   return before;
 }
 
@@ -172,6 +219,56 @@ export async function restorePart(item: HouseholdItem): Promise<void> {
   if (!list || item.kind !== 'part') return;
   await setAppShare(list.id, item.app, item.list.id, true);
   households.changeItem(list, item.id, item);
+  await households.refreshList(list);
+}
+
+/** Only the household owner can promote or demote administrators. */
+export async function setMemberRole(targetUserId: string, role: 'admin' | 'member'): Promise<void> {
+  const list = household();
+  if (!list) throw new Error('There is no household to manage.');
+  const { data, error } = await (await supabase()).rpc('set_household_member_role', {
+    household: list.id,
+    target_user: targetUserId,
+    new_role: role,
+  });
+  if (error) {
+    if (/household_member_roles|set_household_member_role|schema cache|function .* does not exist/i.test(error.message)) {
+      throw new Error('Family member roles are not set up on the server yet.');
+    }
+    throw new Error(error.message);
+  }
+  if (data !== true) throw new Error('The member role could not be saved.');
+  setRoleState({
+    ...roleState,
+    fetchedAt: Date.now(),
+    admins: role === 'admin'
+      ? [...new Set([...roleState.admins, targetUserId])]
+      : roleState.admins.filter((id) => id !== targetUserId),
+  });
+}
+
+/** Removes a member on the server, then removes their encrypted profile from the household list. */
+export async function removeHouseholdMember(targetUserId: string): Promise<void> {
+  const list = household();
+  if (!list) throw new Error('There is no household to manage.');
+  const { data, error } = await (await supabase()).rpc('remove_household_member', {
+    household: list.id,
+    target_user: targetUserId,
+  });
+  if (error) {
+    if (/remove_household_member|household_invites|schema cache|function .* does not exist/i.test(error.message)) {
+      throw new Error('Family member management is not set up on the server yet.');
+    }
+    throw new Error(error.message);
+  }
+  if (data !== true) throw new Error('The member could not be removed.');
+  households.changeItem(list, memberId(targetUserId), null);
+  await households.refreshList(list);
+  setRoleState({
+    ...roleState,
+    fetchedAt: Date.now(),
+    admins: roleState.admins.filter((id) => id !== targetUserId),
+  });
 }
 
 export async function makeHousehold(name: string): Promise<void> {
@@ -191,24 +288,60 @@ export async function leaveHousehold(): Promise<void> {
   const list = household();
   if (!list) return;
   const userId = await me().catch(() => undefined);
+  if (roleState.householdId !== list.id || roleState.userId !== userId || !roleState.fetchedAt || Date.now() - roleState.fetchedAt > 60_000) {
+    await refreshRoleState(list.id, userId);
+  }
+  if (!roleState.ownerId) {
+    throw new Error('Could not verify household ownership. Check your connection and try again.');
+  }
+  if (userId && roleState.ownerId === userId) {
+    throw new Error('The household owner cannot leave yet. Ownership transfer is not available.');
+  }
   if (userId) {
     households.changeItem(list, memberId(userId), null);
     await households.refreshList(list).catch(() => undefined);
   }
   await households.leaveList(list);
   setStates({});
+  setRoleState({ admins: [], loaded: false });
 }
 
 // ---------- For the page ----------
 
 let snapshot: { key: string; value: HouseholdView } | undefined;
-type HouseholdView = { list?: SharedListRef; items: HouseholdItem[]; states: Partial<Record<HouseholdApp, PartState>> };
+type HouseholdView = {
+  list?: SharedListRef;
+  items: HouseholdItem[];
+  states: Partial<Record<HouseholdApp, PartState>>;
+  roles: Record<string, HouseholdRole>;
+  currentUserId?: string;
+  currentRole?: HouseholdRole;
+  rolesReady: boolean;
+  canManageMembers: boolean;
+  canManageRoles: boolean;
+};
 
 function view(): HouseholdView {
   const key = `${households.sharedVersion()}|${statesVersion}`;
   if (snapshot?.key === key) return snapshot.value;
   const list = household();
-  const value = { list, items: list ? households.sharedItems(list) : [], states };
+  const roles: Record<string, HouseholdRole> = {};
+  if (roleState.ownerId) roles[roleState.ownerId] = 'owner';
+  for (const id of roleState.admins) roles[id] = 'admin';
+  const currentRole = roleState.userId ? roles[roleState.userId] ?? 'member' : undefined;
+  const canManageMembers = roleState.loaded && (currentRole === 'owner' || currentRole === 'admin');
+  const canManageRoles = roleState.loaded && currentRole === 'owner';
+  const value = {
+    list,
+    items: list ? households.sharedItems(list) : [],
+    states,
+    roles,
+    currentUserId: roleState.userId,
+    currentRole,
+    rolesReady: roleState.loaded,
+    canManageMembers,
+    canManageRoles,
+  };
   snapshot = { key, value };
   return value;
 }

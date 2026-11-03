@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * whoever already has it.
  */
 type Row = Record<string, unknown>;
-const tables: Record<string, Row[]> = { shared_lists: [], shared_list_members: [], shared_list_items: [], household_app_shares: [] };
+const tables: Record<string, Row[]> = { shared_lists: [], shared_list_members: [], shared_list_items: [], household_app_shares: [], household_member_roles: [], household_invites: [] };
 let user = 'user-a';
 
 function query(table: string) {
@@ -51,6 +51,39 @@ const client = {
   auth: { getUser: async () => ({ data: { user: { id: user } } }) },
   from: (table: string) => query(table),
   rpc: async (name: string, args: Record<string, unknown>) => {
+    if (name === 'set_household_member_role') {
+      const householdId = String(args.household);
+      const target = String(args.target_user);
+      const role = String(args.new_role);
+      const owner = tables.shared_lists.find((row) => row.id === householdId)?.created_by;
+      if (owner !== user) return { data: null, error: { message: 'Only the household owner can change administrator roles.' } };
+      if (!tables.shared_list_members.some((row) => row.list_id === householdId && row.user_id === target)) {
+        return { data: null, error: { message: 'That person is no longer a member of this household.' } };
+      }
+      if (role === 'admin') {
+        const existing = tables.household_member_roles.find((row) => row.household_id === householdId && row.user_id === target);
+        if (existing) Object.assign(existing, { role: 'admin' });
+        else tables.household_member_roles.push({ household_id: householdId, user_id: target, role: 'admin' });
+      } else {
+        tables.household_member_roles = tables.household_member_roles.filter((row) => row.household_id !== householdId || row.user_id !== target);
+      }
+      return { data: true, error: null };
+    }
+    if (name === 'remove_household_member') {
+      const householdId = String(args.household);
+      const target = String(args.target_user);
+      const owner = tables.shared_lists.find((row) => row.id === householdId)?.created_by;
+      const actorAdmin = tables.household_member_roles.some((row) => row.household_id === householdId && row.user_id === user);
+      if (target === owner) return { data: null, error: { message: 'The household owner cannot be removed.' } };
+      if (target === user) return { data: null, error: { message: 'Use Leave household to remove yourself.' } };
+      if (owner !== user && !actorAdmin) return { data: null, error: { message: 'Only the owner or an administrator can remove members.' } };
+      const targetAdmin = tables.household_member_roles.some((row) => row.household_id === householdId && row.user_id === target);
+      if (actorAdmin && targetAdmin) return { data: null, error: { message: 'Administrators cannot remove another administrator.' } };
+      tables.shared_list_members = tables.shared_list_members.filter((row) => row.list_id !== householdId || row.user_id !== target);
+      tables.household_member_roles = tables.household_member_roles.filter((row) => row.household_id !== householdId || row.user_id !== target);
+      tables.household_invites = tables.household_invites.filter((row) => row.household_id !== householdId || (row.to_user !== target && row.from_user !== target));
+      return { data: true, error: null };
+    }
     if (name === 'set_household_app_share') {
       const householdId = String(args.household);
       const app = String(args.app_name);
@@ -143,6 +176,56 @@ describe('a household', () => {
     await household.joinHousehold(invite);
     expect(homes.sharedLists()).toHaveLength(0);
     expect(soma.sharedLists()).toHaveLength(1);
+  });
+
+  it('enforces owner, administrator and member permissions', async () => {
+    const household = await import('../../app/household/household');
+    const { homes } = await import('../../ergon/app/state');
+    user = 'user-a';
+    device('Sam');
+    await household.makeHousehold('Family');
+    await household.shareApp('ergon');
+    const made = household.household()!;
+    expect(homes.sharedLists()).toHaveLength(1);
+    const sharedErgonList = homes.sharedLists()[0]!;
+
+    user = 'user-b';
+    device('Alex');
+    await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    user = 'user-c';
+    device('Jo');
+    await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    const removedMemberAppList = await homes.joinList(sharedErgonList);
+    await homes.refreshList(removedMemberAppList);
+    expect(homes.sharedLists()).toHaveLength(1);
+
+    user = 'user-a';
+    await household.setMemberRole('user-b', 'admin');
+    await household.setMemberRole('user-c', 'admin');
+    expect(tables.household_member_roles).toContainEqual(expect.objectContaining({ household_id: made.id, user_id: 'user-b', role: 'admin' }));
+
+    user = 'user-b';
+    await expect(household.setMemberRole('user-a', 'admin')).rejects.toThrow('Only the household owner');
+    await expect(household.removeHouseholdMember('user-a')).rejects.toThrow('owner cannot be removed');
+    await expect(household.removeHouseholdMember('user-c')).rejects.toThrow('cannot remove another administrator');
+
+    user = 'user-a';
+    await household.setMemberRole('user-c', 'member');
+    user = 'user-b';
+    await household.removeHouseholdMember('user-c');
+    expect(tables.shared_list_members.some((row) => row.list_id === made.id && row.user_id === 'user-c')).toBe(false);
+
+    // Removal blocks the former member from the connected app list on their next sync.
+    user = 'user-c';
+    await expect(homes.refreshList(removedMemberAppList)).rejects.toThrow('This list is no longer shared with you.');
+    expect(homes.sharedLists()).toHaveLength(0);
+
+    user = 'user-a';
+    await household.setMemberRole('user-b', 'member');
+    expect(tables.household_member_roles.some((row) => row.user_id === 'user-b')).toBe(false);
+    await household.removeHouseholdMember('user-b');
+    expect(tables.shared_list_members.some((row) => row.list_id === made.id && row.user_id === 'user-b')).toBe(false);
+    expect(household.households.sharedItems(made).some((item) => item.id === 'member:user-b')).toBe(false);
   });
 
   it('does not connect a standalone app list that includes people outside the family', async () => {

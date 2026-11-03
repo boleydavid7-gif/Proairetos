@@ -37,6 +37,9 @@ async function me(): Promise<{ id: string; email: string } | undefined> {
 
 const plain = (error: { message: string } | null) => {
   if (!error) return;
+  if (/duplicate key value violates unique constraint|household_invites_one_pending_per_person/i.test(error.message)) {
+    throw new Error('A family invitation for this person is already pending.');
+  }
   if (/relation .* does not exist|schema cache|account_keys|household_invites|invitee_key/.test(error.message)) throw new Error('Invites by email are not set up on the server yet.');
   throw new Error(error.message);
 };
@@ -81,13 +84,13 @@ export async function inviteByEmail(email: string, household: ListRef): Promise<
   if (!user) throw new Error('Sign in first.');
   if (address === user.email.toLowerCase()) throw new Error('That’s your own email.');
   const client = await supabase();
-  const { data, error } = await client.rpc('invitee_key', { address });
+  const { data, error } = await client.rpc('invitee_key', { address, household: household.id });
   plain(error);
   const found = data as { user_id: string; public_key: JsonWebKey } | null;
   if (!found) throw new Error('No account with that email has opened Proairetos on this version yet. Send the link instead.');
   const from = displayName().trim() || user.email;
   const sealed = await sealFor(found.public_key, { household, from });
-  plain((await client.from('household_invites').insert({ to_user: found.user_id, to_email: address, from_user: user.id, sealed })).error);
+  plain((await client.from('household_invites').insert({ household_id: household.id, to_user: found.user_id, to_email: address, from_user: user.id, sealed })).error);
   await refreshInvites();
 }
 
