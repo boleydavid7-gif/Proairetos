@@ -303,15 +303,29 @@ describe('a household', () => {
     await household.makeHousehold('Family');
     await household.shareApp('ergon');
     const invite = { ...household.household()! };
+    const snapshot = () => Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key) ?? ''];
+      }),
+    );
+    const restore = (values: Record<string, string>) => {
+      localStorage.clear();
+      for (const [key, value] of Object.entries(values)) localStorage.setItem(key, value);
+    };
+    const ownerDevice = snapshot();
 
     user = 'user-b';
     device('Alex');
     await household.joinHousehold(invite);
     const appList = homes.sharedLists()[0]!;
+    const memberDevice = snapshot();
 
     user = 'user-a';
+    restore(ownerDevice);
     await household.removeHouseholdMember('user-b');
     user = 'user-b';
+    restore(memberDevice);
     expect(household.household()?.id).toBe(invite.id);
 
     // No background sync runs between removal and opening the invite again.
