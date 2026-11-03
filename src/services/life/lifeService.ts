@@ -172,6 +172,31 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       });
     },
 
+    /** Archive hides an item from everyday lists while retaining its history. */
+    archive(id: string): Promise<LifeItem> {
+      return serial(async () => {
+        const item = await items.getById(id);
+        if (!item || item.userId !== userId) throw new Error('Life item ' + id + ' was not found.');
+        if (item.archivedAt) return present(item);
+        const archived = { ...item, archivedAt: context.now().toISOString() };
+        await items.update(archived);
+        listeners.notify();
+        return present(archived);
+      });
+    },
+
+    restore(id: string): Promise<LifeItem> {
+      return serial(async () => {
+        const item = await items.getById(id);
+        if (!item || item.userId !== userId) throw new Error('Life item ' + id + ' was not found.');
+        if (!item.archivedAt) return present(item);
+        const { archivedAt: _archivedAt, ...restored } = item;
+        await items.update(restored);
+        listeners.notify();
+        return present(restored);
+      });
+    },
+
     async get(id: string): Promise<LifeItem | null> {
       const item = await items.getById(id);
       return item && item.userId === userId ? present(item) : null;
