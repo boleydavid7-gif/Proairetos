@@ -190,7 +190,7 @@
 }
 
 .connections-record__title > span {
-  font-size: var(--text-md);
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
   overflow-wrap: anywhere;
