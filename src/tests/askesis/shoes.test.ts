@@ -1,5 +1,5 @@
 import { defaultShoe, shoeMileage, shoeProgress, shoeRunEntries, type Shoe } from '../../askesis/core/shoes';
-import type { LogEntry } from '../../askesis/core/log';
+import { logCsv, type LogEntry } from '../../askesis/core/log';
 
 const shoe: Shoe = {
   id: 'shoe-1',
@@ -41,5 +41,11 @@ describe('Askesis shoe mileage', () => {
   it('chooses only an active shoe as the default', () => {
     expect(defaultShoe([shoe])?.id).toBe('shoe-1');
     expect(defaultShoe([{ ...shoe, retiredOn: '2026-11-01' }])).toBeUndefined();
+  });
+
+  it('includes the assigned shoe name in a portable log export', () => {
+    const csv = logCsv([run('run-1', 5000)], 'mi', { 'shoe-1': 'Daily trainers' });
+    expect(csv.split('\\r\\n')[0]).toContain('Running shoes');
+    expect(csv).toContain('Daily trainers');
   });
 });
