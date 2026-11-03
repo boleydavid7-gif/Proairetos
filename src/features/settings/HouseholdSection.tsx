@@ -138,7 +138,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
     return (
       <section className="settings-card">
         <form
-          className="field"
+          className="field household-create-form"
           onSubmit={(event) => {
             event.preventDefault();
             void run('make', () => makeHousehold(name));
