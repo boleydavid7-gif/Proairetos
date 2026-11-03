@@ -54,6 +54,17 @@ export function createReflectionService({ userId, context, reflections }: Reflec
       return reflection;
     },
 
+    /** Edits the person's words without changing the entry's date or context. */
+    async updateBody(id: string, body: string): Promise<Reflection> {
+      if (!body.trim()) throw new Error('A reflection needs some text.');
+      const reflection = (await reflections.list(userId)).find((entry) => entry.id === id);
+      if (!reflection) throw new Error('That reflection no longer exists.');
+      const updated = { ...reflection, body };
+      await reflections.update(updated);
+      listeners.notify();
+      return updated;
+    },
+
     /** Deletes a reflection, with an undo that puts it back exactly. */
     async remove(id: string): Promise<{ undo: () => Promise<void> }> {
       const reflection = (await reflections.list(userId)).find((r) => r.id === id);
