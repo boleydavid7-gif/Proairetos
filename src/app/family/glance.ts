@@ -1,5 +1,5 @@
 import { comingUp, type Person } from '../../philia/core/people';
-import { addDays, formatMoney, occurrencesBetween, paidForOccurrence, parseDate, type Bill } from '../../oikonomia/core/bills';
+import { addDays, formatMoney, occurrencesBetween, paidForOccurrence, type Bill } from '../../oikonomia/core/bills';
 
 /**
  * Quiet facts from the other apps for Today, worked out from their own records. Only what was recorded:
