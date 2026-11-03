@@ -98,6 +98,8 @@ export default function ConnectionsPage() {
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
+  const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
+  const valueConnectionByRecord = useMemo(() => new Map(valueConnections.map((connection) => [connection.id, connection])), [valueConnections]);
   const sourceRecords = useMemo(() => buildLifeRecords({
     reflections,
     decisions,
@@ -271,9 +273,9 @@ export default function ConnectionsPage() {
   }
 
   async function disconnectValueFromRecord(record: LifeRecord, linkedValueId: string) {
-    const libraryLinks = valueConnections.find((connection) => connection.id === record.key)?.valueIds ?? [];
+    const libraryLinks = valueConnectionByRecord.get(record.key)?.valueIds ?? [];
     const hasLibraryLink = libraryLinks.includes(linkedValueId);
-    const hasNativeLink = sourceRecords.find((entry) => entry.key === record.key)?.valueIds.includes(linkedValueId) ?? false;
+    const hasNativeLink = sourceRecordByKey.get(record.key)?.valueIds.includes(linkedValueId) ?? false;
 
     if (hasLibraryLink) setLibraryValueConnection(record.key, linkedValueId, false);
     if (!hasNativeLink) return;
