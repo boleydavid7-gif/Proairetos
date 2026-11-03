@@ -18,6 +18,7 @@ import {
   listEntries,
   putEntry,
 } from '../data/store';
+import { loadShoes, saveShoes } from '../app/shoes';
 
 // ---------- Before you start ----------
 
@@ -246,13 +247,15 @@ export function DataPage({ nav }: { nav: Nav }) {
   const [confirming, setConfirming] = useState(false);
 
   const wipe = async () => {
-    const before = { entries: await listEntries(), plan: loadPlan() };
+    const before = { entries: await listEntries(), plan: loadPlan(), shoes: loadShoes() };
     await clearEntries();
     savePlan(undefined);
+    saveShoes([]);
     setConfirming(false);
     undo('Everything deleted', () => {
       void Promise.all(before.entries.map(putEntry));
       savePlan(before.plan);
+      saveShoes(before.shoes);
     });
   };
 

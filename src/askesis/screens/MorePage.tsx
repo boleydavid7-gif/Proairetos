@@ -1,6 +1,6 @@
 import type { Nav, Route } from '../app/App';
 import { HistoryIcon } from '../../app/family/icons';
-import { BoxIcon, PulseIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, ShieldIcon, TargetIcon } from '../app/icons';
+import { BoxIcon, PulseIcon, SoundIcon, ChevronIcon, GaugeIcon, GearIcon, HeartIcon, InfoIcon, ShieldIcon, TargetIcon, TrainIcon } from '../app/icons';
 import { Brand } from '../app/ui';
 import { useSettings } from '../app/state';
 import { stravaLink } from '../app/strava';
@@ -27,6 +27,7 @@ export default function MorePage({ nav, plan }: { nav: Nav; plan?: Plan }) {
     { icon: <PulseIcon />, title: 'Strava', detail: stravaLink()?.refresh ? 'Connected' : '', route: { name: 'strava' } },
     { icon: <HeartIcon />, title: 'Heart rate zones', detail: '', route: { name: 'zones' } },
     { icon: <GaugeIcon />, title: 'Pace calculator', detail: '', route: { name: 'pace' } },
+    { icon: <TrainIcon />, title: 'Running shoes', detail: 'Mileage by pair', route: { name: 'shoes' } },
     { icon: <ShieldIcon />, title: 'Before you start', detail: '', route: { name: 'safety' } },
     { icon: <HistoryIcon size={22} />, title: 'Your year', detail: '', route: { name: 'year' } },
     { icon: <GearIcon />, title: 'Settings', detail: '', route: { name: 'settings' } },
