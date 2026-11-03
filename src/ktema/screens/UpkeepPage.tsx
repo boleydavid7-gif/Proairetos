@@ -62,12 +62,12 @@ function UpkeepForm({ existing, thingId, onDone }: { existing?: Upkeep; thingId?
       <label className="field">
         <span className="field__label">For (optional)</span>
         <select className="input" value={forThing} onChange={(event) => setForThing(event.target.value)}>
-          <option value="">The home in general</option>
+          <option value="">Whole home</option>
           {[...owned].sort((a, b) => a.name.localeCompare(b.name)).map((each) => <option key={each.id} value={each.id}>{each.name}</option>)}
         </select>
       </label>
       <fieldset className="field">
-        <legend className="field__label">Comes around</legend>
+        <legend className="field__label">Repeats</legend>
         <div className="stepper">
           <button type="button" className="stepper__button" aria-label="Fewer" onClick={() => setCount(Math.max(1, count - 1))}><Sym name="minus" /></button>
           <span className="stepper__value">Every {count}</span>
