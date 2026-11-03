@@ -26,7 +26,10 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   },
   {
     date: '2026-11-03',
-    lines: ['Settings > Attention: the bell’s count as a number, a dot or off, Today’s updates card on or off, and the light on what’s next in every app.'],
+    lines: [
+      'Settings > Attention: the bell’s count as a number, a dot or off, Today’s updates card on or off, and the light on what’s next in every app.',
+      'Hydros is available again in the app family. Previous drink logs, settings and added-app choices are preserved.',
+    ],
   },
   {
     date: '2026-11-02',
