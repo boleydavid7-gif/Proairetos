@@ -766,7 +766,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
             <div className="month__grid">
               {data.days.map(({ date, entries }) => {
                 const looks = entries.flatMap((entry): { title: string; color?: string }[] =>
-                  entry.kind === 'off' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
+                  entry.kind === 'off' || entry.kind === 'planned' ? [] : entry.kind === 'allday' ? [{ title: entry.event.title }] : [entryLook(entry, data.patterns, data.sources, data.goals)],
                 );
                 for (const item of plannedItemsForDay(date, data.items)) {
                   const color = item.color ?? (item.goalId ? data.goals.goals.find((goal) => goal.id === item.goalId)?.color : undefined);
