@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * whoever already has it.
  */
 type Row = Record<string, unknown>;
-const tables: Record<string, Row[]> = { shared_lists: [], shared_list_members: [], shared_list_items: [] };
+const tables: Record<string, Row[]> = { shared_lists: [], shared_list_members: [], shared_list_items: [], household_app_shares: [] };
 let user = 'user-a';
 
 function query(table: string) {
@@ -18,6 +18,16 @@ function query(table: string) {
     select: () => builder,
     delete: () => ((action = 'delete'), builder),
     eq: (key: string, value: unknown) => (filters.push([key, value]), builder),
+    maybeSingle: async () => {
+      const row = rows()[0];
+      if (!row) return { data: null, error: null };
+      if (table === 'shared_lists') {
+        const share = tables.household_app_shares.find((each) => each.shared_list_id === row.id);
+        const householdMember = share && tables.shared_list_members.some((each) => each.list_id === share.household_id && each.user_id === user);
+        if (share && row.created_by !== user && share.owner_id !== user && (!share.enabled || !householdMember)) return { data: null, error: null };
+      }
+      return { data: row, error: null };
+    },
     insert: async (row: Row) => (tables[table].push({ ...row }), { error: null }),
     upsert: async (row: Row) => {
       const at = tables[table].findIndex((each) => each.list_id === row.list_id && each.id === row.id);
@@ -40,9 +50,32 @@ function query(table: string) {
 const client = {
   auth: { getUser: async () => ({ data: { user: { id: user } } }) },
   from: (table: string) => query(table),
-  rpc: async (_name: string, args: { list: string; proof: string }) => {
+  rpc: async (name: string, args: Record<string, unknown>) => {
+    if (name === 'set_household_app_share') {
+      const householdId = String(args.household);
+      const app = String(args.app_name);
+      const sharedListId = String(args.shared_list);
+      const enabled = Boolean(args.share_enabled);
+      if (!tables.shared_list_members.some((row) => row.list_id === householdId && row.user_id === user)) {
+        return { data: null, error: { message: 'Join the household before changing its sharing settings.' } };
+      }
+      const existing = tables.household_app_shares.find((row) => row.household_id === householdId && row.app === app);
+      if (existing && existing.owner_id !== user) {
+        return { data: null, error: { message: 'Only the person who enabled this share can change it.' } };
+      }
+      if (enabled && !tables.shared_list_members.some((row) => row.list_id === sharedListId && row.user_id === user)) {
+        return { data: null, error: { message: 'You need access to this app list before sharing it.' } };
+      }
+      if (existing) Object.assign(existing, { shared_list_id: sharedListId, enabled });
+      else tables.household_app_shares.push({ household_id: householdId, app, shared_list_id: sharedListId, owner_id: user, enabled });
+      return { data: true, error: null };
+    }
     const list = tables.shared_lists.find((row) => row.id === args.list);
     if (!list || list.join_proof !== args.proof) return { data: false, error: null };
+    const share = tables.household_app_shares.find((row) => row.shared_list_id === args.list);
+    if (share && (!share.enabled || (!tables.shared_list_members.some((row) => row.list_id === share.household_id && row.user_id === user) && share.owner_id !== user))) {
+      return { data: false, error: null };
+    }
     tables.shared_list_members.push({ list_id: args.list, user_id: user });
     return { data: true, error: null };
   },
@@ -90,11 +123,39 @@ describe('a household', () => {
     const items = household.households.sharedItems(household.household()!);
     expect(items.filter((item) => item.kind === 'member').map((item) => (item as { name: string }).name).sort()).toEqual(['Alex', 'Sam']);
 
-    // Taken out of the household: Alex keeps the chores list already joined.
-    household.stopSharing('ergon');
+    // Only the person who enabled a category can change it.
+    await expect(household.stopSharing('ergon')).rejects.toThrow('Only the person who enabled this share can change it.');
+
+    // Sam turns off Chores. The app-list permission is disabled before its household index entry is removed.
+    user = 'user-a';
+    await household.stopSharing('ergon');
     await household.households.refreshList(household.household()!);
-    await household.syncHousehold();
-    expect(homes.sharedLists()).toHaveLength(1);
+    expect(tables.household_app_shares.find((row) => row.app === 'ergon')?.enabled).toBe(false);
+
+    // An existing member loses server access on the next refresh; the stale local list and cache are cleared.
+    user = 'user-b';
+    await expect(homes.refreshList(ergonList)).rejects.toThrow('This list is no longer shared with you.');
+    expect(homes.sharedLists()).toHaveLength(0);
+
+    // A later family member joins the household but does not receive the disabled Ergon list.
+    user = 'user-c';
+    device('Jo');
+    await household.joinHousehold(invite);
+    expect(homes.sharedLists()).toHaveLength(0);
+    expect(soma.sharedLists()).toHaveLength(1);
+  });
+
+  it('does not connect a standalone app list that includes people outside the family', async () => {
+    const household = await import('../../app/household/household');
+    const { homes } = await import('../../ergon/app/state');
+    user = 'user-a';
+    device('Sam');
+    const oldHome = await homes.createList('Old home');
+    tables.shared_list_members.push({ list_id: oldHome.id, user_id: 'user-outside' });
+
+    await household.makeHousehold('Family');
+    await expect(household.shareApp('ergon')).rejects.toThrow('already shared with someone outside this family');
+    expect(household.households.sharedItems(household.household()!).some((item) => item.kind === 'part' && item.app === 'ergon')).toBe(false);
   });
 
   it('leaves an app that already shares elsewhere alone', async () => {

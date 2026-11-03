@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { householdLink, membersOf, namesText, partState, partsOf, readHouseholdInvite, type HouseholdItem } from '../../core/household/household';
+import { HOUSEHOLD_APPS, householdLink, membersOf, namesText, partState, partsOf, readHouseholdInvite, type HouseholdItem } from '../../core/household/household';
 
 const list = { id: '0f8fad5b-d9cb-469f-a165-70867728950e', key: 'k'.repeat(43), name: 'The Smiths' };
 
@@ -18,6 +18,13 @@ describe('household', () => {
     expect(partState(part, [{ id: 'a' }], true)).toBe('shared');
     expect(partState(part, [{ id: 'b' }], true)).toBe('elsewhere');
     expect(partState(part, [{ id: 'b' }], false)).toBe('join');
+  });
+
+  it('describes the exact data shared by each app and marks medicines as sensitive', () => {
+    expect(HOUSEHOLD_APPS.every((app) => app.description.trim().length > 0)).toBe(true);
+    expect(HOUSEHOLD_APPS.map((app) => app.app)).toEqual(['proairetos', 'soma', 'ergon', 'phyton', 'therapeia']);
+    expect(HOUSEHOLD_APPS.find((app) => app.app === 'therapeia')?.sensitive).toBe(true);
+    expect(HOUSEHOLD_APPS.find((app) => app.app === 'proairetos')?.description).toContain('Personal tasks');
   });
 
   it('splits parts from members, members in the order they joined', () => {

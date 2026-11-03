@@ -68,6 +68,22 @@ async function signedInAs(): Promise<{ id: string; email: string } | undefined> 
   return data.user ? { id: data.user.id, email: data.user.email ?? '' } : undefined;
 }
 
+async function setAppShare(householdId: string, app: HouseholdApp, sharedListId: string, enabled: boolean): Promise<void> {
+  const { data, error } = await (await supabase()).rpc('set_household_app_share', {
+    household: householdId,
+    app_name: app,
+    shared_list: sharedListId,
+    share_enabled: enabled,
+  });
+  if (error) {
+    if (/set_household_app_share|household_app_shares|schema cache|function .* does not exist/i.test(error.message)) {
+      throw new Error('Family sharing permissions are not set up on the server yet.');
+    }
+    throw new Error(error.message);
+  }
+  if (data !== true) throw new Error('The family sharing setting could not be saved.');
+}
+
 let running: Promise<void> | undefined;
 
 /**
@@ -119,23 +135,43 @@ export async function shareApp(app: HouseholdApp): Promise<void> {
   const single = HOUSEHOLD_APPS.find((each) => each.app === app)?.single ?? true;
   const own = single ? lists.sharedLists()[0] : undefined;
   const shared = own ?? (await lists.createList(app === 'soma' ? 'Groceries' : list.name));
+
+  // Never silently fold a standalone list into a family if it already contains people outside that family.
+  // They would lose server access once the household permission is applied.
+  const client = await supabase();
+  const { data: householdMembers, error: householdMembersError } = await client.from('shared_list_members').select('user_id').eq('list_id', list.id);
+  if (householdMembersError) throw new Error(householdMembersError.message);
+  const familyMembers = new Set(((householdMembers ?? []) as { user_id: string }[]).map((member) => member.user_id));
+  const { data: listMembers, error: membersError } = await client.from('shared_list_members').select('user_id').eq('list_id', shared.id);
+  if (membersError) throw new Error(membersError.message);
+  const outsideMembers = ((listMembers ?? []) as { user_id: string }[]).filter((member) => !familyMembers.has(member.user_id));
+  if (outsideMembers.length) {
+    throw new Error('This list is already shared with someone outside this family. Add them to the family first before connecting it.');
+  }
+
+  // Persist the access rule before publishing the encrypted app-list reference to the household.
+  await setAppShare(list.id, app, shared.id, true);
   households.changeItem(list, partId(app), { id: partId(app), kind: 'part', app, list: { id: shared.id, key: shared.key, name: shared.name }, at: new Date().toISOString() });
   setStates({ ...states, [app]: 'shared' });
 }
 
-/** Takes an app out of the household: no one new joins it; whoever has it keeps it. */
-export function stopSharing(app: HouseholdApp): HouseholdItem | undefined {
+/** Stops household members from accessing this app list on their next server sync. */
+export async function stopSharing(app: HouseholdApp): Promise<HouseholdItem | undefined> {
   const list = household();
   if (!list) return undefined;
   const before = households.sharedItems(list).find((item) => item.id === partId(app));
+  if (before?.kind !== 'part') return undefined;
+  await setAppShare(list.id, app, before.list.id, false);
   households.changeItem(list, partId(app), null);
   return before;
 }
 
-/** Puts a part back (undo). */
-export function restorePart(item: HouseholdItem): void {
+/** Puts a part back (undo), restoring the server permission before the household index. */
+export async function restorePart(item: HouseholdItem): Promise<void> {
   const list = household();
-  if (list) households.changeItem(list, item.id, item);
+  if (!list || item.kind !== 'part') return;
+  await setAppShare(list.id, item.app, item.list.id, true);
+  households.changeItem(list, item.id, item);
 }
 
 export async function makeHousehold(name: string): Promise<void> {

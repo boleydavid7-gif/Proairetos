@@ -16,13 +16,19 @@ export type HouseholdItem =
 export type Part = Extract<HouseholdItem, { kind: 'part' }>;
 export type Member = Extract<HouseholdItem, { kind: 'member' }>;
 
-/** What each app shares, in the order the page lists them. `single`: the app keeps to one shared list. */
-export const HOUSEHOLD_APPS: readonly { app: HouseholdApp; name: string; single: boolean }[] = [
-  { app: 'proairetos', name: 'To-dos', single: true },
-  { app: 'soma', name: 'Groceries', single: false },
-  { app: 'ergon', name: 'Chores', single: true },
-  { app: 'phyton', name: 'Plants', single: true },
-  { app: 'therapeia', name: 'Medicines', single: true },
+/** The precise data set each app offers to the household. `single`: the app keeps to one shared list. */
+export const HOUSEHOLD_APPS: readonly {
+  app: HouseholdApp;
+  name: string;
+  description: string;
+  single: boolean;
+  sensitive?: boolean;
+}[] = [
+  { app: 'proairetos', name: 'To-dos', description: 'Only items added to the shared to-do list. Personal tasks, reflections and Compass stay private.', single: true },
+  { app: 'soma', name: 'Groceries', description: 'The grocery lists you choose to share. Recipes and personal meal notes stay private.', single: false },
+  { app: 'ergon', name: 'Chores', description: 'Chores in the shared home, including assignments and completion history.', single: true },
+  { app: 'phyton', name: 'Plants', description: 'The plants in the shared home collection.', single: true },
+  { app: 'therapeia', name: 'Medicines', description: 'The medicine list and its entries. This can include sensitive medication details.', single: true, sensitive: true },
 ];
 
 export const partId = (app: HouseholdApp) => `part:${app}`;

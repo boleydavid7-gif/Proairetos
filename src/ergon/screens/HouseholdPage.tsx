@@ -1,11 +1,10 @@
 import { useState, useSyncExternalStore } from 'react';
 import AccountCard from '../../app/family/AccountCard';
-import { offerUndo, say } from '../../app/family/shell';
-import { BackIcon, ShareIcon } from '../../app/family/icons';
+import { offerUndo } from '../../app/family/shell';
+import { BackIcon } from '../../app/family/icons';
 import { syncStatus } from '../../app/sync/syncController';
 import type { ErgonNav } from '../app/App';
 import { homes, ownChores, sharingAvailable, useChores, useHome } from '../app/state';
-import { inviteLink } from '../core/invite';
 
 const INVITE = 'ergonShared.invite';
 
@@ -56,11 +55,8 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   useChores();
   const own = ownChores.use();
   const [invite, setInvite] = useState(pendingInvite);
-  const [name, setName] = useState('Home');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [leaving, setLeaving] = useState(false);
-  const [copied, setCopied] = useState(false);
   const signedIn = sync.phase !== 'signed-out' && sync.phase !== 'unavailable';
 
   const run = async (action: () => Promise<void>) => {
@@ -135,56 +131,24 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
     return (
       <div className="page ergon-page">
         {top}
-        <h1 className="title">Household</h1>
+        <h1 className="title">Family</h1>
         <section className="card">
-          <h2 className="card__title card__title--small">Share your chores</h2>
-          <p className="muted">Anyone with the link can view and update chores. End-to-end encrypted.</p>
-          {signedIn ? (
-            <form
-              className="field"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void run(async () => {
-                  const list = await homes.createList(name);
-                  const moved = moveOwnInto(list);
-                  if (moved) say(moved === 1 ? 'One chore moved in' : `${moved} chores moved in`);
-                });
-              }}
-            >
-              <span className="field__label">Name</span>
-              <input className="input" aria-label="Name of the home" value={name} onChange={(event) => setName(event.target.value)} />
-              <button type="submit" className="button-main" disabled={busy || !name.trim()}>Share</button>
-            </form>
-          ) : (
-            <AccountCard app="Ergon" what="Your chores" waiting="Chores" />
-          )}
-          {error && <p className="form-error" role="alert">{error}</p>}
+          <h2 className="card__title card__title--small">Connect Ergon to your family</h2>
+          <p className="muted">Create your household in Proairetos, then turn on Chores under Settings → Family → What you share. Your personal chores stay private until you add them to the shared home.</p>
+          <a className="button-main" href="/?open=settings:household">Open Family settings</a>
+          {!signedIn && <AccountCard app="Ergon" what="Your chores" waiting="Chores" />}
         </section>
       </div>
     );
   }
-
-  const share = async () => {
-    const link = inviteLink(location.origin, home);
-    try {
-      if (navigator.share) await navigator.share({ title: home.name, text: `Our chores in Ergon: ${link}` });
-      else {
-        await navigator.clipboard.writeText(link);
-        setCopied(true);
-      }
-    } catch {
-      // Closed without sharing.
-    }
-  };
 
   return (
     <div className="page ergon-page">
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">Anyone with the invite link can join. Each chore is encrypted on the device before it’s sent.</p>
-        <button type="button" className="button-main" onClick={() => void share()}><ShareIcon size={18} />Invite</button>
-        {copied && <p className="hint" role="status">Link copied.</p>}
+        <p className="muted">Your current chores list stays here. To connect it to a Proairetos family and share it alongside other apps, open Family settings. Existing list members are not removed just by opening these settings.</p>
+        <a className="button-main" href="/?open=settings:household">Manage family settings</a>
       </section>
 
       {own.length > 0 && (
@@ -209,31 +173,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         </section>
       )}
 
-      {leaving ? (
-        <section className="card">
-          <p>Leave {home.name}? The chores stay with the others.</p>
-          <div className="button-row">
-            <button type="button" className="button-quiet" onClick={() => setLeaving(false)}>Cancel</button>
-            <button
-              type="button"
-              className="button-danger"
-              disabled={busy}
-              onClick={() =>
-                void run(async () => {
-                  // Keep a copy of the chores on this device.
-                  for (const chore of homes.sharedItems(home)) ownChores.put(chore);
-                  await homes.leaveList(home);
-                  setLeaving(false);
-                })
-              }
-            >
-              Leave
-            </button>
-          </div>
-        </section>
-      ) : (
-        <button type="button" className="text-link remove-link" onClick={() => setLeaving(true)}>Leave {home.name}</button>
-      )}
+
       {error && <p className="form-error" role="alert">{error}</p>}
     </div>
   );
