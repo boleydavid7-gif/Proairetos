@@ -20,7 +20,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
     try {
       const results = await Promise.allSettled([mealIdeas(path), providerQuery ? searchWikibooks(providerQuery) : Promise.resolve([])]);
       const successful = results.flatMap((result) => result.status === 'fulfilled' ? [result.value] : []);
-      if (!successful.length) throw new Error('Ideas need a connection. Your recipes work offline.');
+      if (!successful.length) throw new Error('Connect to browse ideas. Recipes work offline.');
       setFound(mergeIdeas(...successful));
     } catch {
       setProblem('Ideas need a connection. Your recipes work offline.');
@@ -97,7 +97,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
           </li>
         ))}
       </ul>
-      <p className="hint">Ideas from TheMealDB and the community Cookbook on Wikibooks. External pages stay with their source.</p>
+      <p className="hint">TheMealDB and Wikibooks. Each result links to its source.</p>
     </div>
   );
 }
