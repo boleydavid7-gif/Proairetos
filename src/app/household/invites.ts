@@ -37,6 +37,9 @@ async function me(): Promise<{ id: string; email: string } | undefined> {
 
 const plain = (error: { message: string } | null) => {
   if (!error) return;
+  if (/duplicate key value violates unique constraint|household_invites_one_pending_per_person/i.test(error.message)) {
+    throw new Error('A family invitation for this person is already pending.');
+  }
   if (/relation .* does not exist|schema cache|account_keys|household_invites|invitee_key/.test(error.message)) throw new Error('Invites by email are not set up on the server yet.');
   throw new Error(error.message);
 };
