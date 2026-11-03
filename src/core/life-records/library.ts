@@ -9,6 +9,16 @@ export interface LifeRecordYearGroup {
   months: LifeRecordGroup[];
 }
 
+/** A Reflect Trash item expires after the configured retention period. */
+export function isLibraryTrashExpired(
+  trashedAt: string,
+  now = Date.now(),
+  retentionDays = 30,
+): boolean {
+  const timestamp = new Date(trashedAt).getTime();
+  return Number.isFinite(timestamp) && now - timestamp >= retentionDays * 86_400_000;
+}
+
 /** Only records with a safe, matching archive operation can be bulk archived or restored. */
 export function canArchiveLifeRecord(record: LifeRecord): boolean {
   return record.kind === 'reflection'
