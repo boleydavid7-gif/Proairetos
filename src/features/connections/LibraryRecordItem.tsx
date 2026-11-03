@@ -139,7 +139,7 @@ export default function LibraryRecordItem({
             {linkedValues.map((value) => (
               <span className="connections-record__value" key={value.id}>
                 <button type="button" onClick={() => onFilterValue(value.id)}>{value.name}</button>
-                <button type="button" className="connections-record__value-remove" aria-label={`Disconnect ${value.name}`} disabled={busy} onClick={() => onUnlink(record, value.id)}>×</button>
+                <button type="button" className="connections-record__value-remove" aria-label={`Disconnect ${value.name}`} disabled={busy} onClick={() => onUnlink(record, value.id)}><Sym name="close" size={12} /></button>
               </span>
             ))}
           </div>
