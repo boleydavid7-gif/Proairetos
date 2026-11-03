@@ -19,6 +19,7 @@ import AfterPage from '../screens/AfterPage';
 import StravaPage, { StravaOnOpen } from '../screens/StravaPage';
 import OwnPage from '../screens/OwnPage';
 import ShoesPage from '../screens/ShoesPage';
+import DevicePage from '../screens/DevicePage';
 import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
 import PwaStatus from '../../app/pwa/PwaStatus';
 
@@ -42,7 +43,8 @@ export type Route =
   | { name: 'year' }
   | { name: 'strava' }
   | { name: 'own'; id?: string }
-  | { name: 'shoes' };
+  | { name: 'shoes' }
+  | { name: 'device' };
 
 export type Nav = {
   go: (route: Route) => void;
@@ -181,6 +183,8 @@ export default function App() {
         return <OwnPage key={route.id ?? 'new'} nav={nav} id={route.id} />;
       case 'shoes':
         return <ShoesPage nav={nav} />;
+      case 'device':
+        return <DevicePage nav={nav} />;
       case 'after':
         return <AfterPage nav={nav} id={route.id} />;
     }
