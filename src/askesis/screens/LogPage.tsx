@@ -13,6 +13,7 @@ import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf
 import { howItFelt } from '../core/progress';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
+import { useShoes } from '../app/shoes';
 
 type ProgressView = 'overview' | 'performance' | 'consistency' | 'history';
 type HistoryActivity = Activity | 'all';
@@ -41,6 +42,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
   const today = useToday();
   const entries = useEntries();
+  const shoes = useShoes();
   const [view, setView] = useState<ProgressView>('overview');
   const [period, setPeriod] = useState<Period>('week');
   const [historySearch, setHistorySearch] = useState('');
@@ -132,6 +134,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
   };
 
   const workoutRows = (items: LogEntry[]) => items.map((entry) => {
+    const shoe = entry.shoeId ? shoes.find((each) => each.id === entry.shoeId) : undefined;
     const pace = (entry.activity === 'run' || entry.workoutId) && entry.seconds && entry.meters
       ? paceOf(entry.seconds, entry.meters, unit)
       : undefined;
@@ -140,6 +143,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
       entry.seconds ? formatDuration(entry.seconds) : undefined,
       pace ? formatPace(pace, unit) : undefined,
       entry.avgHr ? `${entry.avgHr} bpm` : undefined,
+      shoe?.name,
     ].filter(Boolean);
     return (
       <button key={entry.id} type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
