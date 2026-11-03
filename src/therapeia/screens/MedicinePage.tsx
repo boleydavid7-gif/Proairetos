@@ -187,7 +187,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
 
       <MoreDetails open={Boolean(existing)}>
       <fieldset className="field">
-        <legend className="field__label">Looks like (optional)</legend>
+        <legend className="field__label">Appearance (optional)</legend>
         <div className="pill-choices" role="group" aria-label="Shape">
           {PILL_SHAPES.map((shape) => (
             <button key={shape} type="button" className="pill-choice" aria-pressed={look?.shape === shape} aria-label={shape} onClick={() => setLook(look?.shape === shape ? undefined : { shape, color: look?.color ?? 'white', color2: look?.color2 })}>
