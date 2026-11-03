@@ -32,6 +32,29 @@ describe('compass service', () => {
     expect(listener).toHaveBeenCalledTimes(3);
   });
 
+  it('stores personal principles on a value and validates their limits', async () => {
+    const { service } = setup();
+    const value = await service.chooseValue('Family');
+
+    const updated = await service.updateValue(value.id, {
+      meaning: '  Being present for the people I love.  ',
+      principles: ['  Put my phone away at dinner. ', 'Listen before trying to fix things.', 'put my phone away   at dinner.'],
+    });
+    expect(updated).toMatchObject({
+      meaning: 'Being present for the people I love.',
+      principles: ['Put my phone away at dinner.', 'Listen before trying to fix things.'],
+    });
+
+    await expect(service.updateValue(value.id, { principles: ['one', 'two', 'three', 'four', 'five', 'six'] }))
+      .rejects.toThrow(/up to 5 principles/i);
+    await expect(service.updateValue(value.id, { principles: ['x'.repeat(121)] }))
+      .rejects.toThrow(/120 characters/i);
+
+    const cleared = await service.updateValue(value.id, { principles: [] });
+    expect(cleared.principles).toBeUndefined();
+    expect(cleared.meaning).toBe('Being present for the people I love.');
+  });
+
   it('refuses a sixth value without storing anything', async () => {
     const { service } = setup();
     for (const name of ['Courage', 'Wisdom', 'Justice', 'Temperance', 'Family']) await service.chooseValue(name);
