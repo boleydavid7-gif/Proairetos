@@ -13,11 +13,15 @@ import { weekAt, type Plan } from '../core/plans';
 import { tap } from '../../app/feel';
 import { deleteEntry, putEntry } from '../data/store';
 import { locate } from './WorkoutPage';
+import { useShoes } from '../app/shoes';
+import { defaultShoe } from '../core/shoes';
 
 const digits = (text: string) => text.replace(/[^\d]/g, '').slice(0, 2);
 
 function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan; existing?: LogEntry; onDone?: () => void }) {
   const settings = useSettings();
+  const shoes = useShoes();
+  const defaultShoeId = defaultShoe(shoes)?.id;
   const today = useToday();
   const entries = useEntries();
   const planState = usePlanState();
@@ -25,6 +29,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
   const session = located && { ...located, workout: asToday(located.workout, planState?.lighter, today) };
 
   const [activity, setActivity] = useState<Activity>('run');
+  const [shoeId, setShoeId] = useState(existing?.shoeId ?? defaultShoeId ?? '');
   const [date, setDate] = useState(route.date ?? today);
   const [unit, setUnit] = useState<Unit>(settings.unit);
   const [distance, setDistance] = useState('');
@@ -51,6 +56,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
     if (!existing && route.activity) setActivity(route.activity as Activity);
     if (existing) {
       setActivity(existing.activity);
+      setShoeId(existing.shoeId ?? '');
       setDate(existing.date);
       if (existing.meters) setDistance(inUnit(existing.meters, unit).toFixed(2).replace(/\.?0+$/, ''));
       if (existing.avgHr) setHr(String(existing.avgHr));
@@ -58,9 +64,12 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
       setNotes(existing.notes ?? '');
       setWentWell(existing.wentWell ?? '');
       setNextTime(existing.nextTime ?? '');
-    } else if (session?.workout.kind === 'walk') setActivity('walk');
+    } else {
+      setShoeId(defaultShoeId ?? '');
+      if (session?.workout.kind === 'walk') setActivity('walk');
+    }
     setLoaded(true);
-  }, [existing, loaded]);
+  }, [existing, loaded, defaultShoeId]);
 
   const seconds = (Number(h) || 0) * 3600 + (Number(m) || 0) * 60 + (Number(s) || 0);
   const meters = parseDistance(distance, unit);
@@ -104,6 +113,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
       intention: existing?.intention ?? route.intention,
       workoutId: existing?.workoutId ?? route.workoutId ?? linked?.id,
       workoutTitle: title,
+      shoeId: activity === 'run' ? shoeId || undefined : undefined,
     };
     await putEntry(entry);
     tap();
@@ -133,6 +143,27 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
         onChange={setActivity}
         small
       />
+
+      {activity === 'run' && (
+        <section className="field">
+          <label className="label" htmlFor="running-shoe">Running shoes</label>
+          {shoes.length > 0 ? (
+            <>
+              <select id="running-shoe" className="input" value={shoeId} onChange={(event) => setShoeId(event.target.value)}>
+                <option value="">No shoe selected</option>
+                {shoes.map((shoe) => (
+                  <option key={shoe.id} value={shoe.id}>
+                    {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}{shoe.isDefault ? ' · Default' : ''}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className="text-link" onClick={() => nav.go({ name: 'shoes' })}>Manage shoes</button>
+            </>
+          ) : (
+            <button type="button" className="text-link" onClick={() => nav.go({ name: 'shoes' })}>Add a pair of shoes</button>
+          )}
+        </section>
+      )}
 
       <label className="field">
         <span className="label">Date</span>
@@ -227,6 +258,8 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
 /** A logged workout as it was written down; Edit opens the form. */
 function EntryView({ nav, entry, onEdit }: { nav: Nav; entry: LogEntry; onEdit: () => void }) {
   const settings = useSettings();
+  const shoes = useShoes();
+  const shoe = entry.shoeId ? shoes.find((each) => each.id === entry.shoeId) : undefined;
   const undo = useUndo();
   const unit = settings.unit;
   const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
@@ -251,6 +284,7 @@ function EntryView({ nav, entry, onEdit }: { nav: Nav; entry: LogEntry; onEdit: 
       <p className="label">{new Date(`${entry.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
       <h1 className="title">{entry.workoutTitle ?? activities[entry.activity]}</h1>
       {entry.workoutTitle && <p className="muted">{activities[entry.activity]}</p>}
+      {shoe && <p className="muted">Shoes: {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}</p>}
       {tiles.length > 0 && (
         <div className="tiles">
           {tiles.map(([label, value]) => (
