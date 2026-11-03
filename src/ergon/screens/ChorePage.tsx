@@ -2,14 +2,15 @@ import MoreDetails from '../../app/family/MoreDetails';
 import { WriteTag } from '../../app/family/DeviceExtras';
 import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
+import { useHousehold } from '../../app/household/household';
 import { Segmented } from '../../askesis/app/ui';
 import { parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
 import { addPerson, findChore, newId, peopleFor, putChore, removeChore, settings, useChores } from '../app/state';
-import { WhoChips, done } from '../app/ui';
+import { HouseholdWhoChips, WhoChips, done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
 import { useDaysOff } from '../app/daysOff';
-import { ROOMS, dayText, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type Repeat } from '../core/chores';
+import { ROOMS, choreAssignee, choreRotaNames, dayText, memberIdForName, nextDay, repeatText, skip, stepsFromText, toggleStep, weekdayName, type Chore, type ChorePerson, type Repeat } from '../core/chores';
 import { CheckIcon } from '../../app/family/icons';
 import { Sym } from '../../lamplight/icons';
 
@@ -25,8 +26,13 @@ const WEEK = [1, 2, 3, 4, 5, 6, 0];
 
 function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void }) {
   const all = useChores();
+  const family = useHousehold();
   const today = toLocalDate(new Date());
   settings.use();
+  const familyMode = family.parts.some((part) => part.app === 'ergon');
+  const familyPeople: ChorePerson[] = familyMode
+    ? family.members.map((member) => ({ id: member.id.slice('member:'.length), name: member.name }))
+    : [];
   const [name, setName] = useState(existing?.name ?? '');
   const [room, setRoom] = useState(existing?.room ?? '');
   const [kind, setKind] = useState<Kind>(existing?.repeat.kind ?? 'weeks');
@@ -35,8 +41,10 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   const [monthDay, setMonthDay] = useState(existing?.repeat.kind === 'monthly' ? existing.repeat.day : new Date().getDate());
   const [start, setStart] = useState(existing?.start ?? today);
   const [who, setWho] = useState(existing?.who ?? '');
-  const [turns, setTurns] = useState(Boolean(existing?.rota?.length));
+  const [whoId, setWhoId] = useState(existing?.whoId ?? '');
+  const [turns, setTurns] = useState(Boolean(existing?.rota?.length || existing?.rotaIds?.length));
   const [rota, setRota] = useState<string[]>(existing?.rota ?? []);
+  const [rotaIds, setRotaIds] = useState<string[]>(existing?.rotaIds ?? []);
   const [newName, setNewName] = useState('');
   const [note, setNote] = useState(existing?.note ?? '');
   const [remindAt, setRemindAt] = useState(existing?.remindAt ?? '');
@@ -47,6 +55,10 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   }, []);
 
   const names = [...new Set([...peopleFor(all), ...rota])];
+  const selectedWhoId = whoId || memberIdForName(who, familyPeople) || '';
+  const selectedRotaIds = rotaIds.length
+    ? rotaIds
+    : rota.map((person) => memberIdForName(person, familyPeople)).filter((id): id is string => Boolean(id));
   const repeat = (): Repeat => {
     switch (kind) {
       case 'days':
@@ -63,15 +75,49 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   };
 
   const save = () => {
-    const rotaNames = turns ? rota.filter(Boolean) : undefined;
+    let nextWho = turns ? (rota.includes(who) ? who : rota[0]) : who.trim() || undefined;
+    let nextWhoId: string | undefined = existing?.whoId;
+    let nextRota = turns ? rota.filter(Boolean) : undefined;
+    let nextRotaIds: string[] | undefined = existing?.rotaIds;
+
+    if (familyMode) {
+      if (turns && selectedRotaIds.length) {
+        nextRotaIds = selectedRotaIds.length > 1 ? selectedRotaIds : undefined;
+        nextRota = selectedRotaIds.map((id) => familyPeople.find((person) => person.id === id)?.name).filter((value): value is string => Boolean(value));
+        const currentId = selectedWhoId && selectedRotaIds.includes(selectedWhoId) ? selectedWhoId : selectedRotaIds[0];
+        nextWhoId = currentId;
+        nextWho = familyPeople.find((person) => person.id === currentId)?.name ?? nextRota[0];
+      } else if (turns) {
+        nextRota = existing?.rota ?? (rota.length ? rota : undefined);
+        nextRotaIds = existing?.rotaIds;
+        nextWho = who.trim() || nextRota?.[0];
+        nextWhoId = existing?.whoId;
+      } else {
+        nextWhoId = selectedWhoId || undefined;
+        nextWho = familyPeople.find((person) => person.id === selectedWhoId)?.name ?? (who.trim() || undefined);
+        nextRota = undefined;
+        nextRotaIds = undefined;
+      }
+    } else {
+      if (!turns) {
+        nextWhoId = who === existing?.who ? existing?.whoId : undefined;
+        nextRotaIds = undefined;
+      } else {
+        nextWhoId = undefined;
+        nextRotaIds = rota.join('|') === (existing?.rota ?? []).join('|') ? existing?.rotaIds : undefined;
+      }
+    }
+
     const next: Chore = {
       ...(existing ?? { id: newId(), history: [], createdAt: new Date().toISOString() }),
       name: name.trim(),
       room: room.trim() || undefined,
       repeat: repeat(),
       start: existing?.history.length ? existing.start : start,
-      who: turns ? (rotaNames?.includes(who) ? who : rotaNames?.[0]) : who.trim() || undefined,
-      rota: rotaNames && rotaNames.length > 1 ? rotaNames : undefined,
+      who: nextWho || undefined,
+      whoId: nextWhoId,
+      rota: nextRota && nextRota.length > 1 ? nextRota : undefined,
+      rotaIds: nextRotaIds,
       note: note.trim() || undefined,
       steps: stepsFromText(stepLines, existing?.steps),
       remindAt: remindAt || undefined,
@@ -138,7 +184,43 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         <legend className="field__label">Who</legend>
         <Segmented label="Who" value={turns ? 'turns' : 'one'} options={[{ id: 'one', label: 'One person' }, { id: 'turns', label: 'Take turns' }]} onChange={(value) => setTurns(value === 'turns')} small />
         {!turns ? (
-          <WhoChips people={names} value={who} onChange={setWho} />
+          familyMode ? (
+            <>
+              {who && !selectedWhoId && <p className="hint">This chore was previously assigned to {who}. Choose a family member to link it to the household.</p>}
+              <HouseholdWhoChips
+                people={familyPeople}
+                value={selectedWhoId}
+                meId={family.currentUserId}
+                onChange={(id) => {
+                  setWhoId(id);
+                  setWho(familyPeople.find((person) => person.id === id)?.name ?? '');
+                }}
+              />
+            </>
+          ) : (
+            <WhoChips people={names} value={who} onChange={setWho} />
+          )
+        ) : familyMode ? (
+          <>
+            <div className="chip-row" role="group" aria-label="Turn order">
+              {familyPeople.map((person) => {
+                const at = selectedRotaIds.indexOf(person.id);
+                return (
+                  <button
+                    key={person.id}
+                    type="button"
+                    className="chip"
+                    aria-pressed={at >= 0}
+                    onClick={() => setRotaIds(at >= 0 ? selectedRotaIds.filter((id) => id !== person.id) : [...selectedRotaIds, person.id])}
+                  >
+                    {at >= 0 ? `${at + 1}. ` : ''}{person.name}{person.id === family.currentUserId ? ' (you)' : ''}
+                  </button>
+                );
+              })}
+            </div>
+            {familyPeople.length === 0 && <p className="hint">Family members will appear here once the household list has synced.</p>}
+            {rota.length > 0 && selectedRotaIds.length === 0 && <p className="hint">This rotation uses saved names. Select household members to link the turns to your family.</p>}
+          </>
         ) : (
           <>
             <div className="chip-row">
@@ -197,10 +279,20 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Chore; onEdit: () => void }) {
   const today = toLocalDate(new Date());
   const daysOff = useDaysOff();
+  const family = useHousehold();
+  const familyMode = family.parts.some((part) => part.app === 'ergon');
+  const familyPeople: ChorePerson[] = familyMode
+    ? family.members.map((member) => ({ id: member.id.slice('member:'.length), name: member.name }))
+    : [];
   const plain = nextDay(existing);
   const day = nextDay(existing, daysOff);
   const people = peopleFor(useChores(), settings.use());
-  const who = existing.rota?.length ? `Taking turns: ${existing.rota.join(', ')}${existing.who ? ` (next ${existing.who})` : ''}` : existing.who;
+  const assignedId = existing.whoId ?? memberIdForName(existing.who, familyPeople);
+  const assignedName = choreAssignee(existing, familyPeople);
+  const rotationNames = choreRotaNames(existing, familyPeople);
+  const who = (existing.rotaIds?.length || existing.rota?.length)
+    ? `Taking turns: ${rotationNames.join(', ')}${assignedName ? ` (next ${assignedName})` : ''}`
+    : assignedName;
 
   return (
     <div className="page ergon-page">
@@ -257,21 +349,37 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
         </section>
       )}
 
-      {existing.rota?.length ? null : (
+      {(existing.rota?.length || existing.rotaIds?.length) ? null : (
         <section className="card">
           <h2 className="card__title card__title--small">Who</h2>
-          <WhoChips
-            people={people}
-            value={existing.who ?? ''}
-            onChange={(name) => {
-              putChore({ ...existing, who: name || undefined });
-              offerUndo(name ? `“${existing.name}” given to ${name}` : `“${existing.name}” for anyone`, () => putChore(existing));
-            }}
-          />
+          {familyMode ? (
+            <>
+              {existing.who && !assignedId && <p className="hint">Previously assigned to {existing.who}. Choose a household member to update it.</p>}
+              <HouseholdWhoChips
+                people={familyPeople}
+                value={assignedId ?? ''}
+                meId={family.currentUserId}
+                onChange={(id) => {
+                  const name = familyPeople.find((person) => person.id === id)?.name;
+                  putChore({ ...existing, who: name, whoId: id || undefined });
+                  offerUndo(name ? `“${existing.name}” given to ${name}` : `“${existing.name}” for anyone`, () => putChore(existing));
+                }}
+              />
+            </>
+          ) : (
+            <WhoChips
+              people={people}
+              value={existing.who ?? ''}
+              onChange={(name) => {
+                putChore({ ...existing, who: name || undefined, whoId: undefined });
+                offerUndo(name ? `“${existing.name}” given to ${name}` : `“${existing.name}” for anyone`, () => putChore(existing));
+              }}
+            />
+          )}
         </section>
       )}
 
-      {((existing.rota?.length && who) || existing.remindAt || existing.note) && (
+      {(((existing.rota?.length || existing.rotaIds?.length) && who) || existing.remindAt || existing.note) && (
         <dl className="detail-list">
           {existing.rota?.length && who ? <><dt>Who</dt><dd>{who}</dd></> : null}
           {existing.remindAt && <><dt>Reminder</dt><dd>{existing.remindAt}</dd></>}
