@@ -138,7 +138,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         <h1 className="title">Household</h1>
         <section className="card">
           <h2 className="card__title card__title--small">Share your chores</h2>
-          <p className="muted">Everyone with the link sees the same chores and can tick them off. Encrypted end to end.</p>
+          <p className="muted">Anyone with the link can view and update chores. End-to-end encrypted.</p>
           {signedIn ? (
             <form
               className="field"
