@@ -6,6 +6,7 @@ import type { CalendarEvent } from '../../app/calendars/otherCalendars';
 export type TimelineEntry =
   | { kind: 'shift'; key: string; start: Date; end: Date; occurrence: ScheduleOccurrence }
   | { kind: 'item'; key: string; start: Date; item: LifeItem }
+  | { kind: 'planned'; key: string; item: LifeItem }
   | { kind: 'off'; key: string; pattern: SchedulePattern }
   | { kind: 'event'; key: string; start: Date; end: Date; event: CalendarEvent }
   | { kind: 'allday'; key: string; event: CalendarEvent };
@@ -41,6 +42,12 @@ export function buildDayTimeline(
     .filter((item) => isOpen(item) && !item.checklist && item.scheduledAt && toLocalDate(new Date(item.scheduledAt)) === date)
     .map((item) => ({ kind: 'item', key: item.id, start: new Date(item.scheduledAt!), item }));
 
+  // Date-only items belong on the home timeline too; keep them out of the
+  // timed sequence so they never need an invented hour or affect the Now marker.
+  const planned: TimelineEntry[] = items
+    .filter((item) => isOpen(item) && !item.archivedAt && !item.checklist && !item.scheduledAt && item.plannedFor === date)
+    .map((item) => ({ kind: 'planned', key: item.id, item }));
+
   const startingToday = new Set(occurrences.filter((o) => o.date === date).map((o) => o.patternId));
   const off: TimelineEntry[] = patterns
     .filter((pattern) => pattern.kind === 'COMMITTED' && pattern.anchorDate <= date)
@@ -59,7 +66,7 @@ export function buildDayTimeline(
   const timed = [...shifts, ...scheduled, ...fromCalendars].sort(
     (a, b) => (a as { start: Date }).start.getTime() - (b as { start: Date }).start.getTime(),
   );
-  return [...off, ...allDay, ...timed];
+  return [...off, ...allDay, ...planned, ...timed];
 }
 
 export type NowStatus = {
