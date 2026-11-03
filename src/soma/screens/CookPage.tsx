@@ -104,7 +104,7 @@ export default function CookPage({ nav, id, scale = 1 }: { nav: Nav; id: string;
         </button>
         {listeningHere() && (
           <button type="button" className="chip chip--small" aria-pressed={settings.listen} onClick={() => saveSettings({ ...loadSettings(), listen: !settings.listen })}>
-            Say “next” or “timer”
+            Voice
           </button>
         )}
       </div>
@@ -114,7 +114,7 @@ export default function CookPage({ nav, id, scale = 1 }: { nav: Nav; id: string;
         <>
           <p className="cook__count">Before you start · {recipe.title}</p>
           {heats.length > 0 && <p className="cook__step cook__step--small">Heat the oven to {heats[0]}.</p>}
-          <h2 className="label">Take out</h2>
+          <h2 className="label">Gather</h2>
           <ul className="check-list">
             {gatherList(recipe.ingredients, scale, settings.units).map((each, i) =>
               each.heading ? (
