@@ -151,7 +151,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
             <>
               <select id="running-shoe" className="input" value={shoeId} onChange={(event) => setShoeId(event.target.value)}>
                 <option value="">No shoe selected</option>
-                {shoes.map((shoe) => (
+                {shoes.filter((shoe) => !shoe.retiredOn || shoe.id === shoeId).map((shoe) => (
                   <option key={shoe.id} value={shoe.id}>
                     {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}{shoe.isDefault ? ' · Default' : ''}
                   </option>
