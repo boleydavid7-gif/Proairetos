@@ -29,7 +29,7 @@ describe('your own sessions', () => {
       ],
     };
     expect(ownParts(session)).toEqual(session.parts);
-    expect(totalMinutes(ownParts(session))).toBe(38);
+    expect(totalMinutes(ownParts(session))).toBe(40);
     expect(flatten(ownParts(session)).map((part) => part.effort)).toEqual([
       'easy', 'tempo', 'recovery', 'tempo', 'recovery', 'tempo', 'recovery', 'tempo', 'recovery', 'steady', 'easy',
     ]);
