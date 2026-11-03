@@ -138,8 +138,11 @@ export async function shareApp(app: HouseholdApp): Promise<void> {
 
   // Never silently fold a standalone list into a family if it already contains people outside that family.
   // They would lose server access once the household permission is applied.
-  const familyMembers = new Set(membersOf(households.sharedItems(list)).map((member) => member.id.slice('member:'.length)));
-  const { data: listMembers, error: membersError } = await (await supabase()).from('shared_list_members').select('user_id').eq('list_id', shared.id);
+  const client = await supabase();
+  const { data: householdMembers, error: householdMembersError } = await client.from('shared_list_members').select('user_id').eq('list_id', list.id);
+  if (householdMembersError) throw new Error(householdMembersError.message);
+  const familyMembers = new Set(((householdMembers ?? []) as { user_id: string }[]).map((member) => member.user_id));
+  const { data: listMembers, error: membersError } = await client.from('shared_list_members').select('user_id').eq('list_id', shared.id);
   if (membersError) throw new Error(membersError.message);
   const outsideMembers = ((listMembers ?? []) as { user_id: string }[]).filter((member) => !familyMembers.has(member.user_id));
   if (outsideMembers.length) {
