@@ -33,6 +33,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const monday = mondayOnOrBefore(today);
   const dates = weekDates(today);
   const thisWeeks = entries.filter((entry) => entry.date >= dates[0] && entry.date <= dates[6]);
+  const thisWeeksKey = thisWeeks.map((entry) => `${entry.id}:${entry.date}:${entry.workoutId ?? ''}`).join('|');
 
   const resting = planState?.restWeek === monday;
   const week = plan && planState && !resting ? weekAt(plan, planState.week) : undefined;
@@ -48,7 +49,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             workout: day.date === today ? asToday(day.workout, planState.lighter, today) : day.workout,
           }))
         : [],
-    [week, planState, today, thisWeeks.length, blocks, placed],
+    [week, planState, today, thisWeeksKey, blocks, placed],
   );
   const comeBack =
     planState && !newWeek
@@ -324,6 +325,7 @@ function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) 
               className={`week-calendar__day${date === today ? ' week-calendar__day--today' : ''}${completed ? ' week-calendar__day--done' : completedCount ? ' week-calendar__day--partial' : ''}${scheduled.length ? ' week-calendar__day--planned' : ''}`}
               aria-label={`${dateLabel}. ${detail}. ${scheduled.length || logged ? 'Open details' : 'Log an activity'}.`}
               aria-current={date === today ? 'date' : undefined}
+              disabled={!scheduled.length && !logged && date > today}
               onClick={() => {
                 if (next?.done) nav.go({ name: 'entry', id: next.done.id });
                 else if (next) nav.go({ name: 'workout', id: next.workout.id });
