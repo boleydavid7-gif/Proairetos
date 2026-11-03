@@ -202,7 +202,7 @@ export default function App() {
       {route === 'plan' && <DaysAheadPage key="list" view="list" />}
       {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
       {route === 'meditate' && <MeditatePage />}
-      {route === 'connections' && !locked && <ConnectionsPage />
+      {route === 'connections' && !locked && <ConnectionsPage />}
       </Suspense>
       </AppShell>
       {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
