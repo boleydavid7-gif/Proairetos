@@ -88,7 +88,7 @@ export function createReflectionService({ userId, context, reflections }: Reflec
     },
 
     /** Writes, replaces, or (with empty text) clears the intention for a day. */
-    async setIntention(date: string, body: string): Promise<void> {
+    async setIntention(date: string, body: string, valueIds: string[] = []): Promise<void> {
       const existing = (await reflections.list(userId)).filter((r) => r.kind === 'INTENTION' && r.periodStart === date);
       for (const old of existing) await reflections.remove(old.id);
       if (body.trim()) {
@@ -99,6 +99,7 @@ export function createReflectionService({ userId, context, reflections }: Reflec
           kind: 'INTENTION',
           periodStart: date,
           createdAt: context.now().toISOString(),
+          ...(valueIds.length ? { valueIds: [...new Set(valueIds)] } : {}),
         });
       }
       listeners.notify();
