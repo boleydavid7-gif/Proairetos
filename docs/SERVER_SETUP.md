@@ -304,7 +304,8 @@ Run these in order after `20261018000000_shared_lists.sql`:
 
 The household creator is the owner. Members are ordinary members by default; the owner can promote or demote administrators.
 Owners and administrators can invite people. Administrators can remove ordinary members, while only the owner can
-change administrator roles or remove another administrator. Removing someone blocks future server access to household
+change administrator roles or remove another administrator. The optional household link is a bearer invite: anyone
+holding it can join, so share it only with people you trust. Removing someone blocks future server access to household
 lists and enabled app lists on their next sync. It cannot recall copies already downloaded to their devices.
 
 Names and email display details remain encrypted in the household list. Roles and membership are server-authoritative
