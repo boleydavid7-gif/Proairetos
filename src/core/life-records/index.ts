@@ -22,7 +22,7 @@ export interface LifeRecordInput {
   workouts?: readonly AskesisWorkout[];
   strengthWorkouts?: readonly DynamisWorkout[];
   strengthUnit?: 'kg' | 'lb';
-  recipes?: readonly Recipe[];
+  recipes?: readonly Pick<Recipe, 'id' | 'title' | 'notes' | 'tags' | 'ingredients' | 'source' | 'cookedFor'>[];
   distanceUnit?: 'km' | 'mi';
   studySessions?: readonly StudySession[];
 }
@@ -177,7 +177,7 @@ function strengthWorkoutRecord(
   });
 }
 
-function mealRecords(recipes: readonly Recipe[]): LifeRecord[] {
+function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeRecord[] {
   return recipes.flatMap((recipe) =>
     Object.entries(recipe.cookedFor ?? {})
       .filter(([, people]) => people.length > 0)
@@ -272,8 +272,8 @@ export const lifeRecordAdapters = {
     id: 'soma.cooked-meals',
     owner: 'soma',
     kinds: ['meal'],
-    toRecords: (entries: readonly Recipe[]) => mealRecords(entries),
-  } satisfies LifeRecordAdapter<readonly Recipe[]>,
+    toRecords: (entries: NonNullable<LifeRecordInput['recipes']>) => mealRecords(entries),
+  } satisfies LifeRecordAdapter<NonNullable<LifeRecordInput['recipes']>>,
   theoria: {
     id: 'theoria.study-sessions',
     owner: 'theoria',
