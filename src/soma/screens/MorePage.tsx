@@ -184,14 +184,14 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <p>
         Sōma is Greek for the body. Your recipes and groceries, with each recipe’s Nutri-Score and what’s in a serving.
       </p>
-      <h2 className="label">Ways to try it draw on</h2>
+      <h2 className="label">Suggestions based on</h2>
       <ul className="tips">
         {Object.values(sources).map((source) => (
           <li key={source}>{source}</li>
         ))}
       </ul>
       <h2 className="label">Ideas</h2>
-      <p className="muted">Ideas use TheMealDB and the community Cookbook on Wikibooks. Each result keeps its source.</p>
+      <p className="muted">Ideas from TheMealDB and Wikibooks. Each result links to its source.</p>
       <h2 className="label">Lines for the day</h2>
       <p className="muted">
         Musonius Rufus, Lecture 18A; Epictetus, Enchiridion; Seneca, Letters; Epicurus, Letter to Menoeceus; Cicero, Tusculan Disputations.
