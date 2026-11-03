@@ -310,7 +310,7 @@ export async function shareApp(app: HouseholdApp): Promise<void> {
   await setAppShare(list.id, app, shared.id, true);
   households.changeItem(list, partId(app), { id: partId(app), kind: 'part', app, list: { id: shared.id, key: shared.key, name: shared.name }, at: new Date().toISOString() });
   await households.refreshList(list);
-  setStates({ ...states, [app]: 'shared' });
+  await syncHousehold();
 }
 
 /** Stops household members from accessing this app list on their next server sync. */
