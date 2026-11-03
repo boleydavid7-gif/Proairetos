@@ -45,6 +45,24 @@ describe('reflection service', () => {
     expect((await service.intentionFor('2026-11-02'))?.valueIds).toBeUndefined();
   });
 
+  it('edits a reflection without changing its original date or context', async () => {
+    const { context, advance } = testContext();
+    const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
+    const written = await service.write({ body: 'First thought.', promptKey: 'gratitude', weather: 'CLEAR', valueIds: ['family'] });
+    advance(DAY);
+
+    const updated = await service.updateBody(written.id, 'A more considered thought.');
+    expect(updated).toMatchObject({
+      id: written.id,
+      body: 'A more considered thought.',
+      createdAt: written.createdAt,
+      promptKey: 'gratitude',
+      weather: 'CLEAR',
+      valueIds: ['family'],
+    });
+    await expect(service.updateBody(written.id, '  ')).rejects.toThrow();
+  });
+
   it('deletes a reflection, and undo brings it back', async () => {
     const { context } = testContext();
     const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
