@@ -372,6 +372,12 @@ describe('a household', () => {
     for (const [key, value] of Object.entries(ownerDevice)) localStorage.setItem(key, value);
     await homes.joinList(appList);
     await household.shareApp('ergon');
+    const ownerWithShare = Object.fromEntries(
+      Array.from({ length: localStorage.length }, (_, index) => {
+        const key = localStorage.key(index)!;
+        return [key, localStorage.getItem(key) ?? ''];
+      }),
+    );
 
     user = 'user-b';
     localStorage.clear();
@@ -386,7 +392,7 @@ describe('a household', () => {
 
     user = 'user-a';
     localStorage.clear();
-    for (const [key, value] of Object.entries(ownerDevice)) localStorage.setItem(key, value);
+    for (const [key, value] of Object.entries(ownerWithShare)) localStorage.setItem(key, value);
     await household.transferHouseholdOwnership('user-c');
     await household.leaveHousehold();
 
