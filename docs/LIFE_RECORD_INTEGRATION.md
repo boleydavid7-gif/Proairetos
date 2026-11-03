@@ -60,8 +60,17 @@ The Library is designed to remain useful as the record count grows:
 - Search is accent-insensitive and treats multiple words as independent terms, so the terms can appear in any order.
 - Type filters show live counts for the current view and other active filters.
 - Refine filters include date range, chosen Compass value, source app and sort order.
-- Results can be grouped by month, source app or shown as one continuous list. Grouping preserves the selected chronological order.
+- Date grouping is hierarchical: collapsible years contain collapsible months. The first year and its newest month are expanded by default; older periods begin collapsed. Counts reflect all matching results, not only the currently rendered page.
+- Results can also be grouped by source app or shown as one continuous list. Grouping preserves the selected chronological order.
 - The Library loads a limited first page and reveals more records on demand.
+
+### Recently Deleted
+
+Recently Deleted is a synced, Library-owned recovery area with a 30-day retention period. Moving a record there hides its projection from the Library but does not delete or mutate the authoritative record in its companion app. Restoring removes the Library trash marker and returns the record to its prior source-defined state (including Archive, if it was archived before being trashed).
+
+Permanent removal and automatic 30-day expiry create a small Library tombstone so that the source record does not silently reappear in Reflect. The original record remains in its owning app and can still be opened there. This is intentional: Reflect is a cross-app projection, not an owner of companion-app data. Permanent removal also clears Reflect-only favorites and Library-owned Compass links for that entry.
+
+The Trash view supports individual and bulk restore, individual and bulk permanent removal, and Empty Trash. Destructive actions require confirmation. Expiry is enforced when the Library is opened or its synced Trash data changes; there is no server-side deletion of source records.
 
 ### Value connections
 
@@ -83,6 +92,14 @@ Bulk actions include:
 - Disconnect a chosen value from selected entries. This removes the Library-owned link and, where present, the native source-app link.
 
 Bulk archive and restore run entry by entry, report partial failures, and offer one combined undo action. The selection toolbar and checkboxes use the Lamplight button, field, spacing and touch-target tokens. They appear only while selection mode is active.
+
+### Source-safe deletion
+
+- Moving any Life Record to Recently Deleted is a Library-only operation.
+- Permanently removing a trashed entry removes it from Reflect, not from its authoritative source app.
+- No companion-app source record is physically deleted by Library Trash.
+- The 30-day expiry uses a retained tombstone so deleted projections cannot reappear on the next source refresh.
+- If a person wants to permanently delete the underlying record, they must do so in the owning app.
 
 ## Source ownership and actions
 
