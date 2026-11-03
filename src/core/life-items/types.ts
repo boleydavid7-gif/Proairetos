@@ -95,6 +95,8 @@ export interface LifeItem {
   pickedFor?: string;
   /** When it was picked, so the three keep the order they were chosen in. */
   pickedAt?: string;
+  /** Hidden from everyday lists, but retained in the archive. */
+  archivedAt?: string;
   createdAt: string;
   updatedAt: string;
 }
