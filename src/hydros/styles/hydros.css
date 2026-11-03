@@ -1257,3 +1257,55 @@ body:has(.hydros-shell) { min-height: 100dvh; }
     background: var(--ll-state-selected);
   }
 }
+
+/* ---------- Flow chart legibility: data labels should read clearly at phone size ---------- */
+.flow-chart__grid {
+  color: var(--ll-ink-2);
+  font-size: 0.75rem;
+  line-height: 1.25;
+}
+
+.flow-chart__bar-wrap {
+  color: var(--ll-ink-2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.flow-legend {
+  gap: 20px;
+  color: var(--ll-ink-2);
+  font-size: var(--text-sm, 0.875rem);
+  line-height: 1.4;
+}
+
+.flow-line-chart__value,
+.flow-line-chart__axis {
+  fill: var(--ll-ink-2);
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.flow-line-chart__grid {
+  stroke: color-mix(in srgb, var(--ll-ink) 22%, transparent);
+  stroke-dasharray: 2 5;
+}
+
+.flow-line-chart__goal {
+  stroke: var(--ll-ink-2);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+}
+
+.flow-line-chart__point {
+  stroke: var(--ll-material-solid);
+  stroke-width: 2;
+}
+
+@media (min-width: 62rem) {
+  .flow-line-chart__value,
+  .flow-line-chart__axis {
+    font-size: 12px;
+  }
+}
