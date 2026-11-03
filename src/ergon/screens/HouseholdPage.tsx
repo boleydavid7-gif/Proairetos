@@ -147,7 +147,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">This shared chores list is connected to Ergon. Family membership and which app lists are shared are managed centrally in Proairetos.</p>
+        <p className="muted">Your current chores list stays here. To connect it to a Proairetos family and share it alongside other apps, open Family settings. Existing list members are not removed just by opening these settings.</p>
         <a className="button-main" href="/?open=settings:household">Manage family settings</a>
       </section>
 
