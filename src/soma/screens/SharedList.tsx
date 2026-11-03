@@ -107,7 +107,7 @@ export function SharedLists({ personal }: { personal: GroceryItem[] }) {
     return (
       <section className="card" aria-label="Share a list">
         <h2 className="card__title">Share a list</h2>
-        <p className="muted">Anyone with the link can add, tick and remove. It’s encrypted end to end.</p>
+        <p className="muted">Anyone with the link can edit this list. End-to-end encrypted.</p>
         {signedIn ? (
           <form
             className="field"
@@ -251,7 +251,7 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
       <button type="button" className="text-link share-link" onClick={() => void invite()}>
         <ShareIcon size={18} /> Invite someone to {list.name}
       </button>
-      {copied && <p className="hint" role="status">Link copied. Whoever has it can see and change this list.</p>}
+      {copied && <p className="hint" role="status">Link copied. Anyone with it can edit this list.</p>}
       {leaving ? (
         <div className="button-row">
           <button
