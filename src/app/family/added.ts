@@ -12,9 +12,8 @@ export type AddOn = Exclude<FamilyApp, 'proairetos'>;
 
 export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'];
 
-/** Apps no longer offered: Praxis lives on inside Theoria (Pomodoro), and Hydros is hidden for now. Their records
- *  stay; they leave the lists, Today, search and notifications, and a person's choice to have added them is kept. */
-export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(['praxis', 'hydros']);
+/** Praxis is retired into Theoria's Pomodoro; its stored choice and records are kept. */
+export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(['praxis']);
 
 const KEY = 'proairetos.apps';
 
