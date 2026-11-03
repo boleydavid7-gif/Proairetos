@@ -1,6 +1,7 @@
 import { Sym } from '../../lamplight/icons';
 import { useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
+import { useHousehold } from '../../app/household/household';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -9,7 +10,7 @@ import type { ErgonNav } from '../app/App';
 import { newId, putChore, removeChore, settings, useChores, useHome, myName, peopleFor } from '../app/state';
 import { ChoreList } from '../app/ui';
 import { useDaysOff } from '../app/daysOff';
-import { IDEAS, grouped, markDone, roomsOf, type Chore } from '../core/chores';
+import { IDEAS, grouped, markDone, roomsOf, type Chore, type ChorePerson } from '../core/chores';
 
 
 export function Ideas({ chores }: { chores: readonly Chore[] }) {
@@ -41,13 +42,25 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const daysOff = useDaysOff();
   const current = settings.use();
   const home = useHome();
+  const family = useHousehold();
+  const familyMode = family.parts.some((part) => part.app === 'ergon');
+  const familyPeople: ChorePerson[] = familyMode
+    ? family.members.map((member) => ({ id: member.id.slice('member:'.length), name: member.name }))
+    : [];
   const today = toLocalDate(new Date());
   const [whose, setWhose] = useState('');
-  const people = peopleFor(all, current);
-  const forWhom = whose && people.includes(whose) ? whose : '';
+  const people = familyMode ? familyPeople.map((person) => person.name) : peopleFor(all, current);
+  const selectedPerson = familyPeople.find((person) => person.id === whose);
+  const forWhom = familyMode
+    ? selectedPerson?.id ?? ''
+    : whose && people.includes(whose) ? whose : '';
   const [room, setRoom] = useState('');
-  // One person's view: what is given to them and what anyone may do.
-  const whoseShown = forWhom ? all.filter((chore) => !chore.who || chore.who === forWhom) : all;
+  // One person's view includes their assignments and anything left open to everyone.
+  const whoseShown = forWhom
+    ? all.filter((chore) => familyMode
+      ? (!chore.whoId && !chore.who) || chore.whoId === forWhom || (!chore.whoId && chore.who === selectedPerson?.name)
+      : !chore.who || chore.who === forWhom)
+    : all;
   const rooms = roomsOf(grouped(whoseShown, today, daysOff).now.concat(grouped(whoseShown, today, daysOff).week));
   const inRoom = room && rooms.includes(room) ? room : '';
   const shown = inRoom ? whoseShown.filter((chore) => chore.room === inRoom) : whoseShown;
@@ -77,10 +90,12 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
       </div>
 
       <div className="page page--under-hero">
-        {people.length > 1 && all.some((chore) => chore.who) && (
+        {people.length > 1 && (familyMode || all.some((chore) => chore.who || chore.whoId)) && (
           <div className="chip-row" role="group" aria-label="Whose">
             <button type="button" className="chip" aria-pressed={!forWhom} onClick={() => setWhose('')}>Everyone</button>
-            {people.map((each) => <button key={each} type="button" className="chip" aria-pressed={forWhom === each} onClick={() => setWhose(each)}>{each}</button>)}
+            {familyMode
+              ? familyPeople.map((person) => <button key={person.id} type="button" className="chip" aria-pressed={forWhom === person.id} onClick={() => setWhose(person.id)}>{person.name}{person.id === family.currentUserId ? ' (you)' : ''}</button>)
+              : people.map((each) => <button key={each} type="button" className="chip" aria-pressed={forWhom === each} onClick={() => setWhose(each)}>{each}</button>)}
           </div>
         )}
 
@@ -104,11 +119,11 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
               </div>
             )}
             {inRoom && groups.now.length > 1 && <button type="button" className="text-link" onClick={allDone}>Mark all of these done</button>}
-            {groups.now.length ? <div className="ll-lit-wrap" data-ll-lit><ChoreList chores={groups.now} today={today} daysOff={daysOff} onOpen={open} /></div> : <p className="muted">Nothing today.</p>}
+            {groups.now.length ? <div className="ll-lit-wrap" data-ll-lit><ChoreList chores={groups.now} today={today} daysOff={daysOff} onOpen={open} people={familyPeople} /></div> : <p className="muted">Nothing today.</p>}
             {groups.week.length > 0 && (
               <>
                 <div className="section-head"><h2>This week</h2></div>
-                <ChoreList chores={groups.week} today={today} daysOff={daysOff} onOpen={open} />
+                <ChoreList chores={groups.week} today={today} daysOff={daysOff} onOpen={open} people={familyPeople} />
               </>
             )}
           </>
