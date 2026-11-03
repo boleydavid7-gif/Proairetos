@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { CAPTURE_ADDRESS, inboxHere, turnOffInbox, turnOnInbox } from '../../app/capture/inbox';
 import { useSyncStatus } from './AccountSection';
 
@@ -14,6 +14,18 @@ function Copy({ label, value }: { label: string; value: string }) {
         {copied ? 'Copied' : 'Copy'}
       </button>
     </div>
+  );
+}
+
+function Step({ number, title, children }: { number: number; title: string; children: ReactNode }) {
+  return (
+    <li className="inbox-step">
+      <span className="inbox-step__number" aria-hidden="true">{number}</span>
+      <div className="inbox-step__content">
+        <h3 className="inbox-step__title">{title}</h3>
+        <div className="inbox-step__body">{children}</div>
+      </div>
+    </li>
   );
 }
 
@@ -64,20 +76,39 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
   return (
     <div className="settings-sections">
       <section className="settings-group" aria-label="Make the Shortcut">
-        <h2 className="settings-group__label">Make the Shortcut (iPhone)</h2>
+        <h2 className="settings-group__label">Set up on iPhone</h2>
         <div className="settings-card">
+          <p className="inbox-intro">Make a Shortcut once. Then send a thought to Proairetos without opening the app.</p>
           <ol className="inbox-steps">
-            <li>Open Shortcuts, tap +, and add <strong>Ask for Input</strong> (Text).</li>
-            <li>
-              Add <strong>Get Contents of URL</strong> with the address below. Under Show More: Method <strong>POST</strong>, Request Body{' '}
-              <strong>JSON</strong>, a Text field <code>token</code> with the token below, and a Text field <code>text</code> set to Provided Input.
-            </li>
-            <li>Name it <strong>Capture</strong>. Siri now answers to “Hey Siri, Capture”.</li>
-            <li>Optional: Settings › Accessibility › Touch › Back Tap › Double Tap › Capture.</li>
+            <Step number={1} title="Ask for the text">
+              <p>Open <strong>Shortcuts</strong>, tap <strong>+</strong>, and add <strong>Ask for Input</strong>. Set the input type to <strong>Text</strong>.</p>
+            </Step>
+            <Step number={2} title="Send it to Proairetos">
+              <p>Add <strong>Get Contents of URL</strong> and paste the address below. Tap <strong>Show More</strong>, then set:</p>
+              <ul>
+                <li><strong>Method:</strong> POST</li>
+                <li><strong>Request Body:</strong> JSON</li>
+              </ul>
+              <p>Add these two fields to the JSON body:</p>
+              <div className="inbox-fields">
+                <div className="inbox-field"><code>token</code><span>Text · paste the token below</span></div>
+                <div className="inbox-field"><code>text</code><span>Text · choose <strong>Provided Input</strong></span></div>
+              </div>
+            </Step>
+            <Step number={3} title="Name it Capture">
+              <p>Tap the shortcut name at the top, rename it <strong>Capture</strong>, and tap <strong>Done</strong>.</p>
+              <p>Now you can say, “Hey Siri, Capture.”</p>
+            </Step>
+            <Step number={4} title="Use Back Tap (optional)">
+              <p>On your iPhone, go to <strong>Settings → Accessibility → Touch → Back Tap → Double Tap</strong>, then choose <strong>Capture</strong>.</p>
+            </Step>
           </ol>
-          <Copy label="Address" value={CAPTURE_ADDRESS} />
-          <Copy label="Token" value={kept.token} />
-          <p className="sheet__hint">Anyone with the token can add to your Capture, though not read it. Make a new one if it gets out.</p>
+          <div className="inbox-values">
+            <Copy label="Address" value={CAPTURE_ADDRESS} />
+            <Copy label="Token" value={kept.token} />
+          </div>
+          <p className="sheet__hint inbox-security-note">Keep your token private. Anyone with it can send items to your Capture, but they can’t read your data. If it gets out, make a new token.</p>
+          <p className="inbox-result">When you run the Shortcut, your note appears in Capture the next time you open Proairetos.</p>
         </div>
       </section>
       <section className="settings-group" aria-label="Inbox">
