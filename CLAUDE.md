@@ -1132,6 +1132,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   the whole session; `ownWorkout` makes a `Workout` with id `own-…`. Kept in `askesis:own` (backed up, synced;
   `app/own.ts`). `locate` in `WorkoutPage` finds them, so the guide, bells, cues and Log take them like plan sessions;
   they never count toward the plan's week. Remove has undo.
+- Running shoe rotation (`core/shoes.ts`, `app/shoes.ts`, `screens/ShoesPage.tsx`): pairs live in the `askesis:shoes` preference, which the family sync and backup already carry. Each run log can hold `LogEntry.shoeId`; Entry lets the runner assign the active default or another pair, and Progress history shows the assigned shoe. Mileage is starting distance plus only runs explicitly assigned to that pair; personal reminder thresholds are optional, and retired pairs stay in history. No new database collection or server migration is needed.
 - Progress portability and plain records: `core/log.ts` finds the longest
   distance, longest workout and fastest recorded pace from run entries, and
   `logCsv` exports the full entered log (including notes and heart rate) as a
