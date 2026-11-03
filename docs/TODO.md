@@ -153,7 +153,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   - Tap a row into its page (Soma More > Your year, an Ergon chore): the row should grow into the page title, not
     jump. Safari 18+ only; older iPhones just slide.
   - Move between tabs: the new tab lights at once, the old one fades a moment later.
-  - Small text: Praxis's and Theoria's bottom bars, Hydros's Flow chart, the month calendar in Days ahead.
+  - Small text: Praxis's and Theoria's bottom bars, the month calendar in Days ahead. Hydros Flow chart labels were enlarged in PR #48; confirm at phone width.
   - Each app's home picture: one light, upper right, no clouds.
   - Anything that scrolls sideways, overlaps, or is hard to tap.
   - The top bar: app name left; search, Settings and Proairetos (or Apps) right, gone from the bottom bar; scroll a long page and the bar turns to glass.
