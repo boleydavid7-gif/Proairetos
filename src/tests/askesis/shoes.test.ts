@@ -45,7 +45,7 @@ describe('Askesis shoe mileage', () => {
 
   it('includes the assigned shoe name in a portable log export', () => {
     const csv = logCsv([run('run-1', 5000)], 'mi', { 'shoe-1': 'Daily trainers' });
-    expect(csv.split('\\r\\n')[0]).toContain('Running shoes');
+    expect(csv.split(String.fromCharCode(13, 10))[0]).toContain('Running shoes');
     expect(csv).toContain('Daily trainers');
   });
 });
