@@ -121,7 +121,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
         <span className="detail-head__mark"><TimerIcon size={32} /></span>
         <div>
           <h1 className="title">{existing.name}</h1>
-          <p className="muted">{thing ? <button type="button" className="text-link" onClick={() => nav.go({ name: 'thing', id: thing.id })}>{thing.name}</button> : 'The home in general'}</p>
+          <p className="muted">{thing ? <button type="button" className="text-link" onClick={() => nav.go({ name: 'thing', id: thing.id })}>{thing.name}</button> : 'Whole home'}</p>
         </div>
       </div>
 
@@ -174,7 +174,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
 
       <WriteTag path={`/ktema/?open=upkeep:${existing.id}`} />
       <dl className="detail-list">
-        <dt>Comes around</dt><dd>{[everyText(existing.every), existing.distance ? `or every ${existing.distance.toLocaleString()} ${unit}` : undefined].filter(Boolean).join(', ')}</dd>
+        <dt>Repeats</dt><dd>{[everyText(existing.every), existing.distance ? `or every ${existing.distance.toLocaleString()} ${unit}` : undefined].filter(Boolean).join(', ')}</dd>
         {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
       </dl>
 
