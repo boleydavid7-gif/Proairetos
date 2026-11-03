@@ -130,7 +130,7 @@ export default function GroceriesPage({ nav: _nav }: { nav: Nav }) {
 
       {untidy.length > 0 && (
         <button type="button" className="button-quiet" onClick={tidy}>
-          Tidy the list ({untidy.length} {untidy.length === 1 ? 'line is' : 'lines are'} a note or numbered)
+          Tidy list
         </button>
       )}
 
@@ -401,7 +401,7 @@ function Kitchen({ items, today, change }: { items: GroceryItem[]; today: string
           ))}
         </ul>
       )}
-      {here.some((item) => item.useBy) && <p className="hint kitchen-source">First guesses for fresh food: {KEEPS_SOURCE}.</p>}
+      {here.some((item) => item.useBy) && <p className="hint kitchen-source">Use-by estimates: {KEEPS_SOURCE}.</p>}
     </>
   );
 }
