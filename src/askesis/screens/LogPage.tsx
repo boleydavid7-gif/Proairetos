@@ -120,6 +120,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
       entry.notes,
       entry.wentWell,
       entry.nextTime,
+      entry.shoeId ? shoes.find((shoe) => shoe.id === entry.shoeId)?.name : undefined,
     ].filter(Boolean).join(' ').toLocaleLowerCase();
     return searchable.includes(query);
   });
