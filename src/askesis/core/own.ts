@@ -45,7 +45,6 @@ export function ownParts(session: OwnSession): Part[] {
 /** "6 × 2 min" style name, when the runner gives none. */
 export function plainTitle(session: OwnSession): string {
   if (session.parts?.length) {
-    const first = session.parts[0];
     return `${lengthLabel(totalMinutes(session.parts))} session`;
   }
   const work = lengthLabel(session.work.minutes);
