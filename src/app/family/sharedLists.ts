@@ -190,7 +190,15 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
   async function joinList(invite: { id: string; key: string; name: string }): Promise<SharedList> {
     const userId = await me();
     const existing = sharedLists().find((list) => list.id === invite.id);
-    if (existing) return existing;
+    if (existing) {
+      try {
+        await refreshList(existing);
+        return existing;
+      } catch (cause) {
+        // The server revoked this membership. Clear the stale local copy above, then let the valid invite rejoin it.
+        if (!(cause instanceof Error) || !/This list is no longer shared with you/i.test(cause.message)) throw cause;
+      }
+    }
     const client = await supabase();
     const { data, error } = await client.rpc('join_shared_list', { list: invite.id, proof: await joinProof(invite.key) });
     plain(error);
