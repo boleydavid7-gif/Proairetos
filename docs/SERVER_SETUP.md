@@ -315,7 +315,7 @@ so changing a role or removing a person cannot be bypassed by editing local data
 existing member; the former owner becomes a regular member. Deleting a household removes its membership, invitations,
 and app-sharing connections. It does not delete the separate app lists or their content: the household owner, each
 app-list creator, and each person who originally enabled an app share retain their list access; other household
-members lose access on their next sync. Data already downloaded to a device cannot be recalled. Apply all four
+members lose access on their next sync. Data already downloaded to a device cannot be recalled. Apply all five
 migrations before using the complete Family management and membership-sync controls.
 
 ## Sign in other apps from Proairetos (migration 20261019000000)
