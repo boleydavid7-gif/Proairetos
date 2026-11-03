@@ -9,7 +9,7 @@ import { FamilyMark, type FamilyApp } from '../../app/family/marks';
 export default function AppGroup({ app, name, children, compact = false }: { app: FamilyApp; name?: string; children: ReactNode; compact?: boolean }) {
   const label = name ?? familyApps.find((each) => each.id === app)?.name ?? app;
   return (
-    <div className={`today-app${compact ? ' today-app--compact' : ''}`} role="group" aria-label={label}>
+    <div className={`today-app${compact ? ' today-app--compact' : ''}`} data-app={app} role="group" aria-label={label}>
       <p className="today-app__name">
         <FamilyMark app={app} size={compact ? 20 : 16} />
         {label}
