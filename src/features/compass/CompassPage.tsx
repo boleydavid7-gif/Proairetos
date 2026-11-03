@@ -194,7 +194,7 @@ export default function CompassPage() {
 
       <button type="button" className="connections-manager-link" onClick={() => navigate('connections')}>
         <span><strong>Connections</strong><small>Search and organize your saved thoughts and decisions</small></span>
-        <span aria-hidden="true">›</span>
+        <ChevronRightIcon size={18} />
       </button>
 
       {tabs.length > 1 && (
