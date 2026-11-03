@@ -172,15 +172,15 @@ function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; o
   if (phase.kind === 'past') return null;
 
   const action = !trip.place
-    ? { title: 'Choose where you’re going', detail: 'Add the destination or destinations for this trip.', label: 'Add a destination', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
+    ? { title: 'Choose where you’re going', detail: 'Add a destination.', label: 'Add a destination', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
     : !trip.start
-      ? { title: 'Choose your dates', detail: 'Set the days before adding bookings and plans.', label: 'Add dates', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
+      ? { title: 'Choose your dates', detail: 'Add dates to start planning.', label: 'Add dates', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
       : bookingList.length === 0
-        ? { title: 'Add your first booking', detail: 'Paste a confirmation, upload a file, or enter one by hand.', label: 'Add a booking', run: () => nav.go({ name: 'booking', tripId: trip.id, paste: true }) }
+        ? { title: 'Add your first booking', detail: 'Paste a confirmation, upload a file or enter details.', label: 'Add a booking', run: () => nav.go({ name: 'booking', tripId: trip.id, paste: true }) }
         : planList.length === 0
-          ? { title: 'Shape your days', detail: 'Add a place or activity to the itinerary when you are ready.', label: 'Open the itinerary', run: () => onView('days') }
+          ? { title: 'Shape your days', detail: 'Add a place or activity.', label: 'Open the itinerary', run: () => onView('days') }
           : packingList.length === 0
-            ? { title: 'Start your packing list', detail: 'Poreia can suggest a list from the trip length and bookings.', label: 'Start packing', run: () => onView('packing') }
+            ? { title: 'Start your packing list', detail: 'Suggested from your dates and bookings.', label: 'Start packing', run: () => onView('packing') }
             : undefined;
 
   if (!action) return null;
@@ -260,7 +260,7 @@ function TimeOffCard({ trip, nav }: { trip: Trip; nav: PoreiaNav }) {
       <section className="card poreia-off-card">
         <h2 className="card__title">Time off</h2>
         <p>
-          {needed === undefined ? 'Counting…' : needed.hours === 0 ? 'No work in these dates.' : `These dates take ${hoursText(needed.hours)} of time off.`}
+          {needed === undefined ? 'Counting…' : needed.hours === 0 ? 'No work in these dates.' : `Uses ${hoursText(needed.hours)} of PTO.`}
         </p>
         {needed && needed.hours > 0 && setup && (
           <p className="muted">{hoursText(leftAfter(setup, offs, { id: 'new', start: trip.start, hours: needed.hours }).after)} left after, with everything planned before it.</p>
