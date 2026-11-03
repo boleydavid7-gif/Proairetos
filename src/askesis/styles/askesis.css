@@ -1818,6 +1818,73 @@ input[type='date'].input {
   line-height: 1.35;
 }
 
+.progress__views,
+.progress__period {
+  min-width: 0;
+}
+
+.progress__views .segmented {
+  width: 100%;
+}
+
+.progress__views .segmented__option {
+  min-width: 0;
+  padding-inline: 8px;
+  font-size: 0.8rem;
+}
+
+.progress__period {
+  display: grid;
+  gap: 8px;
+}
+
+.progress__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+}
+
+.progress__panel {
+  min-width: 0;
+}
+
+.progress__section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progress__section-head .label {
+  margin: 0;
+}
+
+.progress__filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr);
+  gap: 10px;
+  margin: 0 0 8px;
+}
+
+.progress__filters .input {
+  min-width: 0;
+}
+
+.progress__empty-note {
+  margin: 0;
+  padding: 12px 0;
+}
+
+.progress__history-actions {
+  margin-top: 2px;
+}
+
+.progress__recent {
+  gap: 8px;
+}
+
+
 
 
 @media (max-width: 380px) {
@@ -2835,7 +2902,6 @@ html[data-nav='back']::view-transition-new(root) {
 .own-builder .field + .field {
   margin-top: 6px;
 }
-
 .own-builder__sequence {
   display: grid;
   gap: 12px;
@@ -2969,6 +3035,7 @@ html[data-nav='back']::view-transition-new(root) {
     justify-content: flex-end;
   }
 }
+
 
 
 /* ---------- Weather at your run ---------- */
