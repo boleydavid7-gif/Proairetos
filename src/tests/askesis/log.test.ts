@@ -1,4 +1,4 @@
-import { logCsv, periodRange, recordFacts, totalsBetween, weeklyTotals, type LogEntry } from '../../askesis/core/log';
+import { logCsv, periodComparison, periodRange, recordFacts, totalsBetween, weeklyTotals, type LogEntry } from '../../askesis/core/log';
 import { formatDuration, formatPace, paceOf, parseDistance, parseDuration } from '../../askesis/core/pace';
 import { layOut, nightNote } from '../../askesis/core/week';
 import { buildPath } from '../../askesis/core/plans';
@@ -50,6 +50,25 @@ describe('the log', () => {
   it('months and years follow the calendar', () => {
     expect(periodRange('month', '2026-02-10')).toMatchObject({ from: '2026-02-01', to: '2026-02-28' });
     expect(periodRange('year', '2026-02-10').before).toEqual({ from: '2025-01-01', to: '2025-12-31' });
+  });
+
+  it('compares a week with the same elapsed days in the previous week', () => {
+    expect(periodComparison('week', '2026-10-02')).toEqual({
+      current: { from: '2026-09-28', to: '2026-10-02' },
+      previous: { from: '2026-09-21', to: '2026-09-25' },
+      label: 'last week',
+    });
+  });
+
+  it('compares month-to-date with the same days of the previous month, clamping short months', () => {
+    expect(periodComparison('month', '2026-03-10')?.previous).toEqual({ from: '2026-02-01', to: '2026-02-10' });
+    expect(periodComparison('month', '2026-03-31')?.previous).toEqual({ from: '2026-02-01', to: '2026-02-28' });
+  });
+
+  it('compares year-to-date with the same dates last year, including leap-day clamping', () => {
+    expect(periodComparison('year', '2026-03-10')?.previous).toEqual({ from: '2025-01-01', to: '2025-03-10' });
+    expect(periodComparison('year', '2024-02-29')?.previous).toEqual({ from: '2023-01-01', to: '2023-02-28' });
+    expect(periodComparison('all', '2026-03-10')).toBeUndefined();
   });
 
   it('finds plain running records and makes a safe CSV copy', () => {
