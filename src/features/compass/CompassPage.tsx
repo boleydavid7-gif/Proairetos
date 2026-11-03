@@ -14,9 +14,10 @@ import PeopleSection from './PeopleSection';
 import ValuePicker from './ValuePicker';
 import { valueIcon } from './valueIcons';
 import { Sym } from '../../lamplight/icons';
-import PursuitsSection from './PursuitsSection';
+import PursuitsSection, { openPursuit } from './PursuitsSection';
+import ValueConnections from './ValueConnections';
 
-function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean }) {
+function ValueCard({ value, editing, onOpenPursuit }: { value: ChosenValue; editing: boolean; onOpenPursuit: (id: string) => void }) {
   const { offerUndo } = useOverlays();
   const [open, setOpen] = useState(false);
   const [meaning, setMeaning] = useState(value.meaning ?? '');
@@ -54,6 +55,9 @@ function ValueCard({ value, editing }: { value: ChosenValue; editing: boolean })
             {meaning.trim() !== (value.meaning ?? '') && <button type="button" className="chip chip--small" onClick={() => void saveMeaning()}>Save meaning</button>}
           </div>
         </div>
+      )}
+      {open && !editing && (
+        <ValueConnections value={value} onOpenPursuit={onOpenPursuit} />
       )}
       {editing && (
         <button
@@ -166,7 +170,16 @@ export default function CompassPage() {
         {values.length > 0 && (
           <ul className="value-list">
             {values.map((value) => (
-              <ValueCard key={value.id} value={value} editing={editing} />
+              <ValueCard
+                key={value.id}
+                value={value}
+                editing={editing}
+                onOpenPursuit={(id) => {
+                  openPursuit(id);
+                  lastCompassTab = 'motion';
+                  chooseTab('motion');
+                }}
+              />
             ))}
           </ul>
         )}
