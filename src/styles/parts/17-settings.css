@@ -183,13 +183,29 @@
 
 .inbox-field {
   display: grid;
-  grid-template-columns: 4.5rem minmax(0, 1fr);
-  align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface-raised);
+}
+
+.inbox-field__row {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.inbox-field__row > span:first-child {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.inbox-field__row > :last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .inbox-field code {
@@ -198,8 +214,17 @@
   font-weight: 650;
 }
 
-.inbox-field span {
-  min-width: 0;
+.inbox-key-note {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  line-height: 1.5;
+}
+
+.inbox-key-note code {
+  color: var(--color-accent-strong);
+  font-weight: 650;
 }
 
 .inbox-values {
