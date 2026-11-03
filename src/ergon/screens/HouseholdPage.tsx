@@ -1,6 +1,6 @@
 import { useState, useSyncExternalStore } from 'react';
 import AccountCard from '../../app/family/AccountCard';
-import { offerUndo, say } from '../../app/family/shell';
+import { offerUndo } from '../../app/family/shell';
 import { BackIcon } from '../../app/family/icons';
 import { syncStatus } from '../../app/sync/syncController';
 import type { ErgonNav } from '../app/App';
