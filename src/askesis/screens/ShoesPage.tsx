@@ -4,7 +4,7 @@ import { newId, useEntries, useSettings, useToday } from '../app/state';
 import { useShoes, saveShoes } from '../app/shoes';
 import { BackLink, useUndo } from '../app/ui';
 import { defaultShoe, shoeMileage, shoeProgress, shoeRunEntries, type Shoe } from '../core/shoes';
-import { formatDistance, parseDistance } from '../core/pace';
+import { formatDistance, METERS } from '../core/pace';
 
 export default function ShoesPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
@@ -24,6 +24,12 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
   const retired = shoes.filter((shoe) => Boolean(shoe.retiredOn));
   const defaultId = defaultShoe(shoes)?.id;
 
+  const parseMileage = (text: string): number | undefined => {
+    const value = Number(text.trim().replace(',', '.'));
+    if (!text.trim() || !Number.isFinite(value) || value <= 0 || value > 100000) return undefined;
+    return value * METERS[unit];
+  };
+
   const openNew = () => {
     setEditingId(undefined);
     setName('');
@@ -36,8 +42,8 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
   const openEdit = (shoe: Shoe) => {
     setEditingId(shoe.id);
     setName(shoe.name);
-    setStarting(shoe.startingMeters ? String(Number((shoe.startingMeters / (unit === 'mi' ? 1609.344 : 1000)).toFixed(1))) : '');
-    setTarget(shoe.targetMeters ? String(Number((shoe.targetMeters / (unit === 'mi' ? 1609.344 : 1000)).toFixed(1))) : '');
+    setStarting(shoe.startingMeters ? String(Number((shoe.startingMeters / METERS[unit]).toFixed(1))) : '');
+    setTarget(shoe.targetMeters ? String(Number((shoe.targetMeters / METERS[unit]).toFixed(1))) : '');
     setProblem('');
     setFormOpen(true);
   };
@@ -52,8 +58,8 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
       setProblem('Give this pair a name.');
       return;
     }
-    const startingMeters = starting.trim() ? parseDistance(starting, unit) : 0;
-    const targetMeters = target.trim() ? parseDistance(target, unit) : undefined;
+    const startingMeters = starting.trim() ? parseMileage(starting) : 0;
+    const targetMeters = target.trim() ? parseMileage(target) : undefined;
     if (starting.trim() && !startingMeters) {
       setProblem('Enter a valid starting mileage.');
       return;
