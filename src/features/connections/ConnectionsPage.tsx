@@ -178,7 +178,7 @@ export default function ConnectionsPage() {
   const libraryCount = activeRecords.filter((record) => !record.archived).length;
   const savedCount = activeRecords.filter((record) => !record.archived && favoriteKeys.has(record.key)).length;
   const archivedCount = activeRecords.filter((record) => record.archived).length;
-  const trashCount = notPermanentlyRemovedRecords.filter((record) => trashedKeys.has(record.key)).length;
+  const trashCount = trashEntries.filter((entry) => !entry.deletedAt).length;
   const relationPool = useMemo(
     () => activeRecords.filter((record) => record.archived === (view === 'archived')),
     [activeRecords, view],
@@ -238,12 +238,12 @@ export default function ConnectionsPage() {
   }
 
   function emptyTrash() {
-    const entries = notPermanentlyRemovedRecords.filter((record) => trashedKeys.has(record.key));
+    const entries = trashEntries.filter((entry) => !entry.deletedAt);
     if (!entries.length) return;
     if (!window.confirm(`Permanently remove ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} from Reflect? Original records will remain in their source apps.`)) return;
-    entries.forEach((record) => {
-      permanentlyRemoveFromLibraryTrash(record.key);
-      clearLibraryMetadata(record.key);
+    entries.forEach((entry) => {
+      permanentlyRemoveFromLibraryTrash(entry.id);
+      clearLibraryMetadata(entry.id);
     });
     clearSelection();
   }
