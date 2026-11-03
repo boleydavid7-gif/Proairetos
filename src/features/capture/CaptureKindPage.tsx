@@ -23,9 +23,9 @@ export type CaptureShelf = ItemKind | 'UNSORTED';
 
 /** Each kind's page, in its own words. */
 export const shelfTitles: Record<CaptureShelf, { title: string; line: string }> = {
-  TODO: { title: 'To do', line: 'Things to do, when you choose to.' },
-  REMEMBER: { title: 'Remember', line: 'Kept here so your mind can let go of them.' },
-  CONCERN: { title: 'Concerns', line: 'What is on your mind. Some of it may be up to you.' },
+  TODO: { title: 'To do', line: 'Things to do.' },
+  REMEMBER: { title: 'Remember', line: 'Keep it here.' },
+  CONCERN: { title: 'Concerns', line: 'Things on your mind.' },
   IDEA: { title: 'Ideas', line: 'For later, or for never. Both are fine.' },
   FEELING: { title: 'Feelings', line: 'Named, so they can be met.' },
   UNSORTED: { title: 'Not sorted yet', line: 'This sits in not sorted until you’re ready.' },
