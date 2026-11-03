@@ -122,7 +122,7 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
       )}
       {fits.length > 3 && (
         <button type="button" className="button-quiet" onClick={() => setRound(round + 1)}>
-          Some others
+          More
         </button>
       )}
     </div>
