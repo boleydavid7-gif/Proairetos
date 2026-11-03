@@ -1,13 +1,8 @@
 import { nativePlatform } from '../../app/native/platform';
+import type { AskesisBridgePlatform, AskesisBridgePlugin, AskesisNativeCapability } from '@proairetos/askesis-bridge';
 
-export type PhonePlatform = 'ios' | 'android';
-export type NativeCapability =
-  | 'healthWorkouts'
-  | 'heartRate'
-  | 'backgroundGps'
-  | 'haptics'
-  | 'lockScreenControls'
-  | 'watchSync';
+export type PhonePlatform = AskesisBridgePlatform;
+export type NativeCapability = AskesisNativeCapability;
 
 export type NativeBridgeHandshake = {
   protocolVersion: number;
@@ -34,10 +29,6 @@ export type AskesisCapabilities = {
 };
 
 const PROTOCOL_VERSION = 1;
-
-type NativeBridgePlugin = {
-  getCapabilities(): Promise<NativeBridgeHandshake>;
-};
 
 /** Pure resolver: a native feature is enabled only when the installed bridge advertises it explicitly. */
 export function resolveCapabilities(
@@ -89,10 +80,9 @@ async function detect(): Promise<AskesisCapabilities> {
   if (platform === 'web') return resolveCapabilities('web', undefined, browserGps());
 
   try {
-    // Native code is loaded only inside the optional Capacitor shell. The website never imports Capacitor.
-    const { registerPlugin } = await import('@capacitor/core');
-    const bridge = registerPlugin<NativeBridgePlugin>('AskesisBridge');
-    const handshake = await bridge.getCapabilities();
+    // The package is loaded only inside the optional Capacitor shell. The website never loads native bridge code.
+    const { AskesisBridge } = await import('@proairetos/askesis-bridge');
+    const handshake = await (AskesisBridge as AskesisBridgePlugin).getCapabilities();
     return resolveCapabilities(platform, handshake, browserGps());
   } catch {
     // The phone shell may be installed without the Askesis bridge. Web features remain the fallback.
