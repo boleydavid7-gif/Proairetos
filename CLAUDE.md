@@ -1093,6 +1093,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   3%), a run or walk counts as that day's open session once. The connection (`askesis:strava`) stays on the device, out of
   backups and sync. Strava's orange button and "Powered by Strava" as its guidelines ask. On hold: since June 2026 a
   Strava API app needs its owner's paid subscription; without the secrets the page says it is not set up.
+- Askesis Home week calendar (`screens/HomePage.tsx`, `.week-calendar` in `askesis.css`): a Monday-to-Sunday glance at this week's placed sessions, completion and logged activity. A planned day opens its workout (or its completed log); a past or current empty day opens a date-prefilled log entry. Future empty rest days are intentionally inert. It uses the same `layOut` result as Home's focus card, so it respects moved sessions, the shared Askesis/Dynamis training fit and overnight work notes; no separate calendar schedule is invented.
 - Weather at your run (`core/runWeather.ts` `runNotes`, `hourLine`, `runHourFor`; `app/runWeather.ts`, `app/RunWeather.tsx`):
   on the day a session falls on (or was moved to) and is still open, the session page (below Start) and Home's focus card show
   the forecast for `runAt` rounded to the hour, else the next whole hour (Open-Meteo hourly + air quality, kept an hour). Notes
