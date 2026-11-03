@@ -186,7 +186,7 @@ export default function ReflectPage() {
       <PageHeader title="Reflect" subtitle="Pause. Notice. Choose." settings />
 
       <button type="button" className="button-accent reflect-write-button" onClick={() => navigate('journal')}>
-        <PenIcon size={17} />
+        <PenIcon size={18} />
         Write a reflection
       </button>
 
