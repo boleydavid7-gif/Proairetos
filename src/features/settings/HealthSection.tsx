@@ -101,7 +101,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   if (!parts.length) {
     return (
       <section className="settings-card">
-        <p className="section-description">Health data fills in Askesis, Diaita, Hydros and Therapeia. Add one of them first.</p>
+        <p className="section-description">Add Askesis, Diaita, Hydros or Therapeia to receive health data.</p>
         <button type="button" className="button-accent account-wide" onClick={onOpenStore}>
           Store
         </button>
@@ -112,7 +112,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
   if (status.phase !== 'ready') {
     return (
       <section className="settings-card">
-        <p className="section-description">To have your health data fill in your apps by itself, sign in and open your data first.</p>
+        <p className="section-description">Sign in and connect a health source to sync data automatically.</p>
         <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>
           Account and sync
         </button>
@@ -168,7 +168,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
             <Copy label="Address" value={healthAddress(token)} />
           ) : looked ? (
             <>
-              <p className="section-description">Your account has no address yet.</p>
+              <p className="section-description">No address yet.</p>
               <button
                 type="button"
                 className="button-accent account-wide"
@@ -186,7 +186,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
           ) : (
             <p className="section-description">Opening…</p>
           )}
-          <p className="sheet__hint">Anyone with this address can send data to your apps, but they can’t read anything. If it gets out, make a new one.</p>
+          <p className="sheet__hint">Anyone with this address can send data to your apps, but cannot read it. If exposed, generate a new address.</p>
         </div>
       </section>
 
@@ -220,7 +220,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
               <li>Tap <strong>Sync now</strong> once to try it. Its <strong>Logs</strong> show each send.</li>
             </ol>
           )}
-          <p className="sheet__hint">When you next open one of your apps, anything new comes in and a note at the bottom says what. Anything you logged yourself stays as it is.</p>
+          <p className="sheet__hint">New data syncs when you open an app. Your manual entries stay unchanged.</p>
         </div>
       </section>
 
