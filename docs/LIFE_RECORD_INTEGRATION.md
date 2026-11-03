@@ -10,8 +10,11 @@ Every adapter declares:
 
 - `id`: stable adapter identifier, such as `dynamis.workouts`.
 - `owner`: app that owns the authoritative data.
+- `allowOriginOverrides`: normally omitted; set only for stored records that can preserve a different originating app, such as Proairetos reflections created from companion-app prompts.
 - `kinds`: the Life Record kinds it may emit.
 - `toRecords(input)`: a pure projection. It must not write to storage or mutate its input.
+
+The validator enforces that each record's source app matches the adapter owner unless `allowOriginOverrides` is explicitly enabled, and that the human-readable source label matches the canonical app label.
 
 Every emitted record must provide:
 
