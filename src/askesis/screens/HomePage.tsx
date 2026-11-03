@@ -1,19 +1,19 @@
 import { useMemo } from 'react';
 import { mondayOnOrBefore } from '../../core/scheduling/dates';
 import type { Nav } from '../app/App';
-import { ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
+import { CheckIcon, ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
 import askesisHero from '../../assets/images/scenes/askesis-stoic-wide.webp';
 import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
 import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
 import { efforts } from '../core/effort';
-import { feelings } from '../core/log';
+import { feelings, type LogEntry } from '../core/log';
 import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
 import LookBack from './LookBack';
 import SessionBar from '../app/SessionBar';
 import { moreGradual, stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
 import { lineFor } from '../core/stoic';
 import { asToday, comeBackOffer, gapWords } from '../core/gentler';
-import { layOut, weekDates, type DayPlan } from '../core/week';
+import { layOut, weekdayNames, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
 import { savePlan, type PlanState } from '../data/store';
 import RunWeather from '../app/RunWeather';
@@ -33,6 +33,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
   const monday = mondayOnOrBefore(today);
   const dates = weekDates(today);
   const thisWeeks = entries.filter((entry) => entry.date >= dates[0] && entry.date <= dates[6]);
+  const thisWeeksKey = thisWeeks.map((entry) => `${entry.id}:${entry.date}:${entry.workoutId ?? ''}`).join('|');
 
   const resting = planState?.restWeek === monday;
   const week = plan && planState && !resting ? weekAt(plan, planState.week) : undefined;
@@ -48,7 +49,7 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             workout: day.date === today ? asToday(day.workout, planState.lighter, today) : day.workout,
           }))
         : [],
-    [week, planState, today, thisWeeks.length, blocks, placed],
+    [week, planState, today, thisWeeksKey, blocks, placed],
   );
   const comeBack =
     planState && !newWeek
@@ -232,6 +233,8 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               )}
             </section>
 
+            <WeekCalendar dates={dates} plans={days} entries={thisWeeks} today={today} nav={nav} />
+
             <section aria-label="Logged this week" className="entries">
               <h2 className="label">Logged this week</h2>
               {thisWeeks.length > 0 ? (
@@ -271,6 +274,76 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
         )}
       </div>
     </div>
+  );
+}
+
+type WeekCalendarProps = {
+  dates: string[];
+  plans: DayPlan[];
+  entries: LogEntry[];
+  today: string;
+  nav: Nav;
+};
+
+/** A quiet seven-day view: see the week's shape, open a planned run, or log an unplanned day. */
+function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) {
+  const done = plans.filter((day) => day.done).length;
+  const summary = plans.length ? `${done} of ${plans.length} done` : 'No sessions placed';
+  const latestEntry = (date: string) => entries
+    .filter((entry) => entry.date === date)
+    .slice()
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+
+  return (
+    <section className="card week-calendar" aria-label="Training calendar">
+      <div className="week-calendar__head">
+        <div>
+          <span className="card__eyebrow">Your training</span>
+          <h2 className="card__title card__title--small">This week</h2>
+        </div>
+        <span className="week-calendar__summary">{summary}</span>
+      </div>
+      <div className="week-calendar__days">
+        {dates.map((date, index) => {
+          const scheduled = plans.filter((day) => day.date === date);
+          const completedCount = scheduled.filter((day) => day.done).length;
+          const completed = scheduled.length > 0 && completedCount === scheduled.length;
+          const logged = latestEntry(date);
+          const next = scheduled.find((day) => !day.done) ?? scheduled[0];
+          const dateLabel = new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          });
+          const detail = scheduled.length
+            ? `${scheduled.length} planned ${scheduled.length === 1 ? 'session' : 'sessions'}${completedCount ? `, ${completedCount} completed` : ''}`
+            : logged ? 'Logged activity' : 'No session planned';
+          return (
+            <button
+              key={date}
+              type="button"
+              className={`week-calendar__day${date === today ? ' week-calendar__day--today' : ''}${completed ? ' week-calendar__day--done' : completedCount ? ' week-calendar__day--partial' : ''}${scheduled.length ? ' week-calendar__day--planned' : ''}`}
+              aria-label={`${dateLabel}. ${detail}. ${scheduled.length || logged ? 'Open details' : 'Log an activity'}.`}
+              aria-current={date === today ? 'date' : undefined}
+              disabled={!scheduled.length && !logged && date > today}
+              onClick={() => {
+                if (next?.done) nav.go({ name: 'entry', id: next.done.id });
+                else if (next) nav.go({ name: 'workout', id: next.workout.id });
+                else if (logged) nav.go({ name: 'entry', id: logged.id });
+                else nav.go({ name: 'entry', date });
+              }}
+            >
+              <span className="week-calendar__weekday">{weekdayNames[index].slice(0, 3)}</span>
+              <span className="week-calendar__date">{Number(date.slice(-2))}</span>
+              <span className="week-calendar__indicator" aria-hidden="true">
+                {completed ? <CheckIcon size={16} /> : scheduled.length || logged ? <span /> : null}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="week-calendar__hint">Choose a day to view its session or add a workout to your log.</p>
+    </section>
   );
 }
 

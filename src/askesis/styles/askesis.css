@@ -1926,6 +1926,128 @@ input[type='date'].input {
   font-variant-numeric: tabular-nums;
 }
 
+.week-calendar {
+  gap: 12px;
+}
+
+.week-calendar__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.week-calendar__head .card__title {
+  margin-top: 3px;
+}
+
+.week-calendar__summary {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.week-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.week-calendar__day {
+  min-width: 0;
+  min-height: 76px;
+  padding: 8px 2px 6px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: var(--surface-soft, var(--surface));
+  color: var(--text-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.week-calendar__day--planned {
+  border-color: color-mix(in srgb, var(--mint) 24%, var(--line));
+}
+
+.week-calendar__day--today {
+  border-color: var(--mint);
+  background: color-mix(in srgb, var(--mint) 10%, var(--surface));
+  color: var(--text);
+}
+
+.week-calendar__weekday {
+  font-size: 0.7rem;
+  font-weight: 550;
+  letter-spacing: 0.01em;
+}
+
+.week-calendar__date {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.week-calendar__indicator {
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  color: var(--mint);
+}
+
+.week-calendar__indicator > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mint);
+}
+
+.week-calendar__day--done .week-calendar__indicator {
+  color: var(--mint);
+}
+
+.week-calendar__day--partial .week-calendar__indicator > span {
+  width: 7px;
+  height: 7px;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 25%, transparent);
+}
+
+.week-calendar__day:disabled {
+  opacity: 0.58;
+  cursor: default;
+}
+
+
+.week-calendar__hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.week-calendar__day:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+@media (max-width: 360px) {
+  .week-calendar__days {
+    gap: 3px;
+  }
+  .week-calendar__day {
+    min-height: 70px;
+    padding-inline: 1px;
+  }
+  .week-calendar__weekday {
+    font-size: 0.64rem;
+  }
+}
+
 .entries {
   display: flex;
   flex-direction: column;
