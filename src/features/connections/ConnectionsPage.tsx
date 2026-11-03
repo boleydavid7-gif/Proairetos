@@ -263,7 +263,7 @@ export default function ConnectionsPage() {
       </div>
 
       <details className="connections-refine">
-        <summary><span><Sym name="list" size={17} /> Refine library</span><span className="connections-refine__state">{valueId || range !== 'all' || sortOrder !== 'newest' ? 'Filters applied' : 'Optional filters'} <Sym name="chevron" size={15} /></span></summary>
+        <summary><span><Sym name="list" size={17} /> Refine library</span><span className="connections-refine__state">{hasFilters ? 'Filters applied' : 'Optional filters'} <Sym name="chevron" size={15} /></span></summary>
         <div className="connections-refine__fields">
           <label>
             <span>Connected value</span>
