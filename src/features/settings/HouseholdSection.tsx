@@ -403,7 +403,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
             <div className="household__lifecycle-section household__danger-zone">
               <div>
                 <h3>Delete household</h3>
-                <p>Permanently remove this family, its membership, invitations and sharing connections. The separate app lists and their content are kept for their list owners.</p>
+                <p>Permanently remove this family, its membership, invitations and sharing connections. App lists and their content are kept; their creators, share owners and the household owner retain access.</p>
               </div>
               {!confirmDelete ? (
                 <button type="button" className="button-danger account-wide" disabled={busy !== null} onClick={() => setConfirmDelete(true)}>
