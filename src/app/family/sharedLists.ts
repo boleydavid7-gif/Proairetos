@@ -244,7 +244,7 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     const running = refreshing.get(runKey);
     if (running) {
       // A request already in flight may have started before a membership change. Queue one fresh server check
-      // behind it instead of letting this caller inherit an old "access still allowed" result.
+      // after the current request instead of letting this caller inherit an old "access still allowed" result.
       running.rerun = true;
       return running.promise;
     }
