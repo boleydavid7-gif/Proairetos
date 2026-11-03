@@ -56,9 +56,11 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 
   const names = [...new Set([...peopleFor(all), ...rota])];
   const selectedWhoId = whoId || memberIdForName(who, familyPeople) || '';
-  const selectedRotaIds = rotaIds.length
+  const selectedWhoIsCurrent = familyPeople.some((person) => person.id === selectedWhoId);
+  const selectedRotaIds = (rotaIds.length
     ? rotaIds
-    : rota.map((person) => memberIdForName(person, familyPeople)).filter((id): id is string => Boolean(id));
+    : rota.map((person) => memberIdForName(person, familyPeople)).filter((id): id is string => Boolean(id)))
+    .filter((id) => familyPeople.some((person) => person.id === id));
   const repeat = (): Repeat => {
     switch (kind) {
       case 'days':
@@ -89,11 +91,15 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         nextWho = familyPeople.find((person) => person.id === currentId)?.name ?? nextRota[0];
       } else if (turns) {
         nextRota = existing?.rota ?? (rota.length ? rota : undefined);
-        nextRotaIds = existing?.rotaIds;
+        nextRotaIds = familyPeople.length === 0 && rota.join('|') === (existing?.rota ?? []).join('|')
+          ? existing?.rotaIds
+          : undefined;
         nextWho = who.trim() || nextRota?.[0];
         nextWhoId = existing?.whoId;
       } else {
-        nextWhoId = selectedWhoId || undefined;
+        nextWhoId = selectedWhoIsCurrent
+          ? selectedWhoId
+          : familyPeople.length === 0 && who === existing?.who && whoId === (existing?.whoId ?? '') ? existing?.whoId : undefined;
         nextWho = familyPeople.find((person) => person.id === selectedWhoId)?.name ?? (who.trim() || undefined);
         nextRota = undefined;
         nextRotaIds = undefined;
@@ -186,7 +192,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         {!turns ? (
           familyMode ? (
             <>
-              {who && !selectedWhoId && <p className="hint">This chore was previously assigned to {who}. Choose a family member to link it to the household.</p>}
+              {who && !selectedWhoIsCurrent && <p className="hint">This chore was previously assigned to {who}. Choose a current family member to update the assignment.</p>}
               <HouseholdWhoChips
                 people={familyPeople}
                 value={selectedWhoId}
@@ -354,7 +360,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
           <h2 className="card__title card__title--small">Who</h2>
           {familyMode ? (
             <>
-              {existing.who && !assignedId && <p className="hint">Previously assigned to {existing.who}. Choose a household member to update it.</p>}
+              {existing.who && (!assignedId || !familyPeople.some((person) => person.id === assignedId)) && <p className="hint">Previously assigned to {existing.who}. Choose a current household member to update it.</p>}
               <HouseholdWhoChips
                 people={familyPeople}
                 value={assignedId ?? ''}
