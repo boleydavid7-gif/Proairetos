@@ -12,6 +12,8 @@ export type Note = {
   // Heard on the device by Whisper: timed sentences, so a tap plays from there.
   transcript?: { segments: Array<{ start: number; end: number; text: string }>; language?: string; accuracy?: 'standard' | 'accurate'; at: string };
   pinned: boolean;
+  /** Explicitly chosen for the Proairetos Reflect library. Older pinned notes retain their existing intent. */
+  inReflect?: boolean;
   archived: boolean;
   createdAt: string;
   updatedAt: string;
@@ -24,6 +26,8 @@ export type Idea = {
   stage: IdeaStage;
   createdAt: string;
   updatedAt: string;
+  /** Explicitly chosen for the Proairetos Reflect library. */
+  inReflect?: boolean;
 };
 
 export const notes = collection<Note>('mneme:note:');
