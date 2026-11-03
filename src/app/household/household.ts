@@ -141,7 +141,7 @@ async function setAppShare(householdId: string, app: HouseholdApp, sharedListId:
   if (data !== true) throw new Error('The family sharing setting could not be saved.');
 }
 
-let running: { key: string; promise: Promise<void> } | undefined;
+const running = new Map<string, Promise<void>>();
 
 function isRevokedList(cause: unknown): boolean {
   return cause instanceof Error && /This list is no longer shared with you/i.test(cause.message);
@@ -187,7 +187,8 @@ export async function syncHousehold(): Promise<void> {
   }
 
   const runKey = `${user.id}:${list.id}`;
-  if (running?.key === runKey) return running.promise;
+  const inFlight = running.get(runKey);
+  if (inFlight) return inFlight;
 
   const work = (async () => {
     // Keep the cached index before refreshing it. If access was revoked, its app-list references are still needed
@@ -269,11 +270,11 @@ export async function syncHousehold(): Promise<void> {
     if (await stillSignedInAs(user.id)) setStates(next);
   })();
 
-  running = { key: runKey, promise: work };
+  running.set(runKey, work);
   try {
     await work;
   } finally {
-    if (running?.promise === work) running = undefined;
+    if (running.get(runKey) === work) running.delete(runKey);
   }
 }
 
