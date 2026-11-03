@@ -1252,3 +1252,6 @@ blockquote.daily-line {
     font-size: var(--text-xs, .75rem);
   }
 }
+.today-app--compact[data-app='hydros'] .today-practice-progress > span {
+  background: #49b9c5;
+}
