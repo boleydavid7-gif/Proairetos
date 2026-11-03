@@ -76,11 +76,11 @@ async function refreshRoleState(householdId: string, userId?: string): Promise<v
       client.from('shared_lists').select('created_by').eq('id', householdId).maybeSingle(),
       client.from('household_member_roles').select('user_id').eq('household_id', householdId),
     ]);
+    if (userId && !(await stillSignedInAs(userId))) return;
     if (householdError || !householdRow) {
       setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
       return;
     }
-    if (userId && !(await stillSignedInAs(userId))) return;
     const ownerId = (householdRow as { created_by: string }).created_by;
     if (rolesError) {
       // Even if the role migration is not installed yet, we can still identify the owner and prevent an orphaned home.
