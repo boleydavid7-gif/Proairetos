@@ -584,7 +584,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   },
   {
             app: 'Askesis',
-            sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'A running plan around your week; today’s run on Today and finished runs in Reflect.' }] }],
+            sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Finished runs in Done today and Reflect; the current session appears in Daily practices.' }] }],
   },
   {
     app: 'Soma',
@@ -612,10 +612,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
   {
     app: 'Therapeia',
     sections: [{ parts: [{ part: 'medicines', label: 'Medicines', detail: 'Today’s doses not yet marked, and a visit today.' }] }],
-  },
-  {
-    app: 'Dynamis',
-    sections: [{ parts: [{ part: 'training', label: 'Training days', detail: 'The session waiting on a planned day.' }] }],
   },
   {
     app: 'Ktema',
