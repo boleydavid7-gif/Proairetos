@@ -333,3 +333,26 @@
     padding: var(--space-4) var(--space-5);
   }
 }
+
+.connections-record__details {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.connections-record__details summary {
+  width: fit-content;
+  color: var(--color-accent-strong);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.connections-load-more {
+  justify-self: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+}
