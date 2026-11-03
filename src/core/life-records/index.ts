@@ -29,7 +29,7 @@ export interface LifeRecordInput {
   decisions?: readonly Decision[];
   pursuits?: readonly {
     id: string; title: string; status: 'active' | 'paused' | 'complete' | 'archived';
-    area?: string; outcome?: string; why?: string; current?: string; nextMove?: string;
+    area?: string; outcome?: string; why?: string; current?: string; friction?: string; approach?: string; reviewNote?: string; nextMove?: string;
     valueNotes?: Record<string, string>; createdAt: string;
   }[];
   items?: readonly LifeItem[];
