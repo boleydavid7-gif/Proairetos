@@ -444,7 +444,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
 
       {view === 'list' &&
         data?.days.map(({ date, entries }) => {
-          const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
+          const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday' && entry.kind !== 'planned');
           const allDay = entries.flatMap((entry) => (entry.kind === 'allday' ? [entry] : []));
           return (
             <section
@@ -659,7 +659,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               {(narrow ? data.days.filter((day) => day.date === focusDay) : data.days).map(({ date, entries }) => {
                 const dayStart = atTime(date, '00:00').getTime();
                 const dayEnd = atTime(addDays(date, 1), '00:00').getTime();
-                const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
+                const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday' && entry.kind !== 'planned');
                 return (
                   <div key={date} className={`cal-col${date === nowDate ? ' cal-col--today' : ''}`} data-date={date} role="list" aria-label={formatLocalDay(date, { weekday: 'long', month: 'long', day: 'numeric' })}>
                     {date === nowDate && <div className="cal-now" style={{ top: (nowMinutes / 60) * HOUR_PX }} aria-hidden="true" />}
@@ -817,7 +817,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
           {(() => {
             const day = data.days.find(({ date }) => date === start);
             if (!day) return null;
-            const timed = day.entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
+            const timed = day.entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday' && entry.kind !== 'planned');
             const allDay = day.entries.flatMap((entry) => (entry.kind === 'allday' ? [entry] : []));
             const planned = plannedItemsForDay(start, data.items);
             const count = timed.length + allDay.length + planned.length;
@@ -932,7 +932,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                     <span key={`lead-${i}`} />
                   ))}
                   {inMonth.map(({ date, entries }) => {
-                    const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday');
+                    const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday' && entry.kind !== 'planned');
                     const planned = plannedItemsForDay(date, data.items);
                     const firstPlanned = planned[0];
                     const plannedColor = firstPlanned?.color ?? (firstPlanned?.goalId ? data.goals.goals.find((goal) => goal.id === firstPlanned.goalId)?.color : undefined);
