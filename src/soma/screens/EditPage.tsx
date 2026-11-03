@@ -131,7 +131,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
           <input className="input" value={servings} onChange={(event) => setServings(event.target.value)} />
         </label>
         <label className="field">
-          <span className="label">Minutes, in all</span>
+          <span className="label">Minutes</span>
           <input className="input" inputMode="numeric" value={cook} onChange={(event) => setCook(event.target.value)} />
         </label>
       </div>
@@ -163,7 +163,7 @@ export default function EditPage({ nav, id }: { nav: Nav; id?: string }) {
 
       <div className="input-pair">
         <label className="field">
-          <span className="label">From</span>
+          <span className="label">Source</span>
           <input className="input" value={source} onChange={(event) => setSource(event.target.value)} />
         </label>
         <label className="field">
