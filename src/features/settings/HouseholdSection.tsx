@@ -233,7 +233,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                     ) : null}
                     {removeConfirm === userId && canRemove && (
                       <div className="household__remove-confirm">
-                        <span>Remove {member.name} from this family? Their server access ends on their next sync, but they can rejoin with an existing family link. Copies already downloaded to their devices cannot be recalled.</span>
+                        <span>Remove {member.name} from this family? They lose household access and access to connected app lists they do not own on their next sync. Existing family links can still be used to rejoin; downloaded copies cannot be recalled.</span>
                         <div className="button-row">
                           <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => setRemoveConfirm(null)}>Cancel</button>
                           <button
