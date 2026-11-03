@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  buildLifeRecords,
   lifeRecordAdapters,
   lifeRecordKey,
   validateLifeRecordAdapter,
@@ -97,11 +98,114 @@ describe('Life Record integration contract', () => {
   });
 
   it('creates stable namespaced keys for new adapters and repeated source records', () => {
-    expect(lifeRecordKey('hydros', 'hydration', 'day-1')).toBe('hydros:hydration:day-1');
+    expect(lifeRecordKey('mneme', 'note', 'note-1')).toBe('mneme:note:note-1');
     expect(lifeRecordKey('soma', 'meal', 'recipe-1', '2026-11-02')).toBe('soma:meal:recipe-1:2026-11-02');
     expect(lifeRecordKey('soma', 'meal', 'recipe-1', '2026-11-03')).not.toBe(
       lifeRecordKey('soma', 'meal', 'recipe-1', '2026-11-02'),
     );
+  });
+
+  it('includes only selected Mneme content, completed Poreia trips and opted-in Oikonomia milestones', () => {
+    const records = buildLifeRecords({
+      mnemeNotes: [
+        {
+          id: 'note-selected',
+          title: 'A useful note',
+          body: 'Remember this useful detail.',
+          pinned: false,
+          archived: false,
+          inReflect: true,
+          createdAt: '2026-10-01T08:00:00.000Z',
+          updatedAt: '2026-10-02T08:00:00.000Z',
+        },
+        {
+          id: 'note-private',
+          title: 'Private note',
+          body: 'Keep this in Mneme.',
+          pinned: false,
+          archived: false,
+          inReflect: false,
+          createdAt: '2026-10-01T08:00:00.000Z',
+          updatedAt: '2026-10-02T08:00:00.000Z',
+        },
+      ],
+      mnemeIdeas: [{
+        id: 'idea-selected',
+        text: 'Build a better reading habit',
+        stage: 'next',
+        inReflect: true,
+        createdAt: '2026-10-03T08:00:00.000Z',
+        updatedAt: '2026-10-03T09:00:00.000Z',
+      }],
+      poreiaTrips: [
+        {
+          id: 'trip-complete',
+          name: 'Coastal weekend',
+          place: { name: 'Lisbon', country: 'Portugal' },
+          start: '2026-10-01',
+          end: '2026-10-04',
+          travelers: 2,
+          stage: 'booked',
+          notes: 'A wonderful break.',
+          createdAt: '2026-09-01T08:00:00.000Z',
+          updatedAt: '2026-10-04T08:00:00.000Z',
+        },
+        {
+          id: 'trip-upcoming',
+          name: 'Future trip',
+          place: { name: 'Tokyo', country: 'Japan' },
+          start: '2026-12-01',
+          end: '2026-12-07',
+          travelers: 1,
+          stage: 'booked',
+          createdAt: '2026-09-01T08:00:00.000Z',
+          updatedAt: '2026-09-01T08:00:00.000Z',
+        },
+      ],
+      poreiaJournal: [{
+        id: 'journal-memory',
+        tripId: 'trip-complete',
+        date: '2026-10-03',
+        kind: 'memory',
+        title: 'A quiet evening',
+        text: 'We watched the sunset by the water.',
+        createdAt: '2026-10-03T20:00:00.000Z',
+        updatedAt: '2026-10-03T20:00:00.000Z',
+      }],
+      poreiaToday: '2026-11-03',
+      oikonomiaMilestones: [
+        {
+          id: 'money-selected',
+          title: 'Paid off a loan',
+          body: 'A goal that took steady effort.',
+          date: '2026-10-15',
+          inReflect: true,
+          createdAt: '2026-10-15T08:00:00.000Z',
+          updatedAt: '2026-10-15T08:00:00.000Z',
+        },
+        {
+          id: 'money-private',
+          title: 'Private financial note',
+          date: '2026-10-16',
+          inReflect: false,
+          createdAt: '2026-10-16T08:00:00.000Z',
+          updatedAt: '2026-10-16T08:00:00.000Z',
+        },
+      ],
+    });
+
+    expect(records.map((record) => record.key)).toEqual(expect.arrayContaining([
+      'mneme:note:note-selected',
+      'mneme:idea:idea-selected',
+      'poreia:trip:trip-complete',
+      'poreia:trip:journal-memory:journal',
+      'oikonomia:financial:money-selected',
+    ]));
+    expect(records.some((record) => record.sourceId === 'note-private')).toBe(false);
+    expect(records.some((record) => record.sourceId === 'trip-upcoming')).toBe(false);
+    expect(records.some((record) => record.sourceId === 'money-private')).toBe(false);
+    expect(records.find((record) => record.sourceId === 'trip-complete')?.detail).toContain('Lisbon, Portugal');
+    expect(records.every((record) => record.searchText.includes(record.title.toLocaleLowerCase()))).toBe(true);
   });
 
   it('rejects records that claim a different source app without an explicit override', () => {
@@ -112,12 +216,12 @@ describe('Life Record integration contract', () => {
       toRecords: () => [{
         key: 'mneme:note:note-1',
         kind: 'note' as const,
-        sourceApp: 'hydros' as const,
-        source: 'Hydros' as const,
+        sourceApp: 'oikonomia' as const,
+        source: 'Oikonomia' as const,
         sourceId: 'note-1',
         at: '2026-11-02T12:00:00.000Z',
         title: 'A note',
-        searchText: 'a note hydros',
+        searchText: 'a note oikonomia',
         valueIds: [],
         archived: false,
       }],
