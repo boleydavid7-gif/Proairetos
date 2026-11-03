@@ -35,7 +35,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
 
   const take = (found: ReadBooking | undefined) => {
     if (!found) {
-      setReadNote('Nothing found. Paste the whole email, or fill in the details.');
+      setReadNote('No booking found. Paste the email or enter details.');
       return;
     }
     setForm((current) => ({ ...current, ...Object.fromEntries(Object.entries(found).filter(([, value]) => value !== undefined && value !== '')) }));
@@ -51,7 +51,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
     setReading(0);
     readBookingFile(file, setReading)
       .then(({ booking }) => take(booking))
-      .catch(() => setReadNote('Couldn’t read that file. Paste the email, or fill in the details.'))
+      .catch(() => setReadNote('Couldn’t read file. Paste the email or enter details.'))
       .finally(() => setReading(undefined));
   };
   // Shared into Poreia from another app (Android, computers), or opened with it.
@@ -99,7 +99,7 @@ export default function BookingForm({ nav, tripId, id, kind: firstKind, paste }:
 
       {captureMode === 'choose' && (
         <section className="card poreia-booking-capture">
-          <h2 className="card__title">Add it your way</h2>
+          <h2 className="card__title">Add booking</h2>
           <div className="button-row">
             <button type="button" className="button-main" onClick={() => setCaptureMode('paste')}>
               Paste a confirmation
