@@ -279,7 +279,7 @@ function poreiaRecords(input: PoreiaAdapterInput): LifeRecord[] {
   );
   const trips = completed.map((trip) => {
     const places = destinations(trip);
-    const day = trip.end ?? trip.start!;
+    const day = trip.end && trip.start && trip.end >= trip.start ? trip.end : trip.start!;
     return record({
       key: lifeRecordKey('poreia', 'trip', trip.id),
       kind: 'trip',
@@ -289,7 +289,6 @@ function poreiaRecords(input: PoreiaAdapterInput): LifeRecord[] {
       at: `${day}T12:00:00`,
       title: trip.name,
       detail: join(places.join(' → '), trip.start && trip.end ? `${trip.start} – ${trip.end}` : trip.start),
-      body: trip.notes,
       valueIds: [],
       archived: false,
       searchParts: [trip.name, ...places, ...placesOf(trip).map((stop) => stop.place.countryCode)],
