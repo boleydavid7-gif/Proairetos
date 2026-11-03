@@ -305,7 +305,12 @@ export default function ConnectionsPage() {
                     <small>{detailFor(entry)}</small>
                   </button>
                   {entry.kind === 'reflection' && isExpanded && body && <p className="connections-record__body">{body}</p>}
-                  {entry.kind !== 'reflection' && body && <p className="connections-record__body">{body}</p>}
+                  {entry.kind !== 'reflection' && body && (
+                    <details className="connections-record__details">
+                      <summary>More details</summary>
+                      <p className="connections-record__body">{body}</p>
+                    </details>
+                  )}
                   {names.length > 0 && (
                     <div className="connections-record__values">
                       {names.map((name) => <span key={name}>{name}</span>)}
@@ -324,6 +329,11 @@ export default function ConnectionsPage() {
             );
           })}
         </ol>
+      )}
+      {scoped.length > visibleCount && (
+        <button type="button" className="connections-load-more" onClick={() => setVisibleCount((count) => count + 30)}>
+          Show more · {scoped.length - visibleCount} remaining
+        </button>
       )}
     </div>
   );
