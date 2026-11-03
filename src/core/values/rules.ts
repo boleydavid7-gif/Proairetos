@@ -1,8 +1,40 @@
 import type { DomainContext } from '../context';
-import { MAX_USER_VALUES, MAX_VALUE_NAME_LENGTH, presetValues, type ChosenValue } from './types';
+import { MAX_USER_VALUES, MAX_VALUE_NAME_LENGTH, MAX_VALUE_PRINCIPLES, MAX_VALUE_PRINCIPLE_LENGTH, presetValues, type ChosenValue } from './types';
 
 export function canChooseMoreValues(currentCount: number): boolean {
   return currentCount < MAX_USER_VALUES;
+}
+
+export class ValuePrincipleError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValuePrincipleError';
+  }
+}
+
+/** Normalizes a person's principles without inventing or rewriting their meaning. */
+export function normalizeValuePrinciples(principles: readonly string[]): string[] {
+  const normalized: string[] = [];
+  const seen = new Set<string>();
+
+  for (const entry of principles) {
+    const principle = entry.trim().replace(/\\s+/g, ' ');
+    if (!principle) continue;
+    if (principle.length > MAX_VALUE_PRINCIPLE_LENGTH) {
+      throw new ValuePrincipleError(`Keep a principle to ${MAX_VALUE_PRINCIPLE_LENGTH} characters.`);
+    }
+    const key = principle.toLocaleLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      normalized.push(principle);
+    }
+  }
+
+  if (normalized.length > MAX_VALUE_PRINCIPLES) {
+    throw new ValuePrincipleError(`Keep up to ${MAX_VALUE_PRINCIPLES} principles for each value.`);
+  }
+
+  return normalized;
 }
 
 export class ValueChoiceError extends Error {
