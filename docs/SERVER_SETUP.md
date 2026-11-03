@@ -294,6 +294,23 @@ in the invite link, so the server stores them without being able to read them. B
 All four migrations above are safe to run again; running them in date order on a server that already has some
 of them does no harm.
 
+## Family sharing and member management (migrations 20261031000000, 20261103000000 and 20261104000000)
+
+Run these in order after `20261018000000_shared_lists.sql`:
+
+1. `supabase/migrations/20261031000000_household_invites.sql` enables encrypted invitations by email.
+2. `supabase/migrations/20261103000000_household_app_sharing.sql` adds server-enforced per-app sharing permissions.
+3. `supabase/migrations/20261104000000_household_member_roles.sql` adds owner, administrator and member permissions, member removal, and restricts email invitations to owners and administrators.
+
+The household creator is the owner. Members are ordinary members by default; the owner can promote or demote administrators.
+Owners and administrators can invite people. Administrators can remove ordinary members, while only the owner can
+change administrator roles or remove another administrator. Removing someone blocks future server access to household
+lists and enabled app lists on their next sync. It cannot recall copies already downloaded to their devices.
+
+Names and email display details remain encrypted in the household list. Roles and membership are server-authoritative
+so changing a role or removing a person cannot be bypassed by editing local data. Apply all three migrations before
+using the Family member controls.
+
 ## Sign in other apps from Proairetos (migration 20261019000000)
 
 On an iPhone each Home Screen app keeps its own storage, so each would need its own sign-in. With this, Proairetos
