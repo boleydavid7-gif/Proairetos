@@ -160,8 +160,8 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
   async function stillMe(userId: string): Promise<boolean> {
     if (!belongsToDeviceAccount(userId)) return false;
     try {
-      const { data, error } = await (await supabase()).auth.getUser();
-      return !error && data.user?.id === userId && belongsToDeviceAccount(userId);
+      const { data, error } = await (await supabase()).auth.getSession();
+      return !error && data.session?.user.id === userId && belongsToDeviceAccount(userId);
     } catch {
       return false;
     }
