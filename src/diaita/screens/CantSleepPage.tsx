@@ -37,7 +37,7 @@ export default function CantSleepPage({ nav }: { nav: DiaitaNav }) {
         {phase === 'start' && (
           <>
             <h1>Can’t sleep</h1>
-            <p>If you have been awake for about 20 minutes, leave the bed. Keep the light dim and do something calm. Go back when you feel sleepy.</p>
+            <p>Awake for about 20 minutes? Get up, keep the lights dim and do something quiet. Return when sleepy.</p>
             <button type="button" className="diaita-cant-sleep__primary" onClick={() => setPhase('get-up')}>Get up for a while</button>
             <button type="button" className="diaita-cant-sleep__secondary" onClick={() => setPhase('shuffle')}>Try ordinary words</button>
           </>
@@ -45,7 +45,7 @@ export default function CantSleepPage({ nav }: { nav: DiaitaNav }) {
         {phase === 'get-up' && (
           <>
             <h1>Dim light, calm activity</h1>
-            <p>Read a few pages, fold something, or sit somewhere else. Return to bed when sleepiness arrives.</p>
+            <p>Read, fold laundry or sit quietly. Return when sleepy.</p>
             <button type="button" className="diaita-cant-sleep__primary" onClick={() => setPhase('shuffle')}>Try ordinary words</button>
             <details className="diaita-cant-sleep__source"><summary>Source</summary><span>{CANT_SLEEP_STEPS[0].source}</span></details>
           </>
@@ -54,7 +54,7 @@ export default function CantSleepPage({ nav }: { nav: DiaitaNav }) {
           <>
             <h1>Picture an ordinary word</h1>
             <p>{shuffleWord(word)}.</p>
-            <p className="diaita-cant-sleep__instruction">See it clearly, then choose another word. Let the pictures arrive without making a story.</p>
+            <p className="diaita-cant-sleep__instruction">Picture it, then choose another word. Let each image come and go.</p>
             <button type="button" className="diaita-cant-sleep__primary" onClick={() => setWord((before) => before + 1)}>Another word</button>
             <details className="diaita-cant-sleep__source"><summary>Source</summary><span>{CANT_SLEEP_STEPS[1].source}</span></details>
           </>
