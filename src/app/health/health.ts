@@ -3,7 +3,7 @@ import { currentUserId, openWithAccount, sealWithAccount, syncStatus } from '../
 import { openSealed } from '../capture/inbox';
 import { API_BASE } from '../apiBase';
 import { isAdded } from '../family/added';
-import { emptyBatch, readHealthExport, type HealthBatch } from '../../core/health/autoExport';
+import { emptyBatch, readHealthExport, type HealthBatch, type HealthWorkout } from '../../core/health/autoExport';
 
 /*
  * Apple Health through Health Auto Export. Turning it on makes a key pair and a token on this device; the server gets
@@ -118,6 +118,42 @@ export async function turnOffHealth(): Promise<void> {
   saveHealthChoices(undefined);
 }
 
+const PENDING_ASKESIS = 'askesis:health-pending-workouts';
+export function pendingHealthWorkouts(): HealthWorkout[] {
+  try { const raw = localStorage.getItem(PENDING_ASKESIS); return raw ? JSON.parse(raw) as HealthWorkout[] : []; } catch { return []; }
+}
+function savePendingHealthWorkouts(items: HealthWorkout[]): void {
+  try { localStorage.setItem(PENDING_ASKESIS, JSON.stringify(items)); } catch { /* Available for this visit. */ }
+}
+async function queueHealthWorkouts(workouts: HealthWorkout[]): Promise<number> {
+  if (!workouts.length || !isAdded('askesis')) return 0;
+  const { newWorkouts } = await import('../../core/health/fromHealth');
+  const store = await import('../../askesis/data/store');
+  const logged = await store.listEntries();
+  const pending = pendingHealthWorkouts();
+  const fresh = newWorkouts(workouts, [...logged, ...pending.map((item) => ({ id: HEALTH_ID + item.id, date: item.date, activity: item.type, meters: item.meters, seconds: item.seconds }))]);
+  if (fresh.length) savePendingHealthWorkouts([...pending, ...fresh]);
+  return fresh.length;
+}
+export async function importPendingHealthWorkout(id: string): Promise<void> {
+  const pending = pendingHealthWorkouts();
+  const workout = pending.find((item) => item.id === id);
+  if (!workout) return;
+  const store = await import('../../askesis/data/store');
+  const entryId = HEALTH_ID + workout.id;
+  const log = await store.listEntries();
+  if (!log.some((entry) => entry.id === entryId)) {
+    const { openSessionOn } = await import('../../askesis/app/strava');
+    const linked = workout.type === 'run' || workout.type === 'walk' ? openSessionOn(log, new Date().toISOString().slice(0, 10))(workout.date) : undefined;
+    const activity = (['run', 'walk', 'hike', 'bike'].includes(workout.type) ? workout.type : 'other') as 'run' | 'walk' | 'hike' | 'bike' | 'other';
+    await store.putEntry({ id: entryId, date: workout.date, activity, seconds: workout.seconds, meters: workout.meters, avgHr: workout.avgHr, workoutId: linked?.id, workoutTitle: linked?.title, createdAt: new Date().toISOString() });
+  }
+  savePendingHealthWorkouts(pending.filter((item) => item.id !== id));
+}
+export function dismissPendingHealthWorkout(id: string): void {
+  savePendingHealthWorkouts(pendingHealthWorkouts().filter((item) => item.id !== id));
+}
+
 export type BroughtIn = { counts: { workouts: number; sleep: number; water: number; readings: number }; undo: () => Promise<void> };
 
 /** One of each: the last one sent wins (a day's water total that grew, a night written again). */
@@ -141,21 +177,7 @@ export async function applyHealth(sent: HealthBatch, choices: HealthChoices | un
   const on = (part: keyof HealthChoices, app: string) => (choices ? choices[part] : true) && isAdded(app);
 
   if (batch.workouts.length && on('workouts', 'askesis')) {
-    const store = await import('../../askesis/data/store');
-    const { openSessionOn } = await import('../../askesis/app/strava');
-    const log = await store.listEntries();
-    const fresh = newWorkouts(batch.workouts, log);
-    const session = openSessionOn(log, new Date().toISOString().slice(0, 10));
-    const taken = new Set<string>();
-    for (const workout of fresh) {
-      const linked = workout.type === 'run' || workout.type === 'walk' ? session(workout.date) : undefined;
-      const use = linked && !taken.has(linked.id) ? linked : undefined;
-      if (use) taken.add(use.id);
-      const id = HEALTH_ID + workout.id;
-      await store.putEntry({ id, date: workout.date, activity: workout.type as 'run', seconds: workout.seconds, meters: workout.meters, avgHr: workout.avgHr, workoutId: use?.id, workoutTitle: use?.title, createdAt: now });
-      undo.push(() => store.deleteEntry(id));
-    }
-    counts.workouts = fresh.length;
+    counts.workouts = await queueHealthWorkouts(batch.workouts);
   }
 
   if (batch.sleep.length && on('sleep', 'diaita')) {
