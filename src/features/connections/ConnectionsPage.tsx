@@ -589,7 +589,7 @@ export default function ConnectionsPage() {
           <button type="button" role="tab" aria-selected={view === 'library'} onClick={() => setView('library')}>Library <span>{libraryCount}</span></button>
           <button type="button" role="tab" aria-selected={view === 'saved'} onClick={() => setView('saved')}>Saved <span>{savedCount}</span></button>
           <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{archivedCount}</span></button>
-          <button type="button" role="tab" aria-selected={view === 'trash'} onClick={() => setView('trash')}>Recently Deleted <span>{trashCount}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'trash'} onClick={() => setView('trash')}>Trash <span>{trashCount}</span></button>
         </div>
         <div className="connections-mode__summary">
           <span className="connections-total">{visibleRecords.length < scoped.length ? 'Showing ' + visibleRecords.length + ' of ' + scoped.length : scoped.length + (scoped.length === 1 ? ' entry' : ' entries')}</span>
@@ -713,7 +713,7 @@ export default function ConnectionsPage() {
 
       {scoped.length === 0 ? (
         <div className="connections-empty">
-          <span className="connections-empty__mark"><Sym name={view === 'trash' ? 'trash-2' : view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
+          <span className="connections-empty__mark"><Sym name={view === 'trash' ? 'trash' : view === 'archived' ? 'box' : view === 'saved' ? 'bookmark' : 'search'} size={26} /></span>
           <p className="connections-empty__title">{view === 'trash' ? 'Recently Deleted is empty.' : view === 'archived' ? 'Your archive is empty.' : view === 'saved' ? 'Nothing saved yet.' : 'Nothing here just yet.'}</p>
           <p>{hasFilters ? 'Try a different search or loosen your filters.' : view === 'trash' ? 'Entries you move here stay for 30 days. Removing them from Reflect never deletes the original in its source app.' : view === 'saved' ? 'Save reflections and experiences you want to find again.' : 'Your selected notes and ideas, reflections, decisions, completed trips, milestones and experiences will find their place here.'}</p>
           {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
@@ -726,7 +726,7 @@ export default function ConnectionsPage() {
             return (
               <section className="connections-year" key={year.key}>
                 <button type="button" className="connections-year__toggle" aria-expanded={yearExpanded} onClick={() => setExpandedYears((current) => ({ ...current, [year.key]: !yearExpanded }))}>
-                  <span className="connections-year__title"><Sym name={yearExpanded ? 'chevron-down' : 'chevron-right'} size={17} /> {year.label}</span>
+                  <span className="connections-year__title"><Sym name="chevron" size={16} className={yearExpanded ? 'connections-disclosure-icon connections-disclosure-icon--open' : 'connections-disclosure-icon'} /> {year.label}</span>
                   <span className="connections-year__count">{year.records.length}</span>
                 </button>
                 {yearExpanded && (
@@ -738,7 +738,7 @@ export default function ConnectionsPage() {
                       return (
                         <section className="connections-month" key={month.key}>
                           <button type="button" className="connections-month__toggle" aria-expanded={monthExpanded} onClick={() => setExpandedMonths((current) => ({ ...current, [monthKey]: !monthExpanded }))}>
-                            <span className="connections-month__title"><Sym name={monthExpanded ? 'chevron-down' : 'chevron-right'} size={15} /> {month.label}</span>
+                            <span className="connections-month__title"><Sym name="chevron" size={14} className={monthExpanded ? 'connections-disclosure-icon connections-disclosure-icon--open' : 'connections-disclosure-icon'} /> {month.label}</span>
                             <span className="connections-month__count">{month.records.length}</span>
                           </button>
                           {monthExpanded && (
