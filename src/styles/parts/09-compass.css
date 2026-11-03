@@ -1245,3 +1245,14 @@ button.value-card__text:disabled {
   font-size: var(--text-sm);
   line-height: 1.45;
 }
+
+/* Keep the Library available without giving it a prominent card on Compass. */
+.compass-library-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: 44px;
+  margin-top: var(--space-5);
+}
