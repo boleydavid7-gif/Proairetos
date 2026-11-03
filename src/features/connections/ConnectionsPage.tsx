@@ -9,6 +9,7 @@ import type { Decision } from '../../core/decisions/types';
 import type { LifeItem } from '../../core/life-items/types';
 import type { Reflection } from '../../core/reflections/types';
 import PageHero from '../../components/layout/PageHero';
+import { Sym } from '../../lamplight/icons';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
 
@@ -232,59 +233,63 @@ export default function ConnectionsPage() {
 
   return (
     <div className="page connections-page">
-      <PageHero title="Connections" subtitle="A place to find, revisit and organize what you have captured." back={{ label: 'Reflect', onBack: leave }} />
+      <PageHero title="Connections" subtitle="A quiet place to return to the things worth keeping." back={{ label: 'Reflect', onBack: leave }} />
 
-      <div className="connections-overview">
-        <div><strong>{counts.all}</strong><span>{view === 'active' ? 'active records' : 'archived records'}</span></div>
-        <p>{valueId ? 'Showing what you connected to ' + (valueNames.get(valueId) ?? 'this value') + '.' : 'Your reflections, decisions, pursuits and everyday life, together.'}</p>
-      </div>
-
-      <label className="connections-search">
-        <span className="sr-only">Search all connections</span>
-        <input className="field-input" type="search" aria-label="Search all connections" placeholder="Search words, ideas, decisions…" value={search} onChange={(event) => setSearch(event.target.value)} />
-      </label>
-
-      <div className="connections-filters">
-        <label>
-          <span>Value</span>
-          <select className="field-input" value={valueId} onChange={(event) => setValueId(event.target.value)}>
-            <option value="">All values</option>
-            {values.map((value: ChosenValue) => <option key={value.id} value={value.id}>{value.name}</option>)}
-          </select>
-        </label>
-        <label>
-          <span>Date</span>
-          <select className="field-input" value={range} onChange={(event) => setRange(event.target.value as Range)}>
-            <option value="all">Any time</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="365">Last year</option>
-          </select>
+      <div className="connections-toolbar">
+        <label className="connections-search">
+          <Sym name="search" size={19} />
+          <span className="sr-only">Search your library</span>
+          <input type="search" aria-label="Search your library" placeholder="Find a thought, decision or idea…" value={search} onChange={(event) => setSearch(event.target.value)} />
+          {search && <button type="button" className="connections-clear" aria-label="Clear search" onClick={() => setSearch('')}><Sym name="close" size={16} /></button>}
         </label>
       </div>
 
-      <div className="connections-categories" role="tablist" aria-label="Connection type">
+      <div className="connections-mode">
+        <div className="connections-mode__tabs" role="tablist" aria-label="Library view">
+          <button type="button" role="tab" aria-selected={view === 'active'} onClick={() => setView('active')}>Library <span>{records.filter((entry) => !entry.archived).length}</span></button>
+          <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{records.filter((entry) => entry.archived).length}</span></button>
+        </div>
+        <span className="connections-total">{scoped.length} {scoped.length === 1 ? 'entry' : 'entries'}</span>
+      </div>
+
+      <div className="connections-categories" role="group" aria-label="Filter by type">
         {(Object.keys(categoryLabels) as Category[]).map((id) => (
-          <button key={id} type="button" role="tab" aria-selected={category === id} className={category === id ? 'connections-category connections-category--active' : 'connections-category'} onClick={() => setCategory(id)}>
-            <span>{categoryLabels[id]}</span><small>{counts[id]}</small>
+          <button key={id} type="button" aria-pressed={category === id} className={category === id ? 'connections-category connections-category--active' : 'connections-category'} onClick={() => setCategory(id)}>
+            {categoryLabels[id]}
           </button>
         ))}
       </div>
 
-      <div className="connections-view">
-        <span className="daily-line__label">{view === 'active' ? 'Your library' : 'Archived'}</span>
-        <div className="connections-view__switch" role="group" aria-label="Show active or archived records">
-          <button type="button" aria-pressed={view === 'active'} onClick={() => setView('active')}>Active</button>
-          <button type="button" aria-pressed={view === 'archived'} onClick={() => setView('archived')}>Archive</button>
+      <details className="connections-refine">
+        <summary><span><Sym name="list" size={17} /> Refine library</span><span className="connections-refine__state">{valueId || range !== 'all' ? 'Filters applied' : 'Optional filters'} <Sym name="chevron" size={15} /></span></summary>
+        <div className="connections-refine__fields">
+          <label>
+            <span>Connected value</span>
+            <select className="field-input" value={valueId} onChange={(event) => setValueId(event.target.value)}>
+              <option value="">All values</option>
+              {values.map((value: ChosenValue) => <option key={value.id} value={value.id}>{value.name}</option>)}
+            </select>
+          </label>
+          <label>
+            <span>When</span>
+            <select className="field-input" value={range} onChange={(event) => setRange(event.target.value as Range)}>
+              <option value="all">Any time</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="365">Last year</option>
+            </select>
+          </label>
+          {(valueId || range !== 'all') && <button type="button" className="connections-reset" onClick={() => { setValueId(''); setRange('all'); }}>Clear filters</button>}
         </div>
-      </div>
+      </details>
 
       {error && <p className="connections-error" role="alert">{error}</p>}
 
       {scoped.length === 0 ? (
         <div className="connections-empty">
-          <p className="connections-empty__title">{view === 'archived' ? 'Nothing archived here.' : 'Nothing matches just yet.'}</p>
-          <p>{query || valueId || range !== 'all' ? 'Try changing your search or filters.' : 'As you write, decide and make connections, they will gather here.'}</p>
+          <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : 'bookmark'} size={26} /></span>
+          <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : 'Nothing here just yet.'}</p>
+          <p>{query || valueId || range !== 'all' || category !== 'all' ? 'Try a different search or loosen your filters.' : 'Reflections, decisions, pursuits and the things you save will find their place here.'}</p>
         </div>
       ) : (
         <ol className="connections-list">
@@ -293,37 +298,41 @@ export default function ConnectionsPage() {
             const names = linkedValueIds(entry).map((id) => valueNames.get(id)).filter((name): name is string => Boolean(name));
             const body = bodyFor(entry);
             const isExpanded = Boolean(expanded[key]);
+            const kindLabel = entry.kind === 'life' ? 'Life' : entry.kind.charAt(0).toUpperCase() + entry.kind.slice(1);
             return (
-              <li key={key}>
+              <li key={key} className="connections-list__item">
                 <article className="connections-record">
                   <div className="connections-record__meta">
-                    <span className={'connections-record__kind connections-record__kind--' + entry.kind}>{entry.kind === 'life' ? 'Life' : entry.kind.charAt(0).toUpperCase() + entry.kind.slice(1)}</span>
+                    <span className={'connections-record__kind connections-record__kind--' + entry.kind}>{kindLabel}</span>
                     <time dateTime={entry.at}>{dateLabel(entry.at)}</time>
+                    <details className="connections-actions">
+                      <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
+                      <div className="connections-actions__menu">
+                        {valueId && linkedValueIds(entry).includes(valueId) && (
+                          <button type="button" disabled={busyId === key} onClick={() => void unlink(entry)}>Unlink {valueNames.get(valueId)}</button>
+                        )}
+                        <button type="button" disabled={busyId === key} onClick={() => void (entry.archived ? restore(entry) : archive(entry))}>
+                          {busyId === key ? 'Saving…' : entry.archived ? 'Restore to library' : 'Move to archive'}
+                        </button>
+                      </div>
+                    </details>
                   </div>
                   <button type="button" className="connections-record__title" aria-expanded={entry.kind === 'reflection' ? isExpanded : undefined} onClick={() => openRecord(entry)}>
                     <span>{titleFor(entry)}</span>
-                    <small>{detailFor(entry)}</small>
+                    {entry.kind !== 'reflection' && <small>{detailFor(entry)}</small>}
                   </button>
                   {entry.kind === 'reflection' && isExpanded && body && <p className="connections-record__body">{body}</p>}
                   {entry.kind !== 'reflection' && body && (
                     <details className="connections-record__details">
-                      <summary>More details</summary>
+                      <summary>Read note</summary>
                       <p className="connections-record__body">{body}</p>
                     </details>
                   )}
                   {names.length > 0 && (
-                    <div className="connections-record__values">
+                    <div className="connections-record__values" aria-label="Connected values">
                       {names.map((name) => <span key={name}>{name}</span>)}
                     </div>
                   )}
-                  <div className="connections-record__actions">
-                    {valueId && linkedValueIds(entry).includes(valueId) && (
-                      <button type="button" disabled={busyId === key} onClick={() => void unlink(entry)}>Unlink {valueNames.get(valueId)}</button>
-                    )}
-                    <button type="button" disabled={busyId === key} onClick={() => void (entry.archived ? restore(entry) : archive(entry))}>
-                      {busyId === key ? 'Saving…' : entry.archived ? 'Restore' : 'Archive'}
-                    </button>
-                  </div>
                 </article>
               </li>
             );
@@ -332,7 +341,7 @@ export default function ConnectionsPage() {
       )}
       {scoped.length > visibleCount && (
         <button type="button" className="connections-load-more" onClick={() => setVisibleCount((count) => count + 30)}>
-          Show more · {scoped.length - visibleCount} remaining
+          Show more <span>{scoped.length - visibleCount} remaining</span>
         </button>
       )}
     </div>
