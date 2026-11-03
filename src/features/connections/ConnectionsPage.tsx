@@ -114,6 +114,7 @@ export default function ConnectionsPage() {
     pursuits: allPursuits,
     items,
     workouts: runs?.workouts ?? [],
+    distanceUnit: runs?.unit ?? 'km',
     recipes,
     studySessions: combineReadingSessions(study?.sessions ?? []),
   }), [reflections, decisions, allPursuits, items, runs, recipes, study]);
