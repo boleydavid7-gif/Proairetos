@@ -541,7 +541,7 @@ export default function ConnectionsPage() {
       {selectionMode && (
         <section className="connections-bulk" aria-label="Bulk library actions">
           <div className="connections-bulk__header">
-            <p><strong>{selectedRecords.length}</strong> selected <span>of {scoped.length} results</span></p>
+            <p aria-live="polite" aria-atomic="true"><strong>{selectedRecords.length}</strong> selected <span>of {scoped.length} results</span></p>
             <div className="connections-bulk__selection-actions">
               <button type="button" className="button-quiet" disabled={!scoped.length || bulkBusy} onClick={toggleSelectAllResults}>
                 {allResultsSelected ? 'Clear selection' : `Select all ${scoped.length}`}
