@@ -103,7 +103,7 @@ export default function CookPage({ nav, id, scale = 1 }: { nav: Nav; id: string;
           Read aloud
         </button>
         {listeningHere() && (
-          <button type="button" className="chip chip--small" aria-pressed={settings.listen} onClick={() => saveSettings({ ...loadSettings(), listen: !settings.listen })}>
+          <button type="button" className="chip chip--small" aria-label="Voice commands: next, back, again, timer" aria-pressed={settings.listen} onClick={() => saveSettings({ ...loadSettings(), listen: !settings.listen })}>
             Voice
           </button>
         )}
