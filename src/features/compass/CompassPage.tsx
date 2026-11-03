@@ -193,11 +193,6 @@ export default function CompassPage() {
     <div className="page">
       <PageHero title="Compass" back={{ label: 'Reflect', onBack: leave }} />
 
-      <button type="button" className="connections-manager-link" onClick={() => navigate('connections')}>
-        <span><strong>Connections</strong><small>Search and organize your saved thoughts and decisions</small></span>
-        <ChevronRightIcon size={18} />
-      </button>
-
       {tabs.length > 1 && (
         <div className="segmented compass-tabs" role="tablist" aria-label="Compass" style={{ ['--tabs' as string]: String(tabs.length) }}>
           {tabs.map((option) => (
@@ -313,6 +308,10 @@ export default function CompassPage() {
         </>
       )}
       </div>
+
+      <button type="button" className="text-link compass-library-link" onClick={() => navigate('connections')}>
+        Library <ChevronRightIcon size={16} />
+      </button>
     </div>
   );
 }
