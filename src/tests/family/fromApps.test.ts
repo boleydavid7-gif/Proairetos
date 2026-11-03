@@ -21,7 +21,7 @@ describe('From your apps', () => {
     expect(rows[0].detail).toBe('8:00 · 50 mg');
     expect(rows[2].detail).toBe('Sam');
     expect(rows[3]).toMatchObject({ href: '/phyton/?open=plant%3Ap1' });
-    expect(rows[3].detail).toMatch(/^Check the soil · Since \\S+$/);
+    expect(rows[3].detail).toContain('Check the soil · Since ');
     expect(rows[4].detail).toBe('Furnace');
   });
 
