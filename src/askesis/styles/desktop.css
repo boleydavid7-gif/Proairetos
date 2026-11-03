@@ -150,19 +150,35 @@
 
   :root.askesis .log-page {
     display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    column-gap: 40px;
+    grid-template-columns: minmax(0, 1fr);
     row-gap: 20px;
     align-content: start;
+    position: relative;
   }
 
-  :root.askesis .log-page { position: relative; }
   :root.askesis .log-page > .page-top { position: absolute; top: 44px; right: 48px; z-index: 1; }
   :root.askesis .log-page > * { grid-column: 1 / -1; }
-  :root.askesis .log-page > .tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-  :root.askesis .log-page > .card { grid-column: 1; }
-  :root.askesis .log-page > .entries { grid-column: 2; grid-row: span 2; }
-  :root.askesis .log-page .bars { min-height: 220px; }
+  :root.askesis .progress__content {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 32px;
+    align-items: start;
+  }
+  :root.askesis .progress__content > .tiles { grid-column: 1 / -1; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+  :root.askesis .progress__overview-trend,
+  :root.askesis .progress__performance-distance,
+  :root.askesis .progress__consistency-chart { grid-column: 1; }
+  :root.askesis .progress__overview-records,
+  :root.askesis .progress__performance-time,
+  :root.askesis .progress__feelings { grid-column: 2; }
+  :root.askesis .progress__recent,
+  :root.askesis .progress__performance-records,
+  :root.askesis .progress__history,
+  :root.askesis .progress__history-actions { grid-column: 1 / -1; }
+  :root.askesis .progress__content--history { grid-template-columns: minmax(0, 1fr); }
+  :root.askesis .progress__content .bars { min-height: 220px; }
+  :root.askesis .progress__views { max-width: 42rem; }
+  :root.askesis .progress__period { max-width: 30rem; }
 
   /* ---------- More and its pages ---------- */
 
