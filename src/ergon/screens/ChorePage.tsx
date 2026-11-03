@@ -179,7 +179,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         <input className="input" type="time" value={remindAt} onChange={(event) => setRemindAt(event.target.value)} />
       </label>
       <label className="field">
-        <span className="field__label">Steps (optional), one per line</span>
+        <span className="field__label">Steps (optional)</span>
         <textarea className="input" rows={3} value={stepLines} onChange={(event) => setStepLines(event.target.value)} />
       </label>
       <label className="field">
