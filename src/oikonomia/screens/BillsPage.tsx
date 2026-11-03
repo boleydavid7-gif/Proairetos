@@ -36,7 +36,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       ) : (
         <>
           {ordered.length === 0 ? (
-            <p className="muted">Everything is paid for now.</p>
+            <p className="muted">All bills paid.</p>
           ) : (
             <section className="oiko-list oiko-list--large" aria-label="All bills">
               {ordered.map((bill) => {
