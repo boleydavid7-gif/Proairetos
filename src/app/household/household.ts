@@ -76,13 +76,19 @@ async function refreshRoleState(householdId: string, userId?: string): Promise<v
       client.from('shared_lists').select('created_by').eq('id', householdId).maybeSingle(),
       client.from('household_member_roles').select('user_id').eq('household_id', householdId),
     ]);
-    if (householdError || rolesError || !householdRow) {
+    if (householdError || !householdRow) {
       setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+      return;
+    }
+    const ownerId = (householdRow as { created_by: string }).created_by;
+    if (rolesError) {
+      // Even if the role migration is not installed yet, we can still identify the owner and prevent an orphaned home.
+      setRoleState({ householdId, ownerId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
       return;
     }
     setRoleState({
       householdId,
-      ownerId: (householdRow as { created_by: string }).created_by,
+      ownerId,
       admins: ((adminRows ?? []) as { user_id: string }[]).map((row) => row.user_id),
       userId,
       loaded: true,
@@ -278,6 +284,12 @@ export async function leaveHousehold(): Promise<void> {
   const list = household();
   if (!list) return;
   const userId = await me().catch(() => undefined);
+  if (roleState.householdId !== list.id || roleState.userId !== userId || !roleState.fetchedAt) {
+    await refreshRoleState(list.id, userId);
+  }
+  if (!roleState.ownerId) {
+    throw new Error('Could not verify household ownership. Check your connection and try again.');
+  }
   if (userId && roleState.ownerId === userId) {
     throw new Error('The household owner cannot leave yet. Ownership transfer is not available.');
   }
