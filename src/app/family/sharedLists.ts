@@ -234,7 +234,7 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     void refreshList(list).catch(() => undefined);
   }
 
-  const refreshing = new Map<string, Promise<void>>();
+  const refreshing = new Map<string, { promise: Promise<void>; rerun: boolean }>();
 
   /** Sends what is waiting, then brings the whole list back from the server. */
   async function refreshList(list: SharedList): Promise<void> {
@@ -242,8 +242,15 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     const userId = await me();
     const runKey = `${userId}:${list.id}`;
     const running = refreshing.get(runKey);
-    if (running) return running;
-    const work = (async () => {
+    if (running) {
+      // A request already in flight may have started before a membership change. Queue one fresh server check
+      // behind it instead of letting this caller inherit an old "access still allowed" result.
+      running.rerun = true;
+      return running.promise;
+    }
+
+    const entry: { promise: Promise<void>; rerun: boolean } = { promise: Promise.resolve(), rerun: false };
+    const refreshOnce = async () => {
       const client = await supabase();
       // A SELECT policy filters inaccessible rows instead of throwing. Check list visibility first so a revoked
       // household share clears its stale local reference even when there are no queued writes.
@@ -279,6 +286,13 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
       if (!(await stillMe(userId))) return;
       write(cacheKey(list.id), items);
       changed();
+    };
+
+    const work = (async () => {
+      do {
+        entry.rerun = false;
+        await refreshOnce();
+      } while (entry.rerun && await stillMe(userId));
     })()
       .catch(async (cause: unknown) => {
         // A household share can be switched off after a member has joined. Do not clear anything if this request
@@ -292,7 +306,8 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
         throw cause;
       })
       .finally(() => refreshing.delete(runKey));
-    refreshing.set(runKey, work);
+    entry.promise = work;
+    refreshing.set(runKey, entry);
     return work;
   }
 
