@@ -8,6 +8,9 @@ import { plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/
 import { useRuns } from '../../app/askesis/runs';
 import { combineReadingSessions, useStudy } from '../../app/praxis/study';
 import { useRecipesFromSoma } from '../../app/soma/meals';
+import { notes as mnemeNotes, ideas as mnemeIdeas } from '../../mneme/app/state';
+import { trips as poreiaTrips, journal as poreiaJournal, today as poreiaToday } from '../../poreia/app/state';
+import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/reflect';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
 import type { ChosenValue } from '../../core/values/types';
@@ -17,7 +20,7 @@ import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
 import LibraryRecordItem from './LibraryRecordItem';
 
-type Category = 'all' | 'reflections' | 'decisions' | 'experiences' | 'pursuits' | 'life';
+type Category = 'all' | 'reflections' | 'decisions' | 'experiences' | 'pursuits' | 'life' | 'thoughts' | 'travel' | 'financial';
 type View = 'library' | 'saved' | 'archived';
 type Range = 'all' | '30' | '90' | '365';
 type SortOrder = 'newest' | 'oldest';
@@ -29,6 +32,9 @@ const categoryLabels: Record<Category, string> = {
   experiences: 'Experiences',
   pursuits: 'Pursuits',
   life: 'Life',
+  thoughts: 'Notes & ideas',
+  travel: 'Travel',
+  financial: 'Money',
 };
 
 function isInRange(at: string, range: Range, now: number): boolean {
@@ -43,6 +49,9 @@ function categoryMatches(record: LifeRecord, category: Category): boolean {
   if (category === 'decisions') return record.kind === 'decision';
   if (category === 'experiences') return record.kind === 'workout' || record.kind === 'meal' || record.kind === 'study';
   if (category === 'pursuits') return record.kind === 'pursuit';
+  if (category === 'thoughts') return record.kind === 'note' || record.kind === 'idea';
+  if (category === 'travel') return record.kind === 'trip';
+  if (category === 'financial') return record.kind === 'financial';
   return record.kind === 'life';
 }
 
@@ -60,6 +69,12 @@ export default function ConnectionsPage() {
   const strengthPlan = dynamisPlan.use();
   const recipes = useRecipesFromSoma();
   const study = useStudy();
+  const notes = mnemeNotes.use();
+  const ideas = mnemeIdeas.use();
+  const trips = poreiaTrips.use();
+  const journal = poreiaJournal.use();
+  const financialMilestones = oikonomiaMilestones.use();
+  const tripToday = poreiaToday();
   const favorites = libraryFavorites.use();
 
   const [category, setCategory] = useState<Category>('all');
@@ -84,7 +99,13 @@ export default function ConnectionsPage() {
     strengthUnit: strengthPlan.unit ?? 'kg',
     recipes,
     studySessions: combineReadingSessions(study?.sessions ?? []),
-  }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study]);
+    mnemeNotes: notes,
+    mnemeIdeas: ideas,
+    poreiaTrips: trips,
+    poreiaJournal: journal,
+    poreiaToday: tripToday,
+    oikonomiaMilestones: financialMilestones,
+  }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
 
   const query = search.trim().toLocaleLowerCase();
   const hasFilters = Boolean(query || category !== 'all' || valueId || range !== 'all' || sortOrder !== 'newest');
@@ -123,6 +144,11 @@ export default function ConnectionsPage() {
       } else if (record.kind === 'life') {
         await lifeService.archive(record.sourceId);
         offerUndo('Life item archived', () => lifeService.restore(record.sourceId).then(() => undefined));
+      } else if (record.kind === 'note' && record.sourceApp === 'mneme') {
+        const current = mnemeNotes.get(record.sourceId);
+        if (!current) throw new Error('That note no longer exists.');
+        mnemeNotes.put({ ...current, archived: true, updatedAt: new Date().toISOString() });
+        offerUndo('Note archived', () => mnemeNotes.put({ ...current, archived: false, updatedAt: new Date().toISOString() }));
       } else if (record.kind === 'pursuit') {
         const current = allPursuits.find((entry) => entry.id === record.sourceId);
         if (!current) throw new Error('That pursuit no longer exists.');
@@ -146,7 +172,11 @@ export default function ConnectionsPage() {
       if (record.kind === 'reflection') await reflectionService.restore(record.sourceId);
       else if (record.kind === 'decision') await decisionService.restore(record.sourceId);
       else if (record.kind === 'life') await lifeService.restore(record.sourceId);
-      else if (record.kind === 'pursuit') {
+      else if (record.kind === 'note' && record.sourceApp === 'mneme') {
+        const current = mnemeNotes.get(record.sourceId);
+        if (!current) throw new Error('That note no longer exists.');
+        mnemeNotes.put({ ...current, archived: false, updatedAt: new Date().toISOString() });
+      } else if (record.kind === 'pursuit') {
         const current = allPursuits.find((entry) => entry.id === record.sourceId);
         if (!current) throw new Error('That pursuit no longer exists.');
         const { archivedStatus: previous, ...rest } = current;
@@ -228,7 +258,7 @@ export default function ConnectionsPage() {
         <label className="connections-search">
           <Sym name="search" size={19} />
           <span className="sr-only">Search your library</span>
-          <input type="search" aria-label="Search your library" placeholder="Find a thought, decision, workout, meal or book…" value={search} onChange={(event) => setSearch(event.target.value)} />
+          <input type="search" aria-label="Search your library" placeholder="Find a note, idea, decision, trip, milestone or experience…" value={search} onChange={(event) => setSearch(event.target.value)} />
           {search && <button type="button" className="connections-clear" aria-label="Clear search" onClick={() => setSearch('')}><Sym name="close" size={16} /></button>}
         </label>
       </div>
