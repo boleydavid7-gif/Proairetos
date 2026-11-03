@@ -89,9 +89,9 @@ export function AddBookDialog({ onClose, onSave, onMany, onLookup, initialFile }
             </label>
             {!file && (
               <div className="theoria-add-many">
-                <span>Or many at once</span>
-                <button type="button" className="theoria-secondary-button" onClick={() => manyInput.current?.click()}>Several files</button>
-                <button type="button" className="theoria-secondary-button" onClick={() => folderInput.current?.click()}>A whole folder</button>
+                <span>Add multiple</span>
+                <button type="button" className="theoria-secondary-button" onClick={() => manyInput.current?.click()}>Files</button>
+                <button type="button" className="theoria-secondary-button" onClick={() => folderInput.current?.click()}>Folder</button>
                 <input ref={manyInput} type="file" multiple hidden accept={ACCEPT} onChange={(event) => { many(event.target.files); event.target.value = ''; }} />
                 <input ref={folderInput} type="file" multiple hidden onChange={(event) => { many(event.target.files); event.target.value = ''; }} />
               </div>
@@ -106,7 +106,7 @@ export function AddBookDialog({ onClose, onSave, onMany, onLookup, initialFile }
             <label>Title<input value={title} onChange={(event) => setTitle(event.target.value)} /></label>
             <label>Author (optional)<input value={author} onChange={(event) => setAuthor(event.target.value)} /></label>
             <MoreDetails>
-              <div className="theoria-metadata-actions"><button type="button" className="theoria-secondary-button" onClick={() => void findDetails()} disabled={lookingUp || !title.trim()}>{lookingUp ? <Waiting>Finding details…</Waiting> : 'Find cover and details'}</button>{metadataFound && <span>Details added</span>}</div>
+              <div className="theoria-metadata-actions"><button type="button" className="theoria-secondary-button" onClick={() => void findDetails()} disabled={lookingUp || !title.trim()}>{lookingUp ? <Waiting>Finding details…</Waiting> : 'Find details'}</button>{metadataFound && <span>Details added</span>}</div>
               {lookupError && <p className="theoria-form-error" role="alert">{lookupError}</p>}
               {coverUrl && <div className="theoria-metadata-preview"><img src={coverUrl} alt="" /><span><strong>{title}</strong><small>{publisher ?? 'Cover found'}</small></span></div>}
               <label>Description (optional)<textarea value={description} onChange={(event) => setDescription(event.target.value)} /></label>
