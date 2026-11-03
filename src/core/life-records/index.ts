@@ -1,10 +1,6 @@
 import type { Decision } from '../decisions/types';
 import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
-import type { LogEntry } from '../../askesis/core/log';
-import type { Recipe } from '../../soma/core/recipes';
-import type { StudySession } from '../../app/praxis/study';
-import type { Pursuit } from '../../app/pursuits';
 
 export type LifeRecordKind = 'reflection' | 'decision' | 'pursuit' | 'life' | 'workout' | 'meal' | 'study';
 export type LifeRecordSource = 'Proairetos' | 'Compass' | 'Askesis' | 'Soma' | 'Theoria';
@@ -31,11 +27,24 @@ export interface LifeRecord {
 export interface LifeRecordInput {
   reflections?: readonly Reflection[];
   decisions?: readonly Decision[];
-  pursuits?: readonly Pursuit[];
+  pursuits?: readonly {
+    id: string; title: string; status: 'active' | 'paused' | 'complete' | 'archived';
+    area?: string; outcome?: string; why?: string; current?: string; nextMove?: string;
+    valueNotes?: Record<string, string>; createdAt: string;
+  }[];
   items?: readonly LifeItem[];
-  workouts?: readonly LogEntry[];
-  recipes?: readonly Recipe[];
-  studySessions?: readonly StudySession[];
+  workouts?: readonly {
+    id: string; date: string; activity: 'run' | 'walk' | 'hike' | 'bike' | 'other';
+    createdAt: string; seconds?: number; meters?: number; felt?: string; notes?: string;
+    wentWell?: string; nextTime?: string; intention?: string; workoutTitle?: string;
+  }[];
+  recipes?: readonly {
+    id: string; title: string; notes?: string; tags?: string[]; ingredients?: string[];
+    source?: string; cookedFor?: Record<string, string[]>;
+  }[];
+  studySessions?: readonly {
+    id: string; itemId: string; title: string; minutes: number; at: string; kind: 'study' | 'reading';
+  }[];
 }
 
 const compact = (value: string | undefined) => value?.trim() ?? '';
@@ -114,7 +123,7 @@ function lifeItemRecord(entry: LifeItem): LifeRecord {
   });
 }
 
-function workoutRecord(entry: LogEntry): LifeRecord {
+function workoutRecord(entry: LifeRecordInput['workouts'] extends readonly (infer T)[] | undefined ? T : never): LifeRecord {
   const activity = entry.workoutTitle ?? ({ run: 'Run', walk: 'Walk', hike: 'Hike', bike: 'Bike', other: 'Activity' } as const)[entry.activity];
   const details = [
     entry.meters ? `${(entry.meters / 1000).toFixed(1)} km` : undefined,
@@ -136,7 +145,7 @@ function workoutRecord(entry: LogEntry): LifeRecord {
   });
 }
 
-function mealRecords(recipes: readonly Recipe[]): LifeRecord[] {
+function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeRecord[] {
   return recipes.flatMap((recipe) =>
     Object.entries(recipe.cookedFor ?? {})
       .filter(([, people]) => people.length > 0)
@@ -159,7 +168,7 @@ function mealRecords(recipes: readonly Recipe[]): LifeRecord[] {
   );
 }
 
-function studyRecord(entry: StudySession): LifeRecord {
+function studyRecord(entry: NonNullable<LifeRecordInput['studySessions']>[number]): LifeRecord {
   const reading = entry.kind === 'reading';
   return record({
     key: `study:${entry.id}`,
