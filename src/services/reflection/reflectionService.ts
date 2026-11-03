@@ -74,7 +74,7 @@ export function createReflectionService({ userId, context, reflections }: Reflec
     /** Follow-up notes on one decision, oldest first. */
     async forDecision(decisionId: string): Promise<Reflection[]> {
       return (await reflections.list(userId))
-        .filter((reflection) => reflection.decisionId === decisionId)
+        .filter((reflection) => !reflection.archivedAt && reflection.decisionId === decisionId)
         .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
     },
 
