@@ -294,7 +294,7 @@ in the invite link, so the server stores them without being able to read them. B
 All four migrations above are safe to run again; running them in date order on a server that already has some
 of them does no harm.
 
-## Family sharing and member management (migrations 20261031000000 through 20261105000000)
+## Family sharing and member management (migrations 20261031000000 through 20261106000000)
 
 Run these in order after `20261018000000_shared_lists.sql`:
 
@@ -302,6 +302,7 @@ Run these in order after `20261018000000_shared_lists.sql`:
 2. `supabase/migrations/20261103000000_household_app_sharing.sql` adds server-enforced per-app sharing permissions.
 3. `supabase/migrations/20261104000000_household_member_roles.sql` adds owner, administrator and member permissions, member removal, and restricts email invitations to owners and administrators.
 4. `supabase/migrations/20261105000000_household_ownership_lifecycle.sql` adds secure ownership transfer and household deletion.
+5. `supabase/migrations/20261106000000_household_membership_sync.sql` keeps the person who enabled an app share connected to that app list when they leave the household, while revoking other departing members.
 
 The household creator is the owner. Members are ordinary members by default; the owner can promote or demote administrators.
 Owners and administrators can invite people. Administrators can remove ordinary members, while only the owner can
@@ -314,8 +315,8 @@ so changing a role or removing a person cannot be bypassed by editing local data
 existing member; the former owner becomes a regular member. Deleting a household removes its membership, invitations,
 and app-sharing connections. It does not delete the separate app lists or their content: the household owner, each
 app-list creator, and each person who originally enabled an app share retain their list access; other household
-members lose access on their next sync. Data already downloaded to a device cannot be recalled. Apply all four
-migrations before using the complete Family management controls.
+members lose access on their next sync. Data already downloaded to a device cannot be recalled. Apply all five
+migrations before using the complete Family management and membership-sync controls.
 
 ## Sign in other apps from Proairetos (migration 20261019000000)
 

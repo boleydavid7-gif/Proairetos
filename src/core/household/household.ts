@@ -38,7 +38,7 @@ export const partsOf = (items: readonly HouseholdItem[]): Part[] => items.filter
 export const membersOf = (items: readonly HouseholdItem[]): Member[] =>
   items.filter((item): item is Member => item.kind === 'member').sort((a, b) => a.at.localeCompare(b.at));
 
-export type PartState = 'shared' | 'join' | 'elsewhere';
+export type PartState = 'shared' | 'join' | 'elsewhere' | 'unavailable';
 
 /**
  * Where this person stands with one part: already in its list, about to join it, or (for an app that keeps to one

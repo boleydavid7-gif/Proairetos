@@ -137,10 +137,34 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
 
   // ---------- Account ----------
 
+  function belongsToDeviceAccount(userId: string): boolean {
+    try {
+      const deviceAccount = localStorage.getItem('proairetosAccount');
+      return !deviceAccount || deviceAccount === userId;
+    } catch {
+      return true;
+    }
+  }
+
   async function me(): Promise<string> {
-    const { data } = await (await supabase()).auth.getUser();
-    if (!data.user) throw new Error('Sign in to use shared lists.');
+    const client = await supabase();
+    const { data, error } = await client.auth.getUser();
+    if (error || !data.user) throw new Error('Sign in to use shared lists.');
+    if (!belongsToDeviceAccount(data.user.id)) {
+      throw new Error('This device is switching accounts. Wait for it to finish, then try again.');
+    }
     return data.user.id;
+  }
+
+  /** Never let a request started for one account write into another account's local device data. */
+  async function stillMe(userId: string): Promise<boolean> {
+    if (!belongsToDeviceAccount(userId)) return false;
+    try {
+      const { data, error } = await (await supabase()).auth.getSession();
+      return !error && data.session?.user.id === userId && belongsToDeviceAccount(userId);
+    } catch {
+      return false;
+    }
   }
 
   const plain = (error: { message: string } | null) => {
@@ -155,19 +179,31 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     const list: SharedList = { id: crypto.randomUUID(), key: newListKey(), name: name.trim().slice(0, 60) || options.defaultName, joinedAt: new Date().toISOString() };
     const client = await supabase();
     plain((await client.from('shared_lists').insert({ id: list.id, created_by: userId, join_proof: await joinProof(list.key) })).error);
+    if (!(await stillMe(userId))) throw new Error('Your account changed while this list was being created. Try again.');
     plain((await client.from('shared_list_members').insert({ list_id: list.id, user_id: userId })).error);
+    if (!(await stillMe(userId))) throw new Error('Your account changed while this list was being created. Try again.');
     saveLists([...sharedLists(), list]);
     return list;
   }
 
   /** Joins from an invite link; the list is then kept here like one of one's own. */
   async function joinList(invite: { id: string; key: string; name: string }): Promise<SharedList> {
-    await me();
+    const userId = await me();
     const existing = sharedLists().find((list) => list.id === invite.id);
-    if (existing) return existing;
-    const { data, error } = await (await supabase()).rpc('join_shared_list', { list: invite.id, proof: await joinProof(invite.key) });
+    if (existing) {
+      try {
+        await refreshList(existing);
+        return existing;
+      } catch (cause) {
+        // The server revoked this membership. Clear the stale local copy above, then let the valid invite rejoin it.
+        if (!(cause instanceof Error) || !/This list is no longer shared with you/i.test(cause.message)) throw cause;
+      }
+    }
+    const client = await supabase();
+    const { data, error } = await client.rpc('join_shared_list', { list: invite.id, proof: await joinProof(invite.key) });
     plain(error);
     if (data !== true) throw new Error('This link does not open a list. Ask for a new one.');
+    if (!(await stillMe(userId))) throw new Error('Your account changed while this list was being joined. Try again.');
     const list: SharedList = { ...invite, joinedAt: new Date().toISOString() };
     saveLists([...sharedLists(), list]);
     return list;
@@ -176,7 +212,9 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
   /** Leaves a list: it goes from this device; the others keep it. */
   async function leaveList(list: SharedList): Promise<void> {
     const userId = await me();
-    plain((await (await supabase()).from('shared_list_members').delete().eq('list_id', list.id).eq('user_id', userId)).error);
+    const client = await supabase();
+    plain((await client.from('shared_list_members').delete().eq('list_id', list.id).eq('user_id', userId)).error);
+    if (!(await stillMe(userId))) throw new Error('Your account changed while this list was being left. Try again.');
     saveLists(sharedLists().filter((each) => each.id !== list.id));
     localStorage.removeItem(cacheKey(list.id));
     localStorage.removeItem(pendingKey(list.id));
@@ -196,19 +234,29 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
     void refreshList(list).catch(() => undefined);
   }
 
-  const refreshing = new Map<string, Promise<void>>();
+  const refreshing = new Map<string, { promise: Promise<void>; rerun: boolean }>();
 
   /** Sends what is waiting, then brings the whole list back from the server. */
-  function refreshList(list: SharedList): Promise<void> {
-    const running = refreshing.get(list.id);
-    if (running) return running;
-    const work = (async () => {
-      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+  async function refreshList(list: SharedList): Promise<void> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+    const userId = await me();
+    const runKey = `${userId}:${list.id}`;
+    const running = refreshing.get(runKey);
+    if (running) {
+      // A request already in flight may have started before a membership change. Queue one fresh server check
+      // after the current request instead of letting this caller inherit an old "access still allowed" result.
+      running.rerun = true;
+      return running.promise;
+    }
+
+    const entry: { promise: Promise<void>; rerun: boolean } = { promise: Promise.resolve(), rerun: false };
+    const refreshOnce = async () => {
       const client = await supabase();
       // A SELECT policy filters inaccessible rows instead of throwing. Check list visibility first so a revoked
       // household share clears its stale local reference even when there are no queued writes.
       const { data: access, error: accessError } = await client.from('shared_lists').select('id').eq('id', list.id).maybeSingle();
       plain(accessError);
+      if (!(await stillMe(userId))) return;
       if (!access) {
         saveLists(sharedLists().filter((each) => each.id !== list.id));
         localStorage.removeItem(cacheKey(list.id));
@@ -217,28 +265,39 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
       }
       const pending = read<Pending[]>(pendingKey(list.id), []);
       for (const change of pending) {
+        if (!(await stillMe(userId))) return;
         const row = change.item
           ? { list_id: list.id, id: change.id, sealed: await sealItem(list, change.item), deleted: false, updated_at: new Date().toISOString() }
           : { list_id: list.id, id: change.id, sealed: '', deleted: true, updated_at: new Date().toISOString() };
         plain((await client.from('shared_list_items').upsert(row, { onConflict: 'list_id,id' })).error);
         // Taken off the queue only once sent; a change made meanwhile stays.
+        if (!(await stillMe(userId))) return;
         write(pendingKey(list.id), read<Pending[]>(pendingKey(list.id), []).filter((each) => JSON.stringify(each) !== JSON.stringify(change)));
       }
       const { data, error } = await client.from('shared_list_items').select('id, sealed, deleted').eq('list_id', list.id);
       plain(error);
+      if (!(await stillMe(userId))) return;
       const items: SharedItem[] = [];
       for (const row of (data ?? []) as { id: string; sealed: string; deleted: boolean }[]) {
         if (row.deleted) continue;
         const item = await openItem(list, row.id, row.sealed);
         if (item) items.push(item);
       }
+      if (!(await stillMe(userId))) return;
       write(cacheKey(list.id), items);
       changed();
+    };
+
+    const work = (async () => {
+      do {
+        entry.rerun = false;
+        await refreshOnce();
+      } while (entry.rerun && await stillMe(userId));
     })()
-      .catch((cause: unknown) => {
-        // A household share can be switched off after a member has joined. When the server denies the next sync,
-        // remove the stale local list reference and cache instead of continuing to present old shared data.
-        if (cause instanceof Error && /row-level security|permission denied|not authorized/i.test(cause.message)) {
+      .catch(async (cause: unknown) => {
+        // A household share can be switched off after a member has joined. Do not clear anything if this request
+        // now belongs to a different account or the device is in the middle of restoring another account's data.
+        if (cause instanceof Error && /row-level security|permission denied|not authorized/i.test(cause.message) && await stillMe(userId)) {
           saveLists(sharedLists().filter((each) => each.id !== list.id));
           localStorage.removeItem(cacheKey(list.id));
           localStorage.removeItem(pendingKey(list.id));
@@ -246,8 +305,9 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
         }
         throw cause;
       })
-      .finally(() => refreshing.delete(list.id));
-    refreshing.set(list.id, work);
+      .finally(() => refreshing.delete(runKey));
+    entry.promise = work;
+    refreshing.set(runKey, entry);
     return work;
   }
 

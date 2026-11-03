@@ -341,6 +341,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                 </button>
                 {part && state === 'elsewhere' && <p className="hint household__note">Shared through another list on this device; manage that list there.</p>}
                 {part && state === 'join' && <p className="hint household__note">Connecting this list to your device…</p>}
+                {part && state === 'unavailable' && <p className="hint household__note">This list is no longer available to the household. Ask the person who shared it to reconnect it.</p>}
               </div>
             );
           })}
@@ -353,7 +354,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
       </section>
 
       {currentRole === 'owner' && !rolesReady ? (
-        <p className="hint household__permissions-note">Household management needs the latest Family server migrations. Apply migrations 20261104000000 and 20261105000000 in Supabase first.</p>
+        <p className="hint household__permissions-note">Household management needs the latest Family server migrations. Apply the Family migrations listed in docs/SERVER_SETUP.md in Supabase first.</p>
       ) : currentRole === 'owner' ? (
         <section className="settings-group" aria-label="Household management">
           <h2 className="settings-group__label">Household management</h2>
