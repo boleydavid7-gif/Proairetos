@@ -994,8 +994,9 @@ body:has(.hydros-shell) { min-height: 100dvh; }
 
 @media (max-width: 61.99rem) {
   .hydros-add__stage > .hydros-header {
-    grid-template-columns: 0 minmax(0, 1fr) 0;
-    grid-template-areas: 'back title action';
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    grid-template-areas: 'back . action' 'title title title';
+    row-gap: 6px;
   }
   .hydros-add__stage > .hydros-header .hydros-icon-button {
     visibility: hidden;
