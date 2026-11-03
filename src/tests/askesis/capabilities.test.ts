@@ -49,6 +49,26 @@ describe('Askesis device capabilities', () => {
     });
   });
 
+  it('detects the Phase 7A bridge without claiming any native feature is implemented', () => {
+    const handshake: NativeBridgeHandshake = {
+      protocolVersion: 1,
+      platform: 'ios',
+      capabilities: {},
+    };
+    expect(resolveCapabilities('ios', handshake, true)).toMatchObject({
+      bridgeStatus: 'connected',
+      provider: 'native',
+      healthWorkouts: false,
+      healthHeartRate: false,
+      backgroundGps: false,
+      haptics: false,
+      lockScreenControls: false,
+      watchSync: false,
+      manualHeartRate: true,
+      watchFileImport: true,
+    });
+  });
+
   it('falls back to web capabilities when the bridge protocol or platform does not match', () => {
     const handshake: NativeBridgeHandshake = {
       protocolVersion: 2,
