@@ -89,7 +89,7 @@ export default function TodayPage({ nav }: { nav: Nav }) {
                   <span className="hydros-eyebrow">Daily hydration</span>
                   <strong className="hydros-amount__percent">{Math.round(percent)}%</strong>
                   <span className="hydros-amount__remaining">
-                    <DropIcon size={17} />
+                    <DropIcon size={18} />
                     {remaining > 0 ? formatVolume(remaining, unit) + ' ' + unit + ' remaining' : 'Daily goal reached'}
                   </span>
                   {extra > 0 && (
