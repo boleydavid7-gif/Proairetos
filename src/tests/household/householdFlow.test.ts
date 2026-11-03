@@ -194,8 +194,11 @@ describe('a household', () => {
     user = 'user-c';
     device('Jo');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    const choresPart = household.households.sharedItems(household.household()!).find((item) => item.kind === 'part' && item.app === 'ergon');
+    if (!choresPart || choresPart.kind !== 'part') throw new Error('The household did not publish its shared chores list.');
+    const removedMemberAppList = await homes.joinList(choresPart.list);
+    await homes.refreshList(removedMemberAppList);
     expect(homes.sharedLists()).toHaveLength(1);
-    const removedMemberAppList = homes.sharedLists()[0]!;
 
     user = 'user-a';
     await household.setMemberRole('user-b', 'admin');
