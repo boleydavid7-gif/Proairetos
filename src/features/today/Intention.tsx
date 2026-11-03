@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { reflectionService } from '../../app/services';
+import { compassService, reflectionService } from '../../app/services';
 import { BookmarkIcon } from '../../components/icons/Icons';
 import NotForMe from './NotForMe';
 import TodayThree from './TodayThree';
@@ -13,12 +13,17 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
   // Wrapped, so "no intention yet" is told apart from "still loading".
   const loaded = useServiceData(
     reflectionService.subscribe,
-    async () => ({ body: (await reflectionService.intentionFor(date))?.body ?? '' }),
+    async () => {
+      const intention = await reflectionService.intentionFor(date);
+      return { body: intention?.body ?? '', valueIds: intention?.valueIds ?? [] };
+    },
     [date],
   );
+  const values = useServiceData(compassService.subscribe, () => compassService.values(), []) ?? [];
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState('');
   const [picking, setPicking] = useState(false);
+  const [selectedValueIds, setSelectedValueIds] = useState<string[]>([]);
   if (!loaded) return null;
 
   const current = loaded.body;
@@ -26,15 +31,16 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
 
   function edit() {
     setDraft(current);
+    setSelectedValueIds(loaded.valueIds);
     setEditing(true);
   }
 
   async function save() {
-    await reflectionService.setIntention(date, draft);
+    await reflectionService.setIntention(date, draft, selectedValueIds);
     setPicking(false);
     setEditing(false);
     if (current && !draft.trim()) {
-      offerUndo('Intention cleared', () => reflectionService.setIntention(date, current));
+      offerUndo('Intention cleared', () => reflectionService.setIntention(date, current, loaded.valueIds));
     }
   }
 
@@ -69,6 +75,29 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
+          {values.length > 0 && (
+            <div className="intention__value-picker">
+              <span className="daily-line__label">Connect to a value (optional)</span>
+              <div className="chip-row" role="group" aria-label="Values for this intention">
+                {values.map((value) => {
+                  const selected = selectedValueIds.includes(value.id);
+                  return (
+                    <button
+                      key={value.id}
+                      type="button"
+                      className="chip chip--small"
+                      aria-pressed={selected}
+                      onClick={() => setSelectedValueIds((current) => selected
+                        ? current.filter((id) => id !== value.id)
+                        : [...current, value.id])}
+                    >
+                      {value.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {isToday && items && (
             <TodayThree date={date} items={items} embedded pickerOpen={picking} onPickerOpenChange={setPicking} />
           )}
@@ -91,6 +120,13 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
           <span className="intention__text">{current || 'An intention for today'}</span>
           <BookmarkIcon size={20} className="intention__mark" />
         </button>
+      )}
+      {!editing && loaded.valueIds.length > 0 && (
+        <div className="intention__values" aria-label="Connected values">
+          {values.filter((value) => loaded.valueIds.includes(value.id)).map((value) => (
+            <span key={value.id} className="chip chip--small">{value.name}</span>
+          ))}
+        </div>
       )}
       {!editing && isToday && items && <TodayThree date={date} items={items} embedded />}
     </section>
