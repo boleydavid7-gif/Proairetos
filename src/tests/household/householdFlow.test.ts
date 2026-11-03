@@ -118,6 +118,11 @@ const client = {
       if (owner !== user && !actorAdmin) return { data: null, error: { message: 'Only the owner or an administrator can remove members.' } };
       const targetAdmin = tables.household_member_roles.some((row) => row.household_id === householdId && row.user_id === target);
       if (actorAdmin && targetAdmin) return { data: null, error: { message: 'Administrators cannot remove another administrator.' } };
+      for (const share of tables.household_app_shares.filter((row) => row.household_id === householdId)) {
+        const appList = tables.shared_lists.find((row) => row.id === share.shared_list_id);
+        tables.shared_list_members = tables.shared_list_members.filter((row) =>
+          row.list_id !== share.shared_list_id || row.user_id !== target || row.user_id === appList?.created_by);
+      }
       tables.shared_list_members = tables.shared_list_members.filter((row) => row.list_id !== householdId || row.user_id !== target);
       tables.household_member_roles = tables.household_member_roles.filter((row) => row.household_id !== householdId || row.user_id !== target);
       tables.household_invites = tables.household_invites.filter((row) => row.household_id !== householdId || (row.to_user !== target && row.from_user !== target));
@@ -295,6 +300,8 @@ describe('a household', () => {
     user = 'user-a';
     await expect(household.setMemberRole('user-c', 'admin')).rejects.toThrow('Only the household owner');
     user = 'user-b';
+    await household.removeHouseholdMember('user-c');
+    expect(tables.shared_list_members.some((item) => item.list_id === appList.id && item.user_id === 'user-c')).toBe(false);
     await household.deleteHousehold();
 
     expect(tables.shared_lists.some((item) => item.id === made.id)).toBe(false);
