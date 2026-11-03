@@ -16,6 +16,7 @@ import { openPursuit } from '../compass/PursuitsSection';
 type Category = 'all' | 'reflections' | 'decisions' | 'pursuits' | 'life';
 type View = 'active' | 'archived';
 type Range = 'all' | '30' | '90' | '365';
+type SortOrder = 'newest' | 'oldest';
 
 type Connection =
   | { kind: 'reflection'; record: Reflection; archived: boolean; at: string }
@@ -103,6 +104,7 @@ export default function ConnectionsPage() {
   const [category, setCategory] = useState<Category>('all');
   const [view, setView] = useState<View>('active');
   const [range, setRange] = useState<Range>('all');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [valueId, setValueId] = useState('');
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -110,6 +112,7 @@ export default function ConnectionsPage() {
   const [error, setError] = useState('');
   const [visibleCount, setVisibleCount] = useState(30);
   const query = search.trim().toLocaleLowerCase();
+  const hasFilters = Boolean(query || category !== 'all' || valueId || range !== 'all' || sortOrder !== 'newest');
   const valueNames = useMemo(() => new Map<string, string>(values.map((value: ChosenValue) => [value.id, value.name] as const)), [values]);
 
   const records: Connection[] = useMemo(() => [
@@ -130,10 +133,10 @@ export default function ConnectionsPage() {
       if (entry.kind === 'decision') return includesText(query, entry.record.question, entry.record.choice, entry.record.reasons, entry.record.expected);
       if (entry.kind === 'pursuit') return includesText(query, entry.record.title, entry.record.area, entry.record.outcome, entry.record.why, entry.record.current, entry.record.nextMove);
       return includesText(query, entry.record.title, entry.record.notes, entry.record.location, entry.record.type, entry.record.status);
-    }).sort((a, b) => b.at.localeCompare(a.at));
-  }, [records, view, category, range, valueId, query]);
+    }).sort((a, b) => sortOrder === 'newest' ? b.at.localeCompare(a.at) : a.at.localeCompare(b.at));
+  }, [records, view, category, range, sortOrder, valueId, query]);
 
-  useEffect(() => setVisibleCount(30), [category, view, range, valueId, query]);
+  useEffect(() => setVisibleCount(30), [category, view, range, sortOrder, valueId, query]);
   const visibleRecords = scoped.slice(0, visibleCount);
 
   async function archive(entry: Connection) {
@@ -204,6 +207,14 @@ export default function ConnectionsPage() {
     }
   }
 
+  function clearAllFilters() {
+    setSearch('');
+    setCategory('all');
+    setRange('all');
+    setSortOrder('newest');
+    setValueId('');
+  }
+
   function openRecord(entry: Connection) {
     if (entry.kind === 'reflection') {
       const key = entry.kind + ':' + entry.record.id;
@@ -237,7 +248,10 @@ export default function ConnectionsPage() {
           <button type="button" role="tab" aria-selected={view === 'active'} onClick={() => setView('active')}>Library <span>{records.filter((entry) => !entry.archived).length}</span></button>
           <button type="button" role="tab" aria-selected={view === 'archived'} onClick={() => setView('archived')}>Archive <span>{records.filter((entry) => entry.archived).length}</span></button>
         </div>
-        <span className="connections-total">{scoped.length} {scoped.length === 1 ? 'entry' : 'entries'}</span>
+        <div className="connections-mode__summary">
+          <span className="connections-total">{visibleRecords.length < scoped.length ? `Showing ${visibleRecords.length} of ${scoped.length}` : `${scoped.length} ${scoped.length === 1 ? 'entry' : 'entries'}`}</span>
+          {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all</button>}
+        </div>
       </div>
 
       <div className="connections-categories" role="group" aria-label="Filter by type">
@@ -249,7 +263,7 @@ export default function ConnectionsPage() {
       </div>
 
       <details className="connections-refine">
-        <summary><span><Sym name="list" size={17} /> Refine library</span><span className="connections-refine__state">{valueId || range !== 'all' ? 'Filters applied' : 'Optional filters'} <Sym name="chevron" size={15} /></span></summary>
+        <summary><span><Sym name="list" size={17} /> Refine library</span><span className="connections-refine__state">{valueId || range !== 'all' || sortOrder !== 'newest' ? 'Filters applied' : 'Optional filters'} <Sym name="chevron" size={15} /></span></summary>
         <div className="connections-refine__fields">
           <label>
             <span>Connected value</span>
@@ -267,7 +281,13 @@ export default function ConnectionsPage() {
               <option value="365">Last year</option>
             </select>
           </label>
-          {(valueId || range !== 'all') && <button type="button" className="connections-reset" onClick={() => { setValueId(''); setRange('all'); }}>Clear filters</button>}
+          <label>
+            <span>Order</span>
+            <select className="field-input" value={sortOrder} onChange={(event) => setSortOrder(event.target.value as SortOrder)}>
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </label>
         </div>
       </details>
 
@@ -277,7 +297,8 @@ export default function ConnectionsPage() {
         <div className="connections-empty">
           <span className="connections-empty__mark"><Sym name={view === 'archived' ? 'box' : 'bookmark'} size={26} /></span>
           <p className="connections-empty__title">{view === 'archived' ? 'Your archive is empty.' : 'Nothing here just yet.'}</p>
-          <p>{query || valueId || range !== 'all' || category !== 'all' ? 'Try a different search or loosen your filters.' : 'Reflections, decisions, pursuits and the things you save will find their place here.'}</p>
+          <p>{hasFilters ? 'Try a different search or loosen your filters.' : 'Reflections, decisions, pursuits and the things you save will find their place here.'}</p>
+          {hasFilters && <button type="button" className="connections-clear-all" onClick={clearAllFilters}>Clear all filters</button>}
         </div>
       ) : (
         <ol className="connections-list">
