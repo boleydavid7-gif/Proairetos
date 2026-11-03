@@ -35,7 +35,8 @@
     "postal-mime": "^2.4.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "tesseract.js": "^7.0.0"
+    "tesseract.js": "^7.0.0",
+    "@proairetos/capacitor-askesis-bridge": "file:packages/capacitor-askesis-bridge"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.5.3",
