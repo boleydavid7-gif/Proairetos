@@ -12,7 +12,6 @@ export type LifeRecordApp =
   | 'soma'
   | 'theoria'
   | 'poreia'
-  | 'hydros'
   | 'oikonomia'
   | 'mneme';
 
