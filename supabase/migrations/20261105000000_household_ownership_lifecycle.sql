@@ -94,7 +94,8 @@ begin
           and household_member.user_id = m.user_id
       )
       and m.user_id is distinct from linked_list.created_by
-      and m.user_id is distinct from linked_list.owner_id;
+      and m.user_id is distinct from linked_list.owner_id
+      and m.user_id is distinct from current_owner;
   end loop;
 
   -- Cascades the household's own members, encrypted index, invitations, roles and app-share rules.
