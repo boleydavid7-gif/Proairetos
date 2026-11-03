@@ -266,6 +266,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
             </form>
             {sent && <p className="hint" role="status">Invite sent to {sent}. It shows when they open any of the apps.</p>}
             <button type="button" className="button-quiet account-wide" onClick={() => void share()}>Send a link instead</button>
+            <p className="hint household__permissions-note">Anyone with this link can join the household. Share it only with people you trust.</p>
             {copied && <p className="hint" role="status">Link copied.</p>}
           </>
         ) : rolesReady ? (
