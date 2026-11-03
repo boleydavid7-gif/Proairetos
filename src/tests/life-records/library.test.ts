@@ -3,6 +3,8 @@ import type { LifeRecord } from '../../core/life-records';
 import {
   canArchiveLifeRecord,
   groupLifeRecords,
+  groupLifeRecordsByYear,
+  isLibraryTrashExpired,
   matchesLifeRecordQuery,
   mergeLibraryValueConnections,
   normalizeLibraryQuery,
@@ -91,6 +93,26 @@ describe('Reflect Library organization helpers', () => {
 
     expect(relatedLifeRecords(current, [current, older, newer, unrelated]).map((item) => item.key)).toEqual(['newer', 'older']);
     expect(relatedLifeRecords(unrelated, [current, older, newer, unrelated])).toEqual([]);
+  });
+
+  it('groups the timeline hierarchically by year and month', () => {
+    const november = entry({ key: 'nov', title: 'November', at: '2026-11-15T12:00:00.000Z' });
+    const october = entry({ key: 'oct', title: 'October', at: '2026-10-15T12:00:00.000Z' });
+    const lastYear = entry({ key: 'last-year', title: 'Last year', at: '2025-12-15T12:00:00.000Z' });
+    const grouped = groupLifeRecordsByYear([november, october, lastYear]);
+
+    expect(grouped.map((year) => year.label)).toEqual(['2026', '2025']);
+    expect(grouped[0].records).toHaveLength(2);
+    expect(grouped[0].months.map((month) => month.label)).toEqual(['November', 'October']);
+    expect(grouped[0].months[0].records.map((record) => record.key)).toEqual(['nov']);
+    expect(grouped[1].months[0].records.map((record) => record.key)).toEqual(['last-year']);
+  });
+
+  it('expires Recently Deleted entries after 30 days, but not before', () => {
+    const now = Date.parse('2026-12-01T12:00:00.000Z');
+    expect(isLibraryTrashExpired('2026-11-01T12:00:00.000Z', now)).toBe(true);
+    expect(isLibraryTrashExpired('2026-11-02T12:00:00.000Z', now)).toBe(false);
+    expect(isLibraryTrashExpired('not-a-date', now)).toBe(false);
   });
 
   it('groups an already ordered timeline by month or source without reordering entries', () => {
