@@ -8,6 +8,7 @@ type Props = {
   saved: boolean;
   valueNames: string[];
   selectedValueId: string;
+  selectedValueName: string;
   busy: boolean;
   onToggleFavorite: (record: LifeRecord) => void;
   onOpen: (record: LifeRecord) => void;
@@ -40,6 +41,7 @@ export default function LibraryRecordItem({
   saved,
   valueNames,
   selectedValueId,
+  selectedValueName,
   busy,
   onToggleFavorite,
   onOpen,
@@ -52,6 +54,7 @@ export default function LibraryRecordItem({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(record.body ?? '');
   const href = hrefFor(record);
+  const kindLabel = record.kind === 'life' ? 'Life' : record.kind.charAt(0).toUpperCase() + record.kind.slice(1);
 
   async function saveEdit() {
     if (await onSaveReflection(record, draft)) setEditing(false);
@@ -66,7 +69,7 @@ export default function LibraryRecordItem({
     <li className="connections-list__item">
       <article className="connections-record">
         <div className="connections-record__meta">
-          <span className={'connections-record__kind connections-record__kind--' + record.kind}>{record.kind}</span>
+          <span className={'connections-record__kind connections-record__kind--' + record.kind}>{kindLabel}</span>
           <span className="connections-record__source">{record.source}</span>
           <time dateTime={record.at}>{dateLabel(record.at)}</time>
           <button type="button" className="connections-save" aria-label={saved ? 'Remove from saved' : 'Save to library'} aria-pressed={saved} onClick={() => onToggleFavorite(record)}>
@@ -77,7 +80,7 @@ export default function LibraryRecordItem({
               <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
               <div className="connections-actions__menu">
                 {selectedValueId && record.valueIds.includes(selectedValueId) && (
-                  <button type="button" disabled={busy} onClick={() => onUnlink(record)}>Unlink selected value</button>
+                  <button type="button" disabled={busy} onClick={() => onUnlink(record)}>Unlink {selectedValueName}</button>
                 )}
                 <button type="button" disabled={busy} onClick={() => record.archived ? onRestore(record) : onArchive(record)}>
                   {busy ? 'Saving…' : record.archived ? 'Restore to library' : 'Move to archive'}
