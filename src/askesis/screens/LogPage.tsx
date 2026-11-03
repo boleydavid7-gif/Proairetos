@@ -127,7 +127,8 @@ export default function LogPage({ nav }: { nav: Nav }) {
 
   const exportLog = () => {
     const link = document.createElement('a');
-    link.href = URL.createObjectURL(new Blob([logCsv(list, unit)], { type: 'text/csv;charset=utf-8' }));
+    const shoeNames = Object.fromEntries(shoes.map((shoe) => [shoe.id, shoe.name]));
+    link.href = URL.createObjectURL(new Blob([logCsv(list, unit, shoeNames)], { type: 'text/csv;charset=utf-8' }));
     link.download = `askesis-log-${today}.csv`;
     link.click();
     link.remove();
