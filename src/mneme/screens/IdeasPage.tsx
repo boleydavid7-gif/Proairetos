@@ -40,12 +40,12 @@ export default function IdeasPage() {
       <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to New ideas</button>
     </section>
     <section className="mneme-idea-desk" aria-label="Idea desk"><div className="mneme-idea-desk__heading"><strong>Sort your ideas</strong><span className="mneme-idea-desk__count">{visible.length}</span></div><div className="mneme-idea-stages"><button type="button" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All<small>{allIdeas.length}</small></button>{stages.map((item) => <button type="button" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}<small>{allIdeas.filter((idea) => idea.stage === item.id).length}</small></button>)}</div></section>
-    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} />)}</div> : null}
+    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} onToggleReflect={(include) => ideas.put({ ...idea, inReflect: include, updatedAt: new Date().toISOString() })} />)}</div> : null}
   </main>;
 }
 
-function IdeaCard({ idea, onMove, onRemove }: { idea: Idea; onMove: (stage: IdeaStage) => void; onRemove: () => void }) {
+function IdeaCard({ idea, onMove, onRemove, onToggleReflect }: { idea: Idea; onMove: (stage: IdeaStage) => void; onRemove: () => void; onToggleReflect: (include: boolean) => void }) {
   const title = idea.text.split(/\n|[.!?](?:\s|$)/)[0].trim() || 'Untitled idea';
   const body = idea.text.slice(title.length).trim();
-  return <article className="mneme-idea-card"><div className="mneme-idea-card__mark">✦</div><div className="mneme-idea-card__content"><strong>{title}</strong>{body && <p>{body}</p>}<div className="mneme-idea-card__actions"><select value={idea.stage} onChange={(event) => onMove(event.target.value as IdeaStage)} aria-label="Idea stage">{stages.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select><button type="button" onClick={onRemove}>Clear</button></div></div><ChevronIcon size={20} /></article>;
+  return <article className="mneme-idea-card"><div className="mneme-idea-card__mark">✦</div><div className="mneme-idea-card__content"><strong>{title}</strong>{body && <p>{body}</p>}<div className="mneme-idea-card__actions"><label><input type="checkbox" checked={idea.inReflect === true} onChange={(event) => onToggleReflect(event.target.checked)} /> Show in Reflect</label><select value={idea.stage} onChange={(event) => onMove(event.target.value as IdeaStage)} aria-label="Idea stage">{stages.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select><button type="button" onClick={onRemove}>Clear</button></div></div><ChevronIcon size={20} /></article>;
 }
