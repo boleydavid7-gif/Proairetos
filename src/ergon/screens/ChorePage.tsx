@@ -95,7 +95,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
           ? existing?.rotaIds
           : undefined;
         nextWho = who.trim() || nextRota?.[0];
-        nextWhoId = existing?.whoId;
+        nextWhoId = familyPeople.length === 0 ? existing?.whoId : undefined;
       } else {
         nextWhoId = selectedWhoIsCurrent
           ? selectedWhoId
@@ -109,7 +109,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         nextWhoId = who === existing?.who ? existing?.whoId : undefined;
         nextRotaIds = undefined;
       } else {
-        nextWhoId = undefined;
+        nextWhoId = who === existing?.who ? existing?.whoId : undefined;
         nextRotaIds = rota.join('|') === (existing?.rota ?? []).join('|') ? existing?.rotaIds : undefined;
       }
     }
