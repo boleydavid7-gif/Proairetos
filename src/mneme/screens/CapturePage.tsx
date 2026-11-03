@@ -98,7 +98,7 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
       }
     };
     recognition.current = instance;
-    try { instance.start(); } catch { setError('Live transcript could not start. The recording is still available.'); }
+    try { instance.start(); } catch { setError('Live transcript unavailable. Recording saved.'); }
   };
 
   const startRecording = async () => {
@@ -126,12 +126,12 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
       restartRecognition.current = true;
       instance.ondataavailable = (event) => { if (event.data.size) chunks.current.push(event.data); };
       instance.onerror = () => {
-        setError('Recording stopped unexpectedly. Try again or check microphone access.');
+        setError('Recording stopped. Try again or check microphone access.');
         stopRecording();
       };
       instance.onstop = () => {
         const blob = new Blob(chunks.current, { type: instance.mimeType || format.mimeType || 'audio/webm' });
-        if (!blob.size) setError('No audio was captured. Check microphone access and try again.');
+        if (!blob.size) setError('No audio captured. Check microphone access.');
         setAudioBlob(blob.size ? blob : null);
         recordingDurationMs.current = Math.max(0, Date.now() - startedAt.current);
         setRecordingMs(recordingDurationMs.current);
@@ -207,7 +207,7 @@ export default function CapturePage({ nav, initialMode = 'write' }: { nav: Mneme
     <label className="mneme-field"><span>{mode === 'record' ? 'Transcript or notes' : 'Note'}</span><textarea className="field-input field-input--area" value={body} onChange={(event) => setBody(event.target.value)} rows={mode === 'record' ? 8 : 9} /></label>
     {allCollections.length > 0 && <label className="mneme-field"><span>Collection (optional)</span><select className="field-input" value={collectionId} onChange={(event) => setCollectionId(event.target.value)}><option value="">Inbox</option>{allCollections.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>}
     {error && <p className="mneme-form-error" role="alert">{error}</p>}
-    {sync.phase !== 'ready' && mode === 'record' && <p className="mneme-storage-note">The note stays on this device until sync is set up in Proairetos.</p>}
+    {sync.phase !== 'ready' && mode === 'record' && <p className="mneme-storage-note">Saved on this device until sync is enabled.</p>}
     <button type="button" className="mneme-primary mneme-primary--wide" onClick={() => void save()} disabled={saving || recording || (!title.trim() && !body.trim() && !audioBlob)}>{saving ? 'Saving…' : 'Save note'}</button>
   </main>;
 }
