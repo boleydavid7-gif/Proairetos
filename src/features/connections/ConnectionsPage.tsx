@@ -189,8 +189,15 @@ export default function ConnectionsPage() {
     setSelectedKeys(new Set());
   }, [category, view, range, sortOrder, valueId, sourceApp, query]);
   useEffect(() => {
-    expireLibraryTrash(trashEntries);
-  }, [trashEntries]);
+    const now = Date.now();
+    trashEntries.forEach((entry) => {
+      const trashedAt = new Date(entry.trashedAt).getTime();
+      if (!entry.deletedAt && Number.isFinite(trashedAt) && now - trashedAt >= LIBRARY_TRASH_RETENTION_DAYS * 86_400_000) {
+        clearLibraryMetadata(entry.id);
+      }
+    });
+    expireLibraryTrash(trashEntries, now);
+  }, [trashEntries, valueConnectionByRecord]);
   const visibleRecords = scoped.slice(0, visibleCount);
   const groups = useMemo(() => groupLifeRecords(visibleRecords, groupBy), [visibleRecords, groupBy]);
   const yearGroups = useMemo(() => groupLifeRecordsByYear(scoped), [scoped]);
@@ -204,6 +211,87 @@ export default function ConnectionsPage() {
   const selectedTrashedCount = selectedRecords.filter((record) => trashedKeys.has(record.key)).length;
   const selectedLinkedCount = selectedRecords.filter((record) => bulkValueId && record.valueIds.includes(bulkValueId)).length;
   const allResultsSelected = scoped.length > 0 && selectedRecords.length === scoped.length;
+
+  function clearLibraryMetadata(recordKey: string) {
+    setLibraryFavorite(recordKey, false);
+    const connection = valueConnectionByRecord.get(recordKey);
+    connection?.valueIds.forEach((linkedValueId) => setLibraryValueConnection(recordKey, linkedValueId, false));
+  }
+
+  function moveRecordToTrash(record: LifeRecord) {
+    const previous = trashByRecord.get(record.key);
+    if (previous && !previous.deletedAt) return;
+    moveToLibraryTrash(record.key);
+    offerUndo('Moved to Recently Deleted', async () => restoreFromLibraryTrash(record.key));
+  }
+
+  function restoreRecordFromTrash(record: LifeRecord) {
+    const previous = trashByRecord.get(record.key);
+    if (!previous || previous.deletedAt) return;
+    restoreFromLibraryTrash(record.key);
+    offerUndo('Restored to Library', async () => moveToLibraryTrash(record.key, previous.trashedAt));
+  }
+
+  function permanentlyRemoveRecord(record: LifeRecord) {
+    if (!window.confirm(`Permanently remove “${record.title}” from Reflect? Its original record will remain in ${record.source}.`)) return;
+    permanentlyRemoveFromLibraryTrash(record.key);
+    clearLibraryMetadata(record.key);
+  }
+
+  function emptyTrash() {
+    const entries = notPermanentlyRemovedRecords.filter((record) => trashedKeys.has(record.key));
+    if (!entries.length) return;
+    if (!window.confirm(`Permanently remove ${entries.length} ${entries.length === 1 ? 'entry' : 'entries'} from Reflect? Original records will remain in their source apps.`)) return;
+    entries.forEach((record) => {
+      permanentlyRemoveFromLibraryTrash(record.key);
+      clearLibraryMetadata(record.key);
+    });
+    clearSelection();
+  }
+
+  async function bulkMoveToTrash() {
+    const targets = selectedRecords.filter((record) => !trashedKeys.has(record.key));
+    if (!targets.length || bulkBusy) return;
+    setBulkBusy(true);
+    const previousEntries = targets.map((record) => trashByRecord.get(record.key)).filter((entry): entry is LibraryTrashEntry => Boolean(entry));
+    try {
+      targets.forEach((record) => moveToLibraryTrash(record.key));
+      offerUndo(`${targets.length} ${targets.length === 1 ? 'entry' : 'entries'} moved to Recently Deleted`, async () => {
+        targets.forEach((record) => restoreFromLibraryTrash(record.key));
+        previousEntries.forEach((entry) => libraryTrash.put(entry));
+      });
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  async function bulkRestoreFromTrash() {
+    const targets = selectedRecords.filter((record) => trashedKeys.has(record.key));
+    if (!targets.length || bulkBusy) return;
+    setBulkBusy(true);
+    const previousEntries = targets.map((record) => trashByRecord.get(record.key)).filter((entry): entry is LibraryTrashEntry => Boolean(entry));
+    try {
+      targets.forEach((record) => restoreFromLibraryTrash(record.key));
+      offerUndo(`${targets.length} ${targets.length === 1 ? 'entry' : 'entries'} restored`, async () => {
+        previousEntries.forEach((entry) => libraryTrash.put(entry));
+      });
+      clearSelection();
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
+  function bulkPermanentlyRemove() {
+    const targets = selectedRecords.filter((record) => trashedKeys.has(record.key));
+    if (!targets.length || bulkBusy) return;
+    if (!window.confirm(`Permanently remove ${targets.length} selected ${targets.length === 1 ? 'entry' : 'entries'} from Reflect? Original records will remain in their source apps.`)) return;
+    targets.forEach((record) => {
+      permanentlyRemoveFromLibraryTrash(record.key);
+      clearLibraryMetadata(record.key);
+    });
+    clearSelection();
+  }
 
   async function setRecordArchived(record: LifeRecord, archived: boolean): Promise<() => Promise<void>> {
     const updatedAt = new Date().toISOString();
