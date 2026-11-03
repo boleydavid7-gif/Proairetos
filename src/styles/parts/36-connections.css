@@ -748,3 +748,191 @@
     max-width: none;
   }
 }
+
+
+/* Bulk management appears only in selection mode; it uses the same quiet materials,
+   field sizing and action hierarchy as the rest of Lamplight. */
+.connections-select-toggle {
+  min-height: 2.5rem;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.connections-select-toggle[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-strong);
+}
+
+.connections-bulk {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 28%, var(--color-border));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-surface));
+}
+
+.connections-bulk__header,
+.connections-bulk__selection-actions,
+.connections-bulk__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.connections-bulk__header {
+  justify-content: space-between;
+}
+
+.connections-bulk__header p {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0;
+  color: var(--color-text);
+  font-size: var(--text-sm);
+}
+
+.connections-bulk__header p strong {
+  color: var(--color-accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.connections-bulk__header p span {
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+}
+
+.connections-bulk__selection-actions {
+  margin-left: auto;
+}
+
+.connections-bulk__selection-actions button,
+.connections-bulk__actions button,
+.connections-bulk__connections button {
+  min-height: 2.75rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.connections-bulk__body {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.connections-bulk__actions {
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.connections-bulk__connections {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto auto;
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.connections-bulk__connections label {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.connections-bulk__connections label > span {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.connections-bulk__connections .field-input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.75rem;
+}
+
+.connections-bulk__hint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.connections-record__select {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin: -0.35rem 0 -0.35rem -0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.connections-record__select:hover {
+  background: var(--color-surface-raised);
+}
+
+.connections-record__select input {
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+.connections-record__select input:disabled {
+  cursor: default;
+}
+
+.connections-record__meta--selecting {
+  gap: var(--space-2);
+}
+
+@media (max-width: 520px) {
+  .connections-bulk {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  .connections-bulk__connections {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .connections-bulk__connections label {
+    grid-column: 1 / -1;
+  }
+
+  .connections-bulk__connections button {
+    width: 100%;
+  }
+
+  .connections-bulk__selection-actions {
+    gap: var(--space-1);
+  }
+
+  .connections-bulk__selection-actions button {
+    padding-inline: var(--space-2);
+  }
+
+  .connections-record__select {
+    margin-left: -0.35rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .connections-select-toggle,
+  .connections-bulk__selection-actions button,
+  .connections-bulk__actions button,
+  .connections-bulk__connections button,
+  .connections-record__select {
+    min-height: 44px;
+  }
+
+  .connections-record__select {
+    width: 44px;
+    height: 44px;
+  }
+}
