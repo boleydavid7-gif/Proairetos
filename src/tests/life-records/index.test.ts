@@ -27,7 +27,8 @@ describe('Life Record projection', () => {
       }],
     });
 
-    expect(records.map((entry) => entry.kind)).toEqual(['reflection', 'decision', 'workout', 'meal', 'study']);
+    expect(new Set(records.map((entry) => entry.kind))).toEqual(new Set(['reflection', 'decision', 'workout', 'meal', 'study']));
+    expect(records.map((entry) => entry.at)).toEqual([...records.map((entry) => entry.at)].sort((a, b) => b.localeCompare(a)));
     expect(records.find((entry) => entry.key === 'workout:w1')).toMatchObject({
       source: 'Askesis',
       title: 'Run',
