@@ -35,7 +35,6 @@ export const LIFE_RECORD_APP_LABELS: Record<LifeRecordApp, LifeRecordSource> = {
   soma: 'Soma',
   theoria: 'Theoria',
   poreia: 'Poreia',
-  hydros: 'Hydros',
   oikonomia: 'Oikonomia',
   mneme: 'Mneme',
 };
