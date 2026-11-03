@@ -18,13 +18,13 @@ function ScoreWorking({ parts, points }: { parts: ScoreParts; points: number }) 
   const towards: [string, number, number, boolean][] = [['Protein', parts.protein, 7, parts.proteinCounted], ['Fiber', parts.fibre, 5, true], ['Fruit, vegetables, legumes', parts.fvl, 5, true]];
   return (
     <details className="nutri-working">
-      <summary>How it was worked out</summary>
+      <summary>Score details</summary>
       <ul>
         {against.map(([name, value, most]) => <li key={name}><span>{name}</span><span>+{value} <small>of {most}</small></span></li>)}
         {towards.map(([name, value, most, counted]) => <li key={name}><span>{name}{counted ? '' : ' (not counted)'}</span><span>{counted && value ? `−${value}` : '0'} <small>of {most}</small></span></li>)}
         <li className="nutri-working__total"><span>Score</span><span>{points}</span></li>
       </ul>
-      {!parts.proteinCounted && <p className="nutrition__line">With 11 or more points against, protein is not counted.</p>}
+      {!parts.proteinCounted && <p className="nutrition__line">Protein isn't counted at 11+ negative points.</p>}
       <p className="nutrition__line">A: 0 or less · B: 1 to 2 · C: 3 to 10 · D: 11 to 18 · F: 19 or more</p>
     </details>
   );
@@ -71,7 +71,7 @@ function UnreadLine({ line }: { line: string }) {
         </span>
       ) : chosen ? (
         <span className="nutri-unread__pick">
-          <label className="field"><span className="field__label">{label(chosen)}: about how many grams?</span>
+          <label className="field"><span className="field__label">Grams of {label(chosen)}</span>
             <input className="input" inputMode="decimal" value={grams} onChange={(event) => setGrams(event.target.value)} autoFocus />
           </label>
           <span className="nutri-unread__actions">
@@ -203,7 +203,7 @@ export function NutritionPanel({ nutrition, servings: stated, lines = [], onServ
       ) : (
         <div className="card nutri-hero">
           <p className="nutri-hero__eyebrow">Nutri-Score</p>
-          <p className="nutrition__line">{nutrition.unread.length ? 'Not graded: some ingredients were not read. Say what they are, or leave them out.' : 'Not enough of the ingredients could be read to grade this recipe.'}</p>
+          <p className="nutrition__line">{nutrition.unread.length ? 'Some ingredients need identifying.' : 'Not enough ingredients recognized.'}</p>
           {nutrition.unread.length > 0 && <ul className="nutri-unread-list">{nutrition.unread.map((line) => <UnreadLine key={line} line={line} />)}</ul>}
         </div>
       )}
@@ -256,7 +256,7 @@ export function NutritionPanel({ nutrition, servings: stated, lines = [], onServ
       )}
 
       <details className="card nutrition__how">
-        <summary>From {nutrition.read.length} of {nutrition.read.length + nutrition.unread.length} ingredients</summary>
+        <summary>{nutrition.read.length}/{nutrition.read.length + nutrition.unread.length} ingredients read</summary>
         <ul className="nutri-read">
           {nutrition.read.map((each) => (
             <li key={each.line}>
@@ -271,7 +271,7 @@ export function NutritionPanel({ nutrition, servings: stated, lines = [], onServ
             <LeftOut lines={lines} />
           </ul>
         )}
-        <p className="fine">Raw weights, before cooking. Herbs, spices and salt to taste are left out. {NUTRITION_SOURCE} {REFERENCE_SOURCE}</p>
+        <p className="fine">Raw weights. Herbs, spices and salt to taste excluded. {NUTRITION_SOURCE} {REFERENCE_SOURCE}</p>
       </details>
     </section>
   );
