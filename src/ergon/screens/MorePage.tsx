@@ -2,6 +2,7 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
+import { useHousehold } from '../../app/household/household';
 import { ChevronIcon, HistoryIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
@@ -14,7 +15,8 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
   const current = settings.use();
   const home = useHome();
   const chores = useChores();
-  const names = namesIn(chores, [myName(current)]);
+  const family = useHousehold();
+  const names = [...new Set([...namesIn(chores, [myName(current)]), ...family.members.map((member) => member.name)])].sort((a, b) => a.localeCompare(b));
   const facts = whoDidWhat(chores, toLocalDate(new Date()));
   const change = (patch: Partial<ErgonSettings>) => {
     settings.save({ ...settings.load(), ...patch });
