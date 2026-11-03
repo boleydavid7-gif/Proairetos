@@ -244,7 +244,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
     return (
       <div className="page">
         {!first && <BackLink label="More" onBack={nav.back} />}
-        <h1 className="title">Where you are now</h1>
+        <h1 className="title">Starting point</h1>
 
         {current && (
           <div className="choice-list" role="group" aria-label="Your path">
@@ -362,8 +362,8 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
   if (step === 'aim')
     return (
       <div className="page">
-        <BackLink label="Where you are now" onBack={() => goTo('now')} />
-        <h1 className="title">Where you want to be</h1>
+        <BackLink label="Starting point" onBack={() => goTo('now')} />
+        <h1 className="title">Goal</h1>
 
         <Segmented
           label="Aim"
@@ -437,12 +437,12 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
         )}
 
         <label className="field">
-          <span className="label">Name it (optional)</span>
+          <span className="label">Name (optional)</span>
           <input className="input" value={words} onChange={(event) => setWords(event.target.value)} />
         </label>
 
         <label className="field">
-          <span className="label">Why it matters (optional)</span>
+          <span className="label">Why it matters</span>
           <textarea
             className="input input--area"
             rows={2}
@@ -460,7 +460,7 @@ export default function PlanPage({ nav, first }: { nav: Nav; first?: boolean }) 
 
   return (
     <div className="page">
-      <BackLink label="Where you want to be" onBack={() => goTo('aim')} />
+      <BackLink label="Goal" onBack={() => goTo('aim')} />
       <h1 className="title">Your plan</h1>
 
       <section className="field">
