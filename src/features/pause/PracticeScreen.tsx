@@ -50,7 +50,7 @@ export default function PracticeScreen({ practiceId, onClose, onSupport, onThink
               <li>
                 <button type="button" className="practice-list__item" onClick={onThinkThrough}>
                   <span className="practice-list__title">Think it through</span>
-                  <span className="practice-list__line">For a thought that has a grip. Written, a step at a time.</span>
+                  <span className="practice-list__line">Work through a difficult thought, one step at a time.</span>
                 </button>
               </li>
             )}
