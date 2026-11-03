@@ -2,6 +2,15 @@ import type { LifeRecord } from './contract';
 
 export type LifeRecordGroupBy = 'month' | 'source' | 'none';
 
+/** Only records with a safe, matching archive operation can be bulk archived or restored. */
+export function canArchiveLifeRecord(record: LifeRecord): boolean {
+  return record.kind === 'reflection'
+    || record.kind === 'decision'
+    || record.kind === 'pursuit'
+    || record.kind === 'life'
+    || (record.kind === 'note' && record.sourceApp === 'mneme');
+}
+
 export interface LifeRecordGroup {
   key: string;
   label: string;
