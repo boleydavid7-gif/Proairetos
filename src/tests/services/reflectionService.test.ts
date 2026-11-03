@@ -31,6 +31,20 @@ describe('reflection service', () => {
     expect((await service.listFor('month')).map((r) => r.body)).toEqual(['Next Tuesday', 'Thursday', 'Wednesday']);
   });
 
+  it('keeps optional value connections on a daily intention', async () => {
+    const { context } = testContext();
+    const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
+
+    await service.setIntention('2026-11-02', 'Be present at home.', ['family-id', 'growth-id', 'family-id']);
+    expect(await service.intentionFor('2026-11-02')).toMatchObject({
+      body: 'Be present at home.',
+      valueIds: ['family-id', 'growth-id'],
+    });
+
+    await service.setIntention('2026-11-02', 'Be present at home.', []);
+    expect((await service.intentionFor('2026-11-02'))?.valueIds).toBeUndefined();
+  });
+
   it('deletes a reflection, and undo brings it back', async () => {
     const { context } = testContext();
     const service = createReflectionService({ userId: 'u', context, reflections: createMemoryReflectionRepository() });
