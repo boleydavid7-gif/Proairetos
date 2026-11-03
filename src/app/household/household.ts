@@ -135,6 +135,17 @@ export async function shareApp(app: HouseholdApp): Promise<void> {
   const single = HOUSEHOLD_APPS.find((each) => each.app === app)?.single ?? true;
   const own = single ? lists.sharedLists()[0] : undefined;
   const shared = own ?? (await lists.createList(app === 'soma' ? 'Groceries' : list.name));
+
+  // Never silently fold a standalone list into a family if it already contains people outside that family.
+  // They would lose server access once the household permission is applied.
+  const familyMembers = new Set(membersOf(households.sharedItems(list)).map((member) => member.id.slice('member:'.length)));
+  const { data: listMembers, error: membersError } = await (await supabase()).from('shared_list_members').select('user_id').eq('list_id', shared.id);
+  if (membersError) throw new Error(membersError.message);
+  const outsideMembers = ((listMembers ?? []) as { user_id: string }[]).filter((member) => !familyMembers.has(member.user_id));
+  if (outsideMembers.length) {
+    throw new Error('This list is already shared with someone outside this family. Add them to the family first before connecting it.');
+  }
+
   // Persist the access rule before publishing the encrypted app-list reference to the household.
   await setAppShare(list.id, app, shared.id, true);
   households.changeItem(list, partId(app), { id: partId(app), kind: 'part', app, list: { id: shared.id, key: shared.key, name: shared.name }, at: new Date().toISOString() });
