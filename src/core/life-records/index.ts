@@ -38,6 +38,15 @@ export interface LifeRecordInput {
     createdAt: string; seconds?: number; meters?: number; felt?: string; notes?: string;
     wentWell?: string; nextTime?: string; intention?: string; workoutTitle?: string;
   }[];
+  strengthWorkouts?: readonly {
+    id: string; date: string; session: string; createdAt: string;
+    exercises: readonly {
+      exercise: string; step?: number; name: string;
+      sets: readonly { weight?: number; reps: number }[];
+    }[];
+    felt?: 'easy' | 'good' | 'hard'; minutes?: number; note?: string;
+  }[];
+  strengthUnit?: 'kg' | 'lb';
   recipes?: readonly {
     id: string; title: string; notes?: string; tags?: string[]; ingredients?: string[];
     source?: string; cookedFor?: Record<string, string[]>;
@@ -157,6 +166,44 @@ function workoutRecord(entry: WorkoutRecord, unit: 'km' | 'mi'): LifeRecord {
   });
 }
 
+function strengthWorkoutRecord(
+  entry: NonNullable<LifeRecordInput['strengthWorkouts']>[number],
+  unit: 'kg' | 'lb',
+): LifeRecord {
+  const exercises = entry.exercises.filter((exercise) => exercise.sets.length > 0);
+  const setCount = exercises.reduce((sum, exercise) => sum + exercise.sets.length, 0);
+  const title = exercises.length
+    ? exercises.slice(0, 2).map((exercise) => exercise.name).join(', ') + (exercises.length > 2 ? ` + ${exercises.length - 2} more` : '')
+    : 'Strength session';
+  const details = exercises.map((exercise) => {
+    const sets = exercise.sets.map((set) => set.weight === undefined
+      ? `${set.reps} reps`
+      : `${set.weight} ${unit} × ${set.reps}`);
+    return `${exercise.name}: ${sets.join(', ')}`;
+  });
+  return record({
+    key: `dynamis-workout:${entry.id}`,
+    kind: 'workout',
+    source: 'Dynamis',
+    sourceId: entry.id,
+    at: entry.createdAt || `${entry.date}T12:00:00`,
+    title,
+    detail: join(
+      `${setCount} ${setCount === 1 ? 'set' : 'sets'}`,
+      entry.minutes ? `${entry.minutes} min` : undefined,
+      entry.felt ? `Felt ${entry.felt}` : undefined,
+    ),
+    body: join(details.join(' · '), entry.note),
+    valueIds: [],
+    archived: false,
+    searchParts: [entry.date, entry.session, ...exercises.flatMap((exercise) => [
+      exercise.exercise,
+      exercise.name,
+      ...exercise.sets.flatMap((set) => [String(set.reps), set.weight === undefined ? '' : String(set.weight), unit]),
+    ])],
+  });
+}
+
 function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeRecord[] {
   return recipes.flatMap((recipe) =>
     Object.entries(recipe.cookedFor ?? {})
@@ -205,6 +252,7 @@ export function buildLifeRecords(input: LifeRecordInput): LifeRecord[] {
     ...(input.pursuits ?? []).map(pursuitRecord),
     ...(input.items ?? []).map(lifeItemRecord),
     ...(input.workouts ?? []).map((entry) => workoutRecord(entry, input.distanceUnit ?? 'km')),
+    ...(input.strengthWorkouts ?? []).map((entry) => strengthWorkoutRecord(entry, input.strengthUnit ?? 'kg')),
     ...mealRecords(input.recipes ?? []),
     ...(input.studySessions ?? []).map(studyRecord),
   ].sort((a, b) => b.at.localeCompare(a.at) || a.key.localeCompare(b.key));
