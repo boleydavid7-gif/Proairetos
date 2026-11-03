@@ -938,11 +938,11 @@ function AttentionSection({ open }: { open: (view: View) => void }) {
         <h2 className="settings-group__label">More</h2>
         <div className="settings-card settings-card--rows">
           <button type="button" className="toggle-row" onClick={() => open('notifications')}>
-            <span>Notifications, by kind</span>
+            <span>Notifications</span>
             <LampIcon glyph={GLYPHS.chevron} size={18} />
           </button>
           <button type="button" className="toggle-row" onClick={() => open('today')}>
-            <span>Today’s parts and quiet offers</span>
+            <span>What’s included</span>
             <LampIcon glyph={GLYPHS.chevron} size={18} />
           </button>
         </div>
@@ -1186,6 +1186,20 @@ export default function SettingsPage() {
     return takeRequestedView();
   });
   const setView = (next: View | null) => setShown(next && shownView(next));
+  const [parentView, setParentView] = useState<View | null>(null);
+  const openFromAttention = (next: View) => {
+    setParentView('attention');
+    setView(next);
+  };
+  const backFromDetail = () => {
+    if (parentView) {
+      const parent = parentView;
+      setParentView(null);
+      setView(parent);
+    } else {
+      setView(null);
+    }
+  };
   // Re-read after the name page closes.
   const name = view === null ? displayName() : '';
   const [mode, setMode] = useState<'device' | 'memory'>('device');
@@ -1194,7 +1208,7 @@ export default function SettingsPage() {
   }, []);
   const leave = useLeave(returnTo);
   // A detail page sits on top of the list, so back returns to the list first.
-  useBackHandler(view !== null, () => setView(null));
+  useBackHandler(view !== null, backFromDetail);
 
   // On a wide screen the list stays beside the page it opens.
   const wide = useSyncExternalStore(subscribeWide, isWide);
@@ -1203,9 +1217,9 @@ export default function SettingsPage() {
   const detail = view ? (
       <>
         {!wide && (
-          <button type="button" className="back-link" onClick={() => setView(null)}>
+          <button type="button" className="back-link" onClick={backFromDetail}>
             <ArrowLeftIcon size={18} />
-            Settings
+            {parentView ? viewTitles[parentView] : 'Settings'}
           </button>
         )}
         <PageHeader title={viewTitles[view]} />
@@ -1235,7 +1249,7 @@ export default function SettingsPage() {
         {view === 'account' && <AccountSection />}
         {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
-        {view === 'attention' && <AttentionSection open={setView} />}
+        {view === 'attention' && <AttentionSection open={openFromAttention} />}
         {view === 'backup' && (
           <>
             <StorageFacts className="section-description" />
