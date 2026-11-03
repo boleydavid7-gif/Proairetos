@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { LifeRecord } from '../../core/life-records';
 import {
+  canArchiveLifeRecord,
   groupLifeRecords,
   matchesLifeRecordQuery,
   mergeLibraryValueConnections,
@@ -22,6 +23,17 @@ function entry(overrides: Partial<LifeRecord> & Pick<LifeRecord, 'key' | 'title'
 }
 
 describe('Reflect Library organization helpers', () => {
+  it('only enables bulk archive for entries with a supported source operation', () => {
+    expect(canArchiveLifeRecord(entry({ key: 'reflection', title: 'Reflection', at: '2026-11-01T12:00:00.000Z', kind: 'reflection' }))).toBe(true);
+    expect(canArchiveLifeRecord(entry({ key: 'decision', title: 'Decision', at: '2026-11-01T12:00:00.000Z', kind: 'decision' }))).toBe(true);
+    expect(canArchiveLifeRecord(entry({ key: 'pursuit', title: 'Pursuit', at: '2026-11-01T12:00:00.000Z', kind: 'pursuit' }))).toBe(true);
+    expect(canArchiveLifeRecord(entry({ key: 'life', title: 'Life item', at: '2026-11-01T12:00:00.000Z', kind: 'life' }))).toBe(true);
+    expect(canArchiveLifeRecord(entry({ key: 'mneme-note', title: 'Note', at: '2026-11-01T12:00:00.000Z', kind: 'note', sourceApp: 'mneme' }))).toBe(true);
+    expect(canArchiveLifeRecord(entry({ key: 'other-note', title: 'Note', at: '2026-11-01T12:00:00.000Z', kind: 'note', sourceApp: 'theoria' }))).toBe(false);
+    expect(canArchiveLifeRecord(entry({ key: 'trip', title: 'Trip', at: '2026-11-01T12:00:00.000Z', kind: 'trip' }))).toBe(false);
+    expect(canArchiveLifeRecord(entry({ key: 'workout', title: 'Workout', at: '2026-11-01T12:00:00.000Z', kind: 'workout' }))).toBe(false);
+  });
+
   it('matches all search terms regardless of order and ignores accents', () => {
     const record = entry({
       key: 'trip-1',
