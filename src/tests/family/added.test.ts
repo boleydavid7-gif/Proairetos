@@ -10,7 +10,7 @@ describe('added apps', () => {
   });
 
   it('finds the apps already used on this device', () => {
-    expect(usedApps(['askesis:settings', 'somaShared.items.1', 'proairetos.praxisCards', 'proairetos.name'])).toEqual(['askesis', 'soma', 'praxis']);
+    expect(usedApps(['askesis:settings', 'somaShared.items.1', 'hydros:settings', 'proairetos.praxisCards', 'proairetos.name'])).toEqual(['askesis', 'soma', 'hydros', 'praxis']);
   });
 
   it('starts from the apps used here, then keeps the choice', () => {
@@ -24,10 +24,10 @@ describe('added apps', () => {
     expect(isAdded('proairetos')).toBe(true);
   });
 
-  it('leaves out apps no longer offered, keeping the choice; Praxis follows Theoria', () => {
+  it('restores Hydros while keeping retired Praxis out; Praxis follows Theoria', () => {
     localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['hydros', 'praxis', 'ktema'] }));
-    expect(addedApps()).toEqual(['ktema']);
-    expect(isAdded('hydros')).toBe(false);
+    expect(addedApps()).toEqual(['hydros', 'ktema']);
+    expect(isAdded('hydros')).toBe(true);
     expect(isAdded('praxis')).toBe(false);
     addApp('theoria');
     expect(isAdded('praxis')).toBe(true);
