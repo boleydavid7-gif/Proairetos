@@ -1218,3 +1218,30 @@ button.value-card__text:disabled {
   color: var(--color-accent);
   font-size: var(--text-xs);
 }
+
+.value-connections__search {
+  display: block;
+  min-width: 0;
+}
+
+.value-connections__search .field-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.value-connections__more {
+  justify-self: start;
+  padding: 0.2rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.value-connections__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
