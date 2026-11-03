@@ -2,7 +2,7 @@ import type { TagColor } from '../../core/look/tagColors';
 import type { DomainContext } from '../../core/context';
 import { writeStatement } from '../../core/compass/statements';
 import { MAX_GOALS, MAX_PEOPLE, MAX_STATEMENT_LENGTH, type CompassStatement, type CompassStatementType } from '../../core/compass/types';
-import { chooseValue } from '../../core/values/rules';
+import { chooseValue, normalizeValuePrinciples } from '../../core/values/rules';
 import { MAX_VALUE_MEANING_LENGTH, type ChosenValue } from '../../core/values/types';
 import type { CompassStatementRepository } from '../../data/repositories/compassStatementRepository';
 import type { ValueRepository } from '../../data/repositories/valueRepository';
@@ -38,7 +38,7 @@ export function createCompassService({ userId, context, values, statements }: Co
     },
 
     /** Stores the person's own meaning for a value. */
-    async updateValue(id: string, changes: { meaning?: string }): Promise<ChosenValue> {
+    async updateValue(id: string, changes: { meaning?: string; principles?: readonly string[] }): Promise<ChosenValue> {
       const value = (await values.list(userId)).find((item) => item.id === id);
       if (!value) throw new Error('That value is no longer here.');
       const updated: ChosenValue = { ...value };
@@ -46,6 +46,11 @@ export function createCompassService({ userId, context, values, statements }: Co
         const meaning = changes.meaning?.trim();
         if (meaning) updated.meaning = meaning.slice(0, MAX_VALUE_MEANING_LENGTH);
         else delete updated.meaning;
+      }
+      if ('principles' in changes) {
+        const principles = normalizeValuePrinciples(changes.principles ?? []);
+        if (principles.length) updated.principles = principles;
+        else delete updated.principles;
       }
       await values.remove(id);
       await values.add(updated);
