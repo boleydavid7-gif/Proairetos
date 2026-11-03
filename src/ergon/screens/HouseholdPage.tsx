@@ -3,8 +3,11 @@ import AccountCard from '../../app/family/AccountCard';
 import { offerUndo } from '../../app/family/shell';
 import { BackIcon } from '../../app/family/icons';
 import { syncStatus } from '../../app/sync/syncController';
+import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
 import { homes, ownChores, sharingAvailable, useChores, useHome } from '../app/state';
+import { nextDay, whoDidWhat } from '../core/chores';
+import { toLocalDate } from '../../core/scheduling/dates';
 
 const INVITE = 'ergonShared.invite';
 
@@ -52,8 +55,12 @@ function moveOwnInto(list: NonNullable<ReturnType<typeof homes.sharedLists>[numb
 export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const home = useHome();
-  useChores();
+  const chores = useChores();
+  const family = useHousehold();
   const own = ownChores.use();
+  const today = toLocalDate(new Date());
+  const familyConnected = family.parts.some((part) => part.app === 'ergon');
+  const activity = whoDidWhat(chores, today);
   const [invite, setInvite] = useState(pendingInvite);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -142,13 +149,53 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
     );
   }
 
+  const familyName = family.list?.name ?? home.name;
+  const members = family.members.map((member) => {
+    const userId = member.id.slice('member:'.length);
+    const assigned = chores.filter((chore) => nextDay(chore) && (chore.whoId === userId || (!chore.whoId && chore.who === member.name))).length;
+    const completed = activity.find((fact) => fact.name === member.name)?.times ?? 0;
+    return { ...member, userId, assigned, completed, role: family.roles[userId] ?? 'member' };
+  });
+
   return (
     <div className="page ergon-page">
       {top}
-      <h1 className="title">{home.name}</h1>
+      <h1 className="title">{familyName}</h1>
+
       <section className="card">
-        <p className="muted">Your current chores list stays here. To connect it to a Proairetos family and share it alongside other apps, open Family settings. Existing list members are not removed just by opening these settings.</p>
+        <div className="section-head">
+          <h2>People</h2>
+          <span className="muted">{familyConnected ? members.length : 'Not connected'}</span>
+        </div>
+        {familyConnected ? (
+          members.length > 0 ? (
+            <ul className="notes-list">
+              {members.map((member) => (
+                <li key={member.id} className="note-line">
+                  <span>
+                    <strong>{member.name}{member.userId === family.currentUserId ? ' · You' : ''}</strong>
+                    <span className="muted"> · {member.role === 'owner' ? 'Owner' : member.role === 'admin' ? 'Administrator' : 'Member'}</span>
+                  </span>
+                  <span className="muted">{member.assigned} open · {member.completed} done</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">Your family members are syncing. They will appear here shortly.</p>
+          )
+        ) : (
+          <p className="muted">Connect Ergon under Proairetos Settings → Family → What you share. Once connected, chores can be assigned to actual household members and turns can follow the family roster.</p>
+        )}
         <a className="button-main" href="/?open=settings:household">Manage family settings</a>
+      </section>
+
+      <section className="card">
+        <div className="section-head">
+          <h2>Shared chores</h2>
+          <span className="muted">{chores.length}</span>
+        </div>
+        <p className="muted">Assignments and rotating turns use the household roster. Each person’s personal chores stay private unless added to this shared list.</p>
+        <button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'chores' })}>View chores</button>
       </section>
 
       {own.length > 0 && (
@@ -172,7 +219,6 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
           </button>
         </section>
       )}
-
 
       {error && <p className="form-error" role="alert">{error}</p>}
     </div>
