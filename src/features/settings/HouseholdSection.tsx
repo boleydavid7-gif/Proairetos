@@ -221,10 +221,11 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         </section>
       )}
 
-      <section className="settings-group" aria-label="Shared">
-        <h2 className="settings-group__label">Shared</h2>
+      <section className="settings-group" aria-label="What your family can see">
+        <h2 className="settings-group__label">What you share</h2>
+        <p className="section-description">Choose the specific list each app makes available to this household. Nothing else in those apps is included.</p>
         <div className="settings-card settings-card--rows notify-list">
-          {shown.map(({ app, name: label }) => {
+          {shown.map(({ app, name: label, description, sensitive }) => {
             const part = parts.find((each) => each.app === app);
             const state = states[app];
             return (
@@ -235,25 +236,39 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                   role="switch"
                   aria-checked={Boolean(part)}
                   aria-pressed={Boolean(part)}
-                  disabled={busy !== null}
+                  disabled={busy !== null || (Boolean(part) && state !== 'shared')}
                   onClick={() => {
                     if (part) {
-                      const removed = stopSharing(app);
-                      if (removed) offerUndo(`${label} no longer shared`, async () => restorePart(removed));
+                      void run(app, async () => {
+                        const removed = await stopSharing(app);
+                        if (removed) offerUndo(`${label} removed from family sharing`, async () => restorePart(removed));
+                      });
                     } else void run(app, () => shareApp(app));
                   }}
                 >
                   <span className={`toggle-switch${part ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
                   <span className="toggle-row__text">
                     {iconOf(app) && <img className="household__icon" src={iconOf(app)} alt="" width={20} height={20} />}
-                    {label}
+                    <span className="household__share-copy">
+                      <span className="household__share-name">
+                        {label}
+                        {sensitive && <span className="household__sensitive">Sensitive</span>}
+                      </span>
+                      <span className="household__share-description">{description}</span>
+                    </span>
                   </span>
                 </button>
-                {part && state === 'elsewhere' && <p className="hint household__note">Shared through another list on this device.</p>}
+                {part && state === 'elsewhere' && <p className="hint household__note">Shared through another list on this device; manage that list there.</p>}
+                {part && state === 'join' && <p className="hint household__note">Connecting this list to your device…</p>}
               </div>
             );
           })}
         </div>
+        <section className="settings-card household__sharing-note">
+          <strong>What stays private</strong>
+          <p>Personal to-dos, calendar events, reflections, Compass, finances and imported health records are not included in these shares. The Medicines list above is separate and only shared when enabled.</p>
+          <p>Turning a share off blocks household access on the next server sync. Copies already downloaded to another device cannot be recalled.</p>
+        </section>
       </section>
 
       {leaving ? (
