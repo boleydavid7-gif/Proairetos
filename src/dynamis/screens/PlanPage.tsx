@@ -61,10 +61,10 @@ export default function PlanPage({ nav }: { nav: DynamisNav }) {
       </fieldset>
 
       <fieldset className="field">
-        <legend className="field__label">Lifting so far</legend>
+        <legend className="field__label">Experience</legend>
         <div className="chip-row" role="group" aria-label="Lifting so far">
-          <button type="button" className="chip" aria-pressed={isNew} onClick={() => setIsNew(true)}>New to it, or back after a long time</button>
-          <button type="button" className="chip" aria-pressed={!isNew} onClick={() => setIsNew(false)}>Some months or more</button>
+          <button type="button" className="chip" aria-pressed={isNew} onClick={() => setIsNew(true)}>New or returning</button>
+          <button type="button" className="chip" aria-pressed={!isNew} onClick={() => setIsNew(false)}>Experienced</button>
         </div>
       </fieldset>
 
@@ -96,7 +96,7 @@ export default function PlanPage({ nav }: { nav: DynamisNav }) {
       </fieldset>
 
       <fieldset className="field">
-        <legend className="field__label">Weights in</legend>
+        <legend className="field__label">Units</legend>
         <div className="chip-row" role="group" aria-label="Weights in">
           {(['kg', 'lb'] as const).map((each) => <button key={each} type="button" className="chip" aria-pressed={unit === each} onClick={() => setUnit(each)}>{each}</button>)}
         </div>
