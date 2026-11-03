@@ -1100,3 +1100,121 @@ button.value-card__text:disabled {
 .value-connections__form .chip {
   justify-self: start;
 }
+
+/* Personal principles: the person's own words for how a value is practiced. */
+.value-card__principles {
+  display: grid;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.value-card__principles-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.value-card__principles-heading > span:last-child {
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.value-card__principles-help {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.value-card__principles-list,
+.value-connections__principles ul {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.value-card__principles-list li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  border-left: 2px solid var(--color-accent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.value-card__principles-list li > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.value-card__principle-remove {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.35rem -0.35rem -0.35rem 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text-faint);
+}
+
+.value-card__principle-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.value-card__principle-form .field-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.value-connections__principles {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.value-connections__principles li {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.value-connections__principles button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.value-connections__principles button span {
+  min-width: 0;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.value-connections__principles button small {
+  flex: none;
+  color: var(--color-accent);
+  font-size: var(--text-xs);
+}
