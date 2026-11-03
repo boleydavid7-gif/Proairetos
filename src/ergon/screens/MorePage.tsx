@@ -37,7 +37,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         <li>
           <button type="button" className="row" onClick={() => nav.go({ name: 'household' })}>
             <span className="row__icon"><PeopleIcon size={22} /></span>
-            <span className="row__text"><span>Household</span>{home && <span className="row__detail">{home.name}</span>}</span>
+            <span className="row__text"><span>Family</span>{home && <span className="row__detail">{home.name}</span>}</span>
             <ChevronIcon size={18} />
           </button>
         </li>
