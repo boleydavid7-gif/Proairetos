@@ -8,7 +8,7 @@ import type { Nav } from '../app/App';
 import { ChevronIcon, LogIcon, PlusIcon } from '../app/icons';
 import { useEntries, useSettings, useToday } from '../app/state';
 import { Brand, dayLabel, Segmented } from '../app/ui';
-import { activities, feelings, logCsv, newestFirst, periodRange, recordFacts, totalsBetween, weeklyTotals, type Period } from '../core/log';
+import { activities, feelings, logCsv, newestFirst, periodComparison, periodRange, recordFacts, totalsBetween, weeklyTotals, type Period } from '../core/log';
 import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf } from '../core/pace';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
@@ -43,6 +43,22 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const list = [...(entries ?? [])].sort(newestFirst);
   const range = periodRange(period, today);
   const totals = totalsBetween(list, range.from, range.to);
+  const comparison = periodComparison(period, today);
+  const previousTotals = comparison ? totalsBetween(list, comparison.previous.from, comparison.previous.to) : undefined;
+  const compared = (current: number, previous: number | undefined, format: (value: number) => string) => {
+    if (!previousTotals || previousTotals.count === 0 || previous === undefined) return 'No earlier data';
+    const change = current - previous;
+    if (change === 0) return `No change vs ${comparison!.label}`;
+    const amount = format(Math.abs(change));
+    return `${change > 0 ? '+' : '−'}${amount} vs ${comparison!.label}`;
+  };
+  const distanceChange = compared(totals.meters, previousTotals?.meters, (value) =>
+    inUnit(value, unit) < 0.05 ? `less than 0.1 ${unit}` : formatDistance(value, unit),
+  );
+  const timeChange = compared(totals.seconds, previousTotals?.seconds, (value) =>
+    value < 30 ? 'less than 1 min' : formatHours(value),
+  );
+  const workoutChange = compared(totals.count, previousTotals?.count, (value) => `${value} ${value === 1 ? 'workout' : 'workouts'}`);
   const weeks = weeklyTotals(list, 8, today);
   const byDistance = weeks.some((week) => week.meters > 0);
   const records = recordFacts(list, unit);
@@ -73,14 +89,17 @@ export default function LogPage({ nav }: { nav: Nav }) {
         <div className="tile">
           <span className="tile__label">Total distance</span>
           <span className="tile__value"><RollingNumber value={totals.meters} format={(meters) => formatDistance(meters, unit)} /></span>
+          {period !== 'all' && <span className="tile__change">{distanceChange}</span>}
         </div>
         <div className="tile">
           <span className="tile__label">Total time</span>
           <span className="tile__value"><RollingNumber value={totals.seconds} format={(seconds) => formatHours(Math.round(seconds))} /></span>
+          {period !== 'all' && <span className="tile__change">{timeChange}</span>}
         </div>
         <div className="tile">
           <span className="tile__label">Workouts</span>
           <span className="tile__value"><RollingNumber value={totals.count} /></span>
+          {period !== 'all' && <span className="tile__change">{workoutChange}</span>}
         </div>
         <div className="tile">
           <span className="tile__label">Longest</span>
