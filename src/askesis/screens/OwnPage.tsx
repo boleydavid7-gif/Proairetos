@@ -5,8 +5,8 @@ import SessionBar, { SessionKey } from '../app/SessionBar';
 import { newId } from '../app/state';
 import { putOwnSession, removeOwnSession, saveOwnSessions, useOwnSessions } from '../app/own';
 import { efforts, type Effort } from '../core/effort';
-import { ENDS, STRETCHES, newSession, ownWorkout, type OwnSession } from '../core/own';
-import { isSet, lengthLabel, sessionLines, totalMinutes, type Part, type Step } from '../core/workouts';
+import { STRETCHES, newSession, ownWorkout, type OwnSession } from '../core/own';
+import { flatten, isSet, lengthLabel, sessionLines, totalMinutes, type Part, type Step } from '../core/workouts';
 import { Sym } from '../../lamplight/icons';
 
 const effortOptions = Object.keys(efforts) as Effort[];
@@ -27,6 +27,7 @@ function StepEditor({
   onMoveDown,
   first,
   last,
+  showTools = true,
 }: {
   step: Step;
   onChange: (step: Step) => void;
@@ -35,6 +36,7 @@ function StepEditor({
   onMoveDown: () => void;
   first: boolean;
   last: boolean;
+  showTools?: boolean;
 }) {
   return (
     <div className="own-step">
@@ -52,11 +54,11 @@ function StepEditor({
           </select>
         </label>
       </div>
-      <div className="own-step__tools">
+      {showTools && <div className="own-step__tools">
         <button type="button" className="icon-button" aria-label="Move step up" disabled={first} onClick={onMoveUp}><Sym name="chevron-up" /></button>
         <button type="button" className="icon-button" aria-label="Move step down" disabled={last} onClick={onMoveDown}><Sym name="chevron-down" /></button>
         <button type="button" className="text-link own-step__remove" onClick={onRemove}>Remove</button>
-      </div>
+      </div>}
       <label className="own-step__note">
         <span className="sr-only">Optional step note</span>
         <input className="input" value={step.note ?? ''} maxLength={60} placeholder="Add a note (optional)" onChange={(event) => onChange({ ...step, note: event.target.value || undefined })} />
@@ -156,6 +158,7 @@ function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (sess
               step={part}
               first
               last
+              showTools={false}
               onChange={(next) => updateStep(index, 0, next)}
               onRemove={() => setParts((before) => before.filter((_, at) => at !== index))}
               onMoveUp={() => setParts((before) => move(before, index, index - 1))}
@@ -176,7 +179,7 @@ function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (sess
             <span className="card__eyebrow">Session preview</span>
             <p className="own-preview__length">{lengthLabel(totalMinutes(workout.parts))}</p>
           </div>
-          <span className="card__eyebrow">{workout.parts.length} steps in sequence</span>
+          <span className="card__eyebrow">{flatten(workout.parts).length} steps in sequence</span>
         </div>
         <SessionBar parts={workout.parts} large />
         <ol className="session-lines own-preview__lines">
