@@ -7,6 +7,8 @@ import { canArchiveLifeRecord } from '../../core/life-records/library';
 type Props = {
   record: LifeRecord;
   saved: boolean;
+  trashed: boolean;
+  expiresAt?: string;
   selectionMode: boolean;
   selected: boolean;
   availableValues: { id: string; name: string }[];
@@ -17,6 +19,9 @@ type Props = {
   onOpen: (record: LifeRecord) => void;
   onArchive: (record: LifeRecord) => void;
   onRestore: (record: LifeRecord) => void;
+  onMoveToTrash: (record: LifeRecord) => void;
+  onRestoreFromTrash: (record: LifeRecord) => void;
+  onPermanentlyRemove: (record: LifeRecord) => void;
   onUnlink: (record: LifeRecord, valueId: string) => void;
   onLinkValue: (record: LifeRecord, valueId: string) => void;
   onFilterValue: (valueId: string) => void;
@@ -46,6 +51,8 @@ function dateLabel(value: string): string {
 export default function LibraryRecordItem({
   record,
   saved,
+  trashed,
+  expiresAt,
   selectionMode,
   selected,
   availableValues,
@@ -56,6 +63,9 @@ export default function LibraryRecordItem({
   onOpen,
   onArchive,
   onRestore,
+  onMoveToTrash,
+  onRestoreFromTrash,
+  onPermanentlyRemove,
   onUnlink,
   onLinkValue,
   onFilterValue,
@@ -98,22 +108,34 @@ export default function LibraryRecordItem({
           <span className={'connections-record__kind connections-record__kind--' + record.kind}>{kindLabel}</span>
           <span className="connections-record__source">{record.source}</span>
           <time dateTime={record.at}>{dateLabel(record.at)}</time>
-          <button type="button" className="connections-save" aria-label={saved ? 'Remove from saved' : 'Save to library'} aria-pressed={saved} onClick={() => onToggleFavorite(record)}>
-            <Sym name="bookmark" size={18} />
-          </button>
-          {canArchiveLifeRecord(record) && (
-            <details className="connections-actions">
-              <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
-              <div className="connections-actions__menu">
-                {linkedValues.map((value) => (
-                  <button key={value.id} type="button" disabled={busy} onClick={() => onUnlink(record, value.id)}>Disconnect {value.name}</button>
-                ))}
-                <button type="button" disabled={busy} onClick={() => record.archived ? onRestore(record) : onArchive(record)}>
-                  {busy ? 'Saving…' : record.archived ? 'Restore to library' : 'Move to archive'}
-                </button>
-              </div>
-            </details>
+          {!trashed && (
+            <button type="button" className="connections-save" aria-label={saved ? 'Remove from saved' : 'Save to library'} aria-pressed={saved} onClick={() => onToggleFavorite(record)}>
+              <Sym name="bookmark" size={18} />
+            </button>
           )}
+          <details className="connections-actions">
+            <summary aria-label="More actions"><Sym name="more" size={19} /></summary>
+            <div className="connections-actions__menu">
+              {!trashed && linkedValues.map((value) => (
+                <button key={value.id} type="button" disabled={busy} onClick={() => onUnlink(record, value.id)}>Disconnect {value.name}</button>
+              ))}
+              {trashed ? (
+                <>
+                  <button type="button" disabled={busy} onClick={() => onRestoreFromTrash(record)}>Restore to previous location</button>
+                  <button type="button" className="connections-action--destructive" disabled={busy} onClick={() => onPermanentlyRemove(record)}>Permanently remove from Reflect</button>
+                </>
+              ) : (
+                <>
+                  {canArchiveLifeRecord(record) && (
+                    <button type="button" disabled={busy} onClick={() => record.archived ? onRestore(record) : onArchive(record)}>
+                      {busy ? 'Saving…' : record.archived ? 'Restore to library' : 'Move to archive'}
+                    </button>
+                  )}
+                  <button type="button" className="connections-action--destructive" disabled={busy} onClick={() => onMoveToTrash(record)}>Move to Recently Deleted</button>
+                </>
+              )}
+            </div>
+          </details>
         </div>
         {href ? (
           <a className="connections-record__title" href={href}>
@@ -142,13 +164,18 @@ export default function LibraryRecordItem({
             </>
           )
         )}
+        {trashed && (
+          <p className="connections-record__trash-note">
+            In Recently Deleted{expiresAt ? ` · Removed in ${Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86_400_000))} days` : ''}
+          </p>
+        )}
         {record.kind !== 'reflection' && record.body && (
           <details className="connections-record__details">
             <summary>Read details</summary>
             <p className="connections-record__body">{record.body}</p>
           </details>
         )}
-        {linkedValues.length > 0 && (
+        {!trashed && linkedValues.length > 0 && (
           <div className="connections-record__values" aria-label="Connected values">
             {linkedValues.map((value) => (
               <span className="connections-record__value" key={value.id}>
@@ -158,7 +185,7 @@ export default function LibraryRecordItem({
             ))}
           </div>
         )}
-        {unlinkedValues.length > 0 && (
+        {!trashed && unlinkedValues.length > 0 && (
           <details className="connections-record__connect">
             <summary>Connect to a value</summary>
             <div className="connections-record__connect-fields">
@@ -170,7 +197,7 @@ export default function LibraryRecordItem({
             </div>
           </details>
         )}
-        {relatedRecords.length > 0 && (
+        {!trashed && relatedRecords.length > 0 && (
           <details className="connections-record__related">
             <summary>Related entries <span>{relatedRecords.length}</span></summary>
             <ul>
