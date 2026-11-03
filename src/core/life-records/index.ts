@@ -1,28 +1,9 @@
 import type { Decision } from '../decisions/types';
 import type { LifeItem } from '../life-items/types';
 import type { Reflection } from '../reflections/types';
-
-export type LifeRecordKind = 'reflection' | 'decision' | 'pursuit' | 'life' | 'workout' | 'meal' | 'study';
-export type LifeRecordSource = 'Proairetos' | 'Compass' | 'Askesis' | 'Soma' | 'Theoria' | 'Dynamis' | 'Poreia';
-
-/**
- * A read-only, searchable view of something the person recorded or did.
- * The source record remains authoritative; this is only a common projection
- * for Reflect and the personal library.
- */
-export interface LifeRecord {
-  key: string;
-  kind: LifeRecordKind;
-  source: LifeRecordSource;
-  sourceId: string;
-  at: string;
-  title: string;
-  detail?: string;
-  body?: string;
-  searchText: string;
-  valueIds: string[];
-  archived: boolean;
-}
+import { createLifeRecord, type LifeRecordAdapter, type LifeRecordApp, type LifeRecordDraft, type LifeRecordKind, type LifeRecordSource } from './contract';
+export type { LifeRecord, LifeRecordAdapter, LifeRecordApp, LifeRecordKind, LifeRecordSource } from './contract';
+import type { LifeRecord } from './contract';
 
 export interface LifeRecordInput {
   reflections?: readonly Reflection[];
@@ -60,28 +41,26 @@ export interface LifeRecordInput {
 const compact = (value: string | undefined) => value?.trim() ?? '';
 const firstLine = (value: string) => value.trim().split(/\r?\n/, 1)[0].slice(0, 92);
 const join = (...parts: Array<string | undefined>) => parts.map(compact).filter(Boolean).join(' · ');
-const record = (
-  input: Omit<LifeRecord, 'searchText'> & { searchParts?: string[] },
-): LifeRecord => {
-  const { searchParts = [], ...rest } = input;
-  return { ...rest, searchText: [rest.title, rest.detail, rest.body, rest.source, ...searchParts].filter(Boolean).join(' ').toLocaleLowerCase() };
-};
+const record = (input: LifeRecordDraft & { searchParts?: readonly (string | undefined)[] }): LifeRecord =>
+  createLifeRecord(input);
 
 function reflectionRecord(entry: Reflection): LifeRecord {
   const kind = entry.kind === 'INTENTION' ? 'Daily intention' : entry.kind.replaceAll('_', ' ').toLocaleLowerCase();
   const prompt = entry.promptKey?.replaceAll('-', ' ');
-  const appSources: Record<string, LifeRecordSource> = {
-    'after-run': 'Askesis',
-    'after-meal': 'Soma',
-    'after-study': 'Theoria',
-    'after-reading': 'Theoria',
-    'after-strength': 'Dynamis',
-    'after-trip': 'Poreia',
+  const appSources: Record<string, { source: LifeRecordSource; sourceApp: LifeRecordApp }> = {
+    'after-run': { source: 'Askesis', sourceApp: 'askesis' },
+    'after-meal': { source: 'Soma', sourceApp: 'soma' },
+    'after-study': { source: 'Theoria', sourceApp: 'theoria' },
+    'after-reading': { source: 'Theoria', sourceApp: 'theoria' },
+    'after-strength': { source: 'Dynamis', sourceApp: 'dynamis' },
+    'after-trip': { source: 'Poreia', sourceApp: 'poreia' },
   };
+  const origin = appSources[entry.promptKey ?? ''] ?? { source: 'Proairetos' as const, sourceApp: 'proairetos' as const };
   return record({
     key: `reflection:${entry.id}`,
     kind: 'reflection',
-    source: appSources[entry.promptKey ?? ''] ?? 'Proairetos',
+    sourceApp: origin.sourceApp,
+    source: origin.source,
     sourceId: entry.id,
     at: entry.archivedAt ?? entry.createdAt,
     title: firstLine(entry.body) || 'Reflection',
@@ -96,6 +75,7 @@ function decisionRecord(entry: Decision): LifeRecord {
   return record({
     key: `decision:${entry.id}`,
     kind: 'decision',
+    sourceApp: 'compass',
     source: 'Compass',
     sourceId: entry.id,
     at: entry.archivedAt ?? entry.decidedAt,
@@ -133,6 +113,7 @@ function lifeItemRecord(entry: LifeItem): LifeRecord {
   return record({
     key: `life:${entry.id}`,
     kind: 'life',
+    sourceApp: 'proairetos',
     source: 'Proairetos',
     sourceId: entry.id,
     at: entry.archivedAt ?? entry.createdAt,
@@ -154,6 +135,7 @@ function workoutRecord(entry: WorkoutRecord, unit: 'km' | 'mi'): LifeRecord {
   return record({
     key: `workout:${entry.id}`,
     kind: 'workout',
+    sourceApp: 'askesis',
     source: 'Askesis',
     sourceId: entry.id,
     at: entry.createdAt || `${entry.date}T12:00:00`,
@@ -184,6 +166,7 @@ function strengthWorkoutRecord(
   return record({
     key: `dynamis-workout:${entry.id}`,
     kind: 'workout',
+    sourceApp: 'dynamis',
     source: 'Dynamis',
     sourceId: entry.id,
     at: entry.createdAt || `${entry.date}T12:00:00`,
@@ -213,6 +196,7 @@ function mealRecords(recipes: NonNullable<LifeRecordInput['recipes']>): LifeReco
         return record({
           key: `meal:${recipe.id}@${day}`,
           kind: 'meal',
+          sourceApp: 'soma',
           source: 'Soma',
           sourceId: recipe.id,
           // Soma stores a calendar day, not a time; local noon keeps that day stable across time zones.
@@ -233,6 +217,7 @@ function studyRecord(entry: NonNullable<LifeRecordInput['studySessions']>[number
   return record({
     key: `study:${entry.id}`,
     kind: 'study',
+    sourceApp: 'theoria',
     source: 'Theoria',
     sourceId: entry.id,
     at: entry.at,
@@ -244,16 +229,78 @@ function studyRecord(entry: NonNullable<LifeRecordInput['studySessions']>[number
   });
 }
 
+type AskesisAdapterInput = { workouts: readonly WorkoutRecord[]; unit: 'km' | 'mi' };
+type DynamisAdapterInput = { workouts: NonNullable<LifeRecordInput['strengthWorkouts']>; unit: 'kg' | 'lb' };
+type CompassAdapterInput = {
+  decisions: readonly Decision[];
+  pursuits: NonNullable<LifeRecordInput['pursuits']>;
+};
+
+/**
+ * The registry is the extension point for companion apps. Each adapter owns
+ * one projection boundary; the source app's own store remains authoritative.
+ */
+export const lifeRecordAdapters = {
+  reflections: {
+    id: 'proairetos.reflections',
+    owner: 'proairetos',
+    kinds: ['reflection'],
+    toRecords: (entries: readonly Reflection[]) => entries.map(reflectionRecord),
+  } satisfies LifeRecordAdapter<readonly Reflection[]>,
+  decisions: {
+    id: 'compass.decisions',
+    owner: 'compass',
+    kinds: ['decision'],
+    toRecords: (input: Pick<CompassAdapterInput, 'decisions'>) => input.decisions.map(decisionRecord),
+  } satisfies LifeRecordAdapter<Pick<CompassAdapterInput, 'decisions'>>,
+  pursuits: {
+    id: 'compass.pursuits',
+    owner: 'compass',
+    kinds: ['pursuit'],
+    toRecords: (entries: CompassAdapterInput['pursuits']) => entries.map(pursuitRecord),
+  } satisfies LifeRecordAdapter<CompassAdapterInput['pursuits']>,
+  lifeItems: {
+    id: 'proairetos.life-items',
+    owner: 'proairetos',
+    kinds: ['life'],
+    toRecords: (entries: readonly LifeItem[]) => entries.map(lifeItemRecord),
+  } satisfies LifeRecordAdapter<readonly LifeItem[]>,
+  askesis: {
+    id: 'askesis.workouts',
+    owner: 'askesis',
+    kinds: ['workout'],
+    toRecords: (input: AskesisAdapterInput) => input.workouts.map((entry) => workoutRecord(entry, input.unit)),
+  } satisfies LifeRecordAdapter<AskesisAdapterInput>,
+  dynamis: {
+    id: 'dynamis.workouts',
+    owner: 'dynamis',
+    kinds: ['workout'],
+    toRecords: (input: DynamisAdapterInput) => input.workouts.map((entry) => strengthWorkoutRecord(entry, input.unit)),
+  } satisfies LifeRecordAdapter<DynamisAdapterInput>,
+  soma: {
+    id: 'soma.cooked-meals',
+    owner: 'soma',
+    kinds: ['meal'],
+    toRecords: (entries: NonNullable<LifeRecordInput['recipes']>) => mealRecords(entries),
+  } satisfies LifeRecordAdapter<NonNullable<LifeRecordInput['recipes']>>,
+  theoria: {
+    id: 'theoria.study-sessions',
+    owner: 'theoria',
+    kinds: ['study'],
+    toRecords: (entries: NonNullable<LifeRecordInput['studySessions']>) => entries.map(studyRecord),
+  } satisfies LifeRecordAdapter<NonNullable<LifeRecordInput['studySessions']>>,
+};
+
 /** Builds the shared library projection without changing or duplicating source records. */
 export function buildLifeRecords(input: LifeRecordInput): LifeRecord[] {
   return [
-    ...(input.reflections ?? []).map(reflectionRecord),
-    ...(input.decisions ?? []).map(decisionRecord),
-    ...(input.pursuits ?? []).map(pursuitRecord),
-    ...(input.items ?? []).map(lifeItemRecord),
-    ...(input.workouts ?? []).map((entry) => workoutRecord(entry, input.distanceUnit ?? 'km')),
-    ...(input.strengthWorkouts ?? []).map((entry) => strengthWorkoutRecord(entry, input.strengthUnit ?? 'kg')),
-    ...mealRecords(input.recipes ?? []),
-    ...(input.studySessions ?? []).map(studyRecord),
+    ...lifeRecordAdapters.reflections.toRecords(input.reflections ?? []),
+    ...lifeRecordAdapters.decisions.toRecords({ decisions: input.decisions ?? [] }),
+    ...lifeRecordAdapters.pursuits.toRecords(input.pursuits ?? []),
+    ...lifeRecordAdapters.lifeItems.toRecords(input.items ?? []),
+    ...lifeRecordAdapters.askesis.toRecords({ workouts: input.workouts ?? [], unit: input.distanceUnit ?? 'km' }),
+    ...lifeRecordAdapters.dynamis.toRecords({ workouts: input.strengthWorkouts ?? [], unit: input.strengthUnit ?? 'kg' }),
+    ...lifeRecordAdapters.soma.toRecords(input.recipes ?? []),
+    ...lifeRecordAdapters.theoria.toRecords(input.studySessions ?? []),
   ].sort((a, b) => b.at.localeCompare(a.at) || a.key.localeCompare(b.key));
 }
