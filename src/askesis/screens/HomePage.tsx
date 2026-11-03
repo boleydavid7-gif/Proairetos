@@ -287,6 +287,7 @@ type WeekCalendarProps = {
 /** A quiet seven-day view: see the week's shape, open a planned run, or log an unplanned day. */
 function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) {
   const done = plans.filter((day) => day.done).length;
+  const summary = plans.length ? `${done} of ${plans.length} done` : 'No sessions placed';
   const latestEntry = (date: string) => entries
     .filter((entry) => entry.date === date)
     .slice()
@@ -299,12 +300,13 @@ function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) 
           <span className="card__eyebrow">Your training</span>
           <h2 className="card__title card__title--small">This week</h2>
         </div>
-        <span className="week-calendar__summary">{done} of {plans.length} done</span>
+        <span className="week-calendar__summary">{summary}</span>
       </div>
       <div className="week-calendar__days">
         {dates.map((date, index) => {
           const scheduled = plans.filter((day) => day.date === date);
-          const completed = scheduled.some((day) => day.done);
+          const completedCount = scheduled.filter((day) => day.done).length;
+          const completed = scheduled.length > 0 && completedCount === scheduled.length;
           const logged = latestEntry(date);
           const next = scheduled.find((day) => !day.done) ?? scheduled[0];
           const dateLabel = new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
@@ -313,13 +315,13 @@ function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) 
             day: 'numeric',
           });
           const detail = scheduled.length
-            ? `${scheduled.length} planned ${scheduled.length === 1 ? 'session' : 'sessions'}${completed ? ', completed' : ''}`
+            ? `${scheduled.length} planned ${scheduled.length === 1 ? 'session' : 'sessions'}${completedCount ? `, ${completedCount} completed` : ''}`
             : logged ? 'Logged activity' : 'No session planned';
           return (
             <button
               key={date}
               type="button"
-              className={`week-calendar__day${date === today ? ' week-calendar__day--today' : ''}${completed ? ' week-calendar__day--done' : ''}${scheduled.length ? ' week-calendar__day--planned' : ''}`}
+              className={`week-calendar__day${date === today ? ' week-calendar__day--today' : ''}${completed ? ' week-calendar__day--done' : completedCount ? ' week-calendar__day--partial' : ''}${scheduled.length ? ' week-calendar__day--planned' : ''}`}
               aria-label={`${dateLabel}. ${detail}. ${scheduled.length || logged ? 'Open details' : 'Log an activity'}.`}
               aria-current={date === today ? 'date' : undefined}
               onClick={() => {
