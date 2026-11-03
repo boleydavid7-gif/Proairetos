@@ -74,6 +74,9 @@ describe('Life Record integration contract', () => {
       ...validateLifeRecordAdapter(lifeRecordAdapters.soma, [{
         id: 'recipe-1',
         title: 'Roasted chicken',
+        notes: '',
+        tags: [],
+        ingredients: [],
         cookedFor: { '2026-11-02': ['Family'] },
       }]),
       ...validateLifeRecordAdapter(lifeRecordAdapters.theoria, [{
