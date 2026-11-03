@@ -84,6 +84,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
       <h1 className="title">Progress</h1>
       <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
       <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
+      {comparison && <p className="progress__comparison-note">Compared with the same point in the previous period.</p>}
 
       <div className="tiles">
         <div className="tile">
