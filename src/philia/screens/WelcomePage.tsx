@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: PhiliaNav }) {
       name="Philia"
       mark={<AppMark app="philia" size={44} light />}
       line="People and the dates that matter."
-      about="Birthdays, things to remember, gift ideas and time together."
+      about="Birthdays, reminders, gifts and time together."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {
