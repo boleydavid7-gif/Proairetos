@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { dayText, grouped, markDone, namesIn, nextDay, repeatText, skip, whoDidWhat, stepsFromText, toggleStep, roomsOf, shownDay, type Chore } from './chores';
+import { choreAssignee, choreRotaNames, dayText, grouped, markDone, memberIdForName, namesIn, nextDay, repeatText, skip, whoDidWhat, stepsFromText, toggleStep, roomsOf, shownDay, type Chore } from './chores';
 import { choreNotices, defaultChoreNotices } from './notices';
 
 const chore = (patch: Partial<Chore>): Chore => ({ id: 'c', name: 'Vacuum', repeat: { kind: 'weeks', every: 1 }, history: [], createdAt: '2026-10-01T10:00:00', ...patch });
@@ -53,6 +53,28 @@ describe('who', () => {
     expect(rota.history.at(-1)).toEqual({ date: '2026-10-10', by: 'Ana' });
     rota = markDone(markDone(rota, '2026-10-17'), '2026-10-24');
     expect(rota.who).toBe('Ana');
+  });
+
+  it('keeps family assignments tied to member IDs when display names change', () => {
+    const people = [{ id: 'user-a', name: 'Sam' }, { id: 'user-b', name: 'Alex' }];
+    const assigned = chore({ who: 'Old name', whoId: 'user-a', rota: ['Old name', 'Alex'], rotaIds: ['user-a', 'user-b'] });
+    expect(choreAssignee(assigned, people)).toBe('Sam');
+    expect(choreRotaNames(assigned, people)).toEqual(['Sam', 'Alex']);
+    expect(memberIdForName('Alex', people)).toBe('user-b');
+    expect(memberIdForName('Sam', [{ id: 'user-a', name: 'Sam' }, { id: 'user-c', name: 'Sam' }])).toBeUndefined();
+  });
+
+  it('passes a family rota by stable member ID and keeps legacy names readable', () => {
+    const assigned = chore({
+      who: 'Sam',
+      whoId: 'user-a',
+      rota: ['Sam', 'Alex'],
+      rotaIds: ['user-a', 'user-b'],
+    });
+    const next = markDone(assigned, '2026-10-10');
+    expect(next.whoId).toBe('user-b');
+    expect(next.who).toBe('Alex');
+    expect(choreAssignee(next, [{ id: 'user-a', name: 'Sam' }, { id: 'user-b', name: 'Alex' }])).toBe('Alex');
   });
 
   it('counts plainly who did what in the last 30 days', () => {
