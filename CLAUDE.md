@@ -1440,9 +1440,14 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   `src/tests/household/invites.test.ts`; the migration's row rules checked on Postgres 16): each account has an RSA-OAEP
   key pair made on a device once its data is open (`accountKey`): the public half in `account_keys`, the private half
   there too sealed with the account key (`sealWithAccount('account-key')`), so every device of that account opens it.
-  `inviteByEmail` asks `invitee_key(address)` (signed-in only, 30 lookups an hour, null for an account with no key yet or
+  `inviteByEmail` asks `invitee_key(address, household)` (owner/admin only, 30 lookups an hour, null for an account with no key yet or
   one's own), seals `{household, from}` to that key (`sealFor`, AD `proairetos-household-invite`, opened by `openSealed`)
-  and writes `household_invites` (`to_user`, `to_email`; sender and invitee see and remove it, 50 sent at most).
+  and writes `household_invites` with `household_id` (`to_user`, `to_email`; sender and invitee see and remove it, 50 sent at most).
+  Member roles (migration `20261104000000_household_member_roles.sql`): the household creator is owner, admin grants are
+  server-authoritative in `household_member_roles`, ordinary members are the default. Only owner changes admin roles;
+  owner/admin invite and remove members; admins cannot remove other admins. `setMemberRole` and
+  `removeHouseholdMember` call server RPCs; removal revokes household and app-list access on next sync and removes the
+  encrypted member profile.
   `refreshInvites` (on the page, and from `startHousehold` on start, coming into view and every 5 min) opens what waits,
   keeps it on the device (`proairetosHouseholdInvites`) and lists what this account sent (Invited, with Cancel). An invite
   shows as an important entry on the bell and Today's card (kind `household`, opens `settings:household`) and as Join /
