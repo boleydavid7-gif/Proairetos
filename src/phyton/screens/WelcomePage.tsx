@@ -11,7 +11,7 @@ export default function WelcomePage({ nav }: { nav: PhytonNav }) {
       name="Phyton"
       mark={<AppMark app="phyton" size={44} light />}
       line="Plants, and when to check them."
-      about="Touch the soil, mark Watered or Still moist, and the days between follow what each plant needs."
+      about="Check soil moisture and log watering. Reminders follow each plant’s needs."
       photo={photo}
       photoWide={photoWide}
       onBegin={() => {
