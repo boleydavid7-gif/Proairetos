@@ -54,7 +54,7 @@ export function migrateLegacyIdeas(): void {
   const existing = new Set(ideas.list().map((idea) => idea.id));
   notes.list().filter((note) => note.kind === 'idea').forEach((note) => {
     const id = `idea-${note.id}`;
-    if (!existing.has(id)) ideas.put({ id, text: note.body.trim() || note.title.trim(), stage: note.ideaStage || 'spark', createdAt: note.createdAt, updatedAt: note.updatedAt });
+    if (!existing.has(id)) ideas.put({ id, text: note.body.trim() || note.title.trim(), stage: note.ideaStage || 'spark', inReflect: note.inReflect ?? note.pinned, createdAt: note.createdAt, updatedAt: note.updatedAt });
     notes.remove(note.id);
   });
 }
