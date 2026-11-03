@@ -30,7 +30,7 @@ export interface LifeRecordInput {
   pursuits?: readonly {
     id: string; title: string; status: 'active' | 'paused' | 'complete' | 'archived';
     area?: string; outcome?: string; why?: string; current?: string; friction?: string; approach?: string; reviewNote?: string; nextMove?: string;
-    valueNotes?: Record<string, string>; createdAt: string;
+    valueNotes?: Record<string, string>; createdAt: string; updatedAt: string;
   }[];
   items?: readonly LifeItem[];
   workouts?: readonly {
@@ -74,7 +74,7 @@ function reflectionRecord(entry: Reflection): LifeRecord {
     kind: 'reflection',
     source: appSources[entry.promptKey ?? ''] ?? 'Proairetos',
     sourceId: entry.id,
-    at: entry.createdAt,
+    at: entry.archivedAt ?? entry.createdAt,
     title: firstLine(entry.body) || 'Reflection',
     detail: join(kind, prompt),
     body: entry.body,
@@ -89,7 +89,7 @@ function decisionRecord(entry: Decision): LifeRecord {
     kind: 'decision',
     source: 'Compass',
     sourceId: entry.id,
-    at: entry.decidedAt,
+    at: entry.archivedAt ?? entry.decidedAt,
     title: entry.question,
     detail: `Chose: ${entry.choice}`,
     body: join(entry.reasons, entry.expected ? `Expected: ${entry.expected}` : undefined),
@@ -109,7 +109,7 @@ function pursuitRecord(entry: PursuitRecord): LifeRecord {
     kind: 'pursuit',
     source: 'Compass',
     sourceId: entry.id,
-    at: entry.createdAt,
+    at: entry.status === 'archived' ? entry.updatedAt : entry.createdAt,
     title: entry.title,
     detail: join(status, entry.area),
     body: join(entry.outcome, entry.why, entry.current, entry.friction, entry.approach, entry.reviewNote, entry.nextMove ? `Next: ${entry.nextMove}` : undefined),
@@ -126,7 +126,7 @@ function lifeItemRecord(entry: LifeItem): LifeRecord {
     kind: 'life',
     source: 'Proairetos',
     sourceId: entry.id,
-    at: entry.createdAt,
+    at: entry.archivedAt ?? entry.createdAt,
     title: entry.title,
     detail: join(type, status),
     body: join(entry.notes, entry.nextStep ? `Next step: ${entry.nextStep}` : undefined, entry.nextStepCue ? `When: ${entry.nextStepCue}` : undefined, entry.ifObstacle ? `If blocked: ${entry.ifObstacle}` : undefined, entry.location ? `Place: ${entry.location}` : undefined),
