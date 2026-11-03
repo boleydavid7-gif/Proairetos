@@ -1811,6 +1811,14 @@ input[type='date'].input {
   font-variant-numeric: tabular-nums;
 }
 
+.progress__comparison-note {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+
 
 @media (max-width: 380px) {
   .records__grid {
