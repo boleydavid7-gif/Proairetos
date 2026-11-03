@@ -136,18 +136,6 @@ export default function ConnectionsPage() {
   useEffect(() => setVisibleCount(30), [category, view, range, valueId, query]);
   const visibleRecords = scoped.slice(0, visibleCount);
 
-  const counts = useMemo(() => {
-    const base = records.filter((entry) => view === 'archived' ? entry.archived : !entry.archived);
-    const valueScoped = valueId ? base.filter((entry) => linkedValueIds(entry).includes(valueId)) : base;
-    return {
-      all: valueScoped.length,
-      reflections: valueScoped.filter((entry) => entry.kind === 'reflection').length,
-      decisions: valueScoped.filter((entry) => entry.kind === 'decision').length,
-      pursuits: valueScoped.filter((entry) => entry.kind === 'pursuit').length,
-      life: valueScoped.filter((entry) => entry.kind === 'life').length,
-    };
-  }, [records, view, valueId]);
-
   async function archive(entry: Connection) {
     setBusyId(entry.kind + ':' + entry.record.id);
     setError('');
