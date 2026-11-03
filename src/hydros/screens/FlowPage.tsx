@@ -80,7 +80,7 @@ export default function FlowPage({ nav }: { nav: Nav }) {
       <article className="hydros-insight-card">
         <small>Average</small>
         <strong>{average ? formatVolume(average, unit) : '—'}{average ? ` ${unit}` : ''}</strong>
-        <small>{average ? 'on logged days' : 'Start logging to see this'}</small>
+        <small>{average ? 'on logged days' : 'No drinks logged'}</small>
       </article>
       <article className="hydros-insight-card">
         <small>Highest day</small>

@@ -68,25 +68,31 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
             </details>
           </div>
         ) : (
-          <div className="drink-types">
-            {drinkKinds.map((item) => (
-              <button type="button" key={item.id} className={selectedProfile.kind === item.id && selectedProfile.id === selectedProfileId ? 'is-selected' : ''} onClick={() => setSelectedProfileId(item.id)}>
-                {iconForKind(item.id, { size: 27 })}
-                <span>{selectedBaseProfile(item).label}</span>
+          <section className="hydros-add__types" aria-label="Drink type">
+            <div className="hydros-section-title"><h2>Drink type</h2></div>
+            <div className="drink-types">
+              {drinkKinds.map((item) => (
+                <button type="button" key={item.id} className={selectedProfile.kind === item.id && selectedProfile.id === selectedProfileId ? 'is-selected' : ''} onClick={() => setSelectedProfileId(item.id)}>
+                  {iconForKind(item.id, { size: 27 })}
+                  <span>{selectedBaseProfile(item).label}</span>
+                </button>
+              ))}
+              <button type="button" className="hydros-custom-drink" onClick={() => nav.go({ name: 'add', custom: true })}>
+                <PlusIcon size={28} />
+                <span>Custom drink</span>
               </button>
-            ))}
-            <button type="button" className="hydros-custom-drink" onClick={() => nav.go({ name: 'add', custom: true })}>
-              <PlusIcon size={28} />
-              <span>Custom drink</span>
-            </button>
-          </div>
+            </div>
+          </section>
         )}
-        <div className="amount-picker">
-          <IconButton size="md" label="Decrease amount" onClick={() => changeAmount(-1)}><MinusIcon /></IconButton>
-          <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>
-          <IconButton size="md" label="Increase amount" onClick={() => changeAmount(1)}><PlusIcon /></IconButton>
-        </div>
-        <button type="button" className="hydros-save" disabled={custom && !name.trim()} onClick={() => void (custom ? saveCustom() : save())}>Save</button>
+        <section className="hydros-add__amount" aria-label="Amount">
+          <div className="hydros-section-title"><h2>Amount</h2></div>
+          <div className="amount-picker">
+            <IconButton size="md" label="Decrease amount" onClick={() => changeAmount(-1)}><MinusIcon /></IconButton>
+            <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>
+            <IconButton size="md" label="Increase amount" onClick={() => changeAmount(1)}><PlusIcon /></IconButton>
+          </div>
+        </section>
+        <button type="button" className="button-main button--lg hydros-save" disabled={custom && !name.trim()} onClick={() => void (custom ? saveCustom() : save())}>Save</button>
       </div>
     </div>
   );
