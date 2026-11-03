@@ -156,6 +156,12 @@
   text-align: left;
 }
 
+.diaita-entry__main--link {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+
 .diaita-entry__main:disabled {
   opacity: 1;
   cursor: default;

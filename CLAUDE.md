@@ -1306,7 +1306,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   a night and sunglasses home when another night follows (Smith/Eastman 2009), main meal before and small
   snacks 00:00-06:00 on nights (Chellappa 2021), a short sleep after the last night, earlier bed before an
   early start, later after a late finish, two hours later the night before a first night (Smith/Eastman); an
-  evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight; an ordinary night is bedtime plus the hours by the wall clock (`laterOnClock`), so a clock change does not move waking (`clockChange.test.ts`). Every line can open its source; Settings (More) holds bedtime, sleep
+  evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight; an ordinary night is bedtime plus the hours by the wall clock (`laterOnClock`), so a clock change does not move waking (`clockChange.test.ts`). Timeline rows no longer expand source citations: Last caffeine opens Hydros, Worry time opens Reflect, Last big meal opens Soma, and Wind down opens Meditate; other rows are informational. The Sources page keeps the research references. Settings (More) holds bedtime, sleep
   hours, travel, getting ready, cutoff, wind-down, Light and Meals switches. Grouped by the person's day
   (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`)
   and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also

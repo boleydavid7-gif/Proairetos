@@ -1,7 +1,8 @@
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { BookIcon, CupIcon, GlassesIcon, MoonIcon, PlateIcon, SunIcon, WorkIcon } from '../../app/family/icons';
 import { addDays, parseLocalDate } from '../../core/scheduling/dates';
-import { SOURCES, timeText, type Entry, type EntryKind } from '../core/rhythm';
+import { timeText, type Entry, type EntryKind } from '../core/rhythm';
+import { timelineHref } from './timelineLinks';
 
 const ICONS: Record<EntryKind, (props: { size?: number }) => ReactNode> = {
   work: WorkIcon,
@@ -21,28 +22,36 @@ export function span(entry: Entry): string {
   return entry.end ? `${timeText(entry.start)}–${timeText(entry.end)}` : timeText(entry.start);
 }
 
-/** A day's plan as rows; a row with a source opens to show it. */
+/** A day's plan as rows; only the four practical actions link to their companion apps. */
 export function Timeline({ entries, now }: { entries: readonly Entry[]; now?: Date }) {
-  const [open, setOpen] = useState<string>();
   if (entries.length === 0) return <p className="muted">Nothing planned.</p>;
   const nowAt = now ? entries.findIndex((entry) => (entry.end ?? entry.start) > now) : -1;
   return (
     <ol className="diaita-timeline">
       {entries.map((entry, index) => {
         const Icon = ICONS[entry.kind];
-        const isOpen = open === entry.key;
         const past = now && (entry.end ?? entry.start) <= now;
+        const href = timelineHref(entry);
+        const content = (
+          <>
+            <span className="diaita-entry__time">{span(entry)}</span>
+            <span className="diaita-entry__icon"><Icon size={20} /></span>
+            <span className="diaita-entry__text">
+              <strong>{entry.title}</strong>
+              {entry.detail && <small>{entry.detail}</small>}
+            </span>
+          </>
+        );
         return (
-          <li key={entry.key} className={`diaita-entry diaita-entry--${entry.kind}${past ? ' diaita-entry--past' : ''}${index === nowAt ? ' diaita-entry--next' : ''}`}>
-            <button type="button" className="diaita-entry__main" aria-expanded={entry.source ? isOpen : undefined} disabled={!entry.source} onClick={() => setOpen(isOpen ? undefined : entry.key)}>
-              <span className="diaita-entry__time">{span(entry)}</span>
-              <span className="diaita-entry__icon"><Icon size={20} /></span>
-              <span className="diaita-entry__text">
-                <strong>{entry.title}</strong>
-                {entry.detail && <small>{entry.detail}</small>}
-              </span>
-            </button>
-            {isOpen && entry.source && <p className="diaita-entry__source">{SOURCES[entry.source]}</p>}
+          <li
+            key={entry.key}
+            className={'diaita-entry diaita-entry--' + entry.kind + (past ? ' diaita-entry--past' : '') + (index === nowAt ? ' diaita-entry--next' : '')}
+          >
+            {href ? (
+              <a className="diaita-entry__main diaita-entry__main--link" href={href}>{content}</a>
+            ) : (
+              <div className="diaita-entry__main">{content}</div>
+            )}
           </li>
         );
       })}
