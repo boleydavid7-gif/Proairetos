@@ -5,13 +5,6 @@ export const WORTH_ATTENTION_APPS = ['ergon', 'ktema', 'oikonomia', 'philia', 'p
 export type DailyPracticeApp = (typeof DAILY_PRACTICE_APPS)[number];
 export type AttentionApp = (typeof WORTH_ATTENTION_APPS)[number];
 export type TodayApp = DailyPracticeApp | AttentionApp;
-export type TodayAppGroup = 'daily' | 'attention';
-
-export const TODAY_APP_GROUPS = [
-  { id: 'daily' as const, title: 'Daily practices', apps: DAILY_PRACTICE_APPS },
-  { id: 'attention' as const, title: 'Worth your attention', apps: WORTH_ATTENTION_APPS },
-];
-
 /** A saved list may contain old or unknown app IDs; keep only the supported companions. */
 export function readHiddenTodayApps(value: unknown): TodayApp[] {
   if (!Array.isArray(value)) return [];
