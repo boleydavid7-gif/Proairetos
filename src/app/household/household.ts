@@ -284,7 +284,7 @@ export async function leaveHousehold(): Promise<void> {
   const list = household();
   if (!list) return;
   const userId = await me().catch(() => undefined);
-  if (roleState.householdId !== list.id || roleState.userId !== userId || !roleState.fetchedAt) {
+  if (roleState.householdId !== list.id || roleState.userId !== userId || !roleState.fetchedAt || Date.now() - roleState.fetchedAt > 60_000) {
     await refreshRoleState(list.id, userId);
   }
   if (!roleState.ownerId) {
