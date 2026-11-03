@@ -13,6 +13,7 @@ import { trips as poreiaTrips, journal as poreiaJournal, today as poreiaToday } 
 import { reflectMilestones as oikonomiaMilestones } from '../../oikonomia/data/reflect';
 import { libraryFavorites, setLibraryFavorite } from '../../app/library/favorites';
 import { libraryValueConnections, setLibraryValueConnection } from '../../app/library/value-connections';
+import { loadLibraryTimelineExpansion, saveLibraryTimelineExpansion } from '../../app/library/timeline';
 import { expireLibraryTrash, libraryTrash, moveToLibraryTrash, permanentlyRemoveFromLibraryTrash, restoreFromLibraryTrash, LIBRARY_TRASH_RETENTION_DAYS, type LibraryTrashEntry } from '../../app/library/trash';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
 import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, isLibraryTrashExpired, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
@@ -97,8 +98,9 @@ export default function ConnectionsPage() {
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set());
   const [bulkValueId, setBulkValueId] = useState('');
   const [bulkBusy, setBulkBusy] = useState(false);
-  const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>({});
-  const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({});
+  const [initialTimelineExpansion] = useState(loadLibraryTimelineExpansion);
+  const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(initialTimelineExpansion.years);
+  const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>(initialTimelineExpansion.months);
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
@@ -189,6 +191,9 @@ export default function ConnectionsPage() {
     setSelectedKeys(new Set());
   }, [category, view, range, sortOrder, valueId, sourceApp, query]);
   useEffect(() => {
+    saveLibraryTimelineExpansion({ years: expandedYears, months: expandedMonths });
+  }, [expandedYears, expandedMonths]);
+  useEffect(() => {
     const now = Date.now();
     trashEntries.forEach((entry) => {
       if (entry.deletedAt || !isLibraryTrashExpired(entry.trashedAt, now, LIBRARY_TRASH_RETENTION_DAYS)) return;
@@ -228,7 +233,7 @@ export default function ConnectionsPage() {
     const previous = trashByRecord.get(record.key);
     if (!previous || previous.deletedAt) return;
     restoreFromLibraryTrash(record.key);
-    offerUndo('Restored to Library', async () => moveToLibraryTrash(record.key, previous.trashedAt));
+    offerUndo('Restored to its previous location', async () => moveToLibraryTrash(record.key, previous.trashedAt));
   }
 
   function permanentlyRemoveRecord(record: LifeRecord) {
