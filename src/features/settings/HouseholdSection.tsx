@@ -267,13 +267,13 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         <section className="settings-card household__sharing-note">
           <strong>What stays private</strong>
           <p>Personal to-dos, calendar events, reflections, Compass, finances and imported health records are not included in these shares. The Medicines list above is separate and only shared when enabled.</p>
-          <p>Turning a share off blocks household access on the next server sync. Copies already downloaded to another device cannot be recalled.</p>
+          <p>The person who enables a category manages its switch. Turning it off blocks other household members on their next server sync; copies already downloaded to another device cannot be recalled.</p>
         </section>
       </section>
 
       {leaving ? (
         <section className="settings-card">
-          <p className="section-description">Leave {list.name}? What each app shares stays until you leave it in that app.</p>
+          <p className="section-description">Leave {list.name}? You will stop receiving household updates. Copies already saved on this device remain here.</p>
           <div className="button-row">
             <button type="button" className="button-quiet" onClick={() => setLeaving(false)}>Cancel</button>
             <button
