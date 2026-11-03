@@ -101,6 +101,28 @@ describe('Life Record integration contract', () => {
     );
   });
 
+  it('rejects records that claim a different source app without an explicit override', () => {
+    const adapter = {
+      id: 'mneme.notes',
+      owner: 'mneme' as const,
+      kinds: ['note'] as const,
+      toRecords: () => [{
+        key: 'mneme:note:note-1',
+        kind: 'note' as const,
+        sourceApp: 'hydros' as const,
+        source: 'Hydros' as const,
+        sourceId: 'note-1',
+        at: '2026-11-02T12:00:00.000Z',
+        title: 'A note',
+        searchText: 'a note hydros',
+        valueIds: [],
+        archived: false,
+      }],
+    };
+
+    expect(() => validateLifeRecordAdapter(adapter, undefined)).toThrow(/wrong source app/i);
+  });
+
   it('rejects adapters that emit duplicate keys', () => {
     const record = {
       key: 'same-key',
