@@ -145,6 +145,19 @@ describe('a household', () => {
     expect(soma.sharedLists()).toHaveLength(1);
   });
 
+  it('does not connect a standalone app list that includes people outside the family', async () => {
+    const household = await import('../../app/household/household');
+    const { homes } = await import('../../ergon/app/state');
+    user = 'user-a';
+    device('Sam');
+    const oldHome = await homes.createList('Old home');
+    tables.shared_list_members.push({ list_id: oldHome.id, user_id: 'user-outside' });
+
+    await household.makeHousehold('Family');
+    await expect(household.shareApp('ergon')).rejects.toThrow('already shared with someone outside this family');
+    expect(household.households.sharedItems(household.household()!).some((item) => item.kind === 'part' && item.app === 'ergon')).toBe(false);
+  });
+
   it('leaves an app that already shares elsewhere alone', async () => {
     const household = await import('../../app/household/household');
     const { homes } = await import('../../ergon/app/state');
