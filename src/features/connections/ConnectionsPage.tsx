@@ -4,6 +4,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService, reflectionService } from '../../app/services';
 import { pursuits } from '../../app/pursuits';
+import { plan as dynamisPlan, workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { useRuns } from '../../app/askesis/runs';
 import { combineReadingSessions, useStudy } from '../../app/praxis/study';
 import { useRecipesFromSoma } from '../../app/soma/meals';
@@ -55,6 +56,8 @@ export default function ConnectionsPage() {
   const values = useServiceData(compassService.subscribe, () => compassService.values(), []) ?? [];
   const allPursuits = pursuits.use();
   const runs = useRuns();
+  const strengthWorkouts = dynamisWorkouts.use();
+  const strengthPlan = dynamisPlan.use();
   const recipes = useRecipesFromSoma();
   const study = useStudy();
   const favorites = libraryFavorites.use();
@@ -77,9 +80,11 @@ export default function ConnectionsPage() {
     items,
     workouts: runs?.workouts ?? [],
     distanceUnit: runs?.unit ?? 'km',
+    strengthWorkouts,
+    strengthUnit: strengthPlan.unit ?? 'kg',
     recipes,
     studySessions: combineReadingSessions(study?.sessions ?? []),
-  }), [reflections, decisions, allPursuits, items, runs, recipes, study]);
+  }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study]);
 
   const query = search.trim().toLocaleLowerCase();
   const hasFilters = Boolean(query || category !== 'all' || valueId || range !== 'all' || sortOrder !== 'newest');
