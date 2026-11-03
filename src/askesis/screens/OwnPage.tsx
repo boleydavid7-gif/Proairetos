@@ -75,9 +75,9 @@ function move<T>(items: T[], from: number, to: number): T[] {
   return next;
 }
 
-function Builder({ start, onDone, onCancel }: { start: OwnSession; onDone: (session: OwnSession) => void; onCancel: () => void }) {
+function Builder({ start, fresh = false, onDone, onCancel }: { start: OwnSession; fresh?: boolean; onDone: (session: OwnSession) => void; onCancel: () => void }) {
   const [title, setTitle] = useState(start.title);
-  const [parts, setParts] = useState<Part[]>(() => start.parts?.length ? start.parts : ownWorkout(start).parts);
+  const [parts, setParts] = useState<Part[]>(() => fresh ? [{ effort: 'easy', minutes: 20 }] : start.parts?.length ? start.parts : ownWorkout(start).parts);
   const session = { ...start, title, parts };
   const workout = ownWorkout(session);
   const valid = parts.length > 0 && parts.every((part) =>
@@ -214,6 +214,7 @@ export default function OwnPage({ nav, id }: { nav: Nav; id?: string }) {
         <h1 className="title">{found ? 'Change session' : 'New session'}</h1>
         <Builder
           start={found ?? newSession(`own-${newId()}`)}
+          fresh={!found}
           onCancel={found ? () => setEditing(false) : nav.back}
           onDone={(session) => {
             putOwnSession(session);
