@@ -37,10 +37,10 @@ export default function TodayAppsSettings() {
   const hidden = useTodayAppsVisibility();
   const any = [...DAILY_PRACTICE_APPS, ...WORTH_ATTENTION_APPS].some((app) => added.includes(app));
   return (
-    <section className="settings-group today-app-settings" aria-label="Apps on Today">
+    <section className="settings-group today-app-settings" aria-label="App summaries">
       <h2 className="settings-group__label">Apps on Today</h2>
       <p className="section-description">
-        Choose which companion apps appear in your Today overview. Their rows open the app; details appear when there is something to show.
+        Choose which companion apps appear in the two compact Today sections. Tap a row on Today to open its app; these switches only show or hide the summary.
       </p>
       {!any && (
         <div className="settings-card">
@@ -60,7 +60,7 @@ export default function TodayAppsSettings() {
           <AppRows apps={WORTH_ATTENTION_APPS} hidden={hidden} added={added} />
         </div>
       )}
-      <p className="sheet__hint">Turn an app off here to hide its summary without removing the app or its information.</p>
+      <p className="sheet__hint">These choices sync with your Proairetos account. They do not remove an app or change its records.</p>
     </section>
   );
 }
