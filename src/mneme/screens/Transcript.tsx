@@ -64,8 +64,8 @@ export function Transcript({ note, audio, body, onUseText }: { note: Note; audio
     {job?.phase === 'hearing' && job.total > 1 && <progress className="mneme-transcript__bar" value={job.done} max={job.total} />}
     {segments.length > 0 && <>
       <ol className="mneme-transcript__lines">{segments.map((segment, index) => <li key={`${segment.start}-${index}`}><button type="button" aria-current={index === playing ? 'true' : undefined} onClick={() => playFrom(segment.start)}><time>{clock(segment.start)}</time><span>{segment.text}</span></button></li>)}</ol>
-      {text && body.trim() !== text.trim() && <button type="button" className="mneme-link-button" onClick={() => onUseText(text)}>Use as the note’s text</button>}
+      {text && body.trim() !== text.trim() && <button type="button" className="mneme-link-button" onClick={() => onUseText(text)}>Use transcript</button>}
     </>}
-    <p className="mneme-transcript__private">Heard on this device; the recording isn’t sent anywhere.</p>
+    <p className="mneme-transcript__private">Transcribed on-device. Audio stays here.</p>
   </section>;
 }
