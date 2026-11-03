@@ -28,6 +28,19 @@ export type LifeRecordSource =
   | 'Oikonomia'
   | 'Mneme';
 
+export const LIFE_RECORD_APP_LABELS: Record<LifeRecordApp, LifeRecordSource> = {
+  proairetos: 'Proairetos',
+  compass: 'Compass',
+  askesis: 'Askesis',
+  dynamis: 'Dynamis',
+  soma: 'Soma',
+  theoria: 'Theoria',
+  poreia: 'Poreia',
+  hydros: 'Hydros',
+  oikonomia: 'Oikonomia',
+  mneme: 'Mneme',
+};
+
 export type LifeRecordKind =
   | 'reflection'
   | 'decision'
@@ -78,6 +91,8 @@ export interface LifeRecordDraft extends Omit<LifeRecord, 'searchText'> {
 export interface LifeRecordAdapter<TInput> {
   readonly id: string;
   readonly owner: LifeRecordApp;
+  /** Set only when stored content can retain a different originating app, such as app-prompt reflections. */
+  readonly allowOriginOverrides?: boolean;
   readonly kinds: readonly LifeRecordKind[];
   toRecords(input: TInput): readonly LifeRecord[];
 }
@@ -130,6 +145,12 @@ export function validateLifeRecordAdapter<TInput>(
     }
     if (!record.key.trim() || keys.has(record.key)) {
       throw new Error(`Adapter ${adapter.id} emitted a missing or duplicate record key.`);
+    }
+    if (!adapter.allowOriginOverrides && record.sourceApp !== adapter.owner) {
+      throw new Error(`Adapter ${adapter.id} emitted a record with the wrong source app.`);
+    }
+    if (record.source !== LIFE_RECORD_APP_LABELS[record.sourceApp]) {
+      throw new Error(`Adapter ${adapter.id} emitted a source label that does not match its source app.`);
     }
     if (!record.sourceId.trim()) {
       throw new Error(`Adapter ${adapter.id} emitted a record without a source ID.`);
