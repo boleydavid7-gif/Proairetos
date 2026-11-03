@@ -32,6 +32,44 @@ function Copy({ label, value }: { label: string; value: string }) {
   );
 }
 
+function SetupInstructions({ phone, setPhone }: { phone: 'iphone' | 'android'; setPhone: (phone: 'iphone' | 'android') => void }) {
+  return (
+      <section className="settings-group" aria-label="Set up your phone">
+        <h2 className="settings-group__label">Set up your phone</h2>
+        <div className="settings-card">
+          <div className="chip-row" role="group" aria-label="Your phone">
+            <button type="button" className="chip" aria-pressed={phone === 'iphone'} onClick={() => setPhone('iphone')}>iPhone</button>
+            <button type="button" className="chip" aria-pressed={phone === 'android'} onClick={() => setPhone('android')}>Android</button>
+          </div>
+          {phone === 'iphone' ? (
+            <ol className="inbox-steps">
+              <li>Get <strong>Health Auto Export</strong> from the App Store and let it read your Health data. Sending to an address needs its paid version.</li>
+              <li>Tap <strong>Automations</strong>, then the plus button, and choose <strong>REST API</strong>.</li>
+              <li>Paste your address into <strong>URL</strong>.</li>
+              <li>Set the format to <strong>JSON</strong>.</li>
+              <li>
+                For the data, choose <strong>Health Metrics</strong> and pick Sleep Analysis, Dietary Water, Weight & Body Mass, Blood Pressure, Blood Glucose, Body Temperature, Resting Heart Rate and Blood Oxygen Saturation. Leave out any you don’t want.
+              </li>
+              <li>Set how often it sends. Once an hour is plenty. If it asks how much to send, choose since the last sync.</li>
+              <li>Turn the automation on and tap <strong>Manual Export</strong> once to try it.</li>
+              <li>For runs and walks, make a second automation the same way and choose <strong>Workouts</strong> as the data.</li>
+            </ol>
+          ) : (
+            <ol className="inbox-steps">
+              <li>Get <strong>Health Connect Webhook</strong> (HC Webhook) from Google Play. Your watch or fitness app has to save to Health Connect.</li>
+              <li>Open it and let it read Exercise, Sleep, Hydration, Weight, Blood pressure, Blood glucose, Oxygen saturation, Body temperature and Resting heart rate. Leave out any you don’t want.</li>
+              <li>Under <strong>Webhooks</strong>, add your address. Keep the format <strong>JSON</strong> and add no headers.</li>
+              <li>In its settings, set <strong>Payload timestamps</strong> to <strong>Local time</strong>.</li>
+              <li>Choose how often it sends. Once an hour is plenty.</li>
+              <li>Tap <strong>Sync now</strong> once to try it. Its <strong>Logs</strong> show each send.</li>
+            </ol>
+          )}
+          <p className="sheet__hint">New data syncs when you open an app. Your manual entries stay unchanged.</p>
+        </div>
+      </section>
+  );
+}
+
 /**
  * Settings > Health data: Health Auto Export on an iPhone, or Health Connect Webhook on Android, sends health data to the
  * person's own address, and their
@@ -100,56 +138,65 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
 
   if (!parts.length) {
     return (
-      <section className="settings-card">
-        <p className="section-description">Add Askesis, Diaita, Hydros or Therapeia to receive health data.</p>
-        <button type="button" className="button-accent account-wide" onClick={onOpenStore}>
-          Store
-        </button>
-      </section>
+      <div className="settings-sections">
+        <SetupInstructions phone={phone} setPhone={setPhone} />
+        <section className="settings-card">
+          <p className="section-description">Add Askesis, Diaita, Hydros or Therapeia to receive health data.</p>
+          <button type="button" className="button-accent account-wide" onClick={onOpenStore}>
+            Store
+          </button>
+        </section>
+      </div>
     );
   }
 
   if (status.phase !== 'ready') {
     return (
-      <section className="settings-card">
-        <p className="section-description">Sign in and connect a health source to sync data automatically.</p>
-        <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>
-          Account and sync
-        </button>
-        <button type="button" className="text-link" disabled={busy} onClick={() => fileRef.current?.click()}>
-          Bring in a file instead
-        </button>
-        {fileInput}
-        {error && <p className="form-error" role="alert">{error}</p>}
-        {note && <p className="sheet__hint">{note}</p>}
-      </section>
+      <div className="settings-sections">
+        <SetupInstructions phone={phone} setPhone={setPhone} />
+        <section className="settings-card">
+          <p className="section-description">Sign in and connect a health source to sync data automatically.</p>
+          <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>
+            Account and sync
+          </button>
+          <button type="button" className="text-link" disabled={busy} onClick={() => fileRef.current?.click()}>
+            Bring in a file instead
+          </button>
+          {fileInput}
+          {error && <p className="form-error" role="alert">{error}</p>}
+          {note && <p className="sheet__hint">{note}</p>}
+        </section>
+      </div>
     );
   }
 
   if (!choices) {
     return (
-      <section className="settings-card">
-        <button
-          type="button"
-          className="button-accent account-wide"
-          disabled={busy}
-          onClick={() =>
-            void run(async () => {
-              const kept = await turnOnHealth();
-              setToken(kept.token);
-              setChoices(healthChoices());
-            })
-          }
-        >
-          {busy ? 'Setting up…' : 'Turn on'}
-        </button>
-        <button type="button" className="text-link" disabled={busy} onClick={() => fileRef.current?.click()}>
-          Bring in a file instead
-        </button>
-        {fileInput}
-        {error && <p className="form-error" role="alert">{error}</p>}
-        {note && <p className="sheet__hint">{note}</p>}
-      </section>
+      <div className="settings-sections">
+        <SetupInstructions phone={phone} setPhone={setPhone} />
+        <section className="settings-card">
+          <button
+            type="button"
+            className="button-accent account-wide"
+            disabled={busy}
+            onClick={() =>
+              void run(async () => {
+                const kept = await turnOnHealth();
+                setToken(kept.token);
+                setChoices(healthChoices());
+              })
+            }
+          >
+            {busy ? 'Setting up…' : 'Turn on'}
+          </button>
+          <button type="button" className="text-link" disabled={busy} onClick={() => fileRef.current?.click()}>
+            Bring in a file instead
+          </button>
+          {fileInput}
+          {error && <p className="form-error" role="alert">{error}</p>}
+          {note && <p className="sheet__hint">{note}</p>}
+        </section>
+      </div>
     );
   }
 
@@ -161,6 +208,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
 
   return (
     <div className="settings-sections">
+      <SetupInstructions phone={phone} setPhone={setPhone} />
       <section className="settings-group" aria-label="Your address">
         <h2 className="settings-group__label">Your address</h2>
         <div className="settings-card">
@@ -187,40 +235,6 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
             <p className="section-description">Opening…</p>
           )}
           <p className="sheet__hint">Anyone with this address can send data to your apps, but cannot read it. If exposed, generate a new address.</p>
-        </div>
-      </section>
-
-      <section className="settings-group" aria-label="Set up your phone">
-        <h2 className="settings-group__label">Set up your phone</h2>
-        <div className="settings-card">
-          <div className="chip-row" role="group" aria-label="Your phone">
-            <button type="button" className="chip" aria-pressed={phone === 'iphone'} onClick={() => setPhone('iphone')}>iPhone</button>
-            <button type="button" className="chip" aria-pressed={phone === 'android'} onClick={() => setPhone('android')}>Android</button>
-          </div>
-          {phone === 'iphone' ? (
-            <ol className="inbox-steps">
-              <li>Get <strong>Health Auto Export</strong> from the App Store and let it read your Health data. Sending to an address needs its paid version.</li>
-              <li>Tap <strong>Automations</strong>, then the plus button, and choose <strong>REST API</strong>.</li>
-              <li>Paste your address into <strong>URL</strong>.</li>
-              <li>Set the format to <strong>JSON</strong>.</li>
-              <li>
-                For the data, choose <strong>Health Metrics</strong> and pick Sleep Analysis, Dietary Water, Weight & Body Mass, Blood Pressure, Blood Glucose, Body Temperature, Resting Heart Rate and Blood Oxygen Saturation. Leave out any you don’t want.
-              </li>
-              <li>Set how often it sends. Once an hour is plenty. If it asks how much to send, choose since the last sync.</li>
-              <li>Turn the automation on and tap <strong>Manual Export</strong> once to try it.</li>
-              <li>For runs and walks, make a second automation the same way and choose <strong>Workouts</strong> as the data.</li>
-            </ol>
-          ) : (
-            <ol className="inbox-steps">
-              <li>Get <strong>Health Connect Webhook</strong> (HC Webhook) from Google Play. Your watch or fitness app has to save to Health Connect.</li>
-              <li>Open it and let it read Exercise, Sleep, Hydration, Weight, Blood pressure, Blood glucose, Oxygen saturation, Body temperature and Resting heart rate. Leave out any you don’t want.</li>
-              <li>Under <strong>Webhooks</strong>, add your address. Keep the format <strong>JSON</strong> and add no headers.</li>
-              <li>In its settings, set <strong>Payload timestamps</strong> to <strong>Local time</strong>.</li>
-              <li>Choose how often it sends. Once an hour is plenty.</li>
-              <li>Tap <strong>Sync now</strong> once to try it. Its <strong>Logs</strong> show each send.</li>
-            </ol>
-          )}
-          <p className="sheet__hint">New data syncs when you open an app. Your manual entries stay unchanged.</p>
         </div>
       </section>
 
