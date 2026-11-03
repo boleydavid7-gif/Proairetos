@@ -52,7 +52,7 @@ export const household = (): SharedListRef | undefined => households.sharedLists
 
 let states: Partial<Record<HouseholdApp, PartState>> = {};
 export type HouseholdRole = 'owner' | 'admin' | 'member';
-type RoleState = { ownerId?: string; admins: string[]; userId?: string; loaded: boolean };
+type RoleState = { householdId?: string; ownerId?: string; admins: string[]; userId?: string; loaded: boolean; fetchedAt?: number };
 let roleState: RoleState = { admins: [], loaded: false };
 let statesVersion = 0;
 const stateListeners = new Set<() => void>();
@@ -69,6 +69,7 @@ const setRoleState = (next: RoleState) => {
 };
 
 async function refreshRoleState(householdId: string, userId?: string): Promise<void> {
+  if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 60_000) return;
   try {
     const client = await supabase();
     const [{ data: householdRow, error: householdError }, { data: adminRows, error: rolesError }] = await Promise.all([
@@ -76,17 +77,19 @@ async function refreshRoleState(householdId: string, userId?: string): Promise<v
       client.from('household_member_roles').select('user_id').eq('household_id', householdId),
     ]);
     if (householdError || rolesError || !householdRow) {
-      setRoleState({ admins: [], userId, loaded: false });
+      setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
       return;
     }
     setRoleState({
+      householdId,
       ownerId: (householdRow as { created_by: string }).created_by,
       admins: ((adminRows ?? []) as { user_id: string }[]).map((row) => row.user_id),
       userId,
       loaded: true,
+      fetchedAt: Date.now(),
     });
   } catch {
-    setRoleState({ admins: [], userId, loaded: false });
+    setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
   }
 }
 
@@ -228,6 +231,7 @@ export async function setMemberRole(targetUserId: string, role: 'admin' | 'membe
   if (data !== true) throw new Error('The member role could not be saved.');
   setRoleState({
     ...roleState,
+    fetchedAt: Date.now(),
     admins: role === 'admin'
       ? [...new Set([...roleState.admins, targetUserId])]
       : roleState.admins.filter((id) => id !== targetUserId),
@@ -252,6 +256,7 @@ export async function removeHouseholdMember(targetUserId: string): Promise<void>
   households.changeItem(list, memberId(targetUserId), null);
   setRoleState({
     ...roleState,
+    fetchedAt: Date.now(),
     admins: roleState.admins.filter((id) => id !== targetUserId),
   });
 }
@@ -274,7 +279,7 @@ export async function leaveHousehold(): Promise<void> {
   if (!list) return;
   const userId = await me().catch(() => undefined);
   if (userId && roleState.ownerId === userId) {
-    throw new Error('The household owner cannot leave. Transfer ownership or delete the household first.');
+    throw new Error('The household owner cannot leave yet. Ownership transfer is not available.');
   }
   if (userId) {
     households.changeItem(list, memberId(userId), null);
