@@ -18,6 +18,16 @@ function query(table: string) {
     select: () => builder,
     delete: () => ((action = 'delete'), builder),
     eq: (key: string, value: unknown) => (filters.push([key, value]), builder),
+    maybeSingle: async () => {
+      const row = rows()[0];
+      if (!row) return { data: null, error: null };
+      if (table === 'shared_lists') {
+        const share = tables.household_app_shares.find((each) => each.shared_list_id === row.id);
+        const householdMember = share && tables.shared_list_members.some((each) => each.list_id === share.household_id && each.user_id === user);
+        if (share && row.created_by !== user && share.owner_id !== user && (!share.enabled || !householdMember)) return { data: null, error: null };
+      }
+      return { data: row, error: null };
+    },
     insert: async (row: Row) => (tables[table].push({ ...row }), { error: null }),
     upsert: async (row: Row) => {
       const at = tables[table].findIndex((each) => each.list_id === row.list_id && each.id === row.id);
@@ -121,6 +131,11 @@ describe('a household', () => {
     await household.stopSharing('ergon');
     await household.households.refreshList(household.household()!);
     expect(tables.household_app_shares.find((row) => row.app === 'ergon')?.enabled).toBe(false);
+
+    // An existing member loses server access on the next refresh; the stale local list and cache are cleared.
+    user = 'user-b';
+    await expect(homes.refreshList(ergonList)).rejects.toThrow('This list is no longer shared with you.');
+    expect(homes.sharedLists()).toHaveLength(0);
 
     // A later family member joins the household but does not receive the disabled Ergon list.
     user = 'user-c';
