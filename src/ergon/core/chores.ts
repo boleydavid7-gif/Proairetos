@@ -16,6 +16,8 @@ export type Repeat =
 
 export type Done = { date: string; by?: string };
 
+export type ChorePerson = { id: string; name: string };
+
 /** A step of a bigger chore; ticks clear each time the chore is done. */
 export type Step = { text: string; done?: boolean };
 
@@ -24,10 +26,14 @@ export type Chore = {
   name: string;
   room?: string;
   repeat: Repeat;
-  /** Who does it now. */
+  /** Who does it now. The name remains as a readable fallback for older records and removed members. */
   who?: string;
+  /** Stable Proairetos household member id for a family assignment. */
+  whoId?: string;
   /** Turn by turn: the next name takes it after each time it is done. */
   rota?: string[];
+  /** Stable household member ids for a family rotation. */
+  rotaIds?: string[];
   /** First day, for one never done. */
   start?: string;
   /** Skipped on this day: the next day counts from here. */
@@ -42,6 +48,24 @@ export type Chore = {
   remindAt?: string;
   createdAt: string;
 };
+
+/** Resolve a stored member id to the latest household display name. */
+export function choreAssignee(chore: Chore, people: readonly ChorePerson[]): string | undefined {
+  return (chore.whoId ? people.find((person) => person.id === chore.whoId)?.name : undefined) ?? chore.who;
+}
+
+/** Resolve a name only when it identifies one household member unambiguously. */
+export function memberIdForName(name: string | undefined, people: readonly ChorePerson[]): string | undefined {
+  if (!name) return undefined;
+  const matches = people.filter((person) => person.name === name);
+  return matches.length === 1 ? matches[0].id : undefined;
+}
+
+/** Resolve a stored rotation, retaining the saved name if a member has since left the household. */
+export function choreRotaNames(chore: Chore, people: readonly ChorePerson[]): string[] {
+  if (!chore.rotaIds?.length) return chore.rota ?? [];
+  return chore.rotaIds.map((id, index) => people.find((person) => person.id === id)?.name ?? chore.rota?.[index] ?? 'Former member');
+}
 
 export const ROOMS = ['Kitchen', 'Bathroom', 'Bedroom', 'Living room', 'Laundry', 'Outside', 'Car', 'Pets'];
 
@@ -163,11 +187,17 @@ export function grouped(chores: readonly Chore[], today: string, daysOff?: DaysO
 export function markDone(chore: Chore, today: string, by?: string): Chore {
   const history = [...chore.history, { date: today, by: by ?? chore.who }].slice(-30);
   let who = chore.who;
-  if (chore.rota && chore.rota.length > 1) {
+  let whoId = chore.whoId;
+  if (chore.rotaIds && chore.rotaIds.length > 1) {
+    const at = chore.rotaIds.indexOf(chore.whoId ?? '');
+    const next = (at + 1) % chore.rotaIds.length;
+    whoId = chore.rotaIds[next];
+    who = chore.rota?.[next] ?? who;
+  } else if (chore.rota && chore.rota.length > 1) {
     const at = chore.rota.indexOf(chore.who ?? '');
     who = chore.rota[(at + 1) % chore.rota.length];
   }
-  return { ...chore, history, who, skipped: undefined, steps: chore.steps?.map(({ text }) => ({ text })) };
+  return { ...chore, history, who, whoId, skipped: undefined, steps: chore.steps?.map(({ text }) => ({ text })) };
 }
 
 /** Steps written one per line (list marks taken off), at most 20. */
