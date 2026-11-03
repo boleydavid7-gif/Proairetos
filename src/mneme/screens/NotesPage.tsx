@@ -43,7 +43,7 @@ export default function NotesPage({ nav }: { nav: MnemeNav }) {
   };
 
   return (
-    <FileDropZone label="Drop text or Markdown files to create notes" onFiles={(files) => void importFiles(files)}>
+    <FileDropZone label="Drop text files to import" onFiles={(files) => void importFiles(files)}>
     <main className="mneme-page mneme-notes">
       <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></div>
       <div className="mneme-heading-row">
@@ -67,7 +67,7 @@ function NoteCard({ note, collectionName, onOpen }: { note: Note; collectionName
   return <article className="mneme-note-card">
     <button type="button" className="mneme-note-card__open" onClick={onOpen}>
       <span className="mneme-note-card__top"><span className="mneme-note-card__title">{note.title || 'Untitled note'}</span><ChevronIcon size={22} /></span>
-      <span className="mneme-note-card__body">{notePreview(note.body) || 'No words added yet.'}</span>
+      <span className="mneme-note-card__body">{notePreview(note.body) || 'No text yet.'}</span>
       <span className="mneme-note-card__meta">{collectionName || 'Inbox'}</span>
     </button>
   </article>;
