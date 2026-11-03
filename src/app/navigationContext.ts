@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { AppRoute } from './routes/routeTypes';
 
-export type NavigateOptions = { immediate?: boolean; replace?: boolean };
+export type NavigateOptions = { immediate?: boolean; replace?: boolean; search?: string };
 
 export const NavigationContext = createContext<(route: AppRoute, options?: NavigateOptions) => void>(() => undefined);
 

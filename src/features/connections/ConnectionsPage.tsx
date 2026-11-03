@@ -83,7 +83,10 @@ export default function ConnectionsPage() {
   const valueConnections = libraryValueConnections.use();
   const trashEntries = libraryTrash.use();
 
-  const [category, setCategory] = useState<Category>('all');
+  const [category, setCategory] = useState<Category>(() => {
+    const requested = new URLSearchParams(window.location.search).get('category');
+    return requested && Object.hasOwn(categoryLabels, requested) ? requested as Category : 'all';
+  });
   const [view, setView] = useState<View>('library');
   const [range, setRange] = useState<Range>('all');
   const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
@@ -101,6 +104,16 @@ export default function ConnectionsPage() {
   const [initialTimelineExpansion] = useState(loadLibraryTimelineExpansion);
   const [expandedYears, setExpandedYears] = useState<Record<string, boolean>>(initialTimelineExpansion.years);
   const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>(initialTimelineExpansion.months);
+
+  // Category deep links are one-shot: consume the initial filter so later refreshes use the person's current view.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('category')) return;
+    params.delete('category');
+    const query = params.toString();
+    const suffix = query ? `?${query}` : '';
+    history.replaceState(history.state, '', `${window.location.pathname}${suffix}${window.location.hash}`);
+  }, []);
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
