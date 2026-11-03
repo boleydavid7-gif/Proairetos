@@ -53,6 +53,24 @@ Hydros is hidden and is deliberately excluded from the Reflect integration contr
 
 Oikonomia is intentionally different from the other sources: Reflect must never query its underlying financial records for automatic summaries. Only the separate, user-authored milestone entries with `inReflect: true` are projected. Those entries contain no amount or account fields.
 
+## Library organization and cross-app relationships
+
+The Library is designed to remain useful as the record count grows:
+
+- Search is accent-insensitive and treats multiple words as independent terms, so the terms can appear in any order.
+- Type filters show live counts for the current view and other active filters.
+- Refine filters include date range, chosen Compass value, source app and sort order.
+- Results can be grouped by month, source app or shown as one continuous list. Grouping preserves the selected chronological order.
+- The Library loads a limited first page and reveals more records on demand.
+
+### Value connections
+
+A record can be connected to any of the person's chosen Compass values from its Library entry. These optional cross-app links are stored separately in `src/app/library/value-connections.ts` as synced Proairetos Library metadata. They do not write into Mneme, Poreia, Oikonomia or other companion-app source records.
+
+Native source value links remain authoritative for records that already support Compass values. The Library merges both kinds of links for filtering and discovery. Removing a link removes it from its owning store: the companion app for native links, or Library metadata for Library-created links.
+
+Entries that share at least one chosen value can show one another in a compact Related entries section. This creates deliberate connections between different parts of a person's life without guessing relationships from private text or using automatic AI categorization.
+
 ## Source ownership and actions
 
 - Library records are projections, not a second source of truth.
