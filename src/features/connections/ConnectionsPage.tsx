@@ -98,7 +98,6 @@ export default function ConnectionsPage() {
 
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
-  const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
   const valueConnectionByRecord = useMemo(() => new Map(valueConnections.map((connection) => [connection.id, connection])), [valueConnections]);
   const sourceRecords = useMemo(() => buildLifeRecords({
     reflections,
@@ -118,6 +117,7 @@ export default function ConnectionsPage() {
     poreiaToday: tripToday,
     oikonomiaMilestones: financialMilestones,
   }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
+  const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
 
   const records = useMemo(
     () => mergeLibraryValueConnections(sourceRecords, valueConnections),
