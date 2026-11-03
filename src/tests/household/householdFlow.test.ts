@@ -41,7 +41,7 @@ function query(table: string) {
       if (action === 'delete') {
         const gone = new Set(rows());
         if (table === 'shared_list_members') {
-          for (const member of [...gone]) {
+          for (const member of gone) {
             for (const share of tables.household_app_shares.filter((each) => each.household_id === member.list_id)) {
               const appList = tables.shared_lists.find((each) => each.id === share.shared_list_id);
               tables.shared_list_members = tables.shared_list_members.filter((each) =>
