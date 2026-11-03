@@ -484,3 +484,17 @@ a.quiet-row {
   gap: var(--space-1);
   padding-left: var(--space-2);
 }
+
+.intention__principles {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
+.intention__principles-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
