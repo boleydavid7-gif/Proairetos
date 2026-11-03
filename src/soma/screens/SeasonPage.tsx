@@ -112,7 +112,7 @@ export function ProducePage({ nav, id }: { nav: Nav; id: string }) {
     setProblem(undefined);
     mealsWith(item.lookup ?? item.photo ?? item.name)
       .then((found) => live && setIdeas(found.slice(0, 8)))
-      .catch(() => live && setProblem('Ideas need a connection. Your recipes work offline.'));
+      .catch(() => live && setProblem('Connect to browse ideas. Recipes work offline.'));
     return () => {
       live = false;
     };
