@@ -28,6 +28,9 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
 
   const current = loaded.body;
   const currentValueIds = loaded.valueIds;
+  const selectedPrinciples = values
+    .filter((value) => selectedValueIds.includes(value.id))
+    .flatMap((value) => value.principles ?? []);
   const label = isToday ? 'Today’s intention' : 'Intention';
 
   function edit() {
@@ -96,6 +99,27 @@ export default function Intention({ date, isToday, items }: { date: string; isTo
                     </button>
                   );
                 })}
+              </div>
+            </div>
+          )}
+          {selectedPrinciples.length > 0 && (
+            <div className="intention__principles">
+              <span className="daily-line__label">Draw on one of your principles</span>
+              <div className="intention__principles-list">
+                {selectedPrinciples.map((principle) => (
+                  <button
+                    key={principle}
+                    type="button"
+                    className="chip chip--small"
+                    onClick={() => setDraft((current) => {
+                      const lines = current.split('\\n').map((line) => line.trim());
+                      if (lines.includes(principle)) return current;
+                      return current.trim() ? `${current.trim()}\\n${principle}` : principle;
+                    })}
+                  >
+                    {principle}
+                  </button>
+                ))}
               </div>
             </div>
           )}
