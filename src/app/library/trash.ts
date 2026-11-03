@@ -23,8 +23,11 @@ export function moveToLibraryTrash(recordKey: string, trashedAt = new Date().toI
   libraryTrash.put({ id: recordKey, trashedAt });
 }
 
-export function restoreFromLibraryTrash(recordKey: string): void {
+export function restoreFromLibraryTrash(recordKey: string): boolean {
+  const current = libraryTrash.get(recordKey);
+  if (!current || current.deletedAt) return false;
   libraryTrash.remove(recordKey);
+  return true;
 }
 
 export function permanentlyRemoveFromLibraryTrash(recordKey: string, deletedAt = new Date().toISOString()): void {
