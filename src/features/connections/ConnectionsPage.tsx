@@ -232,7 +232,7 @@ export default function ConnectionsPage() {
   function restoreRecordFromTrash(record: LifeRecord) {
     const previous = trashByRecord.get(record.key);
     if (!previous || previous.deletedAt) return;
-    restoreFromLibraryTrash(record.key);
+    if (!restoreFromLibraryTrash(record.key)) return;
     offerUndo('Restored to its previous location', async () => moveToLibraryTrash(record.key, previous.trashedAt));
   }
 
@@ -276,10 +276,14 @@ export default function ConnectionsPage() {
     setBulkBusy(true);
     const previousEntries = targets.map((record) => trashByRecord.get(record.key)).filter((entry): entry is LibraryTrashEntry => Boolean(entry));
     try {
-      targets.forEach((record) => restoreFromLibraryTrash(record.key));
-      offerUndo(`${targets.length} ${targets.length === 1 ? 'entry' : 'entries'} restored`, async () => {
-        previousEntries.forEach((entry) => libraryTrash.put(entry));
-      });
+      const restoredEntries = previousEntries.filter((entry) => restoreFromLibraryTrash(entry.id));
+      if (restoredEntries.length) {
+        offerUndo(`${restoredEntries.length} ${restoredEntries.length === 1 ? 'entry' : 'entries'} restored`, async () => {
+          restoredEntries.forEach((entry) => {
+            if (!libraryTrash.get(entry.id)?.deletedAt) libraryTrash.put(entry);
+          });
+        });
+      }
       clearSelection();
     } finally {
       setBulkBusy(false);
