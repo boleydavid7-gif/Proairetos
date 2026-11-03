@@ -125,15 +125,15 @@ export function pendingHealthWorkouts(): HealthWorkout[] {
 function savePendingHealthWorkouts(items: HealthWorkout[]): void {
   try { localStorage.setItem(PENDING_ASKESIS, JSON.stringify(items)); } catch { /* Available for this visit. */ }
 }
-async function queueHealthWorkouts(workouts: HealthWorkout[]): Promise<number> {
-  if (!workouts.length || !isAdded('askesis')) return 0;
+async function queueHealthWorkouts(workouts: HealthWorkout[]): Promise<HealthWorkout[]> {
+  if (!workouts.length || !isAdded('askesis')) return [];
   const { newWorkouts } = await import('../../core/health/fromHealth');
   const store = await import('../../askesis/data/store');
   const logged = await store.listEntries();
   const pending = pendingHealthWorkouts();
   const fresh = newWorkouts(workouts, [...logged, ...pending.map((item) => ({ id: HEALTH_ID + item.id, date: item.date, activity: item.type, meters: item.meters, seconds: item.seconds }))]);
   if (fresh.length) savePendingHealthWorkouts([...pending, ...fresh]);
-  return fresh.length;
+  return fresh;
 }
 export async function importPendingHealthWorkout(id: string): Promise<void> {
   const pending = pendingHealthWorkouts();
@@ -169,7 +169,7 @@ function latestOnly(batch: HealthBatch): HealthBatch {
 
 /** Adds what is new in a batch to the apps that are added and chosen. */
 export async function applyHealth(sent: HealthBatch, choices: HealthChoices | undefined = healthChoices()): Promise<BroughtIn> {
-  const { HEALTH_ID, newWorkouts, nightsToWrite, changedRecords, OZ_PER_ML } = await import('../../core/health/fromHealth');
+  const { nightsToWrite, changedRecords, OZ_PER_ML } = await import('../../core/health/fromHealth');
   const undo: (() => Promise<void> | void)[] = [];
   const counts = { workouts: 0, sleep: 0, water: 0, readings: 0 };
   const now = new Date().toISOString();
@@ -177,7 +177,9 @@ export async function applyHealth(sent: HealthBatch, choices: HealthChoices | un
   const on = (part: keyof HealthChoices, app: string) => (choices ? choices[part] : true) && isAdded(app);
 
   if (batch.workouts.length && on('workouts', 'askesis')) {
-    counts.workouts = await queueHealthWorkouts(batch.workouts);
+    const queued = await queueHealthWorkouts(batch.workouts);
+    counts.workouts = queued.length;
+    if (queued.length) undo.push(() => savePendingHealthWorkouts(pendingHealthWorkouts().filter((item) => !queued.some((each) => each.id === item.id))));
   }
 
   if (batch.sleep.length && on('sleep', 'diaita')) {
