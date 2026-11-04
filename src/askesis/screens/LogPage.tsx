@@ -138,6 +138,18 @@ export default function LogPage({ nav }: { nav: Nav }) {
     return searchable.includes(query);
   });
 
+  const historyGroups = filteredHistory.reduce<{ key: string; label: string; entries: LogEntry[] }[]>((groups, entry) => {
+    const key = entry.date.slice(0, 7);
+    let group = groups[groups.length - 1];
+    if (!group || group.key !== key) {
+      const [year, month] = key.split('-').map(Number);
+      group = { key, label: new Date(year, month - 1, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }), entries: [] };
+      groups.push(group);
+    }
+    group.entries.push(entry);
+    return groups;
+  }, []);
+
   const exportLog = () => {
     const link = document.createElement('a');
     const shoeNames = Object.fromEntries(shoes.map((shoe) => [shoe.id, shoe.name]));
@@ -315,11 +327,13 @@ export default function LogPage({ nav }: { nav: Nav }) {
               {runningEntries.some((entry) => (entry.meters ?? 0) > 0) && (
                 <section className="card progress__panel progress__performance-distance">
                   <LineChart title={`Distance per week (${unit}), last 12 weeks`} points={performanceDistance} series={[{ name: 'Distance' }]} unit={unit} />
+                  <p className="muted progress__chart-note">Each point is the distance recorded during that Monday–Sunday week. The current week is still in progress.</p>
                 </section>
               )}
               {runningEntries.some((entry) => (entry.seconds ?? 0) > 0) && (
                 <section className="card progress__panel progress__performance-time">
                   <LineChart title="Running time per week, last 12 weeks" points={performanceTime} series={[{ name: 'Time' }]} unit="min" />
+                  <p className="muted progress__chart-note">Each point is the running time recorded during that Monday–Sunday week. The current week is still in progress.</p>
                 </section>
               )}
             </>
@@ -416,7 +430,12 @@ export default function LogPage({ nav }: { nav: Nav }) {
               </Empty>
             )}
             {list.length > 0 && filteredHistory.length === 0 && <p className="muted progress__empty-note">No workouts match those filters.</p>}
-            {workoutRows(filteredHistory)}
+            {historyGroups.map((group) => (
+              <section className="progress__history-month" key={group.key} aria-label={group.label}>
+                <h3 className="card__eyebrow">{group.label}</h3>
+                {workoutRows(group.entries)}
+              </section>
+            ))}
           </section>
 
           <div className="button-row progress__history-actions">
