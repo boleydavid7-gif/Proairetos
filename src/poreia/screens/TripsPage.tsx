@@ -6,8 +6,8 @@ import type { PoreiaNav } from '../app/App';
 import { today, trips } from '../app/state';
 import { NextUpCard } from './TripPage';
 import LookBack from '../components/LookBack';
-import { datesText, TripRow } from '../app/ui';
-import { phaseOf, phaseText, sortTrips } from '../core/model';
+import { TripRow } from '../app/ui';
+import { phaseOf, sortTrips } from '../core/model';
 import RouteEmpty from '../components/RouteEmpty';
 
 export default function TripsPage({ nav }: { nav: PoreiaNav }) {
@@ -27,17 +27,9 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
         <div className="hero__shade" />
         <div className="hero__content">
           <Brand name="Poreia" mark={<AppMark app="poreia" size={30} light />} light />
-          {lead ? (
-            // The trip under way or next is a way into it, not only its name.
-            <button type="button" className="home__words poreia-home__lead" onClick={() => open(lead.id)}>
-              <h1 className="home__title">{lead.name}</h1>
-              <p className="home__sub">{[phaseText(phaseOf(lead, day)), datesText(lead.start, lead.end)].filter(Boolean).join(' · ')}</p>
-            </button>
-          ) : (
-            <div className="home__words">
-              <h1 className="home__title">Trips</h1>
-            </div>
-          )}
+          <div className="home__words">
+            <h1 className="home__title">Trips</h1>
+          </div>
         </div>
       </div>
 

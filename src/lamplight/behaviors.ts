@@ -178,7 +178,8 @@ function largeTitle(): void {
   const gather = (): HTMLElement[] => {
     const own = first(ACTIONS);
     const page = own ? [...own.querySelectorAll<HTMLElement>('button, a')] : [];
-    const places = [...document.querySelectorAll<HTMLElement>(TO_HEADER)].filter((each) => !each.closest(SIDEBAR));
+    // A dock item made for computers only (the All apps launcher) never goes to the phone's bar.
+    const places = [...document.querySelectorAll<HTMLElement>(TO_HEADER)].filter((each) => !each.closest(SIDEBAR) && !each.classList.contains('tab-bar__desktop-only'));
     return [...page, ...places];
   };
 

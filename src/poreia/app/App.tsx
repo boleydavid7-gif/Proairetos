@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { BookIcon, ClockIcon, SettingsIcon, SuitcaseIcon, WalletIcon } from '../../app/family/icons';
+import { ClockIcon, SettingsIcon, SuitcaseIcon, WalletIcon } from '../../app/family/icons';
 import type { BookingKind } from '../core/model';
 import type { Spot } from '../core/spots';
 import { countFirstVersion } from './fresh';
@@ -25,9 +25,10 @@ import PlacePage from '../screens/PlacePage';
 import BeenPage, { YearScreen } from '../screens/BeenPage';
 import JournalPage from '../screens/JournalPage';
 
-export type Tab = 'trips' | 'budget' | 'journal' | 'time' | 'more';
+export type Tab = 'trips' | 'budget' | 'time' | 'more';
 export type Route =
   | { name: 'welcome' }
+  | { name: 'journal' }
   | { name: 'fresh'; count: number }
   | { name: Tab; placeId?: string }
   | { name: 'budget' | 'time' }
@@ -47,7 +48,6 @@ export type PoreiaNav = Nav<Route>;
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'trips', label: 'Trips', Icon: SuitcaseIcon },
   { id: 'budget', label: 'Budget', Icon: WalletIcon },
-  { id: 'journal', label: 'Journal', Icon: BookIcon },
   { id: 'time', label: 'Time off', Icon: ClockIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];

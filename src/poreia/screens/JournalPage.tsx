@@ -1,3 +1,4 @@
+import { BackLink } from '../../askesis/app/ui';
 import { useMemo, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import Attachments from '../../features/items/attachments/Attachments';
@@ -69,7 +70,8 @@ export default function JournalPage({ nav }: { nav: PoreiaNav }) {
   if (!list.length) {
     return (
       <div className="page poreia-page">
-        <div className="page-top"><h1 className="title">Journal</h1></div>
+        <BackLink label="More" onBack={nav.back} />
+        <h1 className="title">Journal</h1>
         <RouteEmpty glyph="book" title="Start with a trip">
           <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}><PlusIcon size={18} /> Plan a trip</button>
         </RouteEmpty>
@@ -79,6 +81,7 @@ export default function JournalPage({ nav }: { nav: PoreiaNav }) {
 
   return (
     <div className="page poreia-page poreia-journal-page">
+      <BackLink label="More" onBack={nav.back} />
       <div className="page-top poreia-journal-page__top">
         <div>
           <p className="eyebrow"><BookIcon size={16} /> Travel journal</p>

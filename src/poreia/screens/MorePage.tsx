@@ -51,6 +51,9 @@ export default function MorePage({ nav }: { nav: PoreiaNav }) {
         <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'documents' })}>
           Documents
         </button>
+        <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'journal' })}>
+          Journal
+        </button>
         <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'been' })}>
           Where you’ve been
         </button>

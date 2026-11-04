@@ -112,8 +112,16 @@ function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day:
   const phase = phaseOf(trip, day);
   const ahead = phase.kind !== 'past';
   const entries = journal.use().filter((entry) => entry.tripId === trip.id).sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
-  const about = (
-    <>
+  const notes = trip.notes ? (
+    <section className="card">
+      <h2 className="card__title">Notes</h2>
+      <p className="poreia-notes">{trip.notes}</p>
+    </section>
+  ) : null;
+  // What the trip can have, folded: nothing here asks for anything until the person opens it.
+  const more = (
+    <details className="poreia-fold poreia-more">
+      <summary>More about this trip</summary>
       {ahead && <DocumentsCard trip={trip} nav={nav} />}
       <GoalCard trip={trip} />
       <TogetherCard trip={trip} />
@@ -125,13 +133,7 @@ function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day:
         {entries[0] ? <p className="poreia-journal-preview__text">{entries[0].title || entries[0].text}</p> : null}
         <button type="button" className="button-quiet" onClick={() => onView('journal')}>{entries.length ? 'Open journal' : 'Start journal'}</button>
       </section>
-      {trip.notes && (
-        <section className="card">
-          <h2 className="card__title">Notes</h2>
-          <p className="poreia-notes">{trip.notes}</p>
-        </section>
-      )}
-    </>
+    </details>
   );
   // Under way: the day first, the rest of the trip one tap away.
   if (phase.kind === 'now') {
@@ -139,10 +141,8 @@ function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day:
       <>
         <TodayCard trip={trip} nav={nav} day={day} onView={onView} />
         <PlanningNextCard trip={trip} nav={nav} onView={onView} />
-        <details className="poreia-fold poreia-more">
-          <summary>More about this trip</summary>
-          {about}
-        </details>
+        {notes}
+        {more}
       </>
     );
   }
@@ -158,7 +158,8 @@ function Overview({ trip, nav, day, onView }: { trip: Trip; nav: PoreiaNav; day:
           </button>
         </RouteEmpty>
       )}
-      {about}
+      {notes}
+      {more}
     </>
   );
 }
