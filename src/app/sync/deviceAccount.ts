@@ -13,7 +13,13 @@ import { backupService, deviceDatabase } from '../services';
 export const ACCOUNT_KEY = 'proairetosAccount';
 const AWAY_DB = 'proairetos-accounts';
 /** Kept through a change of account: the sign-in itself, having seen the welcome, and the marker. */
-const STAYS = new Set(['proairetos.auth', 'proairetos.onboarded', ACCOUNT_KEY]);
+const STAYS = new Set([
+  'proairetos.auth',
+  'proairetos.onboarded',
+  ACCOUNT_KEY,
+  'proairetos.accountPasswordSetupPending.local',
+  'proairetos.accountPasswordReadyForSetup.local',
+]);
 
 type PutAway = { account: string; savedAt: string; backup: string; storage: Record<string, string>; daily: DailyCopy[] };
 

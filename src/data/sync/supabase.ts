@@ -70,7 +70,10 @@ export async function sendPasswordRecovery(email: string): Promise<void> {
 // storage with the app added to the Home Screen.
 
 export async function sendSignInCode(email: string): Promise<void> {
-  const { error } = await (await supabase()).auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  const { error } = await (await supabase()).auth.signInWithOtp({
+    email,
+    options: { shouldCreateUser: true, emailRedirectTo: location.href },
+  });
   if (error) throw new Error(error.message);
 }
 

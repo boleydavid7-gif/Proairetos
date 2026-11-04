@@ -127,30 +127,48 @@ let accountPasswordForKeySetup: string | null = null;
 // Persist the email-confirmation/password-creation step across the account-switch
 // reload in resolvePhase(). This marker contains no credential or secret.
 const ACCOUNT_PASSWORD_SETUP_PENDING = 'proairetos.accountPasswordSetupPending';
+const ACCOUNT_PASSWORD_SETUP_PENDING_LOCAL = 'proairetos.accountPasswordSetupPending.local';
 const ACCOUNT_PASSWORD_READY_FOR_SETUP = 'proairetos.accountPasswordReadyForSetup';
+const ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL = 'proairetos.accountPasswordReadyForSetup.local';
 
 function readAccountPasswordSetupPending(): boolean {
-  try { return sessionStorage.getItem(ACCOUNT_PASSWORD_SETUP_PENDING) === '1'; }
-  catch { return false; }
+  let session = false;
+  try {
+    session = sessionStorage.getItem(ACCOUNT_PASSWORD_SETUP_PENDING) === '1';
+  } catch { /* Continue with local storage. */ }
+  try { return session || localStorage.getItem(ACCOUNT_PASSWORD_SETUP_PENDING_LOCAL) === '1'; }
+  catch { return session; }
 }
 
 function writeAccountPasswordSetupPending(pending: boolean): void {
   try {
     if (pending) sessionStorage.setItem(ACCOUNT_PASSWORD_SETUP_PENDING, '1');
     else sessionStorage.removeItem(ACCOUNT_PASSWORD_SETUP_PENDING);
-  } catch { /* The flow still works in memory when session storage is unavailable. */ }
+  } catch { /* The flow still works with the local marker. */ }
+  try {
+    if (pending) localStorage.setItem(ACCOUNT_PASSWORD_SETUP_PENDING_LOCAL, '1');
+    else localStorage.removeItem(ACCOUNT_PASSWORD_SETUP_PENDING_LOCAL);
+  } catch { /* Storage may be blocked. */ }
 }
 
 function readAccountPasswordReadyForSetup(): boolean {
-  try { return sessionStorage.getItem(ACCOUNT_PASSWORD_READY_FOR_SETUP) === '1'; }
-  catch { return false; }
+  let session = false;
+  try {
+    session = sessionStorage.getItem(ACCOUNT_PASSWORD_READY_FOR_SETUP) === '1';
+  } catch { /* Continue with local storage. */ }
+  try { return session || localStorage.getItem(ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL) === '1'; }
+  catch { return session; }
 }
 
 function writeAccountPasswordReadyForSetup(ready: boolean): void {
   try {
     if (ready) sessionStorage.setItem(ACCOUNT_PASSWORD_READY_FOR_SETUP, '1');
     else sessionStorage.removeItem(ACCOUNT_PASSWORD_READY_FOR_SETUP);
-  } catch { /* The flow still works in memory when session storage is unavailable. */ }
+  } catch { /* The flow still works with the local marker. */ }
+  try {
+    if (ready) localStorage.setItem(ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL, '1');
+    else localStorage.removeItem(ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL);
+  } catch { /* Storage may be blocked. */ }
 }
 
 export function isAccountPasswordReadyForSetup(): boolean {
@@ -165,6 +183,16 @@ let accountPasswordSetupPending = readAccountPasswordSetupPending();
 
 export function isAccountPasswordSetupPending(): boolean {
   return accountPasswordSetupPending || readAccountPasswordSetupPending();
+}
+
+export function markAccountPasswordSetupPending(): void {
+  accountPasswordSetupPending = true;
+  writeAccountPasswordSetupPending(true);
+}
+
+export function clearAccountPasswordSetupPending(): void {
+  accountPasswordSetupPending = false;
+  writeAccountPasswordSetupPending(false);
 }
 /** The account whose things this page was opened with (`proairetosAccount`, see deviceAccount.ts). */
 let deviceAccountAtStart: string | null = (() => {
@@ -643,8 +671,14 @@ export async function migrateCurrentAccountPasswordToEncryption(
 
 // ---------- Account steps ----------
 
-export async function requestCode(email: string): Promise<void> {
-  await sendSignInCode(email.trim());
+export async function requestCode(email: string, creatingAccount = false): Promise<void> {
+  if (creatingAccount) markAccountPasswordSetupPending();
+  try {
+    await sendSignInCode(email.trim());
+  } catch (cause) {
+    if (creatingAccount) clearAccountPasswordSetupPending();
+    throw cause;
+  }
 }
 
 /** Where each app shows its account card, so a sign-in with Google or Apple comes back to it. */
@@ -664,8 +698,7 @@ export async function confirmCode(email: string, codeOrLink: string, creatingAcc
   // Set this BEFORE resolvePhase: a new account may trigger a device-account
   // reload there. The password step must survive that reload.
   if (creatingAccount) {
-    accountPasswordSetupPending = true;
-    writeAccountPasswordSetupPending(true);
+    markAccountPasswordSetupPending();
   }
   // Opening the link in this browser leaves tokens in the address; tidy it.
   if (location.hash.includes('access_token')) history.replaceState(history.state, '', location.pathname);

@@ -22,6 +22,7 @@ import { applyAppearance } from '../../app/appearance';
 import { tap } from '../../app/feel';
 import { isInstalled } from '../../app/install/installPrompt';
 import { isSyncConfigured } from '../../data/sync/supabase';
+import { isAccountPasswordSetupPending } from '../../app/sync/syncController';
 import { Sym } from '../../lamplight/icons';
 
 type Props = {
@@ -62,7 +63,7 @@ export default function OnboardingPage({ onGetStarted }: Props) {
   const [leaving, setLeaving] = useState(false);
   const [sizes, setSizes] = useState(false);
   const [textSize, setTextSize] = useState<TextSize>(() => loadAppearance().textSize);
-  const [account, setAccount] = useState(false);
+  const [account, setAccount] = useState(() => isAccountPasswordSetupPending());
   const status = useSyncStatus();
   const touch = useRef<{ x: number; y: number; sideways?: boolean } | null>(null);
   const hero = useRef<HTMLElement>(null);

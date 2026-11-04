@@ -47,18 +47,23 @@ export function useSyncStatus() {
 }
 
 function SignIn() {
+  const sync = useSyncStatus();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [again, setAgain] = useState('');
   const [code, setCode] = useState('');
   const [stage, setStage] = useState<'choice' | 'verify' | 'password'>(() =>
-    isAccountPasswordSetupPending() ? 'password' : 'choice',
+    isAccountPasswordSetupPending() && sync.phase !== 'signed-out' && sync.phase !== 'unavailable' ? 'password' : 'choice',
   );
   const [mode, setMode] = useState<'signin' | 'create' | 'code'>('signin');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const autofillError = usePasskeyAutofill(stage === 'choice');
+
+  useEffect(() => {
+    if (isAccountPasswordSetupPending() && sync.phase !== 'signed-out' && sync.phase !== 'unavailable' && stage === 'choice') setStage('password');
+  }, [stage, sync.phase]);
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
@@ -135,7 +140,10 @@ function SignIn() {
         event.preventDefault();
         void run(async () => {
           if (mode === 'signin') await signInWithEmailPassword(email, password);
-          else { await requestCode(email); setStage('verify'); }
+          else {
+            await requestCode(email, mode === 'create');
+            setStage('verify');
+          }
         });
       }}>
         <input type="email" className="field-input" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
