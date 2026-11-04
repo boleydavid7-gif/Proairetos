@@ -110,84 +110,7 @@
   text-decoration: line-through;
 }
 
-/* The household to-do list uses the same quiet rows as chores, with a full checkbox and a remove action. */
-.ergon-todos__add {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.ergon-todos__add .input {
-  flex: 1;
-  min-width: 0;
-}
-
-.ergon-todos__add .button-quiet {
-  width: auto;
-  flex: none;
-  padding-inline: 18px;
-}
-
-.ergon-todos__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-
-.ergon-todo {
-  display: grid;
-  grid-template-columns: 44px minmax(0, 1fr) 44px;
-  align-items: center;
-  gap: 12px;
-  min-height: 60px;
-  padding: 8px 14px;
-}
-
-.ergon-todo + .ergon-todo {
-  border-top: 1px solid var(--line);
-}
-
-.ergon-todo__box {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  padding: 0;
-  border: 1.5px solid var(--muted);
-  border-radius: 7px;
-  background: transparent;
-  color: var(--mint-ink);
-}
-
-.ergon-todo.is-done .ergon-todo__box {
-  border-color: var(--mint);
-  background: var(--mint);
-}
-
-.ergon-todo__title {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 2px;
-  overflow-wrap: anywhere;
-}
-
-.ergon-todo.is-done .ergon-todo__title > span:first-child {
-  color: var(--muted);
-  text-decoration: line-through;
-}
-
-.ergon-todo__detail {
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.ergon-todo__delete {
+.todo__remove {
   display: grid;
   place-items: center;
   width: 44px;
@@ -198,11 +121,16 @@
   color: var(--muted);
 }
 
-.ergon-todo__delete:hover,
-.ergon-todo__delete:focus-visible {
+.todo__remove:hover,
+.todo__remove:focus-visible {
   color: var(--mint);
 }
 
-.ergon-todos__done-toggle {
-  margin-top: 14px;
+.todo__open {
+  overflow-wrap: anywhere;
+}
+
+.todo--done .todo__open > span:first-child {
+  color: var(--muted);
+  text-decoration: line-through;
 }

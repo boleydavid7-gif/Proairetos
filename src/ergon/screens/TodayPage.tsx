@@ -1,17 +1,20 @@
 import { Sym } from '../../lamplight/icons';
 import { useState } from 'react';
+import { tap } from '../../app/feel';
 import { DailyLine } from '../../app/family/DailyLine';
 import { useHousehold } from '../../app/household/household';
 import { Brand, offerUndo } from '../../app/family/shell';
-import { AppMark, PlusIcon } from '../../app/family/icons';
+import { AppMark } from '../../app/family/icons';
+import { displayName } from '../../data/storage/preferences';
+import { togetherLists, useTogether } from '../../app/together/together';
+import { arrange, type SharedTodo } from '../../core/together/sharedTodos';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/ergon-stoic-wide.webp';
 import type { ErgonNav } from '../app/App';
 import { newId, putChore, removeChore, settings, useChores, useHome, myName, peopleFor } from '../app/state';
-import { ChoreList } from '../app/ui';
+import { ChoreList, TodoList } from '../app/ui';
 import { useDaysOff } from '../app/daysOff';
 import { IDEAS, grouped, markDone, roomsOf, type Chore, type ChorePerson } from '../core/chores';
-
 
 export function Ideas({ chores }: { chores: readonly Chore[] }) {
   const today = toLocalDate(new Date());
@@ -43,6 +46,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
   const current = settings.use();
   const home = useHome();
   const family = useHousehold();
+  const { list: todoList, todos } = useTogether();
   const familyMode = family.parts.some((part) => part.app === 'ergon');
   const familyPeople: ChorePerson[] = familyMode
     ? family.members.map((member) => ({ id: member.id.slice('member:'.length), name: member.name }))
@@ -55,23 +59,37 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
     ? selectedPerson?.id ?? ''
     : whose && people.includes(whose) ? whose : '';
   const [room, setRoom] = useState('');
-  // One person's view includes their assignments and anything left open to everyone.
   const whoseShown = forWhom
     ? all.filter((chore) => familyMode
       ? (!chore.whoId && !chore.who) || chore.whoId === forWhom || (!chore.whoId && chore.who === selectedPerson?.name)
       : !chore.who || chore.who === forWhom)
     : all;
-  const rooms = roomsOf(grouped(whoseShown, today, daysOff).now.concat(grouped(whoseShown, today, daysOff).week));
+  const groups = grouped(whoseShown, today, daysOff);
+  const rooms = roomsOf(groups.now);
   const inRoom = room && rooms.includes(room) ? room : '';
-  const shown = inRoom ? whoseShown.filter((chore) => chore.room === inRoom) : whoseShown;
-  const groups = grouped(shown, today, daysOff);
+  const choresToday = inRoom ? groups.now.filter((chore) => chore.room === inRoom) : groups.now;
+  const activeTodos = todoList ? arrange(todos, new Date()).open : [];
+  const totalToday = choresToday.length + activeTodos.length;
+
   const allDone = () => {
-    const before = groups.now;
-    const by = myName() || undefined;
-    for (const chore of before) putChore(markDone(chore, today, by ?? chore.who));
-    offerUndo(`${inRoom} done`, () => before.forEach((chore) => putChore(chore)));
+    for (const chore of choresToday) putChore(markDone(chore, today, myName() || chore.who));
+    offerUndo(inRoom ? `${inRoom} done` : 'Chores done', () => choresToday.forEach((chore) => putChore(chore)));
   };
-  const open = (chore: Chore) => nav.go({ name: 'chore', id: chore.id });
+
+  const toggleTodo = (todo: SharedTodo) => {
+    if (!todoList) return;
+    const me = displayName().trim() || undefined;
+    const next = todo.doneAt ? { ...todo, doneAt: undefined, doneBy: undefined } : { ...todo, doneAt: new Date().toISOString(), doneBy: me };
+    if (!todo.doneAt) tap();
+    togetherLists.changeItem(todoList, todo.id, next);
+    if (!todo.doneAt) offerUndo(`“${todo.title}” done`, async () => togetherLists.changeItem(todoList, todo.id, todo));
+  };
+
+  const removeTodo = (todo: SharedTodo) => {
+    if (!todoList) return;
+    togetherLists.changeItem(todoList, todo.id, null);
+    offerUndo(`“${todo.title}” removed`, async () => togetherLists.changeItem(todoList, todo.id, todo));
+  };
 
   return (
     <div className="home ergon-home">
@@ -83,59 +101,48 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
         <div className="hero__content">
           <Brand name="Ergon" mark={<AppMark app="ergon" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{all.length === 0 ? 'Chores' : groups.now.length === 0 ? 'Nothing today' : groups.now.length === 1 ? groups.now[0].name : `${groups.now.length} today`}</h1>
-            {(home || all.length > 0) && <p className="home__sub">{home ? home.name : 'Chores'}</p>}
+            <h1 className="home__title">{totalToday > 0 ? `${totalToday} today` : 'No chores or to-dos for today'}</h1>
+            <p className="home__sub">{home ? home.name : 'Chores and to-dos'}</p>
           </div>
         </div>
       </div>
 
       <div className="page page--under-hero">
-        {people.length > 1 && (familyMode || all.some((chore) => chore.who || chore.whoId)) && (
-          <div className="chip-row" role="group" aria-label="Whose">
-            <button type="button" className="chip" aria-pressed={!forWhom} onClick={() => setWhose('')}>Everyone</button>
-            {familyMode
-              ? familyPeople.map((person) => <button key={person.id} type="button" className="chip" aria-pressed={forWhom === person.id} onClick={() => setWhose(person.id)}>{person.name}{person.id === family.currentUserId ? ' (you)' : ''}</button>)
-              : people.map((each) => <button key={each} type="button" className="chip" aria-pressed={forWhom === each} onClick={() => setWhose(each)}>{each}</button>)}
-          </div>
-        )}
-
-        {all.length === 0 ? (
-          <section className="card first-run">
-            <h2 className="card__title">No chores yet</h2>
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add a chore</button>
-            <p className="label">Or start with</p>
-            <Ideas chores={all} />
-          </section>
-        ) : (
+        {totalToday > 0 ? (
           <>
-            <div className="section-head">
-              <h2>Today</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'chore' })}>Add</button>
-            </div>
-            {rooms.length > 1 && (
-              <div className="chip-row" role="group" aria-label="Room">
-                <button type="button" className="chip" aria-pressed={!inRoom} onClick={() => setRoom('')}>All rooms</button>
-                {rooms.map((each) => <button key={each} type="button" className="chip" aria-pressed={inRoom === each} onClick={() => setRoom(each)}>{each}</button>)}
+            {choresToday.length > 0 && people.length > 1 && (familyMode || all.some((chore) => chore.who || chore.whoId)) && (
+              <div className="chip-row" role="group" aria-label="Whose">
+                <button type="button" className="chip" aria-pressed={!forWhom} onClick={() => setWhose('')}>Everyone</button>
+                {familyMode
+                  ? familyPeople.map((person) => <button key={person.id} type="button" className="chip" aria-pressed={forWhom === person.id} onClick={() => setWhose(person.id)}>{person.name}{person.id === family.currentUserId ? ' (you)' : ''}</button>)
+                  : people.map((each) => <button key={each} type="button" className="chip" aria-pressed={forWhom === each} onClick={() => setWhose(each)}>{each}</button>)}
               </div>
             )}
-            {inRoom && groups.now.length > 1 && <button type="button" className="text-link" onClick={allDone}>Mark all of these done</button>}
-            {groups.now.length ? <div className="ll-lit-wrap" data-ll-lit><ChoreList chores={groups.now} today={today} daysOff={daysOff} onOpen={open} people={familyPeople} /></div> : <p className="muted">Nothing today.</p>}
-            {groups.week.length > 0 && (
-              <>
-                <div className="section-head"><h2>This week</h2></div>
-                <ChoreList chores={groups.week} today={today} daysOff={daysOff} onOpen={open} people={familyPeople} />
-              </>
+
+            {choresToday.length > 0 && (
+              <section className="chore-group">
+                <div className="section-head"><h2>Chores</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'chores' })}>All</button></div>
+                {rooms.length > 1 && (
+                  <div className="chip-row" role="group" aria-label="Room">
+                    <button type="button" className="chip" aria-pressed={!inRoom} onClick={() => setRoom('')}>All rooms</button>
+                    {rooms.map((each) => <button key={each} type="button" className="chip" aria-pressed={inRoom === each} onClick={() => setRoom(each)}>{each}</button>)}
+                  </div>
+                )}
+                {inRoom && choresToday.length > 1 && <button type="button" className="text-link" onClick={allDone}>Mark all of these done</button>}
+                <div className="ll-lit-wrap" data-ll-lit><ChoreList chores={choresToday} today={today} daysOff={daysOff} onOpen={(chore) => nav.go({ name: 'chore', id: chore.id })} people={familyPeople} /></div>
+              </section>
             )}
+
+            {activeTodos.length > 0 && (
+              <section className="chore-group">
+                <div className="section-head"><h2>To-dos</h2><button type="button" className="text-link" onClick={() => nav.swap({ name: 'todos' })}>All</button></div>
+                <TodoList todos={activeTodos} onToggle={toggleTodo} onRemove={removeTodo} />
+              </section>
+            )}
+
+            <DailyLine app="ergon" />
           </>
-        )}
-        {/* While the list is still being set up, the ideas stay one tap away (the Chores page always has them). */}
-        {all.length > 0 && all.length < 5 && (
-          <>
-            <p className="label">Ideas</p>
-            <Ideas chores={all} />
-          </>
-        )}
-        {all.length > 0 && <DailyLine app="ergon" />}
+        ) : null}
       </div>
     </div>
   );

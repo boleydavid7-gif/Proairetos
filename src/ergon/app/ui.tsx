@@ -3,6 +3,8 @@ import { tap } from '../../app/feel';
 import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
+import { Sym } from '../../lamplight/icons';
+import type { SharedTodo } from '../../core/together/sharedTodos';
 import { choreAssignee, dayText, markDone, nextDay, repeatText, shownDay, type Chore, type ChorePerson, type DaysOff } from '../core/chores';
 import { addPerson, myName, putChore } from './state';
 
@@ -48,6 +50,31 @@ export function ChoreList({ chores, today, onOpen, room = true, daysOff, people 
   return (
     <ul className="chore-list">
       {chores.map((chore) => <ChoreRow key={chore.id} chore={chore} today={today} onOpen={() => onOpen(chore)} room={room} daysOff={daysOff} people={people} />)}
+    </ul>
+  );
+}
+
+export function TodoRow({ todo, onToggle, onRemove }: { todo: SharedTodo; onToggle: () => void; onRemove: () => void }) {
+  const done = Boolean(todo.doneAt);
+  const who = done ? todo.doneBy : todo.by;
+  return (
+    <li className={`chore todo${done ? ' todo--done' : ''}`}>
+      <button type="button" role="checkbox" aria-checked={done} aria-pressed={done} className="tick" aria-label={`${todo.title}: ${done ? 'not done' : 'done'}`} onClick={onToggle}>
+        {done && <CheckIcon size={20} />}
+      </button>
+      <span className="chore__open todo__open">
+        <span>{todo.title}</span>
+        {who && <small>{done ? `Done by ${who}` : `Added by ${who}`}</small>}
+      </span>
+      <button type="button" className="todo__remove" aria-label={`Remove ${todo.title}`} onClick={onRemove}><Sym name="close" /></button>
+    </li>
+  );
+}
+
+export function TodoList({ todos, onToggle, onRemove }: { todos: readonly SharedTodo[]; onToggle: (todo: SharedTodo) => void; onRemove: (todo: SharedTodo) => void }) {
+  return (
+    <ul className="chore-list">
+      {todos.map((todo) => <TodoRow key={todo.id} todo={todo} onToggle={() => onToggle(todo)} onRemove={() => onRemove(todo)} />)}
     </ul>
   );
 }

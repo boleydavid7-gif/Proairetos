@@ -1,14 +1,14 @@
-import { useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { tap } from '../../app/feel';
 import { syncStatus } from '../../app/sync/syncController';
 import { displayName } from '../../data/storage/preferences';
 import { dropInvite, newId, pendingInvite, sharingAvailable, togetherLists, useTogether } from '../../app/together/together';
 import { arrange, type SharedTodo } from '../../core/together/sharedTodos';
-import { CheckIcon } from '../../app/family/icons';
-import { offerUndo } from '../../app/family/shell';
+import { Empty, offerUndo } from '../../app/family/shell';
+import { ListIcon, PlusIcon } from '../../app/family/icons';
 import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
-import { Sym } from '../../lamplight/icons';
+import { TodoList } from '../app/ui';
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That didn’t go through. Try again.');
 
@@ -66,36 +66,25 @@ function JoinCard({ invite, onDone }: { invite: { id: string; key: string; name:
   );
 }
 
-function TodoRow({ todo, onToggle, onRemove }: { todo: SharedTodo; onToggle: () => void; onRemove: () => void }) {
-  const done = Boolean(todo.doneAt);
-  const who = done ? todo.doneBy : todo.by;
-  return (
-    <li className={`ergon-todo${done ? ' is-done' : ''}`}>
-      <button type="button" role="checkbox" aria-checked={done} aria-label={todo.title} className="ergon-todo__box" onClick={onToggle}>
-        {done && <CheckIcon size={16} />}
-      </button>
-      <span className="ergon-todo__title">
-        <span>{todo.title}</span>
-        {who && <span className="ergon-todo__detail">{done ? `Done by ${who}` : `Added by ${who}`}</span>}
-      </span>
-      <button type="button" className="ergon-todo__delete" aria-label={`Remove ${todo.title}`} onClick={onRemove}>
-        <Sym name="close" />
-      </button>
-    </li>
-  );
-}
-
 export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const { list, todos } = useTogether();
   const family = useHousehold();
   const [invite, setInvite] = useState(pendingInvite);
   const [text, setText] = useState('');
+  const [showAdd, setShowAdd] = useState(false);
   const [showDone, setShowDone] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
   const signedIn = sync.phase !== 'signed-out' && sync.phase !== 'unavailable';
   const familySharesTodos = family.parts.some((part) => part.app === 'proairetos');
+  const { open, done } = list ? arrange(todos, new Date()) : { open: [], done: [] };
 
   if (invite && invite.id !== list?.id) return <div className="page ergon-page"><div className="page-top"><h1 className="title">To-dos</h1></div><JoinCard invite={invite} onDone={() => setInvite(undefined)} /></div>;
+
+  const focusAdd = () => {
+    setShowAdd(true);
+    window.requestAnimationFrame(() => inputRef.current?.focus());
+  };
 
   const add = (event: FormEvent) => {
     event.preventDefault();
@@ -106,6 +95,7 @@ export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
     const id = newId();
     togetherLists.changeItem(list, id, { id, title, by, createdAt: new Date().toISOString() });
     setText('');
+    setShowAdd(false);
   };
 
   const toggle = (todo: SharedTodo) => {
@@ -124,13 +114,10 @@ export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
   };
 
   return (
-    <div className="page ergon-page ergon-todos">
+    <div className="page ergon-page">
       <div className="page-top section-head">
-        <div>
-          <h1 className="title">To-dos</h1>
-          <p className="muted">{list ? list.name : 'Shared with your family'}</p>
-        </div>
-        {list && <a className="text-link" href="/?open=settings:household">Family</a>}
+        <h1 className="title">To-dos</h1>
+        {list && <button type="button" className="button-main" onClick={focusAdd}><PlusIcon size={18} />Add</button>}
       </div>
 
       {!sharingAvailable ? (
@@ -146,24 +133,27 @@ export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
         </section>
       ) : (
         <>
-          {(() => {
-            const { open, done } = arrange(todos, new Date());
-            return (
-              <>
-                <form className="ergon-todos__add" onSubmit={add}>
-                  <input className="input" aria-label={`Add to ${list.name}`} placeholder="Add a to-do" value={text} onChange={(event) => setText(event.target.value)} />
-                  {text.trim() && <button type="submit" className="button-quiet">Add</button>}
-                </form>
-                {open.length > 0 ? <ul className="ergon-todos__list">{open.map((todo) => <TodoRow key={todo.id} todo={todo} onToggle={() => toggle(todo)} onRemove={() => remove(todo)} />)}</ul> : <p className="muted">Nothing here yet.</p>}
-                {done.length > 0 && (
-                  <>
-                    <button type="button" className="text-link ergon-todos__done-toggle" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>Done ({done.length})</button>
-                    {showDone && <ul className="ergon-todos__list">{done.map((todo) => <TodoRow key={todo.id} todo={todo} onToggle={() => toggle(todo)} onRemove={() => remove(todo)} />)}</ul>}
-                  </>
-                )}
-              </>
-            );
-          })()}
+          {showAdd && (
+            <form className="add-line" onSubmit={add}>
+              <input ref={inputRef} className="input" aria-label={`Add to ${list.name}`} placeholder="Add a to-do" value={text} onChange={(event) => setText(event.target.value)} />
+              <button type="submit" className="button-quiet" disabled={!text.trim()}>Add</button>
+              <button type="button" className="text-link" onClick={() => { setShowAdd(false); setText(''); }}>Cancel</button>
+            </form>
+          )}
+          {open.length === 0 ? (
+            <Empty icon={<ListIcon size={28} />} title="No active to-dos" />
+          ) : (
+            <section className="chore-group">
+              <p className="label">{list.name}</p>
+              <TodoList todos={open} onToggle={toggle} onRemove={remove} />
+            </section>
+          )}
+          {done.length > 0 && (
+            <section className="chore-group">
+              <button type="button" className="text-link" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>Done ({done.length})</button>
+              {showDone && <TodoList todos={done} onToggle={toggle} onRemove={remove} />}
+            </section>
+          )}
         </>
       )}
     </div>

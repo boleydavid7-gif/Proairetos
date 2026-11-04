@@ -17,8 +17,9 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
     ? family.members.map((member) => ({ id: member.id.slice('member:'.length), name: member.name }))
     : [];
   const today = toLocalDate(new Date());
+  const active = all.filter((chore) => nextDay(chore, daysOff));
   const rooms = new Map<string, Chore[]>();
-  for (const chore of [...all].sort((a, b) => (nextDay(a, daysOff) ?? '9999').localeCompare(nextDay(b, daysOff) ?? '9999') || a.name.localeCompare(b.name))) {
+  for (const chore of [...active].sort((a, b) => (nextDay(a, daysOff) ?? '9999').localeCompare(nextDay(b, daysOff) ?? '9999') || a.name.localeCompare(b.name))) {
     const room = chore.room || 'Anywhere';
     rooms.set(room, [...(rooms.get(room) ?? []), chore]);
   }
@@ -30,7 +31,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
         <h1 className="title">Chores</h1>
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add</button>
       </div>
-      {all.length === 0 && <Empty icon={<BroomIcon size={28} />} title="No chores yet" />}
+      {active.length === 0 && <Empty icon={<BroomIcon size={28} />} title={all.length === 0 ? 'No chores yet' : 'No active chores'} />}
       {ordered.map(([room, chores]) => (
         <section key={room} className="chore-group">
           <p className="label">{room}</p>
