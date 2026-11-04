@@ -7,7 +7,7 @@ import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
 import { homes, ownChores, sharingAvailable, useChores, useHome } from '../app/state';
 import { nextDay } from '../core/chores';
-import { addDays, toLocalDate } from '../../core/scheduling/dates';
+import { toLocalDate } from '../../core/scheduling/dates';
 
 const INVITE = 'ergonShared.invite';
 
@@ -60,7 +60,6 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   const own = ownChores.use();
   const today = toLocalDate(new Date());
   const familyConnected = family.parts.some((part) => part.app === 'ergon');
-  const from = addDays(today, -30);
   const recentActivity = chores
     .flatMap((chore) => (chore.activity ?? []).map((event) => ({ ...event, choreId: chore.id, choreName: chore.name })))
     .sort((a, b) => b.at.localeCompare(a.at))
@@ -155,15 +154,6 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   }
 
   const familyName = familyConnected ? family.list?.name ?? home.name : home.name;
-  const members = family.members.map((member) => {
-    const userId = member.id.slice('member:'.length);
-    const assignedChores = chores.filter((chore) => nextDay(chore) && (chore.whoId === userId || (!chore.whoId && chore.who === member.name)));
-    const assigned = assignedChores.length;
-    const estimatedMinutes = assignedChores.reduce((total, chore) => total + (chore.minutes ?? 0), 0);
-    const completed = chores.reduce((total, chore) => total + chore.history.filter((done) => done.date > from && (done.byId === userId || (!done.byId && done.by === member.name))).length, 0);
-    return { ...member, userId, assigned, estimatedMinutes, completed, role: family.rolesReady ? family.roles[userId] ?? 'member' : 'member' };
-  });
-
   return (
     <div className="page ergon-page">
       {top}
@@ -171,30 +161,11 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
 
       <section className="card">
         <div className="section-head">
-          <h2>People</h2>
-          <span className="muted">{familyConnected ? members.length : 'Not connected'}</span>
+          <h2>Family settings</h2>
         </div>
-        {familyConnected ? (
-          members.length > 0 ? (
-            <ul className="notes-list">
-              {members.map((member) => (
-                <li key={member.id} className="note-line">
-                  <span>
-                    <strong>{member.name}{member.userId === family.currentUserId ? ' · You' : ''}</strong>
-                    <span className="muted"> · {member.role === 'owner' ? 'Owner' : member.role === 'admin' ? 'Administrator' : 'Member'}</span>
-                  </span>
-                  <span className="muted">{member.assigned} open{member.estimatedMinutes > 0 ? ` · ${member.estimatedMinutes} min estimated` : ''} · {member.completed} done</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="muted">Your family members are syncing. They will appear here shortly.</p>
-          )
-        ) : (
-          <p className="muted">Connect Ergon under Proairetos Settings → Family → What you share. Once connected, chores can be assigned to actual household members and turns can follow the family roster.</p>
-        )}
+        <p className="muted">Manage household members, invitations and shared apps in Proairetos Settings → Family. Ergon uses that roster for assignments and rotating turns.</p>
         {familyConnected && unassigned > 0 && <p className="muted">{unassigned} {unassigned === 1 ? 'chore is' : 'chores are'} open to everyone.</p>}
-        <a className="button-main" href="/?open=settings:household">Manage family settings</a>
+        <a className="button-main" href="/?open=settings:household">Open Family settings</a>
       </section>
 
       {familyConnected && (
