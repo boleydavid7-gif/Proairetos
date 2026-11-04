@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { Nav } from '../app/App';
 import { SearchIcon } from '../app/icons';
-import { Brand } from '../app/ui';
 import { mergeIdeas, mealIdeas, openIdea, searchWikibooks, type Idea } from '../app/ideaSources';
 import { Waiting } from '../../lamplight/Waiting';
 
 const shelves = ['Vegetarian', 'Vegan', 'Seafood', 'Chicken', 'Breakfast', 'Pasta', 'Side', 'Starter'];
 
-export default function IdeasPage({ nav }: { nav: Nav }) {
+/** Recipes from outside (TheMealDB and Wikibooks), shown under Find new on the Recipes tab. */
+export default function IdeasPanel({ nav }: { nav: Nav }) {
   const [shelf, setShelf] = useState<string | undefined>('Vegetarian');
   const [query, setQuery] = useState('');
   const [found, setFound] = useState<Idea[]>();
@@ -47,9 +47,7 @@ export default function IdeasPage({ nav }: { nav: Nav }) {
   };
 
   return (
-    <div className="page">
-      <Brand />
-      <h1 className="title">Ideas</h1>
+    <div className="ideas-panel">
       <form
         className="soma-search"
         onSubmit={(event) => {

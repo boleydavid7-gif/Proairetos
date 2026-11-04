@@ -10,7 +10,6 @@ import RecipesPage from '../screens/RecipesPage';
 import RecipePage from '../screens/RecipePage';
 import EditPage from '../screens/EditPage';
 import ImportPage from '../screens/ImportPage';
-import IdeasPage from '../screens/IdeasPage';
 import GroceriesPage from '../screens/GroceriesPage';
 import CookPage from '../screens/CookPage';
 import TonightPage from '../screens/TonightPage';
@@ -24,7 +23,8 @@ import PwaStatus from '../../app/pwa/PwaStatus';
 
 export type Route =
   | { name: 'welcome' }
-  | { name: Tab; query?: string }
+  | { name: 'recipes'; query?: string; find?: boolean }
+  | { name: Exclude<Tab, 'recipes' | 'week'> }
   | { name: 'recipe'; id: string }
   | { name: 'edit'; id?: string }
   | { name: 'import'; how?: 'app' }
@@ -69,10 +69,11 @@ export default function App() {
     if (open && settings.started) {
       const [kind, id] = open.split(':');
       if (kind === 'recipe' && id) go({ name: 'recipe', id });
-      else if (kind === 'week' || kind === 'tonight') go({ name: kind });
+      else if (kind === 'tonight') go({ name: 'tonight' });
+      else if (kind === 'ideas') swap({ name: 'recipes', find: true });
       else if (kind === 'list') swap({ name: 'groceries' });
       else if (kind === 'import') go({ name: 'import', how: id === 'app' ? 'app' : undefined });
-      else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
+      else if (isTab(kind as Route['name'])) swap({ name: kind as Exclude<Tab, 'recipes'> });
     }
     return () => window.removeEventListener('popstate', onPop);
     // Only once: the first page is already in history.
@@ -98,7 +99,7 @@ export default function App() {
   const swap = useCallback((next: Route) => {
     routeHistory.current[routeHistory.current.length - 1] = next;
     history.replaceState({ soma: next }, '');
-    if (next.name === current.current.name && isTab(next.name) && !('query' in next && next.query)) return;
+    if (next.name === current.current.name && isTab(next.name) && !('query' in next && next.query) && !('find' in next && next.find)) return;
     transition(directionTo(next), () => setRoute(next));
   }, []);
   const back = useCallback(() => {
@@ -120,9 +121,7 @@ export default function App() {
       case 'home':
         return <HomePage nav={nav} />;
       case 'recipes':
-        return <RecipesPage nav={nav} query={route.query} />;
-      case 'ideas':
-        return <IdeasPage nav={nav} />;
+        return <RecipesPage nav={nav} query={route.query} find={route.find} />;
       case 'groceries':
         return <GroceriesPage nav={nav} />;
       case 'more':

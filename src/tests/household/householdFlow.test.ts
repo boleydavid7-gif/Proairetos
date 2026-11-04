@@ -218,6 +218,11 @@ describe('a household', () => {
     const items = household.households.sharedItems(household.household()!);
     expect(items.filter((item) => item.kind === 'member').map((item) => (item as { name: string }).name).sort()).toEqual(['Alex', 'Sam']);
 
+    // Soma can tell which of its lists are the household's, and who is acting, so it leaves their managing to Household settings.
+    expect(household.householdLists('soma')).toEqual({ name: 'The Smiths', ids: [soma.sharedLists()[0].id] });
+    expect(household.householdLists('ergon')?.ids).toHaveLength(1);
+    expect(household.householdActor('soma')?.name).toBe('Alex');
+
     // Only the person who enabled a category can change it.
     await expect(household.stopSharing('ergon')).rejects.toThrow('Only the person who enabled this share can change it.');
 

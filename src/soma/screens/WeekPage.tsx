@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Nav } from '../app/App';
 import DishImage from '../app/DishImage';
 import { newId, useGroceries, useRecipes, useToday } from '../app/state';
-import { BackLink, dayLabel, useUndo } from '../app/ui';
+import { Brand, dayLabel, useUndo } from '../app/ui';
 import { addToList, isGrocery, usuallyHave } from '../core/groceries';
 import { kitchenNames, usesFromKitchen } from '../core/kitchen';
 import { isHeading, marks, searchRecipes, type Mark, type Recipe } from '../core/recipes';
@@ -62,7 +62,7 @@ export default function WeekPage({ nav, mark }: { nav: Nav; mark?: Mark }) {
 
   return (
     <div className="page">
-      <BackLink label="Home" onBack={nav.back} />
+      <Brand />
       <div className="week-steps">
         <button type="button" className="chip" aria-label="Week before" disabled={offset === 0} onClick={() => setOffset(offset - 1)}><Sym name="back" /></button>
         <h1 className="title">{offset === 0 ? 'This week' : offset === 1 ? 'Next week' : `From ${dayLabel(start, today, true)}`}</h1>

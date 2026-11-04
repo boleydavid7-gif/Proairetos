@@ -1,8 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useFoodChoices } from '../data/foodChoices';
 import { recipeNutrition } from '../core/nutrition';
 import type { Nav } from '../app/App';
-import { LinkIcon, PlusIcon, SearchIcon } from '../app/icons';
 import somaHeroWide from '../assets/scenes/soma-stoic-wide.webp';
 import DishImage from '../app/DishImage';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
@@ -36,7 +35,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const settings = useSettings();
   const today = useToday();
   const line = lineFor(today);
-  const [query, setQuery] = useState('');
   const favorites = recipes.filter((recipe) => recipe.favorite);
   const groceries = useGroceries() ?? [];
   const soon = soonItems(groceries, today);
@@ -56,20 +54,23 @@ export default function HomePage({ nav }: { nav: Nav }) {
       <Hero image={somaHeroWide} wideImage={somaHeroWide} tall>
         <Brand light />
         <div className="home__words">
-          <h1 className="home__title">Recipes</h1>
+          <h1 className="home__title">Today</h1>
         </div>
       </Hero>
       <div className="page page--under-hero">
-        <form
-          className="soma-search"
-          onSubmit={(event) => {
-            event.preventDefault();
-            nav.go({ name: 'recipes', query });
-          }}
-        >
-          <SearchIcon size={20} />
-          <input aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
-        </form>
+        {recipes.length === 0 && (
+          <section className="card first-run">
+            <p className="muted">No recipes yet.</p>
+            <div className="button-row">
+              <button type="button" className="button-main button--sm" onClick={() => nav.go({ name: 'import' })}>
+                Import
+              </button>
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit' })}>
+                Add
+              </button>
+            </div>
+          </section>
+        )}
 
         {recipes.length > 0 && (
           <button type="button" className="card card--link tonight-card" onClick={() => nav.go({ name: 'tonight', time: shape?.busyEvening ? 30 : undefined })}>
@@ -96,37 +97,11 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </button>
         )}
 
-        <div className="home-actions">
-          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'import' })}>
-            <LinkIcon size={20} /> Import
-          </button>
-          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit' })}>
-            <PlusIcon size={20} /> Add
-          </button>
-        </div>
-
-        {(favorites.length > 0 || recipes.length > 0) && (
-          <>
-            <div className="section-head">
-              <h2>{favorites.length ? 'Favorites' : 'Recently added'}</h2>
-              <button type="button" className="text-link" onClick={() => nav.swap({ name: 'recipes' })}>
-                All
-              </button>
-            </div>
-            <div className="recipe-scroll">
-              {(favorites.length ? favorites : recipes).slice(0, 8).map((recipe) => (
-                <RecipeCard key={recipe.id} recipe={recipe} nav={nav} />
-              ))}
-            </div>
-          </>
-        )}
-
-
         {recipes.length > 0 && (
           <>
             <div className="section-head">
               <h2>This week</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'week' })}>
+              <button type="button" className="text-link" onClick={() => nav.swap({ name: 'week' })}>
                 {week.length ? 'Open' : 'Plan a few'}
               </button>
             </div>
@@ -150,6 +125,22 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </>
         )}
 
+        {(favorites.length > 0 || recipes.length > 0) && (
+          <>
+            <div className="section-head">
+              <h2>{favorites.length ? 'Favorites' : 'Recently added'}</h2>
+              <button type="button" className="text-link" onClick={() => nav.swap({ name: 'recipes' })}>
+                All
+              </button>
+            </div>
+            <div className="recipe-scroll">
+              {(favorites.length ? favorites : recipes).slice(0, 8).map((recipe) => (
+                <RecipeCard key={recipe.id} recipe={recipe} nav={nav} />
+              ))}
+            </div>
+          </>
+        )}
+
         {produce.length > 0 && (
           <button type="button" className="card card--link season-card" onClick={() => nav.go({ name: 'season' })}>
             <span className="card__eyebrow">In season now</span>
@@ -163,10 +154,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </button>
         )}
 
-        <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'ideas' })}>
-          <span className="card__eyebrow">Ideas</span>
-          <span className="card__title">Find something new to cook</span>
-        </button>
 
         {settings.dailyLine && recipes.length > 0 && (
           <blockquote className="daily-line">

@@ -48,6 +48,15 @@ export const offered = (app: HouseholdApp) => app === 'proairetos' || isAdded(ap
 
 export const household = (): SharedListRef | undefined => households.sharedLists()[0];
 
+/** The household's name and which of an app's lists belong to it, for apps that show them as the household's. */
+export function householdLists(app: HouseholdApp): { name: string; ids: string[] } | undefined {
+  const list = household();
+  if (!list) return undefined;
+  return { name: list.name, ids: partsOf(households.sharedItems(list)).filter((part) => part.app === app).map((part) => part.list.id) };
+}
+export const subscribeHousehold = households.subscribeShared;
+export const householdVersion = households.sharedVersion;
+
 /** The signed-in member for an app action, only when that app is shared with this household. */
 export function householdActor(app: HouseholdApp): { id?: string; name: string } | undefined {
   const list = household();

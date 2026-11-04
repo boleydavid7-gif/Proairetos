@@ -23,6 +23,7 @@ export const HomeIcon = glyphIcon('home', 22);
 export const BookIcon = glyphIcon('book', 22);
 export const BasketIcon = glyphIcon('basket', 22);
 export const SproutIcon = glyphIcon('sprout', 22);
+export const CalendarIcon = glyphIcon('calendar', 22);
 export const MoreIcon = glyphIcon('more', 22);
 export const LinkIcon = glyphIcon('link', 22);
 export const PlusIcon = glyphIcon('plus', 22);

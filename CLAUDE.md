@@ -1179,6 +1179,17 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 
 ## Soma (recipes, same repository)
 
+- Soma's tabs are Home, Recipes, Week, Groceries (More behind the gear). Home is "Today" (tonight, use soon, this week, favorites, in season;
+  an empty Home is a `.card.first-run`); Recipes has Mine and Find new (Find new is the old Ideas page, `IdeasPanel`; `?open=ideas` lands
+  there) with Import and Add as round buttons in the top row; Week is a tab (`WeekPage`, no back link). On a recipe, marks and units fold under
+  one line each so the ingredients come first.
+- Soma and the household (Settings > Household > Groceries): a grocery list the household shares is the household's. `householdLists('soma')`
+  (`app/household/household.ts`) says which lists those are; in them Soma shows "Shared with <household>" and a link to Household settings in
+  place of Invite and Leave (the household check rejoined a list left from Soma, and an invite link let people in outside the household's
+  members and roles). Items carry `by` (who added) and `doneBy` (who ticked), written only in a household's list from `householdActor('soma')`.
+- `.page-top` rows that hold only what the phone top bar carries now collapse (height 0) instead of `display: none`, so their actions can still
+  be found and copied to the bar (Askesis Log's + and Soma's Import and Add were missing on phones).
+
 - A third app at `/soma/` (`soma/index.html` -> `src/soma/`, own manifest,
   icon (leaf sprig) and service worker in `public/soma/`; Proairetos's
   `sw.js` ignores `/soma`; linked from Proairetos Settings > More apps).

@@ -8,7 +8,12 @@ import type { GroceryItem } from './groceries';
 export type SharedList = { id: string; key: string; name: string; joinedAt: string };
 
 /** What a shared item carries (sealed): the parts of a grocery line two people both need. */
-export type SharedItem = Pick<GroceryItem, 'id' | 'name' | 'amounts' | 'aisle' | 'checked' | 'addedAt'>;
+export type SharedItem = Pick<GroceryItem, 'id' | 'name' | 'amounts' | 'aisle' | 'checked' | 'addedAt'> & {
+  /** Who added it and who ticked it, written only in a household's list. */
+  by?: string;
+  doneBy?: string;
+};
+export type SharedGrocery = GroceryItem & { by?: string; doneBy?: string };
 
 /** A change made here that the server has not taken yet: the item, or null when it was removed. */
 export type Pending = { id: string; item: SharedItem | null };
@@ -46,11 +51,20 @@ export function queue(pending: readonly Pending[], change: Pending): Pending[] {
 }
 
 /** A grocery line as a shared item (recipe links stay on this device). */
-export function toShared(item: GroceryItem): SharedItem {
-  return { id: item.id, name: item.name, amounts: item.amounts, aisle: item.aisle, checked: item.checked, addedAt: item.addedAt };
+export function toShared(item: SharedGrocery): SharedItem {
+  return {
+    id: item.id,
+    name: item.name,
+    amounts: item.amounts,
+    aisle: item.aisle,
+    checked: item.checked,
+    addedAt: item.addedAt,
+    ...(item.by ? { by: item.by } : {}),
+    ...(item.doneBy ? { doneBy: item.doneBy } : {}),
+  };
 }
 
 /** A shared item shown with the list's grocery tools (by aisle, amounts). */
-export function asGrocery(item: SharedItem): GroceryItem {
+export function asGrocery(item: SharedItem): SharedGrocery {
   return { ...item, from: [] };
 }

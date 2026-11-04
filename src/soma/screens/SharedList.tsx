@@ -6,7 +6,8 @@ import { newId, useSettings } from '../app/state';
 import { Segmented, useUndo } from '../app/ui';
 import { ShareIcon } from '../app/icons';
 import { addToList, byAisle, onList, type GroceryItem } from '../core/groceries';
-import { asGrocery, inviteLink, toShared, type SharedItem, type SharedList } from '../core/sharedList';
+import { asGrocery, inviteLink, toShared, type SharedGrocery, type SharedItem, type SharedList } from '../core/sharedList';
+import { householdActor, householdLists, householdVersion, subscribeHousehold } from '../../app/household/household';
 import { convertAmountText } from '../core/ingredients';
 import { loadSettings } from '../data/store';
 import { changeItem, createList, joinList, leaveList, refreshList, sharedItems, sharedLists, sharedVersion, subscribeShared } from '../data/sharedLists';
@@ -148,7 +149,12 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
   const [error, setError] = useState('');
   const [leaving, setLeaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  useSyncExternalStore(subscribeHousehold, householdVersion);
   const items = sharedItems(list).map(asGrocery);
+  // A list the household shares is managed there: who is in it, and leaving, are Settings > Household's.
+  const home = householdLists('soma');
+  const ofHousehold = Boolean(home?.ids.includes(list.id));
+  const me = ofHousehold ? householdActor('soma')?.name : undefined;
 
   useEffect(() => {
     const pull = () => {
@@ -171,14 +177,14 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
     const after = addToList(items, lines, loadSettings().aisleChoices, new Date().toISOString(), newId);
     for (const item of after) {
       const old = before.find((each) => each.id === item.id);
-      if (!old || JSON.stringify(old) !== JSON.stringify(item)) put(toShared(item), item.id);
+      if (!old || JSON.stringify(old) !== JSON.stringify(item)) put(toShared({ ...item, ...(old ? {} : { by: me }) }), item.id);
     }
   };
-  const toggle = (item: GroceryItem) => {
+  const toggle = (item: SharedGrocery) => {
     if (!item.checked) tap();
-    put(toShared({ ...item, checked: !item.checked }), item.id);
+    put(toShared({ ...item, checked: !item.checked, doneBy: item.checked ? undefined : me }), item.id);
   };
-  const remove = (item: GroceryItem) => {
+  const remove = (item: SharedGrocery) => {
     put(null, item.id);
     undo(`${item.name} removed`, () => put(toShared(item), item.id));
   };
@@ -248,35 +254,44 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
         </section>
       )}
       {error && <p className="hint" role="status">{error}</p>}
-      <button type="button" className="text-link share-link" onClick={() => void invite()}>
-        <ShareIcon size={18} /> Invite someone to {list.name}
-      </button>
-      {copied && <p className="hint" role="status">Link copied. Anyone with it can edit this list.</p>}
-      {leaving ? (
-        <div className="button-row">
-          <button
-            type="button"
-            className="button-quiet"
-            onClick={() => void leaveList(list).then(onLeft, (cause) => setError(problem(cause)))}
-          >
-            Leave {list.name}
-          </button>
-          <button type="button" className="button-quiet" onClick={() => setLeaving(false)}>Keep it</button>
-        </div>
+      {ofHousehold && home ? (
+        <p className="hint">
+          Shared with {home.name}. <a className="text-link" href="/?open=settings:household">Household settings</a>
+        </p>
       ) : (
-        <button type="button" className="text-link" onClick={() => setLeaving(true)}>Leave this list</button>
+        <>
+        <button type="button" className="text-link share-link" onClick={() => void invite()}>
+          <ShareIcon size={18} /> Invite someone to {list.name}
+        </button>
+        {copied && <p className="hint" role="status">Link copied. Anyone with it can edit this list.</p>}
+        {leaving ? (
+          <div className="button-row">
+            <button
+              type="button"
+              className="button-quiet"
+              onClick={() => void leaveList(list).then(onLeft, (cause) => setError(problem(cause)))}
+            >
+              Leave {list.name}
+            </button>
+            <button type="button" className="button-quiet" onClick={() => setLeaving(false)}>Keep it</button>
+          </div>
+        ) : (
+          <button type="button" className="text-link" onClick={() => setLeaving(true)}>Leave this list</button>
+        )}
+        </>
       )}
     </>
   );
 }
 
-function SharedRow({ item, units, onToggle, onRemove }: { item: GroceryItem; units: Parameters<typeof convertAmountText>[2]; onToggle: () => void; onRemove: () => void }) {
+function SharedRow({ item, units, onToggle, onRemove }: { item: SharedGrocery; units: Parameters<typeof convertAmountText>[2]; onToggle: () => void; onRemove: () => void }) {
   return (
     <li className="grocery-row">
       <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
         <span className="check-row__box">{item.checked ? <Sym name="check" size={16} /> : null}</span>
         <span className="check-row__text">
           {item.name}
+          {(item.checked ? item.doneBy : item.by) && <span className="check-row__by">{item.checked ? item.doneBy : item.by}</span>}
           {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.map((amount) => convertAmountText(amount, item.name, units)).join(' + ')}</span>}
         </span>
       </button>

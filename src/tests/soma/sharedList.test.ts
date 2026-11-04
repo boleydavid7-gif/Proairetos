@@ -56,4 +56,10 @@ describe('a shared grocery list', () => {
     const source = readFileSync('src/soma/screens/SharedList.tsx', 'utf8') + readFileSync('src/soma/data/sharedLists.ts', 'utf8');
     expect(findJudgmentLanguage(source)).toEqual([]);
   });
+
+  it('keeps who added and who ticked an item, only when there is a name', () => {
+    const base = { ...item('a', 'Milk'), aisle: 'Dairy', from: [] } as never;
+    expect(toShared(base)).not.toHaveProperty('by');
+    expect(toShared({ ...(base as object), by: 'Sam', doneBy: 'Alex' } as never)).toMatchObject({ by: 'Sam', doneBy: 'Alex' });
+  });
 });

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { SearchIcon, BookIcon } from '../app/icons';
+import { SearchIcon, BookIcon, LinkIcon, PlusIcon } from '../app/icons';
+import IconButton from '../../components/ui/IconButton';
+import IdeasPanel from './IdeasPage';
 import DishImage from '../app/DishImage';
 import { useFoodChoices } from '../data/foodChoices';
 import { recipeNutrition } from '../core/nutrition';
@@ -27,11 +29,12 @@ function RecipeRow({ recipe, nav }: { recipe: Recipe; nav: Nav }) {
   );
 }
 
-export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: string }) {
+export default function RecipesPage({ nav, query: start, find: startFind }: { nav: Nav; query?: string; find?: boolean }) {
   const recipes = useRecipes();
   const settings = useSettings();
   const [query, setQuery] = useState(start ?? '');
   const [shelf, setShelf] = useState<string>('All');
+  const [part, setPart] = useState<'mine' | 'find'>(startFind ? 'find' : 'mine');
   const tags = [...new Set((recipes ?? []).flatMap((recipe) => recipe.tags))].sort((a, b) => a.localeCompare(b));
   const shelves = ['All', ...((recipes ?? []).some((recipe) => recipe.favorite) ? ['Favorites'] : []), ...tags];
   const shown = searchRecipes(recipes ?? [], query).filter((recipe) =>
@@ -42,8 +45,32 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
 
   return (
     <div className="page">
-      <Brand />
-      <h1 className="title">My recipes</h1>
+      <div className="page-top">
+        <Brand />
+        <span data-header-actions>
+          <IconButton className="round-button" label="Import a recipe" onClick={() => nav.go({ name: 'import' })}>
+            <LinkIcon size={22} />
+          </IconButton>
+          <IconButton className="round-button" label="Add a recipe" onClick={() => nav.go({ name: 'edit' })}>
+            <PlusIcon size={22} />
+          </IconButton>
+        </span>
+      </div>
+      <h1 className="title">Recipes</h1>
+      <Segmented
+        label="Recipes"
+        value={part}
+        options={[
+          { id: 'mine', label: 'Mine' },
+          { id: 'find', label: 'Find new' },
+        ]}
+        onChange={setPart}
+        small
+      />
+      {part === 'find' ? (
+        <IdeasPanel nav={nav} />
+      ) : (
+        <>
       <div className="soma-search">
         <SearchIcon size={20} />
         <input aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
@@ -93,14 +120,8 @@ export default function RecipesPage({ nav, query: start }: { nav: Nav; query?: s
               </div>
             )}
           </div>
-          <div className="button-row" style={{ marginTop: 18 }}>
-            <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'import' })}>
-              Import
-            </button>
-            <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit' })}>
-              Add
-            </button>
-          </div>
+        </>
+      )}
         </>
       )}
     </div>

@@ -244,22 +244,6 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             {note.split('\n')[0]}
           </button>
         )}
-        <div className="chip-grid recipe-marks" role="group" aria-label="Your marks">
-          {marks.map((mark) => {
-            const on = Boolean(recipe.marks?.includes(mark.id));
-            return (
-              <button
-                key={mark.id}
-                type="button"
-                className="chip chip--small"
-                aria-pressed={on}
-                onClick={() => void save({ marks: on ? recipe.marks!.filter((each) => each !== mark.id) : [...(recipe.marks ?? []), mark.id] })}
-              >
-                {mark.label}
-              </button>
-            );
-          })}
-        </div>
         {recipe.tags.length > 0 && (
           <div className="tags">
             {recipe.tags.map((tag) => (
@@ -269,6 +253,28 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
             ))}
           </div>
         )}
+        <details className="more-about recipe-marks-fold">
+          <summary>
+            Marks
+            {recipe.marks?.length ? <span className="recipe-marks-fold__chosen"> · {marks.filter((mark) => recipe.marks?.includes(mark.id)).map((mark) => mark.label).join(', ')}</span> : null}
+          </summary>
+          <div className="chip-grid recipe-marks" role="group" aria-label="Your marks">
+            {marks.map((mark) => {
+              const on = Boolean(recipe.marks?.includes(mark.id));
+              return (
+                <button
+                  key={mark.id}
+                  type="button"
+                  className="chip chip--small"
+                  aria-pressed={on}
+                  onClick={() => void save({ marks: on ? recipe.marks!.filter((each) => each !== mark.id) : [...(recipe.marks ?? []), mark.id] })}
+                >
+                  {mark.label}
+                </button>
+              );
+            })}
+          </div>
+        </details>
       </section>
 
       <Segmented
@@ -298,6 +304,8 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
                 <button type="button" className="recipe-scale__button" aria-label="Increase recipe scale" onClick={() => setScale(scale + 0.5)}><Sym name="plus" size={18} /></button>
               </div>
             </div>
+            <details className="more-about units-fold">
+              <summary>Units · {settings.units === 'metric' ? 'Metric' : settings.units === 'us' ? 'US' : 'As written'}</summary>
             <div className="units-row">
               <Segmented
                 label="Units"
@@ -311,6 +319,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
                 small
               />
             </div>
+            </details>
           </div>
           <ul className="check-list">
             {lines.map((line, i) =>

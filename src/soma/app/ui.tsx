@@ -2,16 +2,16 @@ import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import DesktopAppLinks from '../../app/family/DesktopAppLinks';
 import { FamilyMark, MARK_LIGHT } from '../../app/family/marks';
-import { BasketIcon, BookIcon, GearIcon, HomeIcon, SproutIcon } from './icons';
+import { BasketIcon, BookIcon, CalendarIcon, GearIcon, HomeIcon } from './icons';
 
 export { BackLink, Hero, Segmented, Switch, UndoProvider, useUndo, greeting, dayLabel } from '../../askesis/app/ui';
 
-export type Tab = 'home' | 'recipes' | 'ideas' | 'groceries' | 'more';
+export type Tab = 'home' | 'recipes' | 'week' | 'groceries' | 'more';
 
 const tabs: { id: Tab; label: string; Icon: (p: { size?: number }) => ReactNode }[] = [
   { id: 'home', label: 'Home', Icon: HomeIcon },
   { id: 'recipes', label: 'Recipes', Icon: BookIcon },
-  { id: 'ideas', label: 'Ideas', Icon: SproutIcon },
+  { id: 'week', label: 'Week', Icon: CalendarIcon },
   { id: 'groceries', label: 'Groceries', Icon: BasketIcon },
   { id: 'more', label: 'More', Icon: GearIcon },
 ];

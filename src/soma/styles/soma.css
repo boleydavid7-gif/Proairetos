@@ -2088,3 +2088,11 @@ button.nutri-badge {
   align-self: flex-start;
   min-height: 44px;
 }
+
+/* Marks and units fold under one line each, so the ingredients come first. */
+.recipe-marks-fold .recipe-marks { flex-wrap: wrap; overflow: visible; margin: 0 0 10px; }
+.recipe-marks-fold__chosen { color: var(--muted); }
+.units-fold { border-top: 0; padding: 0; }
+.units-fold summary { min-height: 44px; }
+.ideas-panel { display: grid; gap: var(--ll-gap, 16px); }
+.check-row__by { display: block; color: var(--muted); font-size: var(--text-xs); }
