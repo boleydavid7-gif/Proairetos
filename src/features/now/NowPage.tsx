@@ -44,7 +44,6 @@ import DayTimeline from '../today/DayTimeline';
 import DoneToday from '../today/DoneToday';
 import NowCard from '../today/NowCard';
 import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
-import TodayTogether from '../today/TodayTogether';
 import WelcomeBack from '../today/WelcomeBack';
 import Intention from '../today/Intention';
 import CloseDay from '../today/CloseDay';
@@ -215,7 +214,7 @@ export default function NowPage() {
   // Today's sections in the person's order (Edit Today); each keeps its own conditions.
   const sectionNodes: Record<TodaySection, ReactNode> = {
     intention: shows('intention') && <Intention date={date} isToday items={items} />,
-    together: <TodayTogether />,
+    together: null,
     next: <NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />,
     day: (
       <>
