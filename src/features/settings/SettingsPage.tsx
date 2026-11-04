@@ -66,6 +66,8 @@ import { countRecords, parseBackupFile, type BackupData } from '../../data/backu
 import {
   clearPreferences,
   displayName,
+  customDisplayName,
+  nameFromEmail,
   hiddenOffers,
   loadAppearance,
   saveAppearance,
@@ -457,11 +459,13 @@ function Row({ icon, tone = 'gray', title, value, onClick }: { icon: ReactNode; 
 }
 
 function ProfileSection({ onDone }: { onDone: () => void }) {
-  const [name, setName] = useState(displayName);
+  const status = useSyncStatus();
+  const [name, setName] = useState(customDisplayName);
+  const suggested = nameFromEmail(status.email ?? '');
   return (
     <form
       className="settings-card"
-      aria-label="Your name"
+      aria-label="Profile"
       onSubmit={(event) => {
         event.preventDefault();
         setDisplayName(name);
@@ -469,16 +473,17 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         onDone();
       }}
     >
-      <p className="sheet__label">Your name</p>
+      <p className="sheet__label">How would you like Proairetos to greet you?</p>
       <input
         className="field-input"
         autoComplete="given-name"
         aria-label="Name"
+        placeholder={suggested || 'Your name'}
         maxLength={40}
         value={name}
         onChange={(event) => setName(event.target.value)}
       />
-      {name.trim() !== displayName() && (
+      {name.trim() !== customDisplayName() && (
         <div className="composer__actions">
           <button type="submit" className="button-accent">
             Save
@@ -1240,7 +1245,7 @@ export default function SettingsPage() {
         {view === 'household' && <HouseholdSection onOpenAccount={() => setView('account')} />}
         {view === 'install' && <PwaInstallSection />}
         {view === 'account' && <AccountSection />}
-        {view === 'account' && <ProfileSection onDone={() => undefined} />}
+        {view === 'profile' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
         {view === 'attention' && <AttentionSection open={openFromAttention} />}
         {view === 'backup' && (
@@ -1361,6 +1366,7 @@ export default function SettingsPage() {
     {
       label: 'Account and data',
       entries: [
+        { id: 'profile', icon: <PenIcon size={18} />, tone: 'gold', title: 'Profile', value: displayName() || undefined, onClick: () => setView('profile'), words: 'name greeting profile' },
         { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey password storage google drive dropbox onedrive' },
         { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock privacy server encrypted data services' },
         {
@@ -1400,7 +1406,7 @@ export default function SettingsPage() {
   const matches = needle
     ? [
         ...groups.flatMap((group) => group.entries),
-        { id: 'name', icon: <PenIcon size={18} />, tone: 'gold', title: 'Your name', onClick: () => setView('account'), words: 'profile greeting called' } as Entry,
+        { id: 'profile-search', icon: <PenIcon size={18} />, tone: 'gold', title: 'Profile', onClick: () => setView('profile'), words: 'name greeting called' } as Entry,
       ].filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
     : [];
 
@@ -1430,7 +1436,7 @@ export default function SettingsPage() {
         </div>
       ) : (
         <>
-          <button type="button" className="profile-card" onClick={() => setView('account')}>
+          <button type="button" className="profile-card" onClick={() => setView('profile')}>
             <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
             <span className="profile-card__text">
               <span className="profile-card__name">{name || 'Add your name'}</span>

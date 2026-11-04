@@ -38,7 +38,6 @@ const FOLDED: Partial<Record<View, View>> = {
   import: 'backup',
   offers: 'today',
   calendar: 'calendars',
-  profile: 'account',
   sources: 'about',
 };
 
@@ -56,7 +55,7 @@ export const viewTitles: Record<View, string> = {
   lock: 'Privacy and lock',
   notifications: 'Notifications',
   attention: 'Attention',
-  profile: 'Your name',
+  profile: 'Profile',
   day: 'When your day starts',
   calendar: 'Share to your calendar',
   calendars: 'Calendars',

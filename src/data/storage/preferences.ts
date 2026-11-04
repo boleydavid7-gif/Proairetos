@@ -238,10 +238,43 @@ export function saveJournalDraft(draft: JournalDraft | null): void {
 // ---------- Name ----------
 
 const NAME_KEY = 'proairetos.displayName';
+const ACCOUNT_EMAIL_KEY = 'proairetos.accountEmail';
 
-/** The name the person chose to be greeted by, if any. Travels with the account, so every app greets with it. */
-export function displayName(): string {
+/** A readable first name from an account email, used only until the person chooses a profile name. */
+export function nameFromEmail(email: string): string {
+  const local = email.trim().split('@')[0]?.split('+')[0] ?? '';
+  return local
+    .replace(/[._-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => `${word[0]!.toUpperCase()}${word.slice(1)}`)
+    .join(' ');
+}
+
+/** The name explicitly chosen in Profile, without the email fallback. */
+export function customDisplayName(): string {
   return readJson<string>(NAME_KEY) ?? '';
+}
+
+export function rememberAccountEmail(email: string): void {
+  try {
+    if (email.trim()) localStorage.setItem(ACCOUNT_EMAIL_KEY, JSON.stringify(email.trim()));
+  } catch {
+    // The app still works for this visit when storage is blocked.
+  }
+}
+
+export function forgetAccountEmail(): void {
+  try { localStorage.removeItem(ACCOUNT_EMAIL_KEY); } catch { /* Storage may be blocked. */ }
+}
+
+/** The profile name used for greetings. An email-derived name fills this until the person chooses one. */
+export function displayName(): string {
+  const chosen = customDisplayName();
+  if (chosen) return chosen;
+  return nameFromEmail(readJson<string>(ACCOUNT_EMAIL_KEY) ?? '');
 }
 
 export function setDisplayName(name: string): void {

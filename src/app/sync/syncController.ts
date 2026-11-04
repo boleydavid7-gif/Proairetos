@@ -79,6 +79,8 @@ import {
   notifyPreferences,
   saveCalendarFeed,
   subscribePreferences,
+  rememberAccountEmail,
+  forgetAccountEmail,
   type StoredFeedOptions,
 } from '../../data/storage/preferences';
 import { applyAppearance } from '../appearance';
@@ -336,6 +338,7 @@ async function resolvePhase(): Promise<void> {
   if (/access_token|refresh_token|error_description/.test(location.hash)) history.replaceState(history.state, '', location.pathname + location.search);
   if (!user) {
     userId = null;
+    forgetAccountEmail();
     return set({ phase: 'signed-out', email: undefined, target: undefined, error: undefined });
   }
   // Another account used this device last: its things are put away here and this account starts clean.
@@ -347,6 +350,7 @@ async function resolvePhase(): Promise<void> {
     }
     deviceAccountAtStart = user.id;
   }
+  rememberAccountEmail(user.email ?? '');
   userId = user.id;
   try {
     await registerAccountDevice();
