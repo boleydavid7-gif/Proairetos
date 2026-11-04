@@ -168,7 +168,7 @@
   .app-shell .tab-bar__pinned-app img,
   .shell--tabs .tab-bar__pinned-app img { flex: 0 0 1.45rem; width: 1.45rem; height: 1.45rem; object-fit: contain; }
   .app-shell .tab-bar__pinned-store { margin-top: .25rem; color: var(--color-text-faint, var(--muted)); }
-  .app-shell .tab-bar__item[data-to-header] { display: none; }
+  .app-shell .tab-bar__item[data-to-header]:not(.tab-bar__apps-trigger) { display: none; }
   .app-shell .tab-bar__apps-trigger { margin-top: auto; }
   .shell--tabs .tab-bar__apps-trigger { margin-top: auto; }
 }
