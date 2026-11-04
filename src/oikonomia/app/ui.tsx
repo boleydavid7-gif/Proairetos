@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
+import DesktopAppLinks from '../../app/family/DesktopAppLinks';
 import heroWide from '../../assets/images/scenes/oikonomia-stoic-wide.webp';
 import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, PlusIcon, SettingsIcon } from './icons';
 
@@ -18,6 +19,7 @@ export const tabNames = tabs.map((tab) => tab.id);
 export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: (tab: Tab) => void }) {
   return (
     <nav className="tab-bar" aria-label="Main">
+      <DesktopAppLinks />
       {tabs.map(({ id, label, Icon }) => (
         <button key={id} type="button" className="tab-bar__item" data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={current === id ? 'page' : undefined} onClick={() => onPick(id)}>
           <Icon size={22} />

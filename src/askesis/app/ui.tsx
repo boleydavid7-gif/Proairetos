@@ -1,6 +1,7 @@
 import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
 import { offerUndo, UndoBar } from '../../lamplight/undo';
 import ProairetosTab from '../../app/family/ProairetosTab';
+import DesktopAppLinks from '../../app/family/DesktopAppLinks';
 import { BackIcon, GearIcon, HomeIcon, LearnIcon, LogIcon, Mark, TrainIcon } from './icons';
 
 export type Tab = 'home' | 'learn' | 'train' | 'log' | 'more';
@@ -16,6 +17,7 @@ const tabs: { id: Tab; label: string; Icon: (p: { size?: number }) => ReactNode 
 export function TabBar({ current, onPick }: { current: Tab | undefined; onPick: (tab: Tab) => void }) {
   return (
     <nav className="tab-bar" aria-label="Main">
+      <DesktopAppLinks />
       {tabs.map(({ id, label, Icon }) => (
         <button
           key={id}
