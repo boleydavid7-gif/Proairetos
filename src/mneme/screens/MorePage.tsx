@@ -8,6 +8,7 @@ export default function MorePage() {
     <main className="mneme-page mneme-more">
       <div className="page-top"><h1 className="title">More</h1></div>
       <AccountCard app="Mneme" what="Your notes" waiting="Notes" />
+      <p className="muted">Not shared with your household.</p>
       <section>
         <p className="label">Your data</p>
         <FamilyBackup />

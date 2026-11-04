@@ -12,7 +12,8 @@ import IdeasPage from '../screens/IdeasPage';
 import MorePage from '../screens/MorePage';
 
 export type Tab = 'notes' | 'ideas' | 'collections' | 'capture' | 'more';
-export type Route = { name: Exclude<Tab, 'capture'> } | { name: 'capture'; mode?: 'write' | 'record' } | { name: 'note'; id: string } | { name: 'collection'; id: string };
+export type NoteFilter = 'all' | 'recent' | 'pinned' | 'inbox';
+export type Route = { name: Exclude<Tab, 'notes' | 'capture'> } | { name: 'notes'; filter?: NoteFilter } | { name: 'capture'; mode?: 'write' | 'record' } | { name: 'note'; id: string } | { name: 'collection'; id: string };
 export type MnemeNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -44,7 +45,7 @@ export default function App() {
 
   const page = (() => {
     switch (route.name) {
-      case 'notes': return <NotesPage nav={nav} />;
+      case 'notes': return <NotesPage nav={nav} initial={route.filter} />;
       case 'ideas': return <IdeasPage />;
       case 'more': return <MorePage />;
       case 'collections': return <CollectionsPage nav={nav} />;

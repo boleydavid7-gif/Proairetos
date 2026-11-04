@@ -1583,6 +1583,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   and restarts at once when the service stops. Tested in Chromium with a fake microphone and the real model.
 - Mneme's More (tab `more`, `?open=more`, the gear in the top bar on phones; `screens/MorePage.tsx`): AccountCard, FamilyBackup and
   the family list with Send feedback, like the other apps.
+- Mneme review pass: a note saves as it is typed (600 ms after the last change) and on leaving, with no Save button; deleting a note offers undo and its voice recording goes only after the undo time; Ideas' Clear offers undo; Notes is one grouped list (a note's name is its title, else its first line, with the date and first words, the collection at the end) with All / Recent / Pinned / Inbox tabs and a labeled search, and no sync control (the account row in More has it); Collections counts read "1 note", Inbox and Pinned open the filtered list (`Route notes` takes `filter`), and a collection can be renamed or deleted with undo (its notes move to Inbox); Ideas drop the counts and typed marks, split a title at the first line or sentence and keep the sentence's remainder as the body; More says notes are not shared with the household.
 - Mneme's offline worker `public/mneme/sw.js` (scope /mneme/, cache `mneme-v1`, like Philia's; bump it when the shell's
   files change) makes the notes open without a connection; the startApp registration asked for it before it existed.
 
