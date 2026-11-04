@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from 'react';
+import { levelAllows, type ChildLevel } from '../../core/household/household';
 import { isSyncConfigured, supabase } from '../../data/sync/supabase';
 
 /*
@@ -23,6 +25,65 @@ export type ListOptions<T> = {
 };
 
 export const sharingAvailable = isSyncConfigured;
+
+/*
+ * What a child may do in the household's lists, kept on this device (list id to level) so every app follows it
+ * without loading the household. Written by the household when this account is a child; empty for everyone else.
+ * The server keeps the choice; the lists are sealed, so the device is what follows it.
+ */
+const LIMITS_KEY = 'proairetosChildLimits';
+const limitListeners = new Set<() => void>();
+let limitsRaw: string | null | undefined;
+let limitsValue: Record<string, ChildLevel> = {};
+
+function limits(): Record<string, ChildLevel> {
+  let raw: string | null = null;
+  try {
+    raw = localStorage.getItem(LIMITS_KEY);
+  } catch {
+    return limitsValue;
+  }
+  if (raw === limitsRaw) return limitsValue;
+  limitsRaw = raw;
+  try {
+    limitsValue = raw ? (JSON.parse(raw) as Record<string, ChildLevel>) : {};
+  } catch {
+    limitsValue = {};
+  }
+  return limitsValue;
+}
+
+export function setChildLimits(next: Record<string, ChildLevel>): void {
+  try {
+    if (Object.keys(next).length) localStorage.setItem(LIMITS_KEY, JSON.stringify(next));
+    else localStorage.removeItem(LIMITS_KEY);
+  } catch {
+    // Storage blocked: the guard stays as it was.
+  }
+  for (const listener of limitListeners) listener();
+}
+
+/** What this person may do in one shared list: everything, unless a parent limited a child. */
+export function listPermissions(listId: string | undefined): { read: boolean; write: boolean; remove: boolean } {
+  const level = listId ? limits()[listId] : undefined;
+  if (!level) return { read: true, write: true, remove: true };
+  return { read: levelAllows(level, 'read'), write: levelAllows(level, 'write'), remove: levelAllows(level, 'remove') };
+}
+
+export function useListPermissions(listId: string | undefined): { read: boolean; write: boolean; remove: boolean } {
+  const key = useSyncExternalStore(
+    (listener) => {
+      limitListeners.add(listener);
+      return () => limitListeners.delete(listener);
+    },
+    () => {
+      const level = listId ? limits()[listId] : undefined;
+      return level ?? '';
+    },
+    () => '',
+  );
+  return listPermissions(key ? listId : undefined);
+}
 
 /** The server's copy with this device's unsent changes laid over it. */
 export function withPendingChanges<T extends { id: string }>(fromServer: readonly T[], pending: readonly PendingChange<T>[], order?: (a: T, b: T) => number): T[] {
@@ -229,6 +290,8 @@ export function createSharedLists<T extends { id: string }>(options: ListOptions
 
   /** Adds, changes (an item) or removes (null) one line; sent now if possible, kept until it is. */
   function changeItem(list: SharedList, id: string, item: SharedItem | null): void {
+    const allowed = listPermissions(list.id);
+    if (item === null ? !allowed.remove : !allowed.write) return;
     write(pendingKey(list.id), queue(read<Pending[]>(pendingKey(list.id), []), { id, item }));
     changed();
     void refreshList(list).catch(() => undefined);

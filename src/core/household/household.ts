@@ -73,3 +73,41 @@ export function namesText(names: readonly string[]): string {
   if (names.length <= 1) return names[0] ?? '';
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
+
+/**
+ * Children (13 and over) in a household. A parent chooses, for each shared app, what children can do there. Shared
+ * lists are sealed and every member holds the key, so the server keeps the choice but cannot stop a write itself:
+ * devices follow it, a guard against accidents.
+ */
+export type ChildLevel = 'none' | 'view' | 'add' | 'edit';
+
+export const CHILD_LEVELS: readonly { level: ChildLevel; label: string }[] = [
+  { level: 'none', label: 'Not shared' },
+  { level: 'view', label: 'View only' },
+  { level: 'add', label: 'Add and tick' },
+  { level: 'edit', label: 'Everything' },
+];
+
+/** Until a parent chooses: everyday lists are open to adding and ticking, money, trips and medicines are not shared. */
+export const DEFAULT_CHILD_LEVEL: Record<HouseholdApp, ChildLevel> = {
+  proairetos: 'add',
+  soma: 'add',
+  ergon: 'add',
+  phyton: 'add',
+  oikonomia: 'none',
+  poreia: 'none',
+  therapeia: 'none',
+};
+
+export const childLevelOf = (access: Partial<Record<string, ChildLevel>>, app: HouseholdApp): ChildLevel => access[app] ?? DEFAULT_CHILD_LEVEL[app];
+
+/** What a level allows: reading, adding and changing a line (a tick is a change), and removing one. */
+export function levelAllows(level: ChildLevel, action: 'read' | 'write' | 'remove'): boolean {
+  if (action === 'read') return level !== 'none';
+  if (action === 'write') return level === 'add' || level === 'edit';
+  return level === 'edit';
+}
+
+export type HouseholdRole = 'owner' | 'parent' | 'member' | 'child';
+
+export const ROLE_NAMES: Record<HouseholdRole, string> = { owner: 'Owner', parent: 'Parent', member: 'Member', child: 'Child' };

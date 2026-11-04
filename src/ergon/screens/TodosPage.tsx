@@ -8,6 +8,7 @@ import { Empty, offerUndo } from '../../app/family/shell';
 import { ListIcon, PlusIcon } from '../../app/family/icons';
 import type { ErgonNav } from '../app/App';
 import { TodoList } from '../app/ui';
+import { useListPermissions } from '../../app/family/sharedLists';
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That didn’t go through. Try again.');
 
@@ -68,6 +69,7 @@ function JoinCard({ invite, onDone }: { invite: { id: string; key: string; name:
 export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const { list, todos } = useTogether();
+  const can = useListPermissions(list?.id);
   const [invite, setInvite] = useState(pendingInvite);
   const [text, setText] = useState('');
   const [showAdd, setShowAdd] = useState(false);
@@ -114,7 +116,7 @@ export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
     <div className="page ergon-page">
       <div className="page-top section-head">
         <h1 className="title">To-dos</h1>
-        {list && <button type="button" className="button-main" onClick={focusAdd}><PlusIcon size={18} />Add</button>}
+        {list && can.write && <button type="button" className="button-main" onClick={focusAdd}><PlusIcon size={18} />Add</button>}
       </div>
 
       {!sharingAvailable ? (
@@ -140,13 +142,13 @@ export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
           ) : (
             <section className="chore-group">
               <p className="label">{list.name}</p>
-              <TodoList todos={open} onToggle={toggle} onRemove={remove} />
+              <TodoList todos={open} canTick={can.write} canRemove={can.remove} onToggle={toggle} onRemove={remove} />
             </section>
           )}
           {done.length > 0 && (
             <section className="chore-group">
               <button type="button" className="text-link" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>Done ({done.length})</button>
-              {showDone && <TodoList todos={done} onToggle={toggle} onRemove={remove} />}
+              {showDone && <TodoList todos={done} canTick={can.write} canRemove={can.remove} onToggle={toggle} onRemove={remove} />}
             </section>
           )}
         </>

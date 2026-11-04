@@ -3,7 +3,8 @@ import { Empty } from '../../app/family/shell';
 import { useHousehold } from '../../app/household/household';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
-import { useChores } from '../app/state';
+import { useChores, useHome } from '../app/state';
+import { useListPermissions } from '../../app/family/sharedLists';
 import { ChoreList } from '../app/ui';
 import { nextDay, type Chore, type ChorePerson } from '../core/chores';
 import { useDaysOff } from '../app/daysOff';
@@ -11,6 +12,7 @@ import { Ideas } from './TodayPage';
 
 export default function ChoresPage({ nav }: { nav: ErgonNav }) {
   const all = useChores();
+  const can = useListPermissions(useHome()?.id);
   const daysOff = useDaysOff();
   const family = useHousehold();
   const familyPeople: ChorePerson[] = family.parts.some((part) => part.app === 'ergon')
@@ -29,7 +31,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
     <div className="page ergon-page">
       <div className="page-top section-head">
         <h1 className="title">Chores</h1>
-        <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add</button>
+        {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add</button>}
       </div>
       {active.length === 0 && <Empty icon={<BroomIcon size={28} />} title={all.length === 0 ? 'No chores yet' : 'No active chores'} />}
       {ordered.map(([room, chores]) => (

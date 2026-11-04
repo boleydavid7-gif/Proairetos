@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import { createSharedLists, sharingAvailable, type SharedListRef } from '../family/sharedLists';
-import { HOUSEHOLD_APPS, memberId, membersOf, partId, partState, partsOf, type HouseholdApp, type HouseholdItem, type ListRef, type PartState } from '../../core/household/household';
+import { createSharedLists, setChildLimits, sharingAvailable, type SharedListRef } from '../family/sharedLists';
+import { HOUSEHOLD_APPS, childLevelOf, memberId, membersOf, partId, partState, partsOf, type ChildLevel, type HouseholdApp, type HouseholdItem, type HouseholdRole, type ListRef, type PartState } from '../../core/household/household';
 import { displayName } from '../../data/storage/preferences';
 import { supabase } from '../../data/sync/supabase';
 import { isAdded } from '../family/added';
@@ -75,9 +75,10 @@ export function householdActor(app: HouseholdApp): { id?: string; name: string }
 // ---------- Where this device stands with each part ----------
 
 let states: Partial<Record<HouseholdApp, PartState>> = {};
-export type HouseholdRole = 'owner' | 'admin' | 'member';
-type RoleState = { householdId?: string; ownerId?: string; admins: string[]; userId?: string; loaded: boolean; fetchedAt?: number };
-let roleState: RoleState = { admins: [], loaded: false };
+export type { HouseholdRole };
+type RoleState = { householdId?: string; ownerId?: string; admins: string[]; children: string[]; access: Partial<Record<string, ChildLevel>>; userId?: string; loaded: boolean; fetchedAt?: number };
+const emptyRoles = (): RoleState => ({ admins: [], children: [], access: {}, loaded: false });
+let roleState: RoleState = emptyRoles();
 let statesVersion = 0;
 const stateListeners = new Set<() => void>();
 const setStates = (next: Partial<Record<HouseholdApp, PartState>>) => {
@@ -86,8 +87,19 @@ const setStates = (next: Partial<Record<HouseholdApp, PartState>>) => {
   for (const listener of stateListeners) listener();
 };
 
+/** A child's device follows the level for each household list; anyone else has no limits. */
+function publishLimits(): void {
+  const list = household();
+  const next: Record<string, ChildLevel> = {};
+  if (list && roleState.loaded && roleState.userId && roleState.children.includes(roleState.userId)) {
+    for (const part of partsOf(households.sharedItems(list))) next[part.list.id] = childLevelOf(roleState.access, part.app);
+  }
+  setChildLimits(next);
+}
+
 const setRoleState = (next: RoleState) => {
   roleState = next;
+  publishLimits();
   statesVersion += 1;
   for (const listener of stateListeners) listener();
 };
@@ -96,32 +108,36 @@ async function refreshRoleState(householdId: string, userId?: string): Promise<v
   if (roleState.householdId === householdId && roleState.userId === userId && Date.now() - (roleState.fetchedAt ?? 0) < 15_000) return;
   try {
     const client = await supabase();
-    const [{ data: householdRow, error: householdError }, { data: adminRows, error: rolesError }] = await Promise.all([
+    const [{ data: householdRow, error: householdError }, { data: roleRows, error: rolesError }, { data: accessRows }] = await Promise.all([
       client.from('shared_lists').select('created_by').eq('id', householdId).maybeSingle(),
-      client.from('household_member_roles').select('user_id').eq('household_id', householdId),
+      client.from('household_member_roles').select('user_id, role').eq('household_id', householdId),
+      // Without the child migration this fails quietly: nobody is a child and nothing is limited.
+      client.from('household_part_access').select('app, child_level').eq('household_id', householdId),
     ]);
     if (userId && !(await stillSignedInAs(userId))) return;
     if (householdError || !householdRow) {
-      setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+      setRoleState({ ...emptyRoles(), householdId, userId, fetchedAt: Date.now() });
       return;
     }
     const ownerId = (householdRow as { created_by: string }).created_by;
     if (rolesError) {
       // Even if the role migration is not installed yet, we can still identify the owner and prevent an orphaned home.
-      setRoleState({ householdId, ownerId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+      setRoleState({ ...emptyRoles(), householdId, ownerId, userId, fetchedAt: Date.now() });
       return;
     }
     setRoleState({
       householdId,
       ownerId,
-      admins: ((adminRows ?? []) as { user_id: string }[]).map((row) => row.user_id),
+      admins: ((roleRows ?? []) as { user_id: string; role: string }[]).filter((row) => row.role === 'admin').map((row) => row.user_id),
+      children: ((roleRows ?? []) as { user_id: string; role: string }[]).filter((row) => row.role === 'child').map((row) => row.user_id),
+      access: Object.fromEntries(((accessRows ?? []) as { app: string; child_level: ChildLevel }[]).map((row) => [row.app, row.child_level])),
       userId,
       loaded: true,
       fetchedAt: Date.now(),
     });
   } catch {
     if (userId && !(await stillSignedInAs(userId))) return;
-    setRoleState({ householdId, admins: [], userId, loaded: false, fetchedAt: Date.now() });
+    setRoleState({ ...emptyRoles(), householdId, userId, fetchedAt: Date.now() });
   }
 }
 
@@ -212,7 +228,7 @@ export async function syncHousehold(): Promise<void> {
   const list = household();
   if (!list) {
     setStates({});
-    setRoleState({ admins: [], loaded: false });
+    setRoleState(emptyRoles());
     return;
   }
 
@@ -231,7 +247,7 @@ export async function syncHousehold(): Promise<void> {
       await refreshLinkedParts(partsOf(previousItems), user.id);
       if (await stillSignedInAs(user.id)) {
         setStates({});
-        setRoleState({ admins: [], loaded: false });
+        setRoleState(emptyRoles());
       }
       return;
     }
@@ -261,8 +277,10 @@ export async function syncHousehold(): Promise<void> {
     }
 
     const next: Partial<Record<HouseholdApp, PartState>> = {};
+    const iAmChild = Boolean(roleState.loaded && roleState.children.includes(user.id));
     for (const part of currentParts) {
       if (!offered(part.app)) continue;
+      if (iAmChild && childLevelOf(roleState.access, part.app) === 'none') continue;
       if (!(await stillSignedInAs(user.id))) return;
       const single = HOUSEHOLD_APPS.find((each) => each.app === part.app)?.single ?? true;
       try {
@@ -358,17 +376,17 @@ export async function restorePart(item: HouseholdItem): Promise<void> {
   await households.refreshList(list);
 }
 
-/** Only the household owner can promote or demote administrators. */
-export async function setMemberRole(targetUserId: string, role: 'admin' | 'member'): Promise<void> {
+/** The owner sets any role; a parent can make a member a child or a child a member. Parent is stored as `admin`. */
+export async function setMemberRole(targetUserId: string, role: 'parent' | 'member' | 'child'): Promise<void> {
   const list = household();
   if (!list) throw new Error('There is no household to manage.');
   const { data, error } = await (await supabase()).rpc('set_household_member_role', {
     household: list.id,
     target_user: targetUserId,
-    new_role: role,
+    new_role: role === 'parent' ? 'admin' : role,
   });
   if (error) {
-    if (/household_member_roles|set_household_member_role|schema cache|function .* does not exist/i.test(error.message)) {
+    if (/household_member_roles|set_household_member_role|schema cache|function .* does not exist|check constraint/i.test(error.message)) {
       throw new Error('Family member roles are not set up on the server yet.');
     }
     throw new Error(error.message);
@@ -377,10 +395,24 @@ export async function setMemberRole(targetUserId: string, role: 'admin' | 'membe
   setRoleState({
     ...roleState,
     fetchedAt: Date.now(),
-    admins: role === 'admin'
-      ? [...new Set([...roleState.admins, targetUserId])]
-      : roleState.admins.filter((id) => id !== targetUserId),
+    admins: role === 'parent' ? [...new Set([...roleState.admins, targetUserId])] : roleState.admins.filter((id) => id !== targetUserId),
+    children: role === 'child' ? [...new Set([...roleState.children, targetUserId])] : roleState.children.filter((id) => id !== targetUserId),
   });
+}
+
+/** What children can do in one shared app. Only parents choose. */
+export async function setChildLevel(app: HouseholdApp, level: ChildLevel): Promise<void> {
+  const list = household();
+  if (!list) throw new Error('There is no household to manage.');
+  const { data, error } = await (await supabase()).rpc('set_household_child_level', { household: list.id, app_name: app, new_level: level });
+  if (error) {
+    if (/household_part_access|set_household_child_level|schema cache|function .* does not exist/i.test(error.message)) {
+      throw new Error('Choices for children are not set up on the server yet.');
+    }
+    throw new Error(error.message);
+  }
+  if (data !== true) throw new Error('That choice could not be saved.');
+  setRoleState({ ...roleState, fetchedAt: Date.now(), access: { ...roleState.access, [app]: level } });
 }
 
 /** Transfers household ownership to an existing member. The former owner becomes a regular member. */
@@ -403,6 +435,7 @@ export async function transferHouseholdOwnership(targetUserId: string): Promise<
     ...roleState,
     ownerId: targetUserId,
     admins: roleState.admins.filter((id) => id !== targetUserId && id !== roleState.userId),
+    children: roleState.children.filter((id) => id !== targetUserId && id !== roleState.userId),
     loaded: true,
     fetchedAt: Date.now(),
   });
@@ -430,7 +463,7 @@ export async function deleteHousehold(): Promise<void> {
   await households.leaveList(list);
   await refreshLinkedParts(linkedParts, userId);
   setStates({});
-  setRoleState({ admins: [], loaded: false });
+  setRoleState(emptyRoles());
 }
 
 /** Removes a member on the server, then removes their encrypted profile from the household list. */
@@ -460,6 +493,7 @@ export async function removeHouseholdMember(targetUserId: string): Promise<void>
     ...roleState,
     fetchedAt: Date.now(),
     admins: roleState.admins.filter((id) => id !== targetUserId),
+    children: roleState.children.filter((id) => id !== targetUserId),
   });
 }
 
@@ -497,7 +531,7 @@ export async function leaveHousehold(): Promise<void> {
   await households.leaveList(list);
   if (userId) await refreshLinkedParts(linkedParts, userId);
   setStates({});
-  setRoleState({ admins: [], loaded: false });
+  setRoleState(emptyRoles());
 }
 
 // ---------- For the page ----------
@@ -508,6 +542,9 @@ type HouseholdView = {
   items: HouseholdItem[];
   states: Partial<Record<HouseholdApp, PartState>>;
   roles: Record<string, HouseholdRole>;
+  /** What children can do in each shared app (parents' choice, else the default). */
+  childAccess: Partial<Record<string, ChildLevel>>;
+  isChild: boolean;
   currentUserId?: string;
   currentRole?: HouseholdRole;
   rolesReady: boolean;
@@ -521,15 +558,18 @@ function view(): HouseholdView {
   const list = household();
   const roles: Record<string, HouseholdRole> = {};
   if (roleState.ownerId) roles[roleState.ownerId] = 'owner';
-  for (const id of roleState.admins) roles[id] = 'admin';
+  for (const id of roleState.admins) roles[id] = 'parent';
+  for (const id of roleState.children) roles[id] = 'child';
   const currentRole = roleState.userId ? roles[roleState.userId] ?? 'member' : undefined;
-  const canManageMembers = roleState.loaded && (currentRole === 'owner' || currentRole === 'admin');
+  const canManageMembers = roleState.loaded && (currentRole === 'owner' || currentRole === 'parent');
   const canManageRoles = roleState.loaded && currentRole === 'owner';
   const value = {
     list,
     items: list ? households.sharedItems(list) : [],
     states,
     roles,
+    childAccess: roleState.access,
+    isChild: currentRole === 'child',
     currentUserId: roleState.userId,
     currentRole,
     rolesReady: roleState.loaded,

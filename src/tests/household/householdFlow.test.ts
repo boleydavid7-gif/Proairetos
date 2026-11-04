@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
  * whoever already has it.
  */
 type Row = Record<string, unknown>;
-const tables: Record<string, Row[]> = { shared_lists: [], shared_list_members: [], shared_list_items: [], household_app_shares: [], household_member_roles: [], household_invites: [] };
+const tables: Record<string, Row[]> = { shared_lists: [], shared_list_members: [], shared_list_items: [], household_app_shares: [], household_member_roles: [], household_part_access: [], household_invites: [] };
 let user: string | null = 'user-a';
 
 function query(table: string) {
@@ -116,13 +116,23 @@ const client = {
       if (!tables.shared_list_members.some((row) => row.list_id === householdId && row.user_id === target)) {
         return { data: null, error: { message: 'That person is no longer a member of this household.' } };
       }
-      if (role === 'admin') {
+      if (role === 'admin' || role === 'child') {
         const existing = tables.household_member_roles.find((row) => row.household_id === householdId && row.user_id === target);
-        if (existing) Object.assign(existing, { role: 'admin' });
-        else tables.household_member_roles.push({ household_id: householdId, user_id: target, role: 'admin' });
+        if (existing) Object.assign(existing, { role });
+        else tables.household_member_roles.push({ household_id: householdId, user_id: target, role });
       } else {
         tables.household_member_roles = tables.household_member_roles.filter((row) => row.household_id !== householdId || row.user_id !== target);
       }
+      return { data: true, error: null };
+    }
+    if (name === 'set_household_child_level') {
+      const householdId = String(args.household);
+      const owner = tables.shared_lists.find((row) => row.id === householdId)?.created_by;
+      const isParent = tables.household_member_roles.some((row) => row.household_id === householdId && row.user_id === user && row.role === 'admin');
+      if (owner !== user && !isParent) return { data: null, error: { message: 'Only a parent can choose what children can do.' } };
+      const existing = tables.household_part_access.find((row) => row.household_id === householdId && row.app === args.app_name);
+      if (existing) Object.assign(existing, { child_level: args.new_level });
+      else tables.household_part_access.push({ household_id: householdId, app: args.app_name, child_level: args.new_level });
       return { data: true, error: null };
     }
     if (name === 'remove_household_member') {
@@ -469,6 +479,51 @@ describe('a household', () => {
     expect(household.household()).toBeUndefined();
   });
 
+  it('lets a parent make a child and limits what the child does in a shared list', async () => {
+    const household = await import('../../app/household/household');
+    const { homes } = await import('../../ergon/app/state');
+    const { listPermissions } = await import('../../app/family/sharedLists');
+    user = 'user-a';
+    device('Sam');
+    await household.makeHousehold('Family');
+    await household.shareApp('ergon');
+    const made = household.household()!;
+    const appList = homes.sharedLists()[0]!;
+
+    user = 'user-b';
+    device('Alex');
+    await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await household.households.refreshList(household.household()!);
+    await household.syncHousehold();
+    const mine = homes.sharedLists()[0]!;
+    expect(listPermissions(mine.id)).toEqual({ read: true, write: true, remove: true });
+
+    // Only a parent or the owner sets a child.
+    await expect(household.setMemberRole('user-b', 'child')).rejects.toThrow();
+    user = 'user-a';
+    await household.setMemberRole('user-b', 'child');
+    expect(tables.household_member_roles).toContainEqual(expect.objectContaining({ household_id: made.id, user_id: 'user-b', role: 'child' }));
+
+    // The default for chores is add and tick: a line can be added and changed, not removed.
+    user = 'user-b';
+    await household.syncHousehold();
+    expect(listPermissions(appList.id)).toEqual({ read: true, write: true, remove: false });
+    const line = { id: 'c1', name: 'Dishes' } as never;
+    homes.changeItem(mine, 'c1', line);
+    homes.changeItem(mine, 'c1', null);
+    expect(homes.sharedItems(mine).some((item) => item.id === 'c1')).toBe(true);
+
+    // A child cannot choose levels; the owner can, and a view-only child cannot write at all.
+    await expect(household.setChildLevel('ergon', 'edit')).rejects.toThrow('Only a parent');
+    user = 'user-a';
+    await household.setChildLevel('ergon', 'view');
+    user = 'user-b';
+    await household.syncHousehold();
+    expect(listPermissions(appList.id)).toEqual({ read: true, write: false, remove: false });
+    homes.changeItem(mine, 'c2', { id: 'c2', name: 'Bins' } as never);
+    expect(homes.sharedItems(mine).some((item) => item.id === 'c2')).toBe(false);
+  });
+
   it('enforces owner, administrator and member permissions', async () => {
     const household = await import('../../app/household/household');
     const { homes } = await import('../../ergon/app/state');
@@ -493,12 +548,12 @@ describe('a household', () => {
     expect(homes.sharedLists()).toHaveLength(1);
 
     user = 'user-a';
-    await household.setMemberRole('user-b', 'admin');
-    await household.setMemberRole('user-c', 'admin');
+    await household.setMemberRole('user-b', 'parent');
+    await household.setMemberRole('user-c', 'parent');
     expect(tables.household_member_roles).toContainEqual(expect.objectContaining({ household_id: made.id, user_id: 'user-b', role: 'admin' }));
 
     user = 'user-b';
-    await expect(household.setMemberRole('user-a', 'admin')).rejects.toThrow('Only the household owner');
+    await expect(household.setMemberRole('user-a', 'parent')).rejects.toThrow('Only the household owner');
     await expect(household.removeHouseholdMember('user-a')).rejects.toThrow('owner cannot be removed');
     await expect(household.removeHouseholdMember('user-c')).rejects.toThrow('cannot remove another administrator');
 
@@ -549,7 +604,7 @@ describe('a household', () => {
     expect(tables.household_member_roles.some((item) => item.household_id === made.id && item.user_id === 'user-b')).toBe(false);
 
     user = 'user-a';
-    await expect(household.setMemberRole('user-c', 'admin')).rejects.toThrow('Only the household owner');
+    await expect(household.setMemberRole('user-c', 'parent')).rejects.toThrow('Only the household owner');
     await expect(household.deleteHousehold()).rejects.toThrow('Only the household owner');
     user = 'user-b';
     await expect(household.transferHouseholdOwnership('user-x')).rejects.toThrow('must already be a member');

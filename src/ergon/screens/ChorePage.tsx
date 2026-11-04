@@ -6,7 +6,8 @@ import { useHousehold } from '../../app/household/household';
 import { Segmented } from '../../askesis/app/ui';
 import { parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
-import { addPerson, findChore, myName, newId, peopleFor, putChore, removeChore, settings, useChores } from '../app/state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { addPerson, findChore, useHome, myName, newId, peopleFor, putChore, removeChore, settings, useChores } from '../app/state';
 import { HouseholdWhoChips, WhoChips, done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
 import { useDaysOff } from '../app/daysOff';
@@ -281,6 +282,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
 function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Chore; onEdit: () => void }) {
   const today = toLocalDate(new Date());
   const daysOff = useDaysOff();
+  const can = useListPermissions(useHome()?.id);
   const family = useHousehold();
   const familyMode = family.parts.some((part) => part.app === 'ergon');
   const familyPeople: ChorePerson[] = familyMode
@@ -302,7 +304,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
       <div className="page-top section-head">
         <button type="button" className="back-link" onClick={nav.back}>Back</button>
         <p className="label">Chore</p>
-        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+        {can.write ? <button type="button" className="text-link" onClick={onEdit}>Edit</button> : <span />}
       </div>
 
       <div className="detail-head">
@@ -318,7 +320,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
           <span className="card__eyebrow">{dayText(day, today)}</span>
           {plain && day !== plain && <p className="muted">Moved from {parseLocalDate(plain).toLocaleDateString(undefined, { weekday: 'short' })}, a work day.</p>}
           <div className="button-row">
-            <button type="button" className="button-main" onClick={() => { done(existing, today); nav.back(); }}>Done</button>
+            <button type="button" className="button-main" disabled={!can.write} onClick={() => { done(existing, today); nav.back(); }}>Done</button>
             {day <= today && existing.repeat.kind !== 'once' && (
               <button
                 type="button"
@@ -435,7 +437,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
       )}
 
       <WriteTag path={`/ergon/?open=chore:${existing.id}`} />
-      <button
+      {can.remove && <button
         type="button"
         className="text-link remove-link"
         onClick={() => {
@@ -445,7 +447,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
         }}
       >
         Remove
-      </button>
+      </button>}
     </div>
   );
 }

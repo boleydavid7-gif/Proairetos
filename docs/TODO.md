@@ -186,6 +186,10 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 
 ## Later, by choice
 
+- [ ] Run migration `20261109000000_household_child_role.sql` (Child role and what children can do); until then the Family page says roles are not set up.
+- [ ] Under-13 accounts, parent-controlled (needs consent and age rules by country).
+- [ ] Hide the controls a child cannot use in the other apps' shared screens (Oikonomia, Poreia, Phyton, Therapeia, Proairetos to-dos); the guard already drops their writes.
+
 - [ ] Store stage 2: payment and server checks of added apps (all free for now).
 - [ ] Phone apps (on hold): native projects, native reminders, widgets (`docs/NATIVE.md`).
 

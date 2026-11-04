@@ -12,6 +12,7 @@ import { convertAmountText } from '../core/ingredients';
 import { loadSettings } from '../data/store';
 import { changeItem, createList, joinList, leaveList, refreshList, sharedItems, sharedLists, sharedVersion, subscribeShared } from '../data/sharedLists';
 import { Sym } from '../../lamplight/icons';
+import { useListPermissions } from '../../app/family/sharedLists';
 
 const INVITE = 'somaShared.invite';
 
@@ -145,6 +146,7 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
   useSyncExternalStore(subscribeShared, sharedVersion);
   const settings = useSettings();
   const undo = useUndo();
+  const can = useListPermissions(list.id);
   const [adding, setAdding] = useState('');
   const [error, setError] = useState('');
   const [leaving, setLeaving] = useState(false);
@@ -209,6 +211,7 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
 
   return (
     <>
+      {can.write && (
       <form
         className="add-row"
         onSubmit={(event) => {
@@ -223,7 +226,8 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
           Add
         </button>
       </form>
-      {mine.length > 0 && (
+      )}
+      {can.write && mine.length > 0 && (
         <button type="button" className="button-quiet" onClick={() => add(mine.map((item) => ({ line: [item.amounts.join(' + '), item.name].filter(Boolean).join(' ') })))}>
           Add my list ({mine.length}) to it
         </button>
@@ -236,7 +240,7 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
             <div className="aisle__head"><span>{aisle}</span></div>
             <ul className="check-list">
               {group.map((item) => (
-                <SharedRow key={item.id} item={item} units={settings.units} onToggle={() => toggle(item)} onRemove={() => remove(item)} />
+                <SharedRow key={item.id} item={item} units={settings.units} canTick={can.write} canRemove={can.remove} onToggle={() => toggle(item)} onRemove={() => remove(item)} />
               ))}
             </ul>
           </section>
@@ -247,10 +251,10 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
           <div className="aisle__head"><span>Ticked</span></div>
           <ul className="check-list">
             {items.filter((item) => item.checked).map((item) => (
-              <SharedRow key={item.id} item={item} units={settings.units} onToggle={() => toggle(item)} onRemove={() => remove(item)} />
+              <SharedRow key={item.id} item={item} units={settings.units} canTick={can.write} canRemove={can.remove} onToggle={() => toggle(item)} onRemove={() => remove(item)} />
             ))}
           </ul>
-          <button type="button" className="button-quiet" onClick={clearTicked}>Clear ticked</button>
+          {can.remove && <button type="button" className="button-quiet" onClick={clearTicked}>Clear ticked</button>}
         </section>
       )}
       {error && <p className="hint" role="status">{error}</p>}
@@ -284,10 +288,10 @@ function OneList({ list, personal, onLeft }: { list: SharedList; personal: Groce
   );
 }
 
-function SharedRow({ item, units, onToggle, onRemove }: { item: SharedGrocery; units: Parameters<typeof convertAmountText>[2]; onToggle: () => void; onRemove: () => void }) {
+function SharedRow({ item, units, canTick, canRemove, onToggle, onRemove }: { item: SharedGrocery; units: Parameters<typeof convertAmountText>[2]; canTick: boolean; canRemove: boolean; onToggle: () => void; onRemove: () => void }) {
   return (
     <li className="grocery-row">
-      <button type="button" className="check-row" aria-pressed={item.checked} onClick={onToggle}>
+      <button type="button" className="check-row" aria-pressed={item.checked} disabled={!canTick} onClick={onToggle}>
         <span className="check-row__box">{item.checked ? <Sym name="check" size={16} /> : null}</span>
         <span className="check-row__text">
           {item.name}
@@ -295,7 +299,7 @@ function SharedRow({ item, units, onToggle, onRemove }: { item: SharedGrocery; u
           {item.amounts.length > 0 && <span className="check-row__amount">{item.amounts.map((amount) => convertAmountText(amount, item.name, units)).join(' + ')}</span>}
         </span>
       </button>
-      <button type="button" className="grocery-row__more" aria-label={`Remove ${item.name}`} onClick={onRemove}><Sym name="close" /></button>
+      {canRemove && <button type="button" className="grocery-row__more" aria-label={`Remove ${item.name}`} onClick={onRemove}><Sym name="close" /></button>}
     </li>
   );
 }

@@ -6,6 +6,7 @@ import { syncStatus } from '../../app/sync/syncController';
 import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
 import { homes, ownChores, sharingAvailable, useChores, useHome } from '../app/state';
+import { ROLE_NAMES } from '../../core/household/household';
 import { nextDay } from '../core/chores';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 
@@ -179,7 +180,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
               <li key={member.id} className="row row--aside">
                 <span className="row__text">
                   <span>{member.name}{member.userId === family.currentUserId ? ' (you)' : ''}</span>
-                  <span className="row__detail">{member.role === 'owner' ? 'Owner' : member.role === 'admin' ? 'Administrator' : 'Member'}</span>
+                  <span className="row__detail">{ROLE_NAMES[member.role]}</span>
                 </span>
                 <span className="muted">{member.assigned} open{member.estimatedMinutes > 0 ? ` · ${member.estimatedMinutes} min` : ''} · {member.completed} done</span>
               </li>

@@ -10,6 +10,7 @@ import {
   leaveHousehold,
   makeHousehold,
   removeHouseholdMember,
+  setChildLevel,
   setMemberRole,
   pendingHouseholdInvite,
   restorePart,
@@ -19,7 +20,7 @@ import {
   transferHouseholdOwnership,
   useHousehold,
 } from '../../app/household/household';
-import { HOUSEHOLD_APPS, householdLink, memberId, type HouseholdApp } from '../../core/household/household';
+import { CHILD_LEVELS, HOUSEHOLD_APPS, ROLE_NAMES, childLevelOf, householdLink, memberId, type HouseholdApp } from '../../core/household/household';
 import { inviteByEmail, refreshInvites, removeInvite, useInvites } from '../../app/household/invites';
 
 const problem = (cause: unknown) => (cause instanceof Error ? cause.message : 'That didn’t go through. Try again.');
@@ -34,7 +35,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const { offerUndo } = useOverlays();
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const added = useAddedApps();
-  const { list, parts, members, states, roles, currentUserId, currentRole, rolesReady, canManageMembers, canManageRoles } = useHousehold();
+  const { list, parts, members, states, roles, childAccess, currentUserId, currentRole, rolesReady, canManageMembers, canManageRoles } = useHousehold();
   const [invite, setInvite] = useState(pendingHouseholdInvite);
   const [name, setName] = useState('Home');
   const [busy, setBusy] = useState<string | null>(null);
@@ -198,7 +199,8 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                 const userId = member.id.slice('member:'.length);
                 const role = roles[userId] ?? 'member';
                 const isSelf = userId === currentUserId;
-                const canRemove = canManageMembers && !isSelf && (role !== 'admin' || canManageRoles);
+                const canRemove = canManageMembers && !isSelf && (role !== 'parent' || canManageRoles);
+                const canSetRole = rolesReady && !isSelf && role !== 'owner' && (canManageRoles || (canManageMembers && role !== 'parent'));
                 return (
                   <li key={member.id} className="household__member">
                     <span className="household__avatar" aria-hidden="true">{member.name.trim().charAt(0).toUpperCase() || '?'}</span>
@@ -206,18 +208,23 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                       <span className="household__member-name">{member.name}{isSelf ? ' · You' : ''}</span>
                       {member.email && <span className="household__email">{member.email}</span>}
                     </span>
-                    <span className={`household__role household__role--${role}`}>{rolesReady ? role : '…'}</span>
-                    {(canManageRoles && !isSelf) || canRemove ? (
+                    <span className={`household__role household__role--${role}`}>{rolesReady ? ROLE_NAMES[role] : '…'}</span>
+                    {canSetRole || canRemove ? (
                       <div className="household__member-actions">
-                        {canManageRoles && !isSelf && (
-                          <button
-                            type="button"
-                            className="text-link"
-                            disabled={busy !== null}
-                            onClick={() => void run(`role:${userId}`, () => setMemberRole(userId, role === 'admin' ? 'member' : 'admin'))}
-                          >
-                            {role === 'admin' ? 'Remove admin' : 'Make admin'}
-                          </button>
+                        {canSetRole && (
+                          <label className="household__role-pick">
+                            <span className="visually-hidden">Role of {member.name}</span>
+                            <select
+                              className="input"
+                              value={role}
+                              disabled={busy !== null}
+                              onChange={(event) => void run(`role:${userId}`, () => setMemberRole(userId, event.target.value as 'parent' | 'member' | 'child'))}
+                            >
+                              {canManageRoles && <option value="parent">Parent</option>}
+                              <option value="member">Member</option>
+                              <option value="child">Child</option>
+                            </select>
+                          </label>
                         )}
                         {canRemove && (
                           <button
@@ -354,6 +361,27 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
             );
           })}
         </div>
+        {canManageMembers && rolesReady && members.some((member) => roles[member.id.slice('member:'.length)] === 'child') && parts.length > 0 && (
+          <>
+            <h2 className="settings-group__label">What children can do</h2>
+            <div className="settings-card settings-card--rows">
+              {shown.filter(({ app }) => parts.some((part) => part.app === app)).map(({ app, name: label }) => (
+                <label key={app} className="field household__level">
+                  <span className="field__label">{label}</span>
+                  <select
+                    className="input"
+                    value={childLevelOf(childAccess, app)}
+                    disabled={busy !== null}
+                    onChange={(event) => void run(`level:${app}`, () => setChildLevel(app, event.target.value as never))}
+                  >
+                    {CHILD_LEVELS.map((each) => <option key={each.level} value={each.level}>{each.label}</option>)}
+                  </select>
+                </label>
+              ))}
+            </div>
+            <p className="hint">Children are 13 and over. Shared lists are sealed, so devices follow these choices; they guard against mistakes, not against someone changing the app.</p>
+          </>
+        )}
         <section className="settings-card household__sharing-note">
           <strong>What stays private</strong>
           <p>Only enabled lists are shared. Personal tasks, calendar, reflections, Compass, finances and health records stay private.</p>

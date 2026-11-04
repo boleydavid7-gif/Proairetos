@@ -6,7 +6,8 @@ import SwipeItem from '../../app/family/SwipeItem';
 import { Sym } from '../../lamplight/icons';
 import type { SharedTodo } from '../../core/together/sharedTodos';
 import { choreAssignee, dayText, markDone, nextDay, repeatText, shownDay, type Chore, type ChorePerson, type DaysOff } from '../core/chores';
-import { addPerson, myName, putChore } from './state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { addPerson, myName, putChore, useHome } from './state';
 
 export function done(chore: Chore, today: string): void {
   tap();
@@ -29,9 +30,10 @@ export function HouseholdWhoChips({ people, value, onChange, meId, label = 'Who'
 
 export function ChoreRow({ chore, today, onOpen, room = true, daysOff, people = [] }: { chore: Chore; today: string; onOpen: () => void; room?: boolean; daysOff?: DaysOff; people?: readonly ChorePerson[] }) {
   const day = nextDay(chore, daysOff);
+  const can = useListPermissions(useHome()?.id);
   return (
-    <SwipeItem className="chore" label="Done" onSwipe={() => done(chore, today)}>
-      <button type="button" className="tick" aria-label={`${chore.name}: done`} onClick={() => done(chore, today)}>
+    <SwipeItem className="chore" label="Done" off={!can.write} onSwipe={() => done(chore, today)}>
+      <button type="button" className="tick" aria-label={`${chore.name}: done`} disabled={!can.write} onClick={() => done(chore, today)}>
         <CheckIcon size={20} />
       </button>
       <button type="button" className="chore__open" onClick={onOpen}>
@@ -54,27 +56,27 @@ export function ChoreList({ chores, today, onOpen, room = true, daysOff, people 
   );
 }
 
-export function TodoRow({ todo, onToggle, onRemove }: { todo: SharedTodo; onToggle: () => void; onRemove: () => void }) {
+export function TodoRow({ todo, onToggle, onRemove, canTick = true, canRemove = true }: { todo: SharedTodo; onToggle: () => void; onRemove: () => void; canTick?: boolean; canRemove?: boolean }) {
   const done = Boolean(todo.doneAt);
   const who = done ? todo.doneBy : todo.by;
   return (
     <li className={`chore todo${done ? ' todo--done' : ''}`}>
-      <button type="button" role="checkbox" aria-checked={done} aria-pressed={done} className="tick" aria-label={`${todo.title}: ${done ? 'not done' : 'done'}`} onClick={onToggle}>
+      <button type="button" role="checkbox" aria-checked={done} aria-pressed={done} className="tick" aria-label={`${todo.title}: ${done ? 'not done' : 'done'}`} disabled={!canTick} onClick={onToggle}>
         {done && <CheckIcon size={20} />}
       </button>
       <span className="chore__open todo__open">
         <span>{todo.title}</span>
         {who && <small>{done ? `Done by ${who}` : `Added by ${who}`}</small>}
       </span>
-      <button type="button" className="todo__remove" aria-label={`Remove ${todo.title}`} onClick={onRemove}><Sym name="close" /></button>
+      {canRemove && <button type="button" className="todo__remove" aria-label={`Remove ${todo.title}`} onClick={onRemove}><Sym name="close" /></button>}
     </li>
   );
 }
 
-export function TodoList({ todos, onToggle, onRemove }: { todos: readonly SharedTodo[]; onToggle: (todo: SharedTodo) => void; onRemove: (todo: SharedTodo) => void }) {
+export function TodoList({ todos, onToggle, onRemove, canTick = true, canRemove = true }: { todos: readonly SharedTodo[]; onToggle: (todo: SharedTodo) => void; onRemove: (todo: SharedTodo) => void; canTick?: boolean; canRemove?: boolean }) {
   return (
     <ul className="chore-list">
-      {todos.map((todo) => <TodoRow key={todo.id} todo={todo} onToggle={() => onToggle(todo)} onRemove={() => onRemove(todo)} />)}
+      {todos.map((todo) => <TodoRow key={todo.id} todo={todo} canTick={canTick} canRemove={canRemove} onToggle={() => onToggle(todo)} onRemove={() => onRemove(todo)} />)}
     </ul>
   );
 }
