@@ -14,6 +14,8 @@ import {
   createSupabaseFileStore,
   createSupabaseRemoteStore,
   currentUser,
+  listAccountDevices,
+  revokeAccountDevice,
   registerAccountDevice,
   supabase,
   deleteCalendarFeed,
@@ -485,6 +487,8 @@ export async function startSync(): Promise<void> {
   });
   window.addEventListener('online', () => void syncNow());
 }
+
+export { listAccountDevices, revokeAccountDevice };
 
 export const syncStatus = {
   subscribe: listeners.subscribe,
