@@ -266,8 +266,8 @@ function EntryView({ nav, entry, onEdit }: { nav: Nav; entry: LogEntry; onEdit: 
   const tiles = [
     entry.meters ? ['Distance', formatDistance(entry.meters, unit)] : undefined,
     entry.seconds ? ['Time', formatDuration(entry.seconds)] : undefined,
-    pace ? ['Pace', formatPace(pace, unit)] : undefined,
-    entry.avgHr ? ['Heart rate', `${entry.avgHr} bpm`] : undefined,
+    pace ? ['Average pace', formatPace(pace, unit)] : undefined,
+    entry.avgHr ? ['Average heart rate', `${entry.avgHr} bpm`] : undefined,
   ].filter((tile): tile is string[] => Boolean(tile));
   const remove = async () => {
     await deleteEntry(entry.id);
@@ -283,20 +283,29 @@ function EntryView({ nav, entry, onEdit }: { nav: Nav; entry: LogEntry; onEdit: 
       </div>
       <p className="label">{new Date(`${entry.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
       <h1 className="title">{entry.workoutTitle ?? activities[entry.activity]}</h1>
-      {entry.workoutTitle && <p className="muted">{activities[entry.activity]}</p>}
-      {shoe && <p className="muted">Shoes: {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}</p>}
+      <div className="entry-view__context">
+        <span className="muted">{activities[entry.activity]}</span>
+        {entry.workoutTitle && <span className="card__eyebrow">Planned session</span>}
+        {shoe && <span className="muted">Shoes: {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}</span>}
+      </div>
       {tiles.length > 0 && (
-        <div className="tiles">
-          {tiles.map(([label, value]) => (
-            <div key={label} className="tile">
-              <span className="tile__label">{label}</span>
-              <span className="tile__value">{value}</span>
-            </div>
-          ))}
-        </div>
+        <section className="entry-view__metrics" aria-label="Workout measurements">
+          <span className="card__eyebrow">Workout summary</span>
+          <div className="tiles">
+            {tiles.map(([label, value]) => (
+              <div key={label} className="tile">
+                <span className="tile__label">{label}</span>
+                <span className="tile__value">{value}</span>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
       {entry.felt && (
-        <p className="entry-view__felt"><FeltFace felt={entry.felt} size={26} /> {feelings[entry.felt]}</p>
+        <section className="entry-view__effort" aria-label="How the workout felt">
+          <span className="card__eyebrow">How it felt</span>
+          <p className="entry-view__felt"><FeltFace felt={entry.felt} size={26} /> {feelings[entry.felt]}</p>
+        </section>
       )}
       {(entry.notes || entry.wentWell || entry.nextTime || entry.intention) && (
         <section className="card entry-view__words">
