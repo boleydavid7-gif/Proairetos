@@ -124,11 +124,16 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     // GPS in a web page stops when the screen locks, so it keeps the screen on too.
     if (!running || !(settings.keepAwake || settings.gps)) return;
     const wakeLock = (navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } }).wakeLock;
+    let live = true;
     void wakeLock
       ?.request('screen')
-      .then((held) => (lock.current = held))
+      .then((held) => {
+        if (live) lock.current = held;
+        else void held.release().catch(() => undefined);
+      })
       .catch(() => undefined);
     return () => {
+      live = false;
       void lock.current?.release().catch(() => undefined);
       lock.current = null;
     };
@@ -146,21 +151,26 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     }
     setGpsStatus('waiting');
     let live = true;
-    const watch = navigator.geolocation.watchPosition(
-      (position) => {
-        if (!live) return;
-        setGpsStatus('recording');
-        setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy }));
-      },
-      (error) => {
-        if (!live) return;
-        setGpsStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable');
-      },
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
-    );
+    let watch: number | undefined;
+    try {
+      watch = navigator.geolocation.watchPosition(
+        (position) => {
+          if (!live) return;
+          setGpsStatus('recording');
+          setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy }));
+        },
+        (error) => {
+          if (!live) return;
+          setGpsStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable');
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
+      );
+    } catch {
+      setGpsStatus('unavailable');
+    }
     return () => {
       live = false;
-      navigator.geolocation.clearWatch(watch);
+      if (watch !== undefined) navigator.geolocation.clearWatch(watch);
       setTrack(paused);
     };
   }, [running, settings.gps]);
