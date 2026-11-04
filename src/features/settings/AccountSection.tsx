@@ -36,6 +36,7 @@ import {
   passkeysAvailable,
   prepareKeysForPasskey,
   setupRecoveryKey,
+  isAccountPasswordSetupPending,
 } from '../../app/sync/syncController';
 import { Waiting } from '../../lamplight/Waiting';
 
@@ -70,7 +71,7 @@ function SignIn() {
     <form className="stack-tight" onSubmit={(event: FormEvent) => {
       event.preventDefault();
       void run(async () => {
-        await confirmCode(email, code);
+        await confirmCode(email, code, mode === 'create');
         // Legacy accounts were created with an email code plus an encryption
         // passphrase, not a Supabase password. Let them establish the account
         // password without creating a second account.
@@ -900,8 +901,8 @@ export default function AccountSection() {
 
   return (
     <section className="settings-card" aria-label="Account and sync">
-      {status.phase === 'signed-out' && <SignIn />}
-      {status.phase === 'needs-setup' && <SetUp />}
+      {(status.phase === 'signed-out' || isAccountPasswordSetupPending()) && <SignIn />}
+      {status.phase === 'needs-setup' && !isAccountPasswordSetupPending() && <SetUp />}
       {status.phase === 'locked' && <Unlock />}
       {status.phase === 'ready' && <Ready />}
     </section>
