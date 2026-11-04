@@ -142,7 +142,7 @@ export type PasskeyKeySetup = {
   dataKey: CryptoKey;
   /** Memory only, until the passkey has wrapped it. */
   exportable: CryptoKey;
-  passphraseWrap: WrappedKey;
+  passphraseWrap: WrappedKey | null;
   recoveryWrap: WrappedKey;
   recoveryKey: string;
 };
