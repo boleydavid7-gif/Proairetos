@@ -435,8 +435,13 @@ export async function removeHouseholdMember(targetUserId: string): Promise<void>
     throw new Error(error.message);
   }
   if (data !== true) throw new Error('The member could not be removed.');
-  households.changeItem(list, memberId(targetUserId), null);
+  // The server removes the encrypted member-profile row in the same transaction as membership.
+  // Refresh the household index from that authoritative copy; do not enqueue a client-side tombstone
+  // that could race with the server-side removal or be left pending offline.
   await households.refreshList(list);
+  if (membersOf(households.sharedItems(list)).some((member) => member.id === memberId(targetUserId))) {
+    throw new Error('The person no longer has household access, but their profile is still listed. Refresh the household and try again.');
+  }
   setRoleState({
     ...roleState,
     fetchedAt: Date.now(),
