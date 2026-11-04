@@ -136,7 +136,9 @@ describe('notices', () => {
       chore({ id: 'c', name: 'Wipe the counters', start: '2026-10-12' }),
     ];
     const notices = choreNotices(list, { ...defaultChoreNotices, onlyMine: true }, 'New name', '2026-10-10', 14, undefined, 'user-a');
-    expect(notices.map((n) => n.title)).toEqual(['Take out the trash', 'Wipe the counters']);
+    expect(notices).toHaveLength(1);
+    expect(notices[0].title).toBe('2 chores');
+    expect(notices[0].body).toBe('Take out the trash, Wipe the counters');
   });
 });
 
