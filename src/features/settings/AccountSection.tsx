@@ -13,6 +13,7 @@ import {
   signInWithEmailPassword,
   saveAccountPassword,
   hasAccountPasswordForKeySetup,
+  unlockWithAccountPassword,
   requestPasswordReset,
   confirmEncryption,
   prepareEncryption,
@@ -296,6 +297,8 @@ function Unlock() {
   // With a passkey that opens the data, it is the way in; the passphrase or recovery key is one link away.
   const opening = useOpeningPasskeys();
   const [typing, setTyping] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   if (opening === undefined || withPassphrase === undefined) return null;
   const recovery = method === 'recovery' || !withPassphrase;
   // A forgotten passphrase is replaced; an account without one simply opens.
@@ -331,6 +334,17 @@ function Unlock() {
         }
       }}
     >
+      {hasAccountPasswordForKeySetup() && (
+        <button type="button" className="button-accent account-wide" disabled={passwordBusy} onClick={async () => {
+          setPasswordBusy(true); setPasswordError('');
+          try { await unlockWithAccountPassword(); }
+          catch (cause) { setPasswordError(message(cause)); }
+          finally { setPasswordBusy(false); }
+        }}>
+          {passwordBusy ? 'Unlocking…' : 'Unlock with account password'}
+        </button>
+      )}
+      {passwordError && <p className="form-error" role="alert">{passwordError}</p>}
       <input
         type={recovery ? 'text' : 'password'}
         className="field-input"
