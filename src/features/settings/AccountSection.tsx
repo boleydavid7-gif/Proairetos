@@ -105,6 +105,9 @@ function SignIn() {
             // the existing passphrase/recovery key as a one-time migration.
           }
         }
+        setPassword('');
+        setAgain('');
+        setStage('choice');
       });
     }}>
       <p className="section-description">
