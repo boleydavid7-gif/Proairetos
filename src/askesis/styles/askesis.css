@@ -3423,3 +3423,37 @@ html[data-nav='back']::view-transition-new(root) {
 .home-main:empty {
   display: none;
 }
+
+
+/* Recover an interrupted guided workout without losing the page beneath it. */
+.session-recovery {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, #07111d 62%, transparent);
+}
+.session-recovery__panel {
+  width: min(100%, 28rem);
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface, #17232d);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+}
+.session-recovery__panel .card__title,
+.session-recovery__panel p {
+  margin: 0;
+}
+.session-recovery__actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 4px;
+}
+.session-recovery__actions button {
+  width: 100%;
+}

@@ -18,6 +18,7 @@ import { saveSettings } from '../data/store';
 import { locate } from './WorkoutPage';
 import { addFix, paused, type Track } from '../core/track';
 import { formatDistance } from '../core/pace';
+import { clearSessionRecovery, pauseRecoveredSession, readSessionRecovery, saveSessionRecovery } from '../core/sessionRecovery';
 
 const clock = (seconds: number) => {
   const whole = Math.max(0, Math.ceil(seconds));
@@ -80,15 +81,22 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
   const [pocket, setPocket] = useState(false);
   const held = useRef(false);
 
-  const [startedAt, setStartedAt] = useState<number>();
-  const [pausedAt, setPausedAt] = useState<number>();
-  const [pausedFor, setPausedFor] = useState(0);
+  const [recovery] = useState(() => {
+    const saved = readSessionRecovery();
+    return saved?.workoutId === id ? pauseRecoveredSession(saved) : undefined;
+  });
+  const [startedAt, setStartedAt] = useState<number | undefined>(() => recovery?.startedAt);
+  const [pausedAt, setPausedAt] = useState<number | undefined>(() => recovery?.pausedAt);
+  const [pausedFor, setPausedFor] = useState(() => recovery?.pausedFor ?? 0);
   const [now, setNow] = useState(Date.now());
-  const [finished, setFinished] = useState(false);
+  const [finished, setFinished] = useState(() => recovery?.finished ?? false);
+  const [recoveredPause, setRecoveredPause] = useState(Boolean(recovery));
   const spokenIndex = useRef(-1);
   const minuteWarned = useRef(-1);
   const lock = useRef<{ release(): Promise<void> } | null>(null);
-  const [track, setTrack] = useState<Track>({ meters: 0 });
+  const [track, setTrack] = useState<Track>(() => ({ meters: recovery?.meters ?? 0 }));
+  const [gpsStatus, setGpsStatus] = useState<'off' | 'waiting' | 'recording' | 'unavailable' | 'denied'>('off');
+  const [screenVisible, setScreenVisible] = useState(true);
 
   const running = startedAt !== undefined && pausedAt === undefined && !finished;
   const elapsed = startedAt === undefined ? 0 : ((pausedAt ?? now) - startedAt - pausedFor) / 1000;
@@ -122,11 +130,16 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     // GPS in a web page stops when the screen locks, so it keeps the screen on too.
     if (!running || !(settings.keepAwake || settings.gps)) return;
     const wakeLock = (navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } }).wakeLock;
+    let live = true;
     void wakeLock
       ?.request('screen')
-      .then((held) => (lock.current = held))
+      .then((held) => {
+        if (live) lock.current = held;
+        else void held.release().catch(() => undefined);
+      })
       .catch(() => undefined);
     return () => {
+      live = false;
       void lock.current?.release().catch(() => undefined);
       lock.current = null;
     };
@@ -134,17 +147,47 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
 
   // Distance from the phone's location, while running; a pause starts afresh from the next point.
   useEffect(() => {
-    if (!running || !settings.gps || !navigator.geolocation) return;
-    const watch = navigator.geolocation.watchPosition(
-      (position) => setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy })),
-      () => undefined,
-      { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
-    );
+    if (!running || !settings.gps) {
+      setGpsStatus('off');
+      return;
+    }
+    if (!navigator.geolocation) {
+      setGpsStatus('unavailable');
+      return;
+    }
+    setGpsStatus('waiting');
+    let live = true;
+    let watch: number | undefined;
+    try {
+      watch = navigator.geolocation.watchPosition(
+        (position) => {
+          if (!live) return;
+          setGpsStatus('recording');
+          setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy }));
+        },
+        (error) => {
+          if (!live) return;
+          setGpsStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable');
+        },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
+      );
+    } catch {
+      setGpsStatus('unavailable');
+    }
     return () => {
-      navigator.geolocation.clearWatch(watch);
+      live = false;
+      if (watch !== undefined) navigator.geolocation.clearWatch(watch);
       setTrack(paused);
     };
   }, [running, settings.gps]);
+
+  // Make interruptions visible instead of implying GPS continued while the page was backgrounded.
+  useEffect(() => {
+    const update = () => setScreenVisible(document.visibilityState === 'visible');
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
 
   // Cues: a bell and a few words as each step begins, and a minute's notice on long steps.
   useEffect(() => {
@@ -166,6 +209,25 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       if (settings.voice) say(next ? `One minute left. Then ${efforts[next.effort].say.toLowerCase()}.` : 'One minute left.');
     }
   });
+
+  // Checkpoint the active session on meaningful changes and periodically. No GPS coordinates are stored.
+  useEffect(() => {
+    if (startedAt === undefined) return;
+    const save = () => saveSessionRecovery({
+      version: 1,
+      workoutId: id,
+      startedAt,
+      pausedAt,
+      pausedFor,
+      meters: track.meters,
+      intention,
+      finished,
+      savedAt: Date.now(),
+    });
+    save();
+    const timer = window.setInterval(save, 2_000);
+    return () => window.clearInterval(timer);
+  }, [id, startedAt, pausedAt, pausedFor, track.meters, intention, finished]);
 
   // The bell, ready before Start (and kept on the device for sessions without signal).
   useEffect(() => void buffer(BELL_FILE).catch(() => undefined), []);
@@ -196,6 +258,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     }
     if (settings.bells) void scheduleCues(cues, 0);
     if (settings.music === 'mine') void playSongs(settings.shuffle);
+    clearSessionRecovery();
     setStartedAt(Date.now());
     setNow(Date.now());
   };
@@ -209,11 +272,18 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       const total = pausedFor + (Date.now() - pausedAt);
       setPausedFor(total);
       setPausedAt(undefined);
+      setRecoveredPause(false);
+      if (settings.music === 'other') shareAudio();
+      else if (!held.current) {
+        wakeAudio();
+        held.current = true;
+      }
       if (settings.bells && startedAt !== undefined) void scheduleCues(cues, (Date.now() - startedAt - total) / 1000);
       resumeSongs();
     }
   };
   const end = () => {
+    clearSessionRecovery();
     window.speechSynthesis?.cancel();
     nav.swap({ name: 'entry', workoutId: found.workout.id, seconds: Math.round(elapsed), meters: track.meters >= 50 ? Math.round(track.meters) : undefined, intention });
   };
@@ -237,6 +307,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
         {found.workout.title}
         {startedAt !== undefined && !finished && ` · step ${index + 1} of ${steps.length}`}
       </p>
+      {recoveredPause && pausedAt !== undefined && <p className="hint">Recovered session · paused. Continue when you’re ready.</p>}
 
       {finished ? (
         <div className="guide__done">
@@ -281,6 +352,15 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
                 : 'Last step'}
           </p>
           {intention && <p className="guide__intention">“{intention}”</p>}
+          {startedAt !== undefined && settings.gps && (
+            <p className="hint" role="status">
+              {gpsStatus === 'recording' && screenVisible && 'GPS distance recording'}
+              {gpsStatus === 'waiting' && 'Waiting for GPS signal…'}
+              {gpsStatus === 'unavailable' && 'GPS is unavailable. Time and guided cues will continue; distance may be incomplete.'}
+              {gpsStatus === 'denied' && 'Location access is blocked. Allow location access to record distance.'}
+              {gpsStatus === 'recording' && !screenVisible && 'Askesis is in the background. GPS updates may pause until you return.'}
+            </p>
+          )}
           {startedAt !== undefined && song.name && (
             <div className="guide__music">
               <span className="guide__song">♪ {song.name}</span>

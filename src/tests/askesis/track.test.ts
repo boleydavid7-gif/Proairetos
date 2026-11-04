@@ -21,6 +21,15 @@ describe('distance from the phone while running', () => {
     expect(track.meters).toBeLessThan(225);
   });
 
+  it('ignores invalid and out-of-order fixes without moving the baseline', () => {
+    const first = fix(0, 10);
+    const second = fix(1, 40);
+    const track = addFix(addFix({ meters: 0 }, first), second);
+    const stale = addFix(track, fix(20, 20));
+    expect(stale).toEqual(track);
+    expect(addFix(track, { lat: 999, lon: -0.12, at: 50_000, accuracy: 5 })).toEqual(track);
+  });
+
   it('adds nothing while standing still', () => {
     let track: Track = { meters: 0 };
     for (let second = 0; second < 60; second += 5) track = addFix(track, { lat: 51.5 + (second % 2) * 0.00001, lon: -0.12, at: second * 1000, accuracy: 8 });
