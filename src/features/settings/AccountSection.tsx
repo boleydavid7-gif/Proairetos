@@ -12,6 +12,8 @@ import {
   requestCode,
   signInWithEmailPassword,
   saveAccountPassword,
+  hasAccountPasswordForKeySetup,
+  unlockWithAccountPassword,
   requestPasswordReset,
   confirmEncryption,
   prepareEncryption,
@@ -216,15 +218,21 @@ function SetUp() {
 }
 
 function PassphraseSetUp({ note }: { note: string }) {
+  const accountPasswordReady = hasAccountPasswordForKeySetup();
   const [passphrase, setPassphrase] = useState('');
   const [again, setAgain] = useState('');
   const [setup, setSetup] = useState<KeySetup | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  useEffect(() => {
+    if (accountPasswordReady) void prepareEncryption().then(setSetup).catch((cause) => setError(message(cause)));
+  }, [accountPasswordReady]);
+
   if (setup) {
     return (
       <>
+        {accountPasswordReady && <p className="section-description">Your Proairetos account password will also unlock your encrypted data. Save this recovery key somewhere safe.</p>}
         <RecoveryKey
           value={setup.recoveryKey}
           busy={busy}
@@ -244,6 +252,13 @@ function PassphraseSetUp({ note }: { note: string }) {
     );
   }
 
+  if (accountPasswordReady) {
+    return <div className="stack-tight">
+      <p className="section-description">Preparing your encrypted account keys…</p>
+      {error && <p className="form-error" role="alert">{error}</p>}
+    </div>;
+  }
+
   return (
     <form
       className="stack-tight"
@@ -261,31 +276,9 @@ function PassphraseSetUp({ note }: { note: string }) {
       }}
     >
       {note && <p className="section-description">{note}</p>}
-      <input
-        type="password"
-        className="field-input"
-        autoComplete="new-password"
-        aria-label="Passphrase"
-        placeholder={`Passphrase, at least ${MIN_PASSPHRASE_LENGTH} characters`}
-        value={passphrase}
-        onChange={(event) => setPassphrase(event.target.value)}
-      />
-      <input
-        type="password"
-        className="field-input"
-        autoComplete="new-password"
-        aria-label="Passphrase again"
-        placeholder="Again"
-        value={again}
-        onChange={(event) => setAgain(event.target.value)}
-      />
-      <button
-        type="submit"
-        className="button-accent account-wide"
-        disabled={busy || passphrase.length < MIN_PASSPHRASE_LENGTH || passphrase !== again}
-      >
-        {busy ? 'Making your keys…' : 'Continue'}
-      </button>
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="Passphrase" placeholder={`Passphrase, at least ${MIN_PASSPHRASE_LENGTH} characters`} value={passphrase} onChange={(event) => setPassphrase(event.target.value)} />
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="Passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
+      <button type="submit" className="button-accent account-wide" disabled={busy || passphrase.length < MIN_PASSPHRASE_LENGTH || passphrase !== again}>{busy ? 'Making your keys…' : 'Continue'}</button>
       {passphrase && again && passphrase !== again && <p className="form-error">The passphrases don’t match.</p>}
       {error && <p className="form-error" role="alert">{error}</p>}
     </form>
@@ -304,6 +297,8 @@ function Unlock() {
   // With a passkey that opens the data, it is the way in; the passphrase or recovery key is one link away.
   const opening = useOpeningPasskeys();
   const [typing, setTyping] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   if (opening === undefined || withPassphrase === undefined) return null;
   const recovery = method === 'recovery' || !withPassphrase;
   // A forgotten passphrase is replaced; an account without one simply opens.
@@ -339,6 +334,17 @@ function Unlock() {
         }
       }}
     >
+      {hasAccountPasswordForKeySetup() && (
+        <button type="button" className="button-accent account-wide" disabled={passwordBusy} onClick={async () => {
+          setPasswordBusy(true); setPasswordError('');
+          try { await unlockWithAccountPassword(); }
+          catch (cause) { setPasswordError(message(cause)); }
+          finally { setPasswordBusy(false); }
+        }}>
+          {passwordBusy ? 'Unlocking…' : 'Unlock with account password'}
+        </button>
+      )}
+      {passwordError && <p className="form-error" role="alert">{passwordError}</p>}
       <input
         type={recovery ? 'text' : 'password'}
         className="field-input"
