@@ -44,10 +44,7 @@ import {
   syncConfig,
   verifySignInCode,
   verifySignInLink,
-  leaveHandoff,
-  requestHandoffToken,
   signInWithHandoffToken,
-  takeHandoff,
   beginPasskeySignIn,
   deletePasskey,
   fetchPasskeys,
@@ -58,7 +55,6 @@ import {
   removeServerCopy,
   type PasskeyRow,
 } from '../../data/sync/supabase';
-import { makePass, openKeyFromPass, readPass, sealKeyForPass } from '../../data/sync/handoff';
 import type { SyncStateStore } from '../../data/sync/types';
 import { createListeners } from '../../services/listeners';
 import {
@@ -968,54 +964,6 @@ export async function changePassphrase(secret: string, method: 'passphrase' | 'r
       ? await unlockWithPassphrase(passphraseOf(wrapped), secret, true)
       : await unlockWithRecoveryKey(wrapped.recovery, secret, true);
   await savePassphraseWrap(userId, await rewrapWithPassphrase(key, next));
-}
-
-// ---------- Signing in another app from Proairetos ----------
-
-/** Whether this device can make sign-in passes without asking for the passphrase. */
-export async function handoffReady(): Promise<boolean> {
-  return Boolean(await (await localState())?.getMeta<CryptoKey>(HANDOFF_META));
-}
-
-/** Turns passes on here: the passphrase once, to keep an exportable copy of the key on this device. */
-export async function enableHandoff(accountPassword: string): Promise<void> {
-  const wrapped = await fetchWrappedKeys();
-  if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
-  if (!wrapped.passphrase) throw new KeyError('This account has not yet connected its account password to encrypted data. Complete the password migration first.');
-  const key = await unlockWithPassphrase(wrapped.passphrase, accountPassword, true);
-  await (await localState())!.setMeta(HANDOFF_META, key);
-}
-
-export async function disableHandoff(): Promise<void> {
-  await (await localState())?.setMeta(HANDOFF_META, undefined);
-}
-
-/** A one-time pass for another app: good once, for two minutes. */
-export async function makeSignInPass(): Promise<string> {
-  if (status.phase !== 'ready') throw new Error('Sign in and open your data first.');
-  const key = await (await localState())!.getMeta<CryptoKey>(HANDOFF_META);
-  if (!key) throw new Error('Turn this on first.');
-  const id = crypto.randomUUID();
-  const { sealedKey, wrapKey } = await sealKeyForPass(key, id);
-  await leaveHandoff(id, wrapKey);
-  const tokenHash = await requestHandoffToken();
-  return makePass({ id, tokenHash, sealedKey });
-}
-
-/** Signs in and opens the data here from a pass made in Proairetos. */
-export async function signInWithPass(text: string): Promise<void> {
-  const pass = readPass(text);
-  if (!pass) throw new Error('That is not a pass from Proairetos. In Proairetos: Settings, Account, Sign in another app.');
-  const user = await signInWithHandoffToken(pass.tokenHash);
-  userId = user.id;
-  const wrapKey = await takeHandoff(pass.id);
-  if (!wrapKey) throw new Error('That pass has been used or is too old. Make a new one in Proairetos.');
-  const key = await openKeyFromPass(pass.sealedKey, wrapKey, pass.id);
-  await (await localState())!.setMeta(KEY_META, key);
-  dataKey = key;
-  set({ phase: 'ready', email: user.email });
-  tellFamily('account');
-  await syncNow();
 }
 
 // ---------- Passkeys ----------

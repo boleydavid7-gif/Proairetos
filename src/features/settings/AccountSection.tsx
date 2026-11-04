@@ -1,4 +1,3 @@
-import { SignInAnotherApp } from '../../app/family/SignInPass';
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { MIN_PASSPHRASE_LENGTH as MIN_ACCOUNT_PASSWORD_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { PassphraseRequired, signInProviders, syncConfig } from '../../data/sync/supabase';
@@ -614,7 +613,6 @@ function Ready() {
       {status.error && <p className="form-error" role="alert">{status.error}</p>}
       <PasswordChange />
       <Passkeys />
-      <SignInAnotherApp />
       <DeviceSessions />
 
       <details className="sheet__more account-more">

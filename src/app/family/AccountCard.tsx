@@ -4,7 +4,6 @@ import { storageName } from '../sync/ownStorage';
 import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH as MIN_ACCOUNT_PASSWORD_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
-import { PasteFromProairetos } from './SignInPass';
 import { Waiting } from '../../lamplight/Waiting';
 
 const message = (error: unknown) => (error instanceof Error ? error.message : 'Something went wrong. Try again.');
@@ -117,7 +116,6 @@ function SignIn() {
       </form>
       <details className="account__other">
         <summary>Other ways to sign in</summary>
-        <PasteFromProairetos className="button-quiet" />
         <ProviderButtons className="button-quiet" />
         <button type="button" className="button-quiet" onClick={() => void run(() => requestCode(email))} disabled={!email.includes('@') || busy}>Email me a sign-in code</button>
       </details>
@@ -205,7 +203,6 @@ function Unlock() {
       )}
     </form>
     </div>
-    {!opening.length && <PasteFromProairetos className="button-quiet account__link" />}
     </>
   );
 }
