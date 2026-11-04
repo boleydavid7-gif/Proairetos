@@ -49,6 +49,19 @@ describe('Apple Health export', () => {
     expect(batch.workouts).toEqual([{ id: 'A1B2C3D4-0000-0000-0000-000000000001', type: 'run', date: '2026-10-22', at: '2026-10-23T00:30:00.000Z', seconds: 1920, meters: 4989, avgHr: 148 }]);
   });
 
+  it('does not guess unfamiliar distance units and accepts common explicit units', () => {
+    const workouts = readHealthExport({
+      data: { workouts: [
+        { id: 'unknown-unit', name: 'Outdoor Run', start: '2026-10-22 17:30:00 -0700', duration: 30, distance: { qty: 5, units: 'furlongs' }, avgHeartRate: { qty: 250 } },
+        { id: 'minutes', name: 'Outdoor Run', start: '2026-10-22 18:00:00 -0700', duration: { qty: 30, units: 'minutes' }, distance: { qty: 5, units: 'kilometers' }, avgHeartRate: { qty: 150 } },
+      ] },
+    }).workouts;
+    expect(workouts).toEqual([
+      { id: 'unknown-unit', type: 'run', date: '2026-10-22', at: '2026-10-23T00:30:00.000Z', seconds: 30 },
+      { id: 'minutes', type: 'run', date: '2026-10-22', at: '2026-10-23T01:00:00.000Z', seconds: 1800, meters: 5000, avgHr: 150 },
+    ]);
+  });
+
   it('reads a night by the day woken into', () => {
     expect(batch.sleep).toEqual([{ date: '2026-10-22', bed: '23:12', up: '06:48' }]);
   });
