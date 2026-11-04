@@ -14,7 +14,8 @@ import {
   saveAccountPassword,
   hasAccountPasswordForKeySetup,
   clearAccountPasswordReadyForSetup,
-  isAccountPasswordReadyForSetup,
+  clearAccountAuthPending,
+  isAccountAuthPending,
   unlockWithAccountPassword,
   requestPasswordReset,
   confirmEncryption,
@@ -33,7 +34,6 @@ import {
   finishSetupWithPasskey,
   hasPassphrase,
   makeSetupPasskey,
-  passkeysAvailable,
   prepareKeysForPasskey,
   setupRecoveryKey,
   isAccountPasswordSetupPending,
@@ -146,7 +146,7 @@ function SignIn() {
           }
         });
       }}>
-        <input type="email" className="field-input" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+      <input type="email" className="field-input" autoComplete="username webauthn" inputMode="email" spellCheck={false} aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
         {mode === 'signin' && <input type="password" className="field-input" autoComplete="current-password" aria-label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />}
         <button type="submit" className="button-accent account-wide" disabled={busy || !email.includes('@') || (mode === 'signin' && !password)}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : mode === 'create' ? 'Continue' : 'Send sign-in code'}</button>
       </form>
@@ -185,9 +185,9 @@ function RecoveryKey({ value, busy, onSaved }: { value: string; busy: boolean; o
 
 /** First device: the account password and recovery key protect encrypted data. */
 function SetUp() {
-  const [stage, setStage] = useState<'passkey' | 'continue' | 'recovery' | 'password'>(() =>
-    isAccountPasswordReadyForSetup() && !hasAccountPasswordForKeySetup() ? 'password' : passkeysAvailable() ? 'passkey' : 'password',
-  );
+  // Password is the stable account credential. A passkey remains available from the account page as a faster,
+  // optional sign-in method after the encrypted data has been set up.
+  const [stage, setStage] = useState<'passkey' | 'continue' | 'recovery' | 'password'>('password');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -355,6 +355,18 @@ function Unlock() {
         <button type="button" className="text-link" onClick={() => setTyping(true)}>
           Use account password
         </button>
+        <button
+          type="button"
+          className="text-link"
+          onClick={() => {
+            setTyping(true);
+            setMethod('recovery');
+            setPassword('');
+            setError('');
+          }}
+        >
+          Use recovery key
+        </button>
       </>
     );
   }
@@ -389,15 +401,17 @@ function Unlock() {
       }}
     >
       {status.error && <p className="form-error" role="alert">{status.error}</p>}
-      <input
-        type="password"
-        className="field-input"
-        autoComplete="current-password"
-        aria-label="Account password"
-        placeholder="Account password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-      />
+      {(method === 'password' || !withPasswordWrap) && (
+        <input
+          type="password"
+          className="field-input"
+          autoComplete="current-password"
+          aria-label="Account password"
+          placeholder="Account password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+      )}
       {method === 'recovery' && (
         <>
           <input
@@ -413,7 +427,7 @@ function Unlock() {
         </>
       )}
       <button type="submit" className="button-accent account-wide" disabled={busy || (method === 'password' ? !password : !recoveryKey)}>
-        {busy ? <Waiting>Opening…</Waiting> : method === 'password' ? 'Unlock with account password' : 'Unlock with recovery key'}
+        {busy ? <Waiting>Opening…</Waiting> : method === 'password' ? 'Open with password' : 'Open with recovery key'}
       </button>
       <button
         type="button"
@@ -787,6 +801,10 @@ function SetupCheck() {
 
 export default function AccountSection() {
   const status = useSyncStatus();
+
+  useEffect(() => {
+    if (isAccountAuthPending() && status.phase !== 'signed-out' && status.phase !== 'unavailable') clearAccountAuthPending();
+  }, [status.phase]);
 
   if (status.phase === 'unavailable') {
     return (

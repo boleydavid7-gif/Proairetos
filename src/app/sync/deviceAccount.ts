@@ -19,6 +19,7 @@ const STAYS = new Set([
   ACCOUNT_KEY,
   'proairetos.accountPasswordSetupPending.local',
   'proairetos.accountPasswordReadyForSetup.local',
+  'proairetos.accountAuthPending.local',
 ]);
 
 type PutAway = { account: string; savedAt: string; backup: string; storage: Record<string, string>; daily: DailyCopy[] };

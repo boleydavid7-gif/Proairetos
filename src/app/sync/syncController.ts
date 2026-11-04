@@ -130,6 +130,8 @@ const ACCOUNT_PASSWORD_SETUP_PENDING = 'proairetos.accountPasswordSetupPending';
 const ACCOUNT_PASSWORD_SETUP_PENDING_LOCAL = 'proairetos.accountPasswordSetupPending.local';
 const ACCOUNT_PASSWORD_READY_FOR_SETUP = 'proairetos.accountPasswordReadyForSetup';
 const ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL = 'proairetos.accountPasswordReadyForSetup.local';
+const ACCOUNT_AUTH_PENDING = 'proairetos.accountAuthPending';
+const ACCOUNT_AUTH_PENDING_LOCAL = 'proairetos.accountAuthPending.local';
 
 function readAccountPasswordSetupPending(): boolean {
   let session = false;
@@ -169,6 +171,43 @@ function writeAccountPasswordReadyForSetup(ready: boolean): void {
     if (ready) localStorage.setItem(ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL, '1');
     else localStorage.removeItem(ACCOUNT_PASSWORD_READY_FOR_SETUP_LOCAL);
   } catch { /* Storage may be blocked. */ }
+}
+
+function readAccountAuthPending(): boolean {
+  let session = false;
+  try {
+    session = sessionStorage.getItem(ACCOUNT_AUTH_PENDING) === '1';
+  } catch { /* Continue with local storage. */ }
+  try { return session || localStorage.getItem(ACCOUNT_AUTH_PENDING_LOCAL) === '1'; }
+  catch { return session; }
+}
+
+function writeAccountAuthPending(pending: boolean): void {
+  try {
+    if (pending) sessionStorage.setItem(ACCOUNT_AUTH_PENDING, '1');
+    else sessionStorage.removeItem(ACCOUNT_AUTH_PENDING);
+  } catch { /* The flow still works with the local marker. */ }
+  try {
+    if (pending) localStorage.setItem(ACCOUNT_AUTH_PENDING_LOCAL, '1');
+    else localStorage.removeItem(ACCOUNT_AUTH_PENDING_LOCAL);
+  } catch { /* Storage may be blocked. */ }
+}
+
+let accountAuthPending = readAccountAuthPending();
+
+/** Keeps the account sheet open when an email link returns to onboarding or an installed app. */
+export function isAccountAuthPending(): boolean {
+  return accountAuthPending || readAccountAuthPending();
+}
+
+export function markAccountAuthPending(): void {
+  accountAuthPending = true;
+  writeAccountAuthPending(true);
+}
+
+export function clearAccountAuthPending(): void {
+  accountAuthPending = false;
+  writeAccountAuthPending(false);
 }
 
 export function isAccountPasswordReadyForSetup(): boolean {
@@ -586,6 +625,7 @@ export const syncStatus = {
 
 export async function signInWithEmailPassword(email: string, password: string): Promise<void> {
   await remoteSignInWithPassword(email.trim(), password);
+  clearAccountAuthPending();
   accountPasswordForKeySetup = password;
   await resolvePhase();
 
@@ -611,6 +651,7 @@ export async function signInWithEmailPassword(email: string, password: string): 
 
 export async function saveAccountPassword(password: string): Promise<void> {
   await setAccountPassword(password);
+  clearAccountAuthPending();
   accountPasswordForKeySetup = password;
   writeAccountPasswordReadyForSetup(true);
   accountPasswordSetupPending = false;
@@ -672,10 +713,12 @@ export async function migrateCurrentAccountPasswordToEncryption(
 // ---------- Account steps ----------
 
 export async function requestCode(email: string, creatingAccount = false): Promise<void> {
+  markAccountAuthPending();
   if (creatingAccount) markAccountPasswordSetupPending();
   try {
     await sendSignInCode(email.trim());
   } catch (cause) {
+    clearAccountAuthPending();
     if (creatingAccount) clearAccountPasswordSetupPending();
     throw cause;
   }
@@ -685,9 +728,15 @@ export async function requestCode(email: string, creatingAccount = false): Promi
 const ACCOUNT_PAGE: Record<string, string> = { proairetos: 'account', askesis: 'more', soma: 'more', oikonomia: 'more', hydros: 'settings', poreia: 'settings', praxis: 'settings', theoria: 'settings', diaita: 'more', philia: 'more', ergon: 'more', therapeia: 'more', dynamis: 'more', ktema: 'more', phyton: 'more', mneme: 'notes' };
 
 export async function signInWith(provider: SignInProvider): Promise<void> {
+  markAccountAuthPending();
   const app = appAt(location.pathname);
   const path = app === 'proairetos' ? '/' : `/${app}/`;
-  await signInWithProvider(provider, `${location.origin}${path}?open=${ACCOUNT_PAGE[app]}`);
+  try {
+    await signInWithProvider(provider, `${location.origin}${path}?open=${ACCOUNT_PAGE[app]}`);
+  } catch (cause) {
+    clearAccountAuthPending();
+    throw cause;
+  }
 }
 
 /** Accepts either the 6-digit code or the sign-in link from the email. */
@@ -700,6 +749,7 @@ export async function confirmCode(email: string, codeOrLink: string, creatingAcc
   if (creatingAccount) {
     markAccountPasswordSetupPending();
   }
+  clearAccountAuthPending();
   // Opening the link in this browser leaves tokens in the address; tidy it.
   if (location.hash.includes('access_token')) history.replaceState(history.state, '', location.pathname);
   await resolvePhase();
@@ -1105,6 +1155,7 @@ export async function signOut(): Promise<void> {
   dataKey = null;
   accountPasswordForKeySetup = null;
   accountPasswordSetupPending = false;
+  clearAccountAuthPending();
   writeAccountPasswordSetupPending(false);
   writeAccountPasswordReadyForSetup(false);
   passkeyKey = null;

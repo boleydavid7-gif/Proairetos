@@ -109,7 +109,7 @@ function SignIn() {
         void run(() => signInWithEmailPassword(email, password));
       }}>
         <span className="label">Your Proairetos account</span>
-        <input className="input" type="email" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <input className="input" type="email" autoComplete="username webauthn" inputMode="email" spellCheck={false} aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
         <input className="input" type="password" autoComplete="current-password" aria-label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
         <button type="submit" className="button-main" disabled={!email.includes('@') || !password || busy}>
           {busy ? 'Signing in…' : 'Sign in'}
@@ -146,6 +146,9 @@ function Unlock() {
         <button type="button" className="button-quiet account__link" onClick={() => setTyping(true)}>
           Use account password
         </button>
+        <button type="button" className="button-quiet account__link" onClick={() => { setTyping(true); setMethod('recovery'); setPassword(''); }}>
+          Use recovery key
+        </button>
       </>
     );
   }
@@ -171,16 +174,18 @@ function Unlock() {
         });
       }}
     >
-      <span className="label">Account password</span>
-      <input
-        className="input"
-        type="password"
-        autoComplete="current-password"
-        aria-label="Account password"
-        placeholder="Account password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-      />
+      {(method === 'password' || !withPasswordWrap) && <>
+        <span className="label">Account password</span>
+        <input
+          className="input"
+          type="password"
+          autoComplete="current-password"
+          aria-label="Account password"
+          placeholder="Account password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+      </>}
       {method === 'recovery' && (
         <>
           <span className="label">Recovery key</span>
@@ -189,7 +194,7 @@ function Unlock() {
         </>
       )}
       <button type="submit" className="button-main" disabled={busy || (method === 'password' ? !password : !recoveryKey)}>
-        {busy ? <Waiting>Opening…</Waiting> : method === 'password' ? 'Unlock with account password' : 'Unlock with recovery key'}
+        {busy ? <Waiting>Opening…</Waiting> : method === 'password' ? 'Open with password' : 'Open with recovery key'}
       </button>
       <button type="button" className="button-quiet" onClick={() => { setMethod(method === 'password' ? 'recovery' : 'password'); setRecoveryKey(''); }}>
         {method === 'password' ? 'Use recovery key' : 'Use account password'}
