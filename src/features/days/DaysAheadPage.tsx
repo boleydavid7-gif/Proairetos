@@ -79,10 +79,18 @@ function daysBetweenInclusive(from: string, until: string): string[] {
 const WEEK = 7;
 
 const NARROW = '(max-width: 47.99rem)';
+const DESKTOP = '(min-width: 62rem)';
 const isNarrow = () => typeof matchMedia === 'function' && matchMedia(NARROW).matches;
 function subscribeNarrow(notify: () => void) {
   if (typeof matchMedia !== 'function') return () => undefined;
   const query = matchMedia(NARROW);
+  query.addEventListener('change', notify);
+  return () => query.removeEventListener('change', notify);
+}
+const isDesktop = () => typeof matchMedia === 'function' && matchMedia(DESKTOP).matches;
+function subscribeDesktop(notify: () => void) {
+  if (typeof matchMedia !== 'function') return () => undefined;
+  const query = matchMedia(DESKTOP);
   query.addEventListener('change', notify);
   return () => query.removeEventListener('change', notify);
 }
@@ -169,8 +177,9 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const focusKey = opening.focusKey;
 
   const narrow = useSyncExternalStore(subscribeNarrow, isNarrow);
+  const desktop = useSyncExternalStore(subscribeDesktop, isDesktop);
   const [picked, setPicked] = useState<string | null>(null);
-  const shape: 'list' | CalendarMode = view === 'list' ? 'list' : mode;
+  const shape: 'list' | CalendarMode = desktop ? mode : view === 'list' ? 'list' : mode;
   const days =
     shape === 'month'
       ? Array.from({ length: monthCells(start) }, (_, i) => addDays(sundayOnOrBefore(monthStart(start)), i))
@@ -372,7 +381,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         : `${formatLocalDay(days[0], { month: 'short', day: 'numeric' })} – ${formatLocalDay(days[WEEK - 1], { month: 'short', day: 'numeric' })}`;
 
   return (
-    <div className="page days-page">
+    <div className={`page days-page${desktop ? ' days-page--desktop' : ''}`}>
       <div className="page-header__actions days-corner">
         <button type="button" className="days-add" aria-label="Add" onClick={() => setAdding(true)}>
           <PlusIcon size={22} />
@@ -387,7 +396,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       </header>
 
       <div className="days-toolbar">
-      <div className="segmented" role="tablist" aria-label="View">
+      <div className="segmented days-view-toggle" role="tablist" aria-label="View">
         <button type="button" role="tab" aria-selected={view === 'list'} className="segmented__option" onClick={() => { setDaysAheadOpening({ start }); navigate('plan'); }}>
           <ListIcon size={20} /> List
         </button>
@@ -396,7 +405,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </button>
       </div>
 
-      {view === 'calendar' && (
+      {(view === 'calendar' || desktop) && (
         <div className="segmented segmented--even" role="tablist" aria-label="Calendar view">
           {(['week', 'month', 'year'] as const).map((option) => (
             <button
@@ -432,7 +441,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       )}
       </div>
 
-      {view === 'list' && shows('sort-through') && toSort.length > 1 && (
+      {(view === 'list' || desktop) && shows('sort-through') && toSort.length > 1 && (
         <button type="button" className="quiet-row" onClick={() => setSorting(true)}>
           <span className="quiet-row__text">
             <span>Sort through your list</span>
@@ -442,8 +451,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       )}
       {sorting && data && <QuickSortSheet items={data.items} today={today} onClose={() => setSorting(false)} />}
 
-      {view === 'list' &&
-        data?.days.map(({ date, entries }) => {
+      {(view === 'list' || desktop) &&
+        <div className="days-list-column">{data?.days.map(({ date, entries }) => {
           const timed = entries.filter((entry): entry is Timed => entry.kind !== 'off' && entry.kind !== 'allday' && entry.kind !== 'planned');
           const allDay = entries.flatMap((entry) => (entry.kind === 'allday' ? [entry] : []));
           return (
@@ -549,11 +558,11 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} allowDelete />
             </section>
           );
-        })}
+        })}</div>}
 
-      {shape === 'week' && data && (
+      {(view === 'calendar' || desktop) && shape === 'week' && data && (
         <div className="days-weekwrap">
-        {!narrow && (
+        {!narrow && !desktop && (
           <aside className="days-aside">
             <MiniMonth key={start.slice(0, 7)} shown={start} today={nowDate} onPick={setStart} />
             <button type="button" className="chip chip--wide" onClick={() => setStart(today)}>
@@ -753,7 +762,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </div>
       )}
 
-      {shape === 'month' && data && (
+      {(view === 'calendar' || desktop) && shape === 'month' && data && (
         <>
           <div className="month" role="grid" aria-label={rangeLabel}>
             <div className="month__head" role="row">
@@ -910,7 +919,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         </>
       )}
 
-      {shape === 'year' && data && (
+      {(view === 'calendar' || desktop) && shape === 'year' && data && (
         <div className="year">
           {Array.from({ length: 12 }, (_, month) => {
             const first = `${start.slice(0, 4)}-${pad(month + 1)}-01`;
