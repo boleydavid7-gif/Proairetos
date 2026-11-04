@@ -31,6 +31,9 @@ import {
   savePassphraseWrap,
   savePushSubscription,
   sendSignInCode,
+  setAccountPassword,
+  signInWithPassword as remoteSignInWithPassword,
+  sendPasswordRecovery,
   signInWithProvider,
   type SignInProvider,
   signOutRemote,
@@ -451,6 +454,23 @@ export const syncStatus = {
   subscribe: listeners.subscribe,
   get: () => status,
 };
+
+// ---------- Unified password account ----------
+
+export async function signInWithEmailPassword(email: string, password: string): Promise<void> {
+  await remoteSignInWithPassword(email.trim(), password);
+  await resolvePhase();
+  tellFamily('account');
+  if (status.phase === 'ready') void syncNow();
+}
+
+export async function saveAccountPassword(password: string): Promise<void> {
+  await setAccountPassword(password);
+}
+
+export async function requestPasswordReset(email: string): Promise<void> {
+  await sendPasswordRecovery(email.trim());
+}
 
 // ---------- Account steps ----------
 
