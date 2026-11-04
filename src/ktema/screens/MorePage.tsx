@@ -6,6 +6,7 @@ import { HistoryIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
 import type { KtemaNav } from '../app/App';
+import { householdLists } from '../../app/household/household';
 import { settings, type KtemaSettings } from '../app/state';
 
 export default function MorePage({ nav }: { nav: KtemaNav }) {
@@ -25,24 +26,33 @@ export default function MorePage({ nav }: { nav: KtemaNav }) {
         <DailyLineSwitch app="ktema" />
       </section>
 
+      {householdLists('ktema')?.ids.length ? (
+        <p className="hint">
+          Shared with {householdLists('ktema')?.name}. Documents, photos and files stay private. <a className="text-link" href="/?open=settings:household">Household settings</a>
+        </p>
+      ) : null}
+
       <p className="ll-section-label">Reminders</p>
       <section className="card switches">
         <Switch on={current.notices.on} label="Upkeep" onToggle={() => notice({ on: !current.notices.on })} />
         <Switch on={current.notices.warranties} label="Warranties and documents, a month before they end" onToggle={() => notice({ warranties: !current.notices.warranties })} />
         {(current.notices.on || current.notices.warranties) && (
           <label className="field">
-            <span className="field__label">At</span>
+            <span className="field__label">Time</span>
             <input className="input" type="time" value={current.notices.at} onChange={(event) => event.target.value && notice({ at: event.target.value })} />
           </label>
         )}
       </section>
 
-      <section className="card">
-        <p className="label">Distance in</p>
-        <div className="chip-row" role="group" aria-label="Distance in">
-          {(['mi', 'km'] as const).map((each) => <button key={each} type="button" className="chip" aria-pressed={current.distance === each} onClick={() => change({ distance: each })}>{each === 'mi' ? 'Miles' : 'Kilometers'}</button>)}
-        </div>
-      </section>
+      <ul className="rows">
+        <li className="row row--aside">
+          <span className="row__text"><span>Distance in</span></span>
+          <select className="row__select" aria-label="Distance in" value={current.distance} onChange={(event) => change({ distance: event.target.value as 'mi' | 'km' })}>
+            <option value="mi">Miles</option>
+            <option value="km">Kilometers</option>
+          </select>
+        </li>
+      </ul>
 
       <ul className="rows">
         <li>

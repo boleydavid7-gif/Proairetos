@@ -5,7 +5,7 @@
  * their name so everyone sees who is in. Nothing here reads or changes an app's records; each app keeps sharing
  * through its own list exactly as before.
  */
-export type HouseholdApp = 'proairetos' | 'soma' | 'oikonomia' | 'poreia' | 'ergon' | 'phyton' | 'therapeia';
+export type HouseholdApp = 'proairetos' | 'soma' | 'oikonomia' | 'poreia' | 'ergon' | 'phyton' | 'therapeia' | 'ktema';
 
 export type ListRef = { id: string; key: string; name: string };
 
@@ -30,6 +30,7 @@ export const HOUSEHOLD_APPS: readonly {
   { app: 'poreia', name: 'Trips', description: 'Every trip you have not kept private: its bookings, plans, packing, spending and saved places, with who is going and who paid. Documents, time off, and your own goals and savings stay private.', single: true },
   { app: 'ergon', name: 'Chores', description: 'Chores in the shared home, including assignments and completion history.', single: true },
   { app: 'phyton', name: 'Plants', description: 'The plants in the shared home collection.', single: true },
+  { app: 'ktema', name: 'Things and upkeep', description: 'The things you keep and their upkeep, with who did it. Documents, photos and files stay private.', single: true },
   { app: 'therapeia', name: 'Medicines', description: 'The medicine list and its entries. This can include sensitive medication details.', single: true, sensitive: true },
 ];
 
@@ -97,6 +98,7 @@ export const DEFAULT_CHILD_LEVEL: Record<HouseholdApp, ChildLevel> = {
   oikonomia: 'none',
   poreia: 'none',
   therapeia: 'none',
+  ktema: 'view',
 };
 
 export const childLevelOf = (access: Partial<Record<string, ChildLevel>>, app: HouseholdApp): ChildLevel => access[app] ?? DEFAULT_CHILD_LEVEL[app];

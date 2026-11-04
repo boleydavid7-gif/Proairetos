@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { archiveName, downloadZip } from '../../app/family/downloadZip';
 import { offerUndo, say } from '../../app/family/shell';
+import MoreDetails from '../../app/family/MoreDetails';
 import { prepareFile } from '../../features/items/attachments/prepare';
 import { newId } from '../app/state';
 import { filesFor, importFiles, putFile, removeFile, type KtemaFile } from '../data/files';
@@ -72,8 +73,6 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
         </ul>
       )}
       <input ref={input} type="file" accept="image/*,application/pdf" multiple hidden onChange={(event) => { void add(event.target.files); event.target.value = ''; }} />
-      <button type="button" className="button-quiet" onClick={() => input.current?.click()}>Add a receipt, photo or manual</button>
-      {files.length > 0 && <button type="button" className="button-quiet" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Preparing…' : 'Save a copy of these files'}</button>}
       <input ref={restoreInput} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
         const file = event.target.files?.[0];
         event.target.value = '';
@@ -89,7 +88,13 @@ export default function ThingFiles({ thingId }: { thingId: string }) {
           setRestoring(false);
         }
       }} />
-      <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
+      <button type="button" className="button-quiet" onClick={() => input.current?.click()}>Add a receipt, photo or manual</button>
+      <MoreDetails label="Copies">
+        <div className="button-row">
+          {files.length > 0 && <button type="button" className="button-quiet" disabled={saving} onClick={() => void saveCopy()}>{saving ? 'Preparing…' : 'Save a copy of these files'}</button>}
+          <button type="button" className="button-quiet" disabled={restoring} onClick={() => restoreInput.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
+        </div>
+      </MoreDetails>
       {viewing && (
         <div className="ktema-viewer" role="dialog" aria-label={viewing.name} onClick={() => setViewing(undefined)}>
           <img src={urls.get(viewing.id)} alt={viewing.name} />

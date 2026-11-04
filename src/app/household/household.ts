@@ -42,6 +42,8 @@ async function listsOf(app: HouseholdApp): Promise<Lists> {
       return (await import('../../ergon/app/state')).homes;
     case 'phyton':
       return (await import('../../phyton/app/state')).homes;
+    case 'ktema':
+      return (await import('../../ktema/app/together')).ktemaLists;
     case 'therapeia':
       return (await import('../../therapeia/app/state')).circles;
   }

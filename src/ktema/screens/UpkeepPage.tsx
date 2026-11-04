@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
+import { actingMember } from '../app/together';
 import { newId, putUpkeep, removeUpkeep, settings, things, upkeeps } from '../app/state';
 import { useAddedApps } from '../../app/family/added';
 import { Switch } from '../../askesis/app/ui';
 import { cents } from '../../oikonomia/core/statements';
 import { saveSpent, spentIn } from '../../oikonomia/data/spent';
 import type { BudgetCategory } from '../../oikonomia/core/budget';
+import MoreDetails from '../../app/family/MoreDetails';
 import { TimerIcon } from '../../app/family/icons';
 import { dayText, everyText, latestReading, markDone, nextDue, skip, type Every, type Upkeep } from '../core/things';
 import { Sym } from '../../lamplight/icons';
@@ -127,25 +129,26 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
 
       <section className="card">
         <span className="card__eyebrow">{dayText(due.date, today)}{due.reading !== undefined ? ` · or at ${due.reading.toLocaleString()} ${unit}` : ''}</span>
-        <div className="input-row">
-          {existing.distance ? (
-            <label className="field">
-              <span className="field__label">Reading (optional)</span>
-              <input className="input" inputMode="numeric" value={reading} onChange={(event) => setReading(event.target.value)} />
-            </label>
-          ) : null}
+        {existing.distance ? (
+          <label className="field">
+            <span className="field__label">Reading (optional)</span>
+            <input className="input" inputMode="numeric" value={reading} onChange={(event) => setReading(event.target.value)} />
+          </label>
+        ) : null}
+        <MoreDetails label="Add a cost">
           <label className="field">
             <span className="field__label">Cost (optional)</span>
             <input className="input" value={cost} onChange={(event) => setCost(event.target.value)} />
           </label>
-        </div>
-        {oikonomia && cost.trim() && (
-          <Switch on={toSpent} label="Also in Oikonomia’s Spent" onToggle={() => setToSpent(!toSpent)} />
-        )}
+          {oikonomia && cost.trim() && (
+            <Switch on={toSpent} label="Also in Oikonomia’s Spent" onToggle={() => setToSpent(!toSpent)} />
+          )}
+        </MoreDetails>
         <div className="button-row">
           <button type="button" className="button-main" onClick={() => {
             const value = Number(reading.replace(/[^\d.]/g, '')) || (existing.distance ? latest?.value : undefined);
-            putUpkeep(markDone(existing, today, { ...(value ? { reading: value } : {}), ...(cost.trim() ? { cost: cost.trim() } : {}) }));
+            const by = actingMember();
+            putUpkeep(markDone(existing, today, { ...(value ? { reading: value } : {}), ...(cost.trim() ? { cost: cost.trim() } : {}), ...(by ? { by } : {}) }));
             // The cost can go into Oikonomia's Spent for the month, in the area that fits the thing.
             const amount = cents(cost);
             const month = today.slice(0, 7);
@@ -185,7 +188,7 @@ function UpkeepView({ nav, upkeep: existing, onEdit }: { nav: KtemaNav; upkeep: 
             {[...existing.history].reverse().slice(0, 10).map((each, index) => (
               <li key={`${each.date}-${index}`} className="note-line">
                 <span>{new Date(`${each.date}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                <span className="muted">{each.skipped ? 'Skipped' : [each.reading !== undefined ? `${each.reading.toLocaleString()} ${unit}` : undefined, each.cost].filter(Boolean).join(' · ')}</span>
+                <span className="muted">{each.skipped ? 'Skipped' : [each.reading !== undefined ? `${each.reading.toLocaleString()} ${unit}` : undefined, each.cost, each.by].filter(Boolean).join(' · ')}</span>
               </li>
             ))}
           </ul>

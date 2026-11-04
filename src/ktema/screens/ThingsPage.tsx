@@ -44,10 +44,20 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
       })}
       {text && !found.length && <p className="muted">Nothing matches.</p>}
       {all.length > 0 && (
-        <div className="button-row">
-          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'print' })}><PrintIcon size={18} />Print the list</button>
-          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'print', insurance: true })}>Insurance list</button>
-        </div>
+        <ul className="rows">
+          <li>
+            <button type="button" className="row" onClick={() => nav.go({ name: 'print' })}>
+              <span className="row__icon"><PrintIcon size={22} /></span>
+              <span className="row__text"><span>Print the list</span></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" className="row" onClick={() => nav.go({ name: 'print', insurance: true })}>
+              <span className="row__icon"><BoxIcon size={22} /></span>
+              <span className="row__text"><span>Insurance list</span></span>
+            </button>
+          </li>
+        </ul>
       )}
     </div>
   );

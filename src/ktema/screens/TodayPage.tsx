@@ -45,7 +45,7 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
   const ending = warrantiesEnding(owned, today);
   const open = (upkeep: Upkeep) => nav.go({ name: 'upkeep', id: upkeep.id });
   const row = ({ upkeep, due }: (typeof groups.now)[number]) => (
-    <UpkeepRow key={upkeep.id} upkeep={upkeep} due={due} thing={owned.find((thing) => thing.id === upkeep.thingId)} today={today} onOpen={() => open(upkeep)} />
+    <UpkeepRow key={upkeep.id} upkeep={upkeep} due={due} thing={owned.find((thing) => thing.id === upkeep.thingId)} today={today} onOpen={() => open(upkeep)} brief />
   );
 
   return (

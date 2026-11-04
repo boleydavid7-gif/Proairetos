@@ -36,7 +36,7 @@ export type Thing = {
 
 export type Every = { count: number; unit: 'days' | 'weeks' | 'months' | 'years' };
 
-export type UpkeepDone = { date: string; reading?: number; cost?: string; note?: string; skipped?: boolean };
+export type UpkeepDone = { date: string; reading?: number; cost?: string; note?: string; skipped?: boolean; /** Who did it, written only while the household shares Things and upkeep. */ by?: string };
 
 export type Upkeep = {
   id: string;

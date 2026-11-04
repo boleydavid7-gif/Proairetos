@@ -4,6 +4,7 @@ import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
 import { BoxIcon, HomeIcon, SettingsIcon } from '../../app/family/icons';
 import { settings } from './state';
+import { useThingSharing } from './together';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
 import ThingsPage from '../screens/ThingsPage';
@@ -40,6 +41,8 @@ function firstRoute(): Route {
 
 export default function App() {
   const { route, nav, isTab } = useRoutes<Route>('ktema', tabNames, firstRoute, { name: 'today' });
+
+  useThingSharing();
 
   useEffect(() => {
     void startSync();

@@ -173,8 +173,6 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
         </dl>
       )}
 
-      <ThingFiles thingId={existing.id} />
-
       {(existing.category === 'Car' || existing.readings?.length) && (
         <section className="card">
           <h2 className="card__title card__title--small">Odometer</h2>
@@ -187,7 +185,10 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
             offerUndo('Reading kept', () => putThing(existing));
             setReading('');
           }}>
-            <input className="input" inputMode="numeric" aria-label={`Reading in ${unit}`} value={reading} onChange={(event) => setReading(event.target.value)} />
+            <label className="field">
+              <span className="field__label">{`New reading, ${unit}`}</span>
+              <input className="input" inputMode="numeric" value={reading} onChange={(event) => setReading(event.target.value)} />
+            </label>
             <button type="submit" className="button-quiet" disabled={!reading.trim()}>Save</button>
           </form>
         </section>
@@ -204,6 +205,8 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
           <p className="muted">None for this.</p>
         )}
       </section>
+
+      <ThingFiles thingId={existing.id} />
 
       <button type="button" className="text-link remove-link" onClick={() => {
         const putBack = removeThing(existing);

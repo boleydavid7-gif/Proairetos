@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-04',
     lines: [
+      'Ktema: things and upkeep can be shared with your household, with who did each upkeep. Documents, photos and files stay private.',
       'Family: a person can be a Child (13 and over). Parents choose what children can do in each shared app; Administrator is now Parent.',
       'A to-do’s sheet has Delete and Mark done; Let go is gone (Delete has undo). Sort through, Check back and From a while ago use Delete too.',
       'Ergon: give a chore to someone from the chore’s page or the form (Anyone, a name, or Someone else), and Today shows one person’s chores with a tap on their name.',
