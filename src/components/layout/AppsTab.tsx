@@ -27,7 +27,6 @@ function AppsSheet({ onClose, onStore }: { onClose: () => void; onStore: () => v
           Close
         </button>
         <p className="sheet__title sheet__title--static">All apps</p>
-        <p className="sheet__hint">Pin an installed app to keep it in the dock.</p>
         <ul className="apps-grid">
           {apps.map((app) => (
             <li key={app.id} className="apps-grid__managed">
@@ -35,7 +34,7 @@ function AppsSheet({ onClose, onStore }: { onClose: () => void; onStore: () => v
                 <img src={app.icon} alt="" width={52} height={52} />
                 <span>{app.name}</span>
               </a>
-              <button type="button" className="text-link" onClick={() => (pinned.includes(app.id as never) ? unpinApp(app.id as never) : pinApp(app.id as never))}>
+              <button type="button" className="text-link apps-grid__pin" onClick={() => (pinned.includes(app.id as never) ? unpinApp(app.id as never) : pinApp(app.id as never))}>
                 {pinned.includes(app.id as never) ? 'Unpin' : 'Pin'}
               </button>
             </li>

@@ -285,3 +285,10 @@
 
 /* The free trial, said under the Store's heading where it is seen first. */
 .store__paywall > p.store__trial { color: var(--color-text); font-weight: 600; }
+
+/* Pinning keeps an app in the computer's side rail; phones have no rail, so no Pin or Unpin there. */
+@media (max-width: 61.99rem) {
+  .apps-grid__pin {
+    display: none;
+  }
+}
