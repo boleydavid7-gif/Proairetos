@@ -8,6 +8,7 @@ import { notifications } from '../../app/notify/notifications';
 import type { DiaitaNav } from '../app/App';
 import { settings, type DiaitaSettings } from '../app/state';
 import { useAddedApps } from '../../app/family/added';
+import MoreDetails from '../../app/family/MoreDetails';
 
 function NumberField({ label, value, min, max, step, unit, onChange }: { label: string; value: number; min: number; max: number; step: number; unit: string; onChange: (value: number) => void }) {
   return (
@@ -56,6 +57,7 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           </label>
           <NumberField label="Sleep" value={current.sleepHours} min={5} max={10} step={0.5} unit="h" onChange={(sleepHours) => change({ sleepHours })} />
         </div>
+        <MoreDetails label="Details">
         <div className="input-row">
           <NumberField label="Travel to work" value={current.commuteMinutes} min={0} max={180} step={5} unit="min" onChange={(commuteMinutes) => change({ commuteMinutes })} />
           <NumberField label="Getting ready" value={current.readyMinutes} min={0} max={180} step={5} unit="min" onChange={(readyMinutes) => change({ readyMinutes })} />
@@ -68,6 +70,7 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <span className="field__label">Worry time</span>
           <input className="input" type="time" value={current.worryTime} onChange={(event) => event.target.value && change({ worryTime: event.target.value })} />
         </label>
+        </MoreDetails>
       </section>
 
       <section className="card switches">

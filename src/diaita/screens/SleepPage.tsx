@@ -217,6 +217,7 @@ function SleepForm({ record, onDone }: { record?: Kept; onDone: () => void }) {
 export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: string | true }) {
   const all = [...sleeps.use()].sort((a, b) => b.date.localeCompare(a.date));
   const current = settings.use();
+  const trying = experiment.use().current;
   const [editing, setEditing] = useState<string | true | undefined>(adding);
   const [shown, setShown] = useState(14);
   const today = toLocalDate(new Date());
@@ -295,7 +296,7 @@ export default function SleepPage({ nav, adding }: { nav: DiaitaNav; adding?: st
           {all.length > 0 && <p className="ll-section-label">Look closer</p>}
           <Suggestion records={all} chosenHours={current.sleepHours} />
           <SideBySide records={all} nightDates={nightDates} trainingDates={trainingDates} cutoffHours={current.cutoffHours} />
-          <ExperimentCard records={all} today={today} />
+          {(all.length > 0 || trying) && <ExperimentCard records={all} today={today} />}
         </>
       )}
     </div>

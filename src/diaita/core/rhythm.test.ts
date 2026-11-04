@@ -10,6 +10,9 @@ const nights = [
   block('2026-10-07', '19:00', '2026-10-08', '07:00'),
 ];
 
+/** Light and meals are offered, off until chosen; these tests turn them on. */
+const withAdvice = { ...defaultRhythm, light: true, meals: true };
+
 describe('day kinds', () => {
   it('tells nights, evenings, days and days off apart', () => {
     expect(isNight(nights[0])).toBe(true);
@@ -66,7 +69,7 @@ describe('sleep', () => {
 });
 
 describe('the plan around nights', () => {
-  const plan = planBetween('2026-10-05', '2026-10-08', nights, defaultRhythm);
+  const plan = planBetween('2026-10-05', '2026-10-08', nights, withAdvice);
   const of = (kind: string) => plan.filter((entry) => entry.kind === kind);
 
   it('naps before the first night only', () => {
@@ -123,12 +126,12 @@ describe('the sleep log', () => {
   });
 
   it('offers the planned times for the check-in', () => {
-    const plan = planBetween('2026-10-09', '2026-10-10', [], defaultRhythm);
+    const plan = planBetween('2026-10-09', '2026-10-10', [], withAdvice);
     expect(plannedSleepInto('2026-10-10', plan)).toEqual({ bed: '22:30', up: '06:00' });
   });
 
   it('places worry time before an ordinary night', () => {
-    const plan = planBetween('2026-10-10', '2026-10-10', [], defaultRhythm);
+    const plan = planBetween('2026-10-10', '2026-10-10', [], withAdvice);
     const worry = plan.find((entry) => entry.kind === 'worry' && entry.start.getDate() === 10);
     expect(worry && clock(worry.start)).toBe('18:00');
   });
@@ -160,7 +163,7 @@ describe('morning daylight and the sunrise', () => {
   // A longitude where the sun's noon falls at the test's own local noon, so the cases hold in every time zone.
   const lonHere = (date: string) => ((((-new Date(`${date}T12:00:00`).getTimezoneOffset() / 4 + 180) % 360) + 360) % 360) - 180;
   const daylight = (date: string, bedtime: string, place?: { lat: number; lon: number }) =>
-    planBetween(date, date, [], { ...defaultRhythm, bedtime, sleepHours: 7, place }).find((entry) => entry.kind === 'light' && entry.title === 'Morning daylight' && entry.start.toISOString().startsWith(date.slice(0, 7)) && entry.start.getDate() === Number(date.slice(8)))!;
+    planBetween(date, date, [], { ...withAdvice, bedtime, sleepHours: 7, place }).find((entry) => entry.kind === 'light' && entry.title === 'Morning daylight' && entry.start.toISOString().startsWith(date.slice(0, 7)) && entry.start.getDate() === Number(date.slice(8)))!;
 
   it('stays 15 minutes after waking without a place', () => {
     const entry = daylight('2026-12-15', '22:00');
@@ -177,5 +180,15 @@ describe('morning daylight and the sunrise', () => {
     const entry = daylight('2026-12-15', '23:00', { lat: 60, lon: lonHere('2026-12-15') });
     expect(entry.detail).toMatch(/^Sunrise .+; bright light indoors until then$/);
     expect(entry.start.getHours() * 60 + entry.start.getMinutes()).toBe(6 * 60 + 15);
+  });
+});
+
+describe('what is offered, not assumed', () => {
+  it('starts with no light or meal advice until the person turns it on', () => {
+    expect(defaultRhythm.light).toBe(false);
+    expect(defaultRhythm.meals).toBe(false);
+    const kinds = new Set(planBetween('2026-10-10', '2026-10-10', [], defaultRhythm).map((entry) => entry.kind));
+    expect(kinds.has('light')).toBe(false);
+    expect(kinds.has('meal')).toBe(false);
   });
 });

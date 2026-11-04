@@ -38,8 +38,9 @@ export const defaultRhythm: RhythmSettings = {
   windDownMinutes: 45,
   worryTime: '18:00',
   readyMinutes: 60,
-  meals: true,
-  light: true,
+  // Offered, not on until the person turns them on (Settings > More).
+  meals: false,
+  light: false,
 };
 
 export type SourceKey = 'sleep' | 'caffeine' | 'nap' | 'light' | 'morning-light' | 'night-meals' | 'hygiene' | 'short-nap' | 'regularity';

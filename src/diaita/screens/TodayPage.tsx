@@ -185,13 +185,12 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
           </section>
         )}
 
-        {(hour >= 4 || sleeps.list().some((record) => record.id === today)) && <CheckIn date={today} planned={planned} nav={nav} />}
+        {((hour >= 4 && hour < 12) || sleeps.list().some((record) => record.id === today)) && <CheckIn date={today} planned={planned} nav={nav} />}
 
         <div className="section-head">
           <h2>Today</h2>
           <span className="button-row">
             <button type="button" className="text-link" onClick={() => nav.go({ name: 'nap' })}>Nap timer</button>
-            <button type="button" className="text-link" onClick={() => nav.swap({ name: 'week' })}>Week</button>
           </span>
         </div>
         <Timeline entries={todays} now={now} />

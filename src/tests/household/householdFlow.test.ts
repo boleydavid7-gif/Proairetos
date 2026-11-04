@@ -213,6 +213,7 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     expect(homes.sharedLists().map((list) => list.id)).toEqual([ergonList.id]);
     expect(homes.sharedItems(homes.sharedLists()[0]).map((chore) => chore.id)).toEqual(['c1']);
     expect(soma.sharedLists()).toHaveLength(1);
@@ -245,6 +246,7 @@ describe('a household', () => {
     user = 'user-c';
     device('Jo');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     expect(homes.sharedLists()).toHaveLength(0);
     expect(soma.sharedLists()).toHaveLength(1);
   });
@@ -271,6 +273,7 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     await poreia.syncHouseholdTrips(poreia.householdList()!);
     expect(state.trips.list().map((trip) => trip.name)).toEqual(['Lisbon']);
     expect(state.bookings.list().map((booking) => booking.id)).toEqual(['b1']);
@@ -322,6 +325,7 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     const appList = homes.sharedLists()[0]!;
     const memberDevice = Object.fromEntries(
       Array.from({ length: localStorage.length }, (_, index) => {
@@ -349,6 +353,8 @@ describe('a household', () => {
     expect(homes.sharedItems(appList)).toHaveLength(0);
 
     await household.joinHousehold(invite);
+
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     expect(household.household()?.id).toBe(invite.id);
     expect(homes.sharedLists().map((each) => each.id)).toContain(appList.id);
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(true);
@@ -377,6 +383,7 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     const appList = homes.sharedLists()[0]!;
     const memberDevice = snapshot();
 
@@ -391,6 +398,7 @@ describe('a household', () => {
 
     // No background sync runs between removal and opening the invite again.
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     expect(household.household()?.id).toBe(invite.id);
     expect(tables.shared_list_members.some((row) => row.list_id === invite.id && row.user_id === 'user-b')).toBe(true);
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-b')).toBe(true);
@@ -418,6 +426,7 @@ describe('a household', () => {
     user = 'user-b';
     device('List creator');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     const memberDevice = Object.fromEntries(
       Array.from({ length: localStorage.length }, (_, index) => {
         const key = localStorage.key(index)!;
@@ -445,6 +454,7 @@ describe('a household', () => {
     user = 'user-c';
     device('Member');
     await household.joinHousehold(invite);
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-a')).toBe(true);
     expect(tables.shared_list_members.some((row) => row.list_id === appList.id && row.user_id === 'user-c')).toBe(true);
 
@@ -473,9 +483,11 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     user = 'user-c';
     device('Jo');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     const removedMemberAppList = await homes.joinList(sharedErgonList);
     await homes.refreshList(removedMemberAppList);
     expect(homes.sharedLists()).toHaveLength(1);
@@ -522,10 +534,12 @@ describe('a household', () => {
     user = 'user-b';
     device('Alex');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     await homes.joinList(appList);
     user = 'user-c';
     device('Jo');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     await homes.joinList(appList);
     expect(tables.shared_list_members.filter((item) => item.list_id === appList.id).map((item) => item.user_id)).toEqual(['user-a', 'user-b', 'user-c']);
 
@@ -577,6 +591,7 @@ describe('a household', () => {
     device('Jo');
     const own = await homes.createList('Flat');
     await household.joinHousehold({ id: made.id, key: made.key, name: made.name });
+    await household.households.refreshList(household.household()!); // let the profile write finish before the device changes
     expect(homes.sharedLists().map((list) => list.id)).toEqual([own.id]);
   });
 });
