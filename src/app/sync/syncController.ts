@@ -14,6 +14,7 @@ import {
   createSupabaseFileStore,
   createSupabaseRemoteStore,
   currentUser,
+  supabase,
   deleteCalendarFeed,
   deleteRemoteAccount,
   fetchCalendarFeedToken,
@@ -426,6 +427,20 @@ export async function startSync(): Promise<void> {
   if (started) return;
   started = true;
   await resolvePhase();
+
+  // Supabase persists one session under the shared origin storage key. Listen for auth
+  // changes so every companion app on that origin refreshes immediately after another app
+  // signs in or out; no second login screen is needed in those shared-storage contexts.
+  if (isSyncConfigured) {
+    const auth = await supabase();
+    auth.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        window.setTimeout(() => {
+          void resolvePhase().then(() => status.phase === 'ready' && void syncNow());
+        }, 0);
+      }
+    });
+  }
   if (status.phase === 'ready') {
     const last = status.lastSyncedAt ? Date.parse(status.lastSyncedAt) : NaN;
     if (!Number.isFinite(last) || Date.now() - last >= STARTUP_CHECK_MS) void syncNow();
