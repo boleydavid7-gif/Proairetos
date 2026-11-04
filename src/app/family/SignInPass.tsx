@@ -15,6 +15,7 @@ export function SignInAnotherApp() {
   const [accountPassword, setAccountPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
+  const [shareSupported] = useState(() => typeof navigator !== 'undefined' && typeof navigator.share === 'function');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -80,12 +81,22 @@ export function SignInAnotherApp() {
         onClick={() =>
           void run(async () => {
             const pass = await makeSignInPass();
+            if (shareSupported) {
+              try {
+                await navigator.share({ title: 'Sign in to Proairetos', text: pass });
+                setNote('Sign-in pass shared. It can be used once within 2 minutes.');
+                return;
+              } catch (cause) {
+                if (cause instanceof DOMException && cause.name === 'AbortError') return;
+                // Share sheets may be unavailable or blocked; use the existing clipboard fallback.
+              }
+            }
             await navigator.clipboard.writeText(pass);
-            setNote('Pass copied. In the other app, tap Paste from Proairetos within 2 minutes.');
+            setNote('Pass copied. In the other app, choose Paste from Proairetos within 2 minutes.');
           })
         }
       >
-        {busy ? 'Making a pass…' : 'Copy a sign-in pass'}
+        {busy ? 'Preparing secure pass…' : shareSupported ? 'Share sign-in pass' : 'Copy sign-in pass'}
       </button>
       {note && <p className="section-description" role="status">{note}</p>}
       {error && <p className="form-error" role="alert">{error}</p>}
