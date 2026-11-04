@@ -12,7 +12,7 @@ const message = (error: unknown) => (error instanceof Error ? error.message : 'T
 /** In Proairetos's account page, while signed in and unlocked. */
 export function SignInAnotherApp() {
   const [ready, setReady] = useState<boolean>();
-  const [passphrase, setPassphrase] = useState('');
+  const [accountPassword, setAccountPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
   const [error, setError] = useState('');
@@ -45,22 +45,24 @@ export function SignInAnotherApp() {
         onSubmit={(event: FormEvent) => {
           event.preventDefault();
           void run(async () => {
-            await enableHandoff(passphrase);
-            setPassphrase('');
+            await enableHandoff(accountPassword);
+            setAccountPassword('');
             setReady(true);
           });
         }}
       >
-        <p className="label">Sign in other apps</p>
+        <p className="label">Connect your other apps</p>
+        <p className="section-description">Use your Proairetos account password once to prepare secure sign-in passes for apps on other domains or devices.</p>
         <input
           className="field-input"
           type="password"
           autoComplete="current-password"
-          aria-label="Passphrase"
-          value={passphrase}
-          onChange={(event) => setPassphrase(event.target.value)}
+          aria-label="Proairetos account password"
+          placeholder="Proairetos account password"
+          value={accountPassword}
+          onChange={(event) => setAccountPassword(event.target.value)}
         />
-        <button type="submit" className="chip chip--wide" disabled={!passphrase || busy}>
+        <button type="submit" className="chip chip--wide" disabled={!accountPassword || busy}>
           Turn on
         </button>
         {error && <p className="form-error" role="alert">{error}</p>}
