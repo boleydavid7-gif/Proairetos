@@ -124,6 +124,12 @@ let dataKey: CryptoKey | null = null;
 let userId: string | null = null;
 // Kept only in memory after password sign-in/creation; never persisted or sent to the sync service.
 let accountPasswordForKeySetup: string | null = null;
+// Keep the email-confirmation/password-creation screen mounted while auth state advances.
+let accountPasswordSetupPending = false;
+
+export function isAccountPasswordSetupPending(): boolean {
+  return accountPasswordSetupPending;
+}
 /** The account whose things this page was opened with (`proairetosAccount`, see deviceAccount.ts). */
 let deviceAccountAtStart: string | null = (() => {
   try {
@@ -525,6 +531,7 @@ export async function signInWithEmailPassword(email: string, password: string): 
 export async function saveAccountPassword(password: string): Promise<void> {
   await setAccountPassword(password);
   accountPasswordForKeySetup = password;
+  accountPasswordSetupPending = false;
 }
 
 export function hasAccountPasswordForKeySetup(): boolean {
@@ -595,13 +602,14 @@ export async function signInWith(provider: SignInProvider): Promise<void> {
 }
 
 /** Accepts either the 6-digit code or the sign-in link from the email. */
-export async function confirmCode(email: string, codeOrLink: string): Promise<void> {
+export async function confirmCode(email: string, codeOrLink: string, creatingAccount = false): Promise<void> {
   const value = codeOrLink.trim();
   if (/^https?:\/\//i.test(value)) await verifySignInLink(value);
   else await verifySignInCode(email.trim(), value);
   // Opening the link in this browser leaves tokens in the address; tidy it.
   if (location.hash.includes('access_token')) history.replaceState(history.state, '', location.pathname);
   await resolvePhase();
+  if (creatingAccount) accountPasswordSetupPending = true;
   tellFamily('account');
   if (status.phase === 'ready') void syncNow();
 }
