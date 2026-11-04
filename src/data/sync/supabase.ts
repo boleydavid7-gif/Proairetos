@@ -148,8 +148,10 @@ export async function currentUser(): Promise<User | null> {
   return data.session?.user ?? null;
 }
 
+/** Revoke every refreshable Supabase session for this account, not only this browser. */
 export async function signOutRemote(): Promise<void> {
-  await (await supabase()).auth.signOut();
+  const { error } = await (await supabase()).auth.signOut({ scope: 'global' });
+  if (error) throw new Error(error.message);
 }
 
 // ---------- Wrapped key ----------
