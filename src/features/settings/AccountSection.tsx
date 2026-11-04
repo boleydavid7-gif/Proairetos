@@ -23,6 +23,7 @@ import {
   syncStatus,
   unlock,
   changePassphrase,
+  linkAccountPasswordToEncryption,
   continueSetupPasskey,
   finishSetupWithPasskey,
   hasPassphrase,
@@ -446,6 +447,50 @@ function ChangePassphrase() {
   );
 }
 
+/** Links the existing encrypted data key to the account password without changing encrypted records. */
+function LinkAccountPassword() {
+  const [open, setOpen] = useState(false);
+  const [accountPassword, setAccountPassword] = useState('');
+  const [currentSecret, setCurrentSecret] = useState('');
+  const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [done, setDone] = useState(false);
+  if (!open) return (
+    <>
+      <button type="button" className="text-link" onClick={() => { setOpen(true); setDone(false); }}>
+        Use account password to unlock encrypted data
+      </button>
+      {done && <p className="sheet__hint" role="status">Your account password now unlocks your encrypted data on new devices.</p>}
+    </>
+  );
+  return (
+    <form className="settings-sub stack-tight" onSubmit={async (event: FormEvent) => {
+      event.preventDefault();
+      setBusy(true); setError('');
+      try {
+        await linkAccountPasswordToEncryption(accountPassword, currentSecret, method);
+        setOpen(false); setDone(true); setAccountPassword(''); setCurrentSecret('');
+      } catch (cause) { setError(message(cause)); }
+      finally { setBusy(false); }
+    }}>
+      <p className="sheet__label">Connect your account password</p>
+      <p className="section-description">Enter your current account password and prove access to your existing encrypted data. Your records and recovery key will not change.</p>
+      <input type="password" className="field-input" autoComplete="current-password" aria-label="Account password" placeholder="Account password" value={accountPassword} onChange={(event) => setAccountPassword(event.target.value)} />
+      <div className="chip-row">
+        <button type="button" className={method === 'passphrase' ? 'chip chip--accent' : 'chip'} onClick={() => { setMethod('passphrase'); setCurrentSecret(''); }}>Current encryption passphrase</button>
+        <button type="button" className={method === 'recovery' ? 'chip chip--accent' : 'chip'} onClick={() => { setMethod('recovery'); setCurrentSecret(''); }}>Recovery key</button>
+      </div>
+      <input type={method === 'passphrase' ? 'password' : 'text'} className="field-input" autoComplete="off" aria-label={method === 'passphrase' ? 'Current encryption passphrase' : 'Recovery key'} placeholder={method === 'passphrase' ? 'Current encryption passphrase' : 'Recovery key'} value={currentSecret} onChange={(event) => setCurrentSecret(event.target.value)} />
+      <div className="chip-row">
+        <button type="button" className="button-quiet" onClick={() => { setOpen(false); setError(''); }}>Cancel</button>
+        <button type="submit" className="chip chip--accent" disabled={busy || accountPassword.length < 10 || !currentSecret}>{busy ? 'Updating…' : 'Connect password'}</button>
+      </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
+    </form>
+  );
+}
+
 function Ready() {
   const status = useSyncStatus();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -480,6 +525,7 @@ function Ready() {
         <div className="sheet__more-body stack-tight">
           <StorageChoice />
           <SystemCheck />
+          <LinkAccountPassword />
           <ChangePassphrase />
           <DeleteAccount />
         </div>
