@@ -24,7 +24,7 @@ export type StoreEnv = {
   OWNER_EMAILS?: string;
 };
 
-export const PLAN_PRICES = { core: 999, cloud: 299 } as const;
+export const PLAN_PRICES = { core: 999, cloud: 999 } as const;
 export const PRICE_CENTS = PLAN_PRICES.core;
 export const CURRENCY = 'usd';
 
