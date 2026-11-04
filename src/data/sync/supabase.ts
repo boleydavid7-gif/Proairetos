@@ -55,7 +55,7 @@ export async function setAccountPassword(password: string): Promise<void> {
 /** Signs in to the shared Proairetos account with its email and password. */
 export async function signInWithPassword(email: string, password: string): Promise<User> {
   const { data, error } = await (await supabase()).auth.signInWithPassword({ email: email.trim(), password });
-  if (error || !data.user) throw new Error(error?.message ?? 'Sign-in failed. Check your email and password.');
+  if (error || !data.user) throw new Error(error?.message ?? 'Unable to sign in. Check your email and password.');
   return data.user;
 }
 
