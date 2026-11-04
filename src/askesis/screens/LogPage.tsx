@@ -16,13 +16,11 @@ import IconButton from '../../components/ui/IconButton';
 import { useShoes } from '../app/shoes';
 import { addHeldHealthWorkouts } from '../../app/health/health';
 
-type ProgressView = 'overview' | 'performance' | 'consistency' | 'history';
+type ProgressView = 'overview' | 'history';
 type HistoryActivity = Activity | 'all';
 
 const views: { id: ProgressView; label: string }[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'performance', label: 'Performance' },
-  { id: 'consistency', label: 'Consistency' },
   { id: 'history', label: 'History' },
 ];
 
@@ -38,7 +36,7 @@ const weekLabel = (from: string) => {
   return start.toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 };
 
-/** Progress is split into four useful views: a quick read, performance, consistency and the full log. */
+/** Progress has two views: an overview (totals, running trends, the last eight weeks) and the full log. */
 export default function LogPage({ nav }: { nav: Nav }) {
   const settings = useSettings();
   const today = useToday();
@@ -192,7 +190,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
         <Segmented label="Progress sections" value={view} options={views} onChange={setView} small />
       </div>
 
-      {(view === 'overview' || view === 'performance') && (
+      {view === 'overview' && (
         <div className="progress__period">
           <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
           {comparison && <p className="progress__comparison-note">Compared with the same point in the previous period.</p>}
@@ -264,116 +262,95 @@ export default function LogPage({ nav }: { nav: Nav }) {
             )}
             {workoutRows(list.slice(0, 4))}
           </section>
-        </div>
-      )}
-
-      {view === 'performance' && (
-        <div className="progress__content progress__content--performance">
-          <div className="tiles">
-            <div className="tile">
-              <span className="tile__label">Running distance</span>
-              <span className="tile__value">{formatDistance(runningTotals.meters, unit)}</span>
-            </div>
-            <div className="tile">
-              <span className="tile__label">Running time</span>
-              <span className="tile__value">{formatHours(runningTotals.seconds)}</span>
-            </div>
-            <div className="tile">
-              <span className="tile__label">Average pace</span>
-              <span className="tile__value">{averagePace ? formatPace(averagePace, unit) : '–'}</span>
-              <span className="tile__change">Combined average across logged running time and distance</span>
-            </div>
-            <div className="tile">
-              <span className="tile__label">Longest run</span>
-              <span className="tile__value">{runningTotals.longestMeters ? formatDistance(runningTotals.longestMeters, unit) : runningTotals.longestSeconds ? formatHours(runningTotals.longestSeconds) : '–'}</span>
-            </div>
-          </div>
 
           {runningEntries.length > 0 && (
-            <>
-              {runningEntries.some((entry) => (entry.meters ?? 0) > 0) && (
-                <section className="card progress__panel progress__performance-distance">
-                  <LineChart title={`Distance per week (${unit}), last 12 weeks`} points={performanceDistance} series={[{ name: 'Distance' }]} unit={unit} />
-                  <p className="muted progress__chart-note">Each point is the distance recorded during that Monday–Sunday week. The current week is still in progress.</p>
-                </section>
-              )}
-              {runningEntries.some((entry) => (entry.seconds ?? 0) > 0) && (
-                <section className="card progress__panel progress__performance-time">
-                  <LineChart title="Running time per week, last 12 weeks" points={performanceTime} series={[{ name: 'Time' }]} unit="min" />
-                  <p className="muted progress__chart-note">Each point is the running time recorded during that Monday–Sunday week. The current week is still in progress.</p>
-                </section>
-              )}
-            </>
-          )}
+            <section className="progress__running" aria-label="Running">
+              <h2 className="label">Running</h2>
+            <div className="tiles">
+              <div className="tile">
+                <span className="tile__label">Running distance</span>
+                <span className="tile__value">{formatDistance(runningTotals.meters, unit)}</span>
+              </div>
+              <div className="tile">
+                <span className="tile__label">Running time</span>
+                <span className="tile__value">{formatHours(runningTotals.seconds)}</span>
+              </div>
+              <div className="tile">
+                <span className="tile__label">Average pace</span>
+                <span className="tile__value">{averagePace ? formatPace(averagePace, unit) : '–'}</span>
+                <span className="tile__change">Combined average across logged running time and distance</span>
+              </div>
+            </div>
 
-          {(runRecords.longestDistance || runRecords.longestDuration || runRecords.fastestPace) && (
-            <section className="card records progress__panel progress__performance-records" aria-label="Personal records">
-              <div className="records__head">
-                <h2 className="card__title card__title--small">Personal records</h2>
-                <span className="card__eyebrow">All time</span>
-              </div>
-              <div className="records__grid">
-                {runRecords.longestDistance && <div><span className="tile__label">Longest distance</span><strong>{formatDistance(runRecords.longestDistance.meters!, unit)}</strong></div>}
-                {runRecords.longestDuration && <div><span className="tile__label">Longest run</span><strong>{formatHours(runRecords.longestDuration.seconds!)}</strong></div>}
-                {runRecords.fastestPace && <div><span className="tile__label">Fastest pace</span><strong>{formatPace(runRecords.fastestPace.secondsPerUnit, unit)}</strong></div>}
-              </div>
+            {runningEntries.length > 0 && (
+              <>
+                {runningEntries.some((entry) => (entry.meters ?? 0) > 0) && (
+                  <section className="card progress__panel progress__performance-distance">
+                    <LineChart title={`Distance per week (${unit}), last 12 weeks`} points={performanceDistance} series={[{ name: 'Distance' }]} unit={unit} />
+                    <p className="muted progress__chart-note">Each point is the distance recorded during that Monday–Sunday week. The current week is still in progress.</p>
+                  </section>
+                )}
+                {runningEntries.some((entry) => (entry.seconds ?? 0) > 0) && (
+                  <section className="card progress__panel progress__performance-time">
+                    <LineChart title="Running time per week, last 12 weeks" points={performanceTime} series={[{ name: 'Time' }]} unit="min" />
+                    <p className="muted progress__chart-note">Each point is the running time recorded during that Monday–Sunday week. The current week is still in progress.</p>
+                  </section>
+                )}
+              </>
+            )}
             </section>
           )}
 
-          {runningEntries.length === 0 && (
-            <p className="muted progress__empty-note">Your running trends will take shape as you log workouts with distance or time.</p>
-          )}
-        </div>
-      )}
-
-      {view === 'consistency' && (
-        <div className="progress__content progress__content--consistency">
-          <div className="tiles">
-            <div className="tile">
-              <span className="tile__label">Running days</span>
-              <span className="tile__value"><RollingNumber value={activeDays} /></span>
-              <span className="tile__change">Last 8 weeks</span>
-            </div>
-            <div className="tile">
-              <span className="tile__label">Active weeks</span>
-              <span className="tile__value">{activeWeeks} of 8</span>
-              <span className="tile__change">At least one logged run</span>
-            </div>
-            <div className="tile">
-              <span className="tile__label">Sessions</span>
-              <span className="tile__value"><RollingNumber value={sessionCount} /></span>
-              <span className="tile__change">Last 8 weeks</span>
-            </div>
-            <div className="tile">
-              <span className="tile__label">Per active week</span>
-              <span className="tile__value">{averageSessions.toFixed(1)}</span>
-              <span className="tile__change">Average sessions</span>
-            </div>
-          </div>
-
-          <section className="card progress__panel progress__consistency-chart">
-            <ColumnChart
-              title="Sessions each week"
-              days={consistencyWeeks.map((week) => ({
-                label: weekLabel(week.from),
-                long: `Week of ${weekLabel(week.from)}`,
-                value: week.count,
-              }))}
-            />
-          </section>
-
-          {feltSummary && (
-            <section className="card progress__panel progress__feelings">
-              <h2 className="card__title card__title--small">How your runs felt</h2>
-              <p className="muted">Your own ratings over the last four weeks. These describe how sessions felt, not a fitness score.</p>
-              <div className="records__grid">
-                <div><span className="tile__label">Easy or good</span><strong>{feltSummary.good}</strong></div>
-                <div><span className="tile__label">Challenging</span><strong>{feltSummary.challenging}</strong></div>
-                <div><span className="tile__label">Hard</span><strong>{feltSummary.hard}</strong></div>
+          {runningEntries.length > 0 && (
+            <section className="progress__rhythm" aria-label="The last eight weeks">
+              <h2 className="label">The last eight weeks</h2>
+            <div className="tiles">
+              <div className="tile">
+                <span className="tile__label">Running days</span>
+                <span className="tile__value"><RollingNumber value={activeDays} /></span>
+                <span className="tile__change">Last 8 weeks</span>
               </div>
+              <div className="tile">
+                <span className="tile__label">Active weeks</span>
+                <span className="tile__value">{activeWeeks} of 8</span>
+                <span className="tile__change">At least one logged run</span>
+              </div>
+              <div className="tile">
+                <span className="tile__label">Sessions</span>
+                <span className="tile__value"><RollingNumber value={sessionCount} /></span>
+                <span className="tile__change">Last 8 weeks</span>
+              </div>
+              <div className="tile">
+                <span className="tile__label">Per active week</span>
+                <span className="tile__value">{averageSessions.toFixed(1)}</span>
+                <span className="tile__change">Average sessions</span>
+              </div>
+            </div>
+
+            <section className="card progress__panel progress__consistency-chart">
+              <ColumnChart
+                title="Sessions each week"
+                days={consistencyWeeks.map((week) => ({
+                  label: weekLabel(week.from),
+                  long: `Week of ${weekLabel(week.from)}`,
+                  value: week.count,
+                }))}
+              />
+            </section>
+
+            {feltSummary && (
+              <section className="card progress__panel progress__feelings">
+                <h2 className="card__title card__title--small">How your runs felt</h2>
+                <p className="muted">Your own ratings over the last four weeks. These describe how sessions felt, not a fitness score.</p>
+                <div className="records__grid">
+                  <div><span className="tile__label">Easy or good</span><strong>{feltSummary.good}</strong></div>
+                  <div><span className="tile__label">Challenging</span><strong>{feltSummary.challenging}</strong></div>
+                  <div><span className="tile__label">Hard</span><strong>{feltSummary.hard}</strong></div>
+                </div>
+              </section>
+            )}
             </section>
           )}
-          {runningEntries.length === 0 && <p className="muted progress__empty-note">Log a run to start seeing your training rhythm here.</p>}
         </div>
       )}
 

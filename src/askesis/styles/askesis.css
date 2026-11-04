@@ -1845,6 +1845,18 @@ input[type='date'].input {
   min-width: 0;
 }
 
+.progress__running,
+.progress__rhythm {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.progress__running > .label,
+.progress__rhythm > .label {
+  margin: 6px 0 -6px;
+}
+
 .progress__panel {
   min-width: 0;
 }
