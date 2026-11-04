@@ -639,6 +639,15 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
 }
 
 /** Opens the data with the passphrase or recovery key. `forPasskey`: keep what a passkey made next needs, in memory. */
+/** Opens encrypted data with the account password after normal account sign-in. */
+export async function unlockWithAccountPassword(): Promise<void> {
+  if (!accountPasswordForKeySetup) throw new Error('Sign in with your account password first.');
+  const wrapped = await fetchWrappedKeys();
+  if (!wrapped?.passphrase) throw new KeyError('This account has not connected its account password to encrypted data yet. Use the existing recovery method once.');
+  const key = await unlockWithPassphrase(passphraseOf(wrapped), accountPasswordForKeySetup);
+  await keepKey(key);
+}
+
 export async function unlock(secret: string, method: 'passphrase' | 'recovery', forPasskey = false): Promise<void> {
   const wrapped = await fetchWrappedKeys();
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
