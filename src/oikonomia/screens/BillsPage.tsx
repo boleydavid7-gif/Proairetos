@@ -24,14 +24,14 @@ export default function BillsPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Bills</h1>
         </div>
-        <IconButton className="round-button" label="Add a bill" onClick={() => nav.swap({ name: 'capture' })}><PlusIcon size={22} /></IconButton>
+        <IconButton className="round-button" label="Add a bill" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></IconButton>
       </PageTop>
 
       {!bills ? (
         <Placeholder label="Gathering what you keep here" count={3} />
       ) : ordered.length === 0 && settled.length === 0 ? (
         <Empty icon={<BillsIcon size={28} />} title="No bills yet">
-          <button type="button" className="button-main" onClick={() => nav.swap({ name: 'capture' })}>Add a bill</button>
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}>Add a bill</button>
         </Empty>
       ) : (
         <>

@@ -1,3 +1,4 @@
+import { actingMember } from '../app/together';
 import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
 import { useEffect, useRef, useState } from 'react';
@@ -79,7 +80,8 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
     if (!review) return;
     const byMonth = new Map<string, Spent[]>();
     for (const line of review) {
-      const kept: Spent = { id: line.id, date: line.date, description: line.description, amountCents: line.amountCents, area: line.area };
+      const by = actingMember();
+      const kept: Spent = { id: line.id, date: line.date, description: line.description, amountCents: line.amountCents, area: line.area, ...(by ? { by } : {}) };
       byMonth.set(line.date.slice(0, 7), [...(byMonth.get(line.date.slice(0, 7)) ?? []), kept]);
     }
     const before = new Map([...byMonth.keys()].map((key) => [key, spentIn(key)]));
@@ -123,7 +125,8 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
     if (!description) return setProblem('Name the expense first.');
     if (amountCents === undefined || amountCents <= 0) return setProblem('Use an amount greater than zero.');
     if (!entryDate.startsWith(`${month}-`)) return setProblem('Choose a date in this month.');
-    const line: Spent = { id: newId(), date: entryDate, description, amountCents, area: entryArea, budgetItemId: entryBudgetItemId || undefined };
+    const by = actingMember();
+    const line: Spent = { id: newId(), date: entryDate, description, amountCents, area: entryArea, budgetItemId: entryBudgetItemId || undefined, ...(by ? { by } : {}) };
     const before = lines;
     saveSpent(month, [...before, line]);
     setEntryDescription('');
@@ -143,7 +146,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
         <ul className="oiko-spent-list">
           {review.map((line) => (
             <li key={line.id} className="oiko-spent-line">
-                <span className="oiko-spent-line__text"><strong>{line.description}</strong><small>{dayOf(line.date)}</small>{line.possibleDuplicate && <small className="oiko-import-warning">Possible duplicate — check this line</small>}</span>
+                <span className="oiko-spent-line__text"><strong>{line.description}</strong><small>{[dayOf(line.date), line.by].filter(Boolean).join(' · ')}</small>{line.possibleDuplicate && <small className="oiko-import-warning">Possible duplicate — check this line</small>}</span>
               <span className="oiko-spent-line__end">
                 <strong>{formatMoney(line.amountCents, currency)}</strong>
                 <select aria-label={`Area for ${line.description}`} value={line.area} onChange={(event) => setReview(review.map((each) => (each.id === line.id ? { ...each, area: event.target.value as BudgetCategory } : each)))}>

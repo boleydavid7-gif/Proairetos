@@ -22,7 +22,7 @@ describe('household', () => {
 
   it('describes the exact data shared by each app and marks medicines as sensitive', () => {
     expect(HOUSEHOLD_APPS.every((app) => app.description.trim().length > 0)).toBe(true);
-    expect(HOUSEHOLD_APPS.map((app) => app.app)).toEqual(['proairetos', 'soma', 'ergon', 'phyton', 'therapeia']);
+    expect(HOUSEHOLD_APPS.map((app) => app.app)).toEqual(['proairetos', 'soma', 'oikonomia', 'ergon', 'phyton', 'therapeia']);
     expect(HOUSEHOLD_APPS.find((app) => app.app === 'therapeia')?.sensitive).toBe(true);
     expect(HOUSEHOLD_APPS.find((app) => app.app === 'proairetos')?.description).toContain('Personal tasks');
   });

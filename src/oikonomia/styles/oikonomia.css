@@ -1350,3 +1350,14 @@
 .oiko-pay-row .oiko-bill-row {
   flex: 1;
 }
+
+/* The month grid on a phone shows a dot a bill; the names are in the list below. Computers keep the names. */
+.oiko-calendar-day__dots { display: flex; justify-content: center; gap: 4px; min-height: 8px; margin-top: 4px; }
+.oiko-calendar-day__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent, var(--ll-lamp, currentColor)); }
+.oiko-calendar-day__dots i.is-paid { opacity: 0.35; }
+@media (max-width: 61.99rem) {
+  .oiko-calendar-day__events { display: none; }
+}
+@media (min-width: 62rem) {
+  .oiko-calendar-day__dots { display: none; }
+}

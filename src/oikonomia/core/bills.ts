@@ -5,6 +5,8 @@ export type BillPayment = {
   date: string;
   amountCents: number;
   note?: string;
+  /** Who paid it, written only in a household's bills. */
+  by?: string;
   /** Not stored: an autopay date that has come, counted as paid. */
   auto?: boolean;
 };

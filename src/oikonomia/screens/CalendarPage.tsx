@@ -64,6 +64,11 @@ export default function CalendarPage({ nav }: { nav: Nav }) {
             return (
               <div key={date} className={'oiko-calendar-day' + (!inMonth ? ' oiko-calendar-day--outside' : '') + (date === today ? ' oiko-calendar-day--today' : '')}>
                 <span className="oiko-calendar-day__number">{Number(date.slice(-2))}</span>
+                {entries.length > 0 && (
+                  <span className="oiko-calendar-day__dots" aria-hidden="true">
+                    {entries.slice(0, 3).map((entry) => <i key={entry.bill.id + entry.date} className={paidForOccurrence(entry.bill, entry.date, today) ? 'is-paid' : undefined} />)}
+                  </span>
+                )}
                 <span className="oiko-calendar-day__events">
                   {entries.slice(0, 3).map((entry) => <button type="button" key={entry.bill.id + entry.date} title={entry.bill.name + ' · ' + formatDate(entry.date)} className={paidForOccurrence(entry.bill, entry.date, today) ? 'is-paid' : undefined} data-ll-lit={needsAttention(entry.bill, entry.date, today) ? 'fallback' : undefined} onClick={() => nav.go({ name: 'bill', id: entry.bill.id })}>{entry.bill.name}</button>)}
                 </span>

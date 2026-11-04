@@ -2,15 +2,15 @@ import type { ReactNode } from 'react';
 import ProairetosTab from '../../app/family/ProairetosTab';
 import DesktopAppLinks from '../../app/family/DesktopAppLinks';
 import heroWide from '../../assets/images/scenes/oikonomia-stoic-wide.webp';
-import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, PlusIcon, SettingsIcon } from './icons';
+import { ArchMark, BillsIcon, CalendarIcon, HomeIcon, SettingsIcon, WalletIcon } from './icons';
 
-export type Tab = 'today' | 'bills' | 'calendar' | 'capture' | 'more';
+export type Tab = 'today' | 'bills' | 'plan' | 'calendar' | 'more';
 
 const tabs: { id: Tab; label: string; Icon: (props: { size?: number }) => ReactNode }[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'bills', label: 'Bills', Icon: BillsIcon },
+  { id: 'plan', label: 'Plan', Icon: WalletIcon },
   { id: 'calendar', label: 'Calendar', Icon: CalendarIcon },
-  { id: 'capture', label: 'Add', Icon: PlusIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 

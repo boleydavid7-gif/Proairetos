@@ -99,7 +99,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
       <section className="oiko-history">
         <div className="oiko-section-head"><h2>Payment history</h2></div>
         {history.length === 0 ? <p className="muted">Nothing marked paid yet.</p> : history.map((payment) => (
-          <div className="oiko-history-row" key={payment.id}><span>{formatDate(payment.date, 'long')}{payment.auto && <small> · automatically</small>}</span><strong>{formatMoney(payment.amountCents, bill.currency)}</strong></div>
+          <div className="oiko-history-row" key={payment.id}><span>{formatDate(payment.date, 'long')}{payment.auto && <small> · automatically</small>}{payment.by && <small> · {payment.by}</small>}</span><strong>{formatMoney(payment.amountCents, bill.currency)}</strong></div>
         ))}
       </section>
 

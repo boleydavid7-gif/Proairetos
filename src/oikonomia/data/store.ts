@@ -15,6 +15,8 @@ export type Settings = {
   planWeekStart: number;
   /** Optional recurring ceiling for food spending in one plan week (cents). */
   weeklyFoodBudgetCents?: number;
+  /** Expenses go to the household with the bills (on unless turned off). */
+  shareExpenses?: boolean;
 };
 
 export function defaultSettings(): Settings {

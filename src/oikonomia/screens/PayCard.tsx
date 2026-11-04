@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
-import { ChevronIcon } from '../app/icons';
 import { formatDate, formatMoney, type Bill } from '../core/bills';
 import { payView } from '../core/pay';
 import { cents } from '../core/statements';
@@ -17,15 +16,8 @@ export default function PayCard({ nav, bills, today, currency }: { nav: Nav; bil
   const [open, setOpen] = useState(false);
   const view = payView(pays, bills, today, currency, balance);
 
-  if (!view) {
-    return (
-      <button type="button" className="card oiko-budget-home" onClick={() => nav.go({ name: 'pay' })}>
-        <span className="card__eyebrow">Pay</span>
-        <span className="oiko-budget-home__line"><span>Add when you’re paid</span></span>
-        <span className="muted"><ChevronIcon size={18} /></span>
-      </button>
-    );
-  }
+  // Nothing shows until the person has said when they are paid (Plan > Pay).
+  if (!view) return null;
 
   return (
     <section className="card oiko-pay" aria-label="Until pay">

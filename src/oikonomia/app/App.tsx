@@ -5,6 +5,7 @@ import { directionAlong, transition, type Direction } from '../../app/transition
 import { useSettings } from './state';
 import { TabBar, tabNames, type Tab } from './ui';
 import { UndoToast } from './undo';
+import { useBillSharing } from './together';
 import { takeOpening } from '../../app/family/opening';
 import WelcomePage from '../screens/WelcomePage';
 import HomePage from '../screens/HomePage';
@@ -13,6 +14,8 @@ import CalendarPage from '../screens/CalendarPage';
 import CapturePage from '../screens/CapturePage';
 import PayPage from '../screens/PayPage';
 import MorePage from '../screens/MorePage';
+import PlanPage from '../screens/PlanPage';
+import MilestonesPage from '../screens/MilestonesPage';
 import BillPage from '../screens/BillPage';
 import BudgetPage from '../screens/BudgetPage';
 import SpentPage from '../screens/SpentPage';
@@ -22,6 +25,8 @@ import PwaStatus from '../../app/pwa/PwaStatus';
 export type Route =
   | { name: 'welcome' }
   | { name: Tab }
+  | { name: 'capture' }
+  | { name: 'milestones' }
   | { name: 'bill'; id: string }
   | { name: 'edit'; id: string }
   | { name: 'budget' }
@@ -49,6 +54,7 @@ export default function App() {
     if (opening === 'spent') return { name: 'spent' };
     if (opening === 'expense') return { name: 'expense' };
     if (opening === 'pay') return { name: 'pay' };
+    if (opening === 'capture') return { name: 'capture' };
     if (opening === 'envelopes') return { name: 'envelopes' };
     if (opening && (tabNames as string[]).includes(opening)) return { name: opening as Tab };
     return settings.started || opening ? { name: 'today' } : { name: 'welcome' };
@@ -80,6 +86,7 @@ export default function App() {
   useEffect(() => {
     void startSync();
   }, []);
+  useBillSharing();
 
   const current = useRef(route);
   current.current = route;
@@ -123,8 +130,12 @@ export default function App() {
         return <HomePage nav={nav} />;
       case 'bills':
         return <BillsPage nav={nav} />;
+      case 'plan':
+        return <PlanPage nav={nav} />;
       case 'calendar':
         return <CalendarPage nav={nav} />;
+      case 'milestones':
+        return <MilestonesPage nav={nav} />;
       case 'capture':
         return <CapturePage nav={nav} />;
       case 'edit':
@@ -150,7 +161,7 @@ export default function App() {
     }
   })();
 
-  const showTabs = route.name !== 'welcome' && route.name !== 'bill' && route.name !== 'edit';
+  const showTabs = route.name !== 'welcome' && route.name !== 'bill' && route.name !== 'edit' && route.name !== 'capture';
   return (
     <div className={'shell' + (showTabs ? ' shell--tabs' : '')}>
       <PwaStatus />

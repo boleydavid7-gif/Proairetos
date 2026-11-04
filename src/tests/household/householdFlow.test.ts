@@ -180,7 +180,7 @@ vi.mock('../../data/sync/supabase', () => ({ isSyncConfigured: true, supabase: a
 
 const device = (name: string) => {
   localStorage.clear();
-  localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['ergon', 'soma'] }));
+  localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['ergon', 'soma', 'oikonomia'] }));
   localStorage.setItem('proairetosOwned', JSON.stringify({ apps: [], tester: true }));
   localStorage.setItem('proairetos.displayName', JSON.stringify(name));
 };
@@ -194,12 +194,14 @@ describe('a household', () => {
     const household = await import('../../app/household/household');
     const { homes } = await import('../../ergon/app/state');
     const soma = await import('../../soma/data/sharedLists');
+    const oikonomia = await import('../../oikonomia/app/together');
 
     user = 'user-a';
     device('Sam');
     await household.makeHousehold('The Smiths');
     await household.shareApp('ergon');
     await household.shareApp('soma');
+    await household.shareApp('oikonomia');
     const made = household.household()!;
     await household.households.refreshList(made);
     await household.syncHousehold();
@@ -214,6 +216,8 @@ describe('a household', () => {
     expect(homes.sharedLists().map((list) => list.id)).toEqual([ergonList.id]);
     expect(homes.sharedItems(homes.sharedLists()[0]).map((chore) => chore.id)).toEqual(['c1']);
     expect(soma.sharedLists()).toHaveLength(1);
+    expect(oikonomia.oikonomiaLists.sharedLists()).toHaveLength(1);
+    expect(oikonomia.householdList()?.id).toBe(oikonomia.oikonomiaLists.sharedLists()[0].id);
     await household.syncHousehold();
     const items = household.households.sharedItems(household.household()!);
     expect(items.filter((item) => item.kind === 'member').map((item) => (item as { name: string }).name).sort()).toEqual(['Alex', 'Sam']);
