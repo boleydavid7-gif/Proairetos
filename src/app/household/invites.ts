@@ -3,7 +3,8 @@ import { supabase } from '../../data/sync/supabase';
 import { displayName } from '../../data/storage/preferences';
 import { openSealed } from '../capture/inbox';
 import { openWithAccount, sealWithAccount, syncStatus } from '../sync/syncController';
-import type { ListRef } from '../../core/household/household';
+import { householdLink, type ListRef } from '../../core/household/household';
+import { apiUrl } from '../apiBase';
 
 /*
  * Household invites by email (migration 20261031000000_household_invites.sql). Each account has a key pair made on its
@@ -87,10 +88,23 @@ export async function inviteByEmail(email: string, household: ListRef): Promise<
   const { data, error } = await client.rpc('invitee_key', { address, household: household.id });
   plain(error);
   const found = data as { user_id: string; public_key: JsonWebKey } | null;
-  if (!found) throw new Error('No account with that email has opened Proairetos on this version yet. Send the link instead.');
   const from = displayName().trim() || user.email;
-  const sealed = await sealFor(found.public_key, { household, from });
-  plain((await client.from('household_invites').insert({ household_id: household.id, to_user: found.user_id, to_email: address, from_user: user.id, sealed })).error);
+  const sealed = found ? await sealFor(found.public_key, { household, from }) : undefined;
+  const session = (await client.auth.getSession()).data.session;
+  const inviteOrigin = new URL(apiUrl('/'), location.href).origin;
+  const response = await fetch(apiUrl('/api/household/invite'), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${session?.access_token ?? ''}` },
+    body: JSON.stringify({
+      householdId: household.id,
+      ...(found ? { toUser: found.user_id, sealed } : { link: householdLink(inviteOrigin, household) }),
+      toEmail: address,
+      senderName: from,
+      householdName: household.name,
+    }),
+  });
+  const result = (await response.json().catch(() => ({}))) as { error?: string };
+  if (!response.ok) throw new Error(result.error ?? 'The invitation could not be sent. Try again.');
   await refreshInvites();
 }
 

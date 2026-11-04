@@ -583,3 +583,8 @@ bought), sent by the Worker's daily schedule (`triggers.crons` in `wrangler.json
 Until `RESEND_API_KEY` and `EMAIL_SIGNING_SECRET` are set, nothing is sent. Who stopped them:
 `select user_id, stopped_at from public.email_stops;`
 
+The same `RESEND_API_KEY`, `EMAIL_FROM`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` settings also send
+household invitations from Settings → Household. An invitation to an existing account is kept as the encrypted
+`household_invites` row and appears in that person's Today card and notification bell; an address without a ready account key
+receives a secure household link instead. No service-role key is shipped to the browser.
+

@@ -17,8 +17,9 @@ import { handleHealthRequest } from './health';
 import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 import { handleTripEmail, type IncomingEmail } from './tripMail';
+import { handleHouseholdInviteRequest, type HouseholdInviteEnv } from './householdInvite';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv & ReceiptEnv & FirstWeekEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv & ReceiptEnv & FirstWeekEnv & HouseholdInviteEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 export const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -85,6 +86,8 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
   if (url.pathname.startsWith('/api/health/')) return handleHealthRequest(request, env, url.pathname.slice('/api/health/'.length));
   // The Store: monthly plans through Stripe Checkout, kept with the person's account.
   if (url.pathname === '/api/store' || url.pathname.startsWith('/api/store/')) return handleStoreRequest(request, env);
+  // Household email invitations: the browser seals the household reference; the Worker sends the email and stores it.
+  if (url.pathname === '/api/household/invite') return handleHouseholdInviteRequest(request, env);
   // The front page's waitlist: a plain form posts here and is sent on to a thank-you page.
   if (url.pathname === '/api/waitlist') return handleWaitlistRequest(request, env);
   // Phyton's photos, from its own pages only (POST, same origin).
