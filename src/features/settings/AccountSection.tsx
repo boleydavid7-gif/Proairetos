@@ -69,7 +69,13 @@ function SignIn() {
   if (stage === 'verify') return (
     <form className="stack-tight" onSubmit={(event: FormEvent) => {
       event.preventDefault();
-      void run(async () => { await confirmCode(email, code); setStage(mode === 'create' ? 'password' : 'choice'); });
+      void run(async () => {
+        await confirmCode(email, code);
+        // Legacy accounts were created with an email code plus an encryption
+        // passphrase, not a Supabase password. Let them establish the account
+        // password without creating a second account.
+        setStage(mode === 'create' || mode === 'code' ? 'password' : 'choice');
+      });
     }}>
       <p className="section-description">Enter the confirmation code sent to {email}.</p>
       <input className="field-input" autoComplete="one-time-code" aria-label="Email confirmation code" placeholder="Confirmation code" value={code} onChange={(event) => setCode(event.target.value)} />
@@ -87,9 +93,23 @@ function SignIn() {
         if (password !== again) throw new Error('The passwords do not match.');
         await saveAccountPassword(password);
         await refreshSyncStatus();
+        // If this is a legacy account and the person used their existing
+        // passphrase as the new account password, it opens the same data key.
+        // If they chose a different password, the normal unlock screen offers
+        // the existing passphrase once and then migrates it automatically.
+        if (syncStatus.get().phase === 'locked') {
+          try {
+            await unlockWithAccountPassword();
+          } catch {
+            // Do not undo a valid account password. The locked view will offer
+            // the existing passphrase/recovery key as a one-time migration.
+          }
+        }
       });
     }}>
-      <p className="section-description">Email confirmed. Create the one password you'll use across Proairetos and its apps.</p>
+      <p className="section-description">
+        Set the one password you'll use across Proairetos and every app. If you already created encrypted sync with a passphrase, enter that same passphrase here. It will become your account password too, so you won't need two secrets.
+      </p>
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Create password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} />
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Confirm password" placeholder="Confirm password" value={again} onChange={(event) => setAgain(event.target.value)} />
       <button type="submit" className="button-accent account-wide" disabled={busy || password.length < 10 || password !== again}>{busy ? 'Saving…' : 'Set password'}</button>
