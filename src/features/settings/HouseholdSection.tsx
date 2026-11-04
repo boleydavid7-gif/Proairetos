@@ -291,11 +291,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
             <p className="hint household__permissions-note">Anyone with the link can join this household.</p>
             {copied && <p className="hint" role="status">Link copied.</p>}
           </>
-        ) : rolesReady ? (
-          <p className="hint household__permissions-note">Only the owner and administrators can invite or manage members.</p>
-        ) : (
-          <p className="hint household__permissions-note">Member management needs the latest Family server update. Apply migration 20261104000000_household_member_roles.sql in Supabase first.</p>
-        )}
+        ) : null}
       </section>
 
       {waiting.length > 0 && (
