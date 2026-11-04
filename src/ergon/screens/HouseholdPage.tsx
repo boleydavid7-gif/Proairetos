@@ -6,8 +6,8 @@ import { syncStatus } from '../../app/sync/syncController';
 import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
 import { homes, ownChores, sharingAvailable, useChores, useHome } from '../app/state';
-import { nextDay, whoDidWhat } from '../core/chores';
-import { toLocalDate } from '../../core/scheduling/dates';
+import { nextDay } from '../core/chores';
+import { addDays, toLocalDate } from '../../core/scheduling/dates';
 
 const INVITE = 'ergonShared.invite';
 
@@ -60,7 +60,12 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   const own = ownChores.use();
   const today = toLocalDate(new Date());
   const familyConnected = family.parts.some((part) => part.app === 'ergon');
-  const activity = whoDidWhat(chores, today);
+  const from = addDays(today, -30);
+  const recentActivity = chores
+    .flatMap((chore) => (chore.activity ?? []).map((event) => ({ ...event, choreId: chore.id, choreName: chore.name })))
+    .sort((a, b) => b.at.localeCompare(a.at))
+    .slice(0, 20);
+  const unassigned = chores.filter((chore) => nextDay(chore) && !chore.whoId && !chore.who).length;
   const [invite, setInvite] = useState(pendingInvite);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -152,9 +157,11 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   const familyName = familyConnected ? family.list?.name ?? home.name : home.name;
   const members = family.members.map((member) => {
     const userId = member.id.slice('member:'.length);
-    const assigned = chores.filter((chore) => nextDay(chore) && (chore.whoId === userId || (!chore.whoId && chore.who === member.name))).length;
-    const completed = activity.find((fact) => fact.name === member.name)?.times ?? 0;
-    return { ...member, userId, assigned, completed, role: family.rolesReady ? family.roles[userId] ?? 'member' : 'member' };
+    const assignedChores = chores.filter((chore) => nextDay(chore) && (chore.whoId === userId || (!chore.whoId && chore.who === member.name)));
+    const assigned = assignedChores.length;
+    const estimatedMinutes = assignedChores.reduce((total, chore) => total + (chore.minutes ?? 0), 0);
+    const completed = chores.reduce((total, chore) => total + chore.history.filter((done) => done.date > from && (done.byId === userId || (!done.byId && done.by === member.name))).length, 0);
+    return { ...member, userId, assigned, estimatedMinutes, completed, role: family.rolesReady ? family.roles[userId] ?? 'member' : 'member' };
   });
 
   return (
@@ -176,7 +183,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
                     <strong>{member.name}{member.userId === family.currentUserId ? ' · You' : ''}</strong>
                     <span className="muted"> · {member.role === 'owner' ? 'Owner' : member.role === 'admin' ? 'Administrator' : 'Member'}</span>
                   </span>
-                  <span className="muted">{member.assigned} open · {member.completed} done</span>
+                  <span className="muted">{member.assigned} open{member.estimatedMinutes > 0 ? ` · ${member.estimatedMinutes} min estimated` : ''} · {member.completed} done</span>
                 </li>
               ))}
             </ul>
@@ -186,8 +193,42 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         ) : (
           <p className="muted">Connect Ergon under Proairetos Settings → Family → What you share. Once connected, chores can be assigned to actual household members and turns can follow the family roster.</p>
         )}
+        {familyConnected && unassigned > 0 && <p className="muted">{unassigned} {unassigned === 1 ? 'chore is' : 'chores are'} open to everyone.</p>}
         <a className="button-main" href="/?open=settings:household">Manage family settings</a>
       </section>
+
+      {familyConnected && (
+        <section className="card">
+          <div className="section-head">
+            <h2>Recent activity</h2>
+          <span className="muted">{recentActivity.length ? `Latest ${recentActivity.length}` : 'No activity yet'}</span>
+        </div>
+        {recentActivity.length > 0 ? (
+          <ul className="notes-list">
+            {recentActivity.map((event) => {
+              const actor = family.members.find((member) => member.id === `member:${event.byId}`)?.name ?? event.by;
+              const target = event.assignedToId
+                ? family.members.find((member) => member.id === `member:${event.assignedToId}`)?.name ?? event.assignedTo ?? 'a former member'
+                : event.assignedTo;
+              const next = event.nextAssigneeId
+                ? family.members.find((member) => member.id === `member:${event.nextAssigneeId}`)?.name ?? event.nextAssignee ?? 'a former member'
+                : event.nextAssignee;
+              const verb = event.action === 'added' ? 'added' : event.action === 'completed' ? 'completed' : event.action === 'assigned' ? 'assigned' : 'updated';
+              const detail = event.action === 'assigned' ? ` to ${target ?? 'anyone'}` : event.action === 'completed' && next ? ` · Next: ${next}` : '';
+              const when = new Date(event.at);
+              return (
+                <li key={event.id} className="note-line">
+                  <span><strong>{actor}</strong> {verb} <strong>{event.choreName}</strong>{detail}</span>
+                  <span className="muted">{when.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}</span>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="muted">Chore activity will appear here as your household uses Ergon.</p>
+        )}
+        </section>
+      )}
 
       <section className="card">
         <div className="section-head">

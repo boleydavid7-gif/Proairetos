@@ -27,6 +27,7 @@ import { bookings as poreiaBookings, packing as poreiaPacking, plans as poreiaPl
 import { otherCalendars } from '../calendars/otherCalendars';
 import { scheduleService } from '../services';
 import { isAdded } from '../family/added';
+import { householdActor } from '../household/household';
 
 /** The newer apps' notices (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton), from what they keep on this device (Proairetos sends them all). */
 export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
@@ -54,7 +55,8 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const chores = allChores();
   if (chores.length && isAdded('ergon')) {
     const ergon = ergonSettings.load();
-    notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon, await ergonDaysOff().catch(() => undefined)));
+    const actor = householdActor('ergon');
+    notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon, await ergonDaysOff().catch(() => undefined), actor?.id));
   }
 
   const meds = allMedicines();

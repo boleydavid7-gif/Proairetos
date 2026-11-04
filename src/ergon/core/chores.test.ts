@@ -123,10 +123,22 @@ describe('notices', () => {
     expect(notices.map((n) => [n.title, n.at.getHours()]).sort()).toEqual([['Take out the trash', 19], ['Vacuum', 9]]);
   });
 
-  it('can keep to one person', () => {
+  it('can keep to one person by name for standalone lists', () => {
     const list = [chore({ id: 'a', name: 'Take out the trash', start: '2026-10-12', who: 'Ana' }), chore({ id: 'b', name: 'Vacuum', start: '2026-10-12', who: 'Ben' })];
     const notices = choreNotices(list, { ...defaultChoreNotices, onlyMine: true }, 'Ana', '2026-10-10', 14);
     expect(notices.map((n) => n.title)).toEqual(['Take out the trash']);
+  });
+
+  it('uses stable household member IDs for personal reminders after a rename', () => {
+    const list = [
+      chore({ id: 'a', name: 'Take out the trash', start: '2026-10-12', who: 'Old name', whoId: 'user-a' }),
+      chore({ id: 'b', name: 'Vacuum', start: '2026-10-12', who: 'Alex', whoId: 'user-b' }),
+      chore({ id: 'c', name: 'Wipe the counters', start: '2026-10-12' }),
+    ];
+    const notices = choreNotices(list, { ...defaultChoreNotices, onlyMine: true }, 'New name', '2026-10-10', 14, undefined, 'user-a');
+    expect(notices).toHaveLength(1);
+    expect(notices[0].title).toBe('2 chores');
+    expect(notices[0].body).toBe('Take out the trash, Wipe the counters');
   });
 });
 

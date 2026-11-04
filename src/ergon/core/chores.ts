@@ -14,7 +14,19 @@ export type Repeat =
   | { kind: 'monthly'; day: number }
   | { kind: 'once' };
 
-export type Done = { date: string; by?: string };
+export type Done = { date: string; by?: string; byId?: string; at?: string };
+
+export type ChoreActivity = {
+  id: string;
+  action: 'added' | 'changed' | 'assigned' | 'completed';
+  at: string;
+  by: string;
+  byId?: string;
+  assignedTo?: string;
+  assignedToId?: string;
+  nextAssignee?: string;
+  nextAssigneeId?: string;
+};
 
 export type ChorePerson = { id: string; name: string };
 
@@ -39,6 +51,8 @@ export type Chore = {
   /** Skipped on this day: the next day counts from here. */
   skipped?: string;
   history: Done[];
+  /** Recent household actions, stored with the encrypted shared chore. */
+  activity?: ChoreActivity[];
   note?: string;
   /** Steps for a bigger chore (optional). */
   steps?: Step[];
