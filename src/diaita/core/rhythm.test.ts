@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { atTime } from '../../core/scheduling/dates';
-import { clock, dayKind, defaultRhythm, entriesOn, isNight, mainSleeps, planBetween, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
+import { checkInOpen, clock, dayKind, defaultRhythm, entriesOn, isNight, mainSleeps, planBetween, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
 
 const block = (date: string, start: string, endDate: string, end: string, label = 'Work'): WorkBlock => ({ start: atTime(date, start), end: atTime(endDate, end), label });
 
@@ -128,6 +128,18 @@ describe('the sleep log', () => {
   it('offers the planned times for the check-in', () => {
     const plan = planBetween('2026-10-09', '2026-10-10', [], withAdvice);
     expect(plannedSleepInto('2026-10-10', plan)).toEqual({ bed: '22:30', up: '06:00' });
+  });
+
+  it('offers the check-in from waking, wherever the plan puts it', () => {
+    const plan = planBetween('2026-10-09', '2026-10-10', [], withAdvice);
+    expect(checkInOpen(plan, new Date(2026, 9, 10, 8, 0))).toBe(true);
+    expect(checkInOpen(plan, new Date(2026, 9, 10, 13, 0))).toBe(false);
+    const entry = (start: Date, end: Date) => ({ key: 'k', kind: 'sleep' as const, start, end, title: 'Sleep' });
+    const nights = [entry(new Date(2026, 9, 9, 8, 0), new Date(2026, 9, 9, 16, 30))];
+    expect(checkInOpen(nights, new Date(2026, 9, 9, 18, 0))).toBe(true);
+    expect(checkInOpen(nights, new Date(2026, 9, 10, 1, 0))).toBe(false);
+    expect(checkInOpen([], new Date(2026, 9, 10, 8, 0))).toBe(true);
+    expect(checkInOpen([], new Date(2026, 9, 10, 13, 0))).toBe(false);
   });
 
   it('places worry time before an ordinary night', () => {

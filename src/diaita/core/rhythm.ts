@@ -351,6 +351,17 @@ export function plannedSleepInto(date: string, entries: readonly Entry[]): { bed
   return { bed: clock(sleep.start), up: clock(sleep.end) };
 }
 
+/** The check-in is offered from waking for a few hours. Waking is the end of the last planned main sleep, so a shift pattern sets it. With no sleep in the plan, 4:00 to noon. */
+export function checkInOpen(entries: readonly Entry[], now: Date, hours = 6): boolean {
+  const ended = entries.filter((entry) => entry.kind === 'sleep' && entry.end && entry.end <= now);
+  const woke = ended.reduce<Date | undefined>((latest, entry) => (!latest || (entry.end as Date) > latest ? (entry.end as Date) : latest), undefined);
+  if (!woke) {
+    const hour = now.getHours();
+    return hour >= 4 && hour < 12;
+  }
+  return now.getTime() - woke.getTime() < hours * 3_600_000;
+}
+
 export function clock(date: Date): string {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }

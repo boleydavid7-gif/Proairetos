@@ -9,7 +9,7 @@ import type { DiaitaNav } from '../app/App';
 import { sleeps, usePlan } from '../app/state';
 import { useSleepSounds } from '../app/sleepSounds';
 import { Timeline, span } from '../app/ui';
-import { DAY_NAMES, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, timeText, type Entry, type SleepQuality } from '../core/rhythm';
+import { DAY_NAMES, checkInOpen, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, timeText, type Entry, type SleepQuality } from '../core/rhythm';
 
 const ENERGY: { id: Energy; label: string }[] = [
   { id: 'full', label: 'Plenty' },
@@ -185,7 +185,7 @@ export default function TodayPage({ nav }: { nav: DiaitaNav }) {
           </section>
         )}
 
-        {((hour >= 4 && hour < 12) || sleeps.list().some((record) => record.id === today)) && <CheckIn date={today} planned={planned} nav={nav} />}
+        {(checkInOpen(entries, now) || sleeps.list().some((record) => record.id === today)) && <CheckIn date={today} planned={planned} nav={nav} />}
 
         <div className="section-head">
           <h2>Today</h2>
