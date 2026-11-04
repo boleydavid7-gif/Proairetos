@@ -71,7 +71,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   if (!sharingAvailable) {
     return (
       <section className="settings-card">
-        <p className="section-description">Sharing needs the server, which isn’t set up for this site.</p>
+        <p className="section-description">Sharing is unavailable.</p>
       </section>
     );
   }
@@ -79,7 +79,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   if (!signedIn) {
     return (
       <section className="settings-card">
-        <p className="section-description">Sign in to share with the people at home.</p>
+
         <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>Account and sync</button>
       </section>
     );
@@ -157,7 +157,6 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
           <input className="input" aria-label="Name of the household" value={name} onChange={(event) => setName(event.target.value)} />
           <button type="submit" className="button-accent account-wide" disabled={busy !== null || !name.trim()}>Make a household</button>
         </form>
-        <p className="hint">Encrypted end to end.</p>
         {error && <p className="form-error" role="alert">{error}</p>}
       </section>
     );
@@ -236,7 +235,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                     {memberActionError?.userId === userId && <p className="form-error household__member-error" role="alert">{memberActionError.message}</p>}
                     {removeConfirm === userId && canRemove && (
                       <div className="household__remove-confirm">
-                        <span>Remove {member.name} from this family? They lose household access and access to connected app lists they do not own on their next sync. Existing family links can still be used to rejoin; downloaded copies cannot be recalled.</span>
+                        <span>Remove {member.name}? They will lose household access and access to shared app lists they do not own.</span>
                         <div className="button-row">
                           <button type="button" className="button-quiet" disabled={busy !== null} onClick={() => setRemoveConfirm(null)}>Cancel</button>
                           <button
@@ -287,16 +286,12 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
               <input className="input" type="email" autoComplete="email" aria-label="Email" value={email} onChange={(event) => { setEmail(event.target.value); setSent(''); }} />
               <button type="submit" className="button-accent account-wide" disabled={busy !== null || !email.trim()}>Invite</button>
             </form>
-            {sent && <p className="hint" role="status">Invite sent to {sent}. It shows when they open any of the apps.</p>}
+            {sent && <p className="hint" role="status">Invite sent to {sent}.</p>}
             <button type="button" className="button-quiet account-wide" onClick={() => void share()}>Send a link instead</button>
-            <p className="hint household__permissions-note">Anyone with this link can join the household. Share it only with people you trust.</p>
+            <p className="hint household__permissions-note">Anyone with the link can join this household.</p>
             {copied && <p className="hint" role="status">Link copied.</p>}
           </>
-        ) : rolesReady ? (
-          <p className="hint household__permissions-note">Only the owner and administrators can invite or manage members.</p>
-        ) : (
-          <p className="hint household__permissions-note">Member management needs the latest Family server update. Apply migration 20261104000000_household_member_roles.sql in Supabase first.</p>
-        )}
+        ) : null}
       </section>
 
       {waiting.length > 0 && (
@@ -317,7 +312,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
 
       <section className="settings-group" aria-label="What your family can see">
         <h2 className="settings-group__label">What you share</h2>
-        <p className="section-description">Choose the specific list each app makes available to this household. Nothing else in those apps is included.</p>
+
         <div className="settings-card settings-card--rows notify-list">
           {shown.map(({ app, name: label, description, sensitive }) => {
             const part = parts.find((each) => each.app === app);
@@ -361,20 +356,18 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         </div>
         <section className="settings-card household__sharing-note">
           <strong>What stays private</strong>
-          <p>Personal to-dos, calendar events, reflections, Compass, finances and imported health records are not included in these shares. The Medicines list above is separate and only shared when enabled.</p>
+          <p>Only enabled lists are shared. Personal tasks, calendar, reflections, Compass, finances and health records stay private.</p>
         </section>
       </section>
 
-      {currentRole === 'owner' && !rolesReady ? (
-        <p className="hint household__permissions-note">Household management needs the latest Family server migrations. Apply the Family migrations listed in docs/SERVER_SETUP.md in Supabase first.</p>
-      ) : currentRole === 'owner' ? (
+      {currentRole === 'owner' && rolesReady ? (
         <section className="settings-group" aria-label="Household management">
           <h2 className="settings-group__label">Household management</h2>
           <div className="settings-card household__lifecycle">
             <div className="household__lifecycle-section">
               <div>
                 <h3>Transfer ownership</h3>
-                <p>Give another household member control of this family. You will become a regular member.</p>
+                <p>You will become a regular member.</p>
               </div>
               {otherMembers.length > 0 ? (
                 <>
@@ -418,7 +411,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
             <div className="household__lifecycle-section household__danger-zone">
               <div>
                 <h3>Delete household</h3>
-                <p>Permanently remove this family, its membership, invitations and sharing connections. App lists and their content are kept; their creators, share owners and the household owner retain access.</p>
+
               </div>
               {!confirmDelete ? (
                 <button type="button" className="button-danger account-wide" disabled={busy !== null} onClick={() => setConfirmDelete(true)}>
