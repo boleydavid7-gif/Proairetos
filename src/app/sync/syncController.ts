@@ -1,6 +1,6 @@
 import { createSyncEngine, type SyncResult } from '../../data/sync/engine';
 import { familyWorker } from '../notify/familyWorker';
-import { KeyError, createKeys, createKeysForPasskey, openBytes, rewrapWithPassphrase, sealBytes, sealNoticeWords, unlockWithPasskey, unlockWithPassphrase, unlockWithRecoveryKey, wrapWithPasskey, type KeySetup, type PasskeyKeySetup, type WrappedKey } from '../../data/sync/keys';
+import { KeyError, createKeys, createKeysForPasskey, createKeysWithPassword, openBytes, rewrapWithPassphrase, rewrapWithPassword, sealBytes, sealNoticeWords, unlockWithPasskey, unlockWithPassphrase, unlockWithPassword, unlockWithRecoveryKey, wrapWithPasskey, type KeySetup, type PasswordKeySetup, type PasskeyKeySetup, type WrappedKey } from '../../data/sync/keys';
 import { createPasskey, deviceLabel, passkeysHere, askForPasskey } from '../../data/sync/passkeys';
 import { createIndexedDbLocalSyncStore, createIndexedDbSyncStateStore } from '../../data/sync/localStores';
 import { withDeviceRecords } from '../../data/sync/deviceRecords';
@@ -32,6 +32,8 @@ import {
   hasPushSubscription,
   OlderRemindersTable,
   saveWrappedKeys,
+  savePasswordWrappedKeys,
+  savePasswordWrap,
   savePassphraseWrap,
   savePushSubscription,
   sendSignInCode,
@@ -574,8 +576,8 @@ export async function linkAccountPasswordToEncryption(
   const key = method === 'passphrase'
     ? await unlockWithPassphrase(passphraseOf(wrapped), currentSecret, true)
     : await unlockWithRecoveryKey(wrapped.recovery, currentSecret, true);
-  const nextWrap = await rewrapWithPassphrase(key, accountPassword);
-  await savePassphraseWrap(userId, nextWrap);
+  const nextWrap = await rewrapWithPassword(key, accountPassword);
+  await savePasswordWrap(userId, nextWrap);
   // The same authenticated device can now create short-lived, single-use
   // handoffs without asking the person for a second encryption secret.
   await (await localState())!.setMeta(HANDOFF_META, key);
@@ -713,6 +715,26 @@ export async function finishSetupWithPasskey(): Promise<void> {
  * First device, step 1: creates the keys in memory only, so the recovery key
  * can be shown. Nothing is saved or uploaded yet.
  */
+export function preparePasswordEncryption(): Promise<PasswordKeySetup> {
+  if (!accountPasswordForKeySetup) throw new KeyError('Sign in with your account password before setting up encrypted sync.');
+  return createKeysWithPassword(accountPasswordForKeySetup);
+}
+
+export async function confirmPasswordEncryption(setup: PasswordKeySetup): Promise<void> {
+  if (!userId) throw new Error('This device is not signed in any more. Sign in again, then set up once more.');
+  await savePasswordWrappedKeys(userId, setup.passwordWrap, setup.recoveryWrap);
+  await savePasskeyMade(null).catch(() => undefined);
+  const handoffKey = await unlockWithPassword(setup.passwordWrap, accountPasswordForKeySetup ?? '', true);
+  await (await localState())!.setMeta(HANDOFF_META, handoffKey);
+  await (await localState())!.setMeta(KEY_META, setup.dataKey);
+  dataKey = setup.dataKey;
+  accountPasswordSetupPending = false;
+  writeAccountPasswordSetupPending(false);
+  set({ phase: 'ready', error: undefined });
+  tellFamily('account');
+  await syncNow();
+}
+
 export function prepareEncryption(legacyPassphrase?: string): Promise<KeySetup> {
   const secret = accountPasswordForKeySetup ?? legacyPassphrase;
   if (!secret) throw new KeyError('Sign in with your account password before setting up encrypted sync.');
@@ -744,10 +766,13 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
 export async function unlockWithAccountPassword(): Promise<void> {
   if (!accountPasswordForKeySetup) throw new Error('Sign in with your account password first.');
   const wrapped = await fetchWrappedKeys();
-  if (!wrapped?.passphrase) throw new KeyError('This account has not connected its account password to encrypted data yet. Use the existing recovery method once.');
-  // Keep a non-exportable key for normal local encryption and an exportable,
-  // device-local copy solely for the existing short-lived companion-app handoff.
-  const handoffKey = await unlockWithPassphrase(passphraseOf(wrapped), accountPasswordForKeySetup, true);
+  const passwordWrap = wrapped?.password ?? wrapped?.passphrase;
+  if (!passwordWrap) throw new KeyError('This account has not connected its account password to encrypted data yet. Use the recovery key once to migrate it.');
+  // The password wrap is distinct from the legacy passphrase wrap in storage.
+  // Older accounts are migrated without changing their encrypted records.
+  const handoffKey = passwordWrap.method === 'password'
+    ? await unlockWithPassword(passwordWrap, accountPasswordForKeySetup, true)
+    : await unlockWithPassword(passwordWrap, accountPasswordForKeySetup, true);
   const localKey = await crypto.subtle.importKey(
     'raw',
     await crypto.subtle.exportKey('raw', handoffKey),
