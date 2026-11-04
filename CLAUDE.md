@@ -743,7 +743,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `proairetos.health` (present = on). `startHealthInbox` (Proairetos, Askesis, Hydros, `startApp`) loads the work only while
   on, on start, sync ready and coming into view (once a minute), and `applyHealth` writes to the added apps only:
   Askesis entries `health-<id>` (`newWorkouts` skips one already logged by hand, file or Strava; runs count as the open
-  session), Diaita nights with `from: 'health'` (a night written by hand is never replaced), Hydros water and Therapeia
+  session), written straight to the log with the average heart rate (`logHealthWorkouts`; the undo removes them; runs an older version held for review are added by `addHeldHealthWorkouts`, no review list), Diaita nights with `from: 'health'` (a night written by hand is never replaced), Hydros water and Therapeia
   readings with `health-` ids; one undo for all (`broughtInText`). "Bring in a file" reads a saved JSON export, signed in or not.
   Android: the same address takes Health Connect Webhook's JSON (HC Webhook, Google Play; `isHealthConnectPayload`: snake_case
   arrays at the top, no `data`; `readHealthConnect`): exercise by Health Connect's type numbers (56/57 run, 79 walk, 37 hike,
