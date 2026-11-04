@@ -28,6 +28,7 @@ import {
   revokeAccountDevice,
   changePassphrase,
   linkAccountPasswordToEncryption,
+  migrateCurrentAccountPasswordToEncryption,
   continueSetupPasskey,
   finishSetupWithPasskey,
   hasPassphrase,
@@ -327,8 +328,10 @@ function Unlock() {
         setError('');
         try {
           if (choosing) await changePassphrase(secret, 'recovery', next);
-          // Without a passkey that opens the data here, the next tap makes one (offered on the next screen).
+          // Unlock with the existing secret once, then migrate the same data key to the
+          // account password in the background. No records are re-encrypted or lost.
           await unlock(secret, recovery ? 'recovery' : 'passphrase', passkeysAvailable() && !opening.length);
+          await migrateCurrentAccountPasswordToEncryption(secret, recovery ? 'recovery' : 'passphrase');
         } catch (cause) {
           setError(message(cause));
         } finally {
