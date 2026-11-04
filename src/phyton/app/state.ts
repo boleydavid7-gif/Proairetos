@@ -3,6 +3,7 @@ import { collection, stored } from '../../app/family/shell';
 import { createSharedLists, joinProof, sharingAvailable, type SharedListRef } from '../../app/family/sharedLists';
 import { notifications } from '../../app/notify/notifications';
 import { displayName } from '../../data/storage/preferences';
+import { householdActor } from '../../app/household/household';
 import { defaultPlantNotices, type PlantNoticeChoices } from '../core/notices';
 import { fitForSharing, type Hemisphere, type Plant } from '../core/plants';
 import type { Away } from '../core/outdoors';
@@ -10,9 +11,9 @@ import type { Away } from '../core/outdoors';
 /** `rain` is the switch for weather outside (rain, frost, hot days); the name stays for settings already kept. */
 export type PhytonSettings = { started: boolean; me: string; notices: PlantNoticeChoices; hemisphere: Hemisphere; rain: boolean; away?: Away };
 
-/** The name used for Mine and for who watered: the one given here, else the name set in Proairetos. */
+/** The name used for Mine and for who watered: the household member while the plants are the household's, else the one given here, else the name set in Proairetos. */
 export function myName(current: PhytonSettings = settings.load()): string {
-  return current.me.trim() || displayName();
+  return householdActor('phyton')?.name || current.me.trim() || displayName();
 }
 
 /** South of the equator by the phone's time zone, as a first guess; changeable in More. */

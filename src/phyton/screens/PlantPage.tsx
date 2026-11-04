@@ -1,5 +1,6 @@
 import { WriteTag } from '../../app/family/DeviceExtras';
 import { archiveName, downloadZip } from '../../app/family/downloadZip';
+import MoreDetails from '../../app/family/MoreDetails';
 import { useEffect, useRef, useState } from 'react';
 import { CameraIcon, LeafIcon } from '../../app/family/icons';
 import { offerUndo, say } from '../../app/family/shell';
@@ -12,7 +13,7 @@ import { hotDays } from '../core/outdoors';
 import { takeHeldPhoto } from '../app/identify';
 import { moist, PlantThumb, watered } from '../app/ui';
 import { dayText, everyNow, everyText, feed, journal, LOG_TEXT, learnedEvery, namesIn, nextCheck, nextFeed, PLACES, repot, wateredText, type Plant } from '../core/plants';
-import { CARE_SOURCE, DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
+import { DRY_TEXT, LIGHT_TEXT, NOT_LISTED, TOXIC_TEXT, speciesBy } from '../core/species';
 import { importPhotos, photosFor, putPhoto, removePhoto, smallPhoto, usePhotos } from '../data/photos';
 import { Sym } from '../../lamplight/icons';
 import { Waiting } from '../../lamplight/Waiting';
@@ -147,11 +148,7 @@ function Photos({ plant }: { plant: Plant }) {
     <section className="card">
       <div className="section-head">
         <h2 className="card__title card__title--small">Photos</h2>
-        <div className="chip-row">
-          {photos.length > 0 && <button type="button" className="text-link" disabled={saving} onClick={() => void saveCopy()}>{saving ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>}
-          <button type="button" className="text-link" disabled={restoring} onClick={() => restorePicker.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
-          <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
-        </div>
+        <button type="button" className="text-link" onClick={() => picker.current?.click()}><CameraIcon size={16} />Add</button>
       </div>
       <input
         ref={picker}
@@ -178,6 +175,12 @@ function Photos({ plant }: { plant: Plant }) {
           setRestoring(false);
         }
       }} />
+      <MoreDetails label="Copies">
+        <div className="button-row">
+          {photos.length > 0 && <button type="button" className="button-quiet" disabled={saving} onClick={() => void saveCopy()}>{saving ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>}
+          <button type="button" className="button-quiet" disabled={restoring} onClick={() => restorePicker.current?.click()}>{restoring ? 'Restoring…' : 'Restore a copy'}</button>
+        </div>
+      </MoreDetails>
       {photos.length > 1 && (
         <figure className="then-now">
           <div className="then-now__pair">
@@ -320,7 +323,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
             <dt>Pets</dt><dd className={type.toxic && type.toxic !== 'none' ? 'plant-toxic' : undefined}>{type.toxic ? TOXIC_TEXT[type.toxic] : NOT_LISTED}</dd>
             {type.note && <><dt>Note</dt><dd>{type.note}</dd></>}
           </dl>
-          <p className="fine">{CARE_SOURCE}</p>
+          <p className="fine">Sources: RHS, Missouri Botanical Garden, university extension services, ASPCA.</p>
         </section>
       ) : (
         <p className="muted">No care notes for this one.</p>

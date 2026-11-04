@@ -8,7 +8,9 @@ import { offerUndo } from '../../app/family/shell';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { notifications } from '../../app/notify/notifications';
 import { findPlace, placeFromDevice } from '../../app/weather/weather';
-import { Segmented, Switch } from '../../askesis/app/ui';
+import MoreDetails from '../../app/family/MoreDetails';
+import { Switch } from '../../askesis/app/ui';
+import { householdLists } from '../../app/household/household';
 import type { PhytonNav } from '../app/App';
 import { myName, settings, useHome, usePlants, type PhytonSettings } from '../app/state';
 import { rainPlace, refreshRain, setRainPlace } from '../app/rain';
@@ -63,8 +65,7 @@ function AwayCard({ nav }: { nav: PhytonNav }) {
     notifications.refreshSoon();
   };
   return (
-    <section className="card">
-      <h2 className="card__title card__title--small">Away</h2>
+    <MoreDetails label={away ? `Away until ${new Date(`${away.to}T12:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}` : 'Away'} open={Boolean(away)}>
       {away ? (
         <>
           <div className="away-dates">
@@ -97,7 +98,7 @@ function AwayCard({ nav }: { nav: PhytonNav }) {
           <button type="button" className="text-link" onClick={() => nav.go({ name: 'sitter' })}>Sheet for whoever waters</button>
         </div>
       )}
-    </section>
+    </MoreDetails>
   );
 }
 
@@ -133,17 +134,25 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         </li>
       </ul>
 
-      <section className="card">
-        <label className="field">
-          <span className="field__label">Your name here (optional)</span>
-          <input className="input" list="phyton-me" value={current.me} onChange={(event) => change({ me: event.target.value })} />
-          <datalist id="phyton-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
-        </label>
-        <div className="field">
-          <span className="field__label">Seasons</span>
-          <Segmented label="Hemisphere" value={current.hemisphere} options={[{ id: 'north', label: 'Northern' }, { id: 'south', label: 'Southern' }]} onChange={(hemisphere) => change({ hemisphere })} small />
-        </div>
-      </section>
+      {!householdLists('phyton')?.ids.length && (
+        <section className="card">
+          <label className="field">
+            <span className="field__label">Your name here (optional)</span>
+            <input className="input" list="phyton-me" value={current.me} onChange={(event) => change({ me: event.target.value })} />
+            <datalist id="phyton-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
+          </label>
+        </section>
+      )}
+
+      <ul className="rows">
+        <li className="row row--aside">
+          <span className="row__text"><span>Seasons</span></span>
+          <select className="row__select" aria-label="Hemisphere" value={current.hemisphere} onChange={(event) => change({ hemisphere: event.target.value as 'north' | 'south' })}>
+            <option value="north">Northern</option>
+            <option value="south">Southern</option>
+          </select>
+        </li>
+      </ul>
 
       <section className="card switches">
         <Switch
@@ -170,7 +179,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
         {current.notices.on && myName(current) && home && <Switch on={current.notices.onlyMine} label="Only mine" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
         {current.notices.on && (
           <label className="field philia-at">
-            <span className="field__label">At</span>
+            <span className="field__label">Time</span>
             <input className="input" type="time" value={current.notices.at} onChange={(event) => event.target.value && notice({ at: event.target.value })} />
           </label>
         )}

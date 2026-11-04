@@ -1615,6 +1615,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
 - Plants page: "Watered all" per place, one undo (`wateredAll`). A plant's photos: Then and now (first and latest, "7 months apart",
   `apart`) and a sideways strip of every photo.
 - Care journal: a plant's page also marks Pruned, Pests seen (what and where, optional) and Note (`journal`, kinds `prune`, `pest`, `note` with `text` up to 140 characters, in the same record; no effect on watering). A shared home's plant is trimmed oldest marks first to fit the sealed size (`fitForSharing` in `putPlant`, never below ten marks). Plants has place chips when there are two places or more.
+- Phyton review pass: the Share page says "Shared with <household>" with a link in place of Invite and Leave when the household shares Plants (`householdLists('phyton')`); `myName` is the household member's name while the plants are the household's (so waterings carry it, and More hides the typed name), else the name typed in More, else Proairetos's; a plant's Photos card keeps Add at its head and folds Save and Restore a copy under "Copies"; the plant page's care source is one short line (the full citation stays in More's Sources); More's Away is a fold (open while dates are set), Seasons is a row with a choice and the reminder time is labeled Time.
 - Links: `?open=today|plants|more|add|identify|home|sitter|plant:ID`.
 
 

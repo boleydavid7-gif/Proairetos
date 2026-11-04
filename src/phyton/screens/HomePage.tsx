@@ -4,6 +4,7 @@ import { offerUndo, say } from '../../app/family/shell';
 import { BackIcon, ShareIcon } from '../../app/family/icons';
 import { syncStatus } from '../../app/sync/syncController';
 import type { PhytonNav } from '../app/App';
+import { householdLists } from '../../app/household/household';
 import { homes, ownPlants, sharingAvailable, usePlants, useHome } from '../app/state';
 import { inviteLink } from '../core/invite';
 
@@ -176,6 +177,35 @@ export default function HomePage({ nav }: { nav: PhytonNav }) {
       // Closed without sharing.
     }
   };
+
+  // A home the household shares is managed there: who is in it, and leaving, are Settings > Household's.
+  const family = householdLists('phyton');
+  if (family?.ids.includes(home.id)) {
+    return (
+      <div className="page phyton-page">
+        {top}
+        <h1 className="title">{home.name}</h1>
+        <p className="hint">
+          Shared with {family.name}. <a className="text-link" href="/?open=settings:household">Household settings</a>
+        </p>
+        {own.length > 0 && (
+          <section className="card">
+            <p className="muted">{own.length === 1 ? 'One plant is still only on this device.' : `${own.length} plants are still only on this device.`}</p>
+            <button type="button" className="button-quiet" onClick={() => {
+              const before = ownPlants.list();
+              const moved = moveOwnInto(home);
+              offerUndo(moved === 1 ? 'One plant moved in' : `${moved} plants moved in`, () => {
+                for (const plant of before) {
+                  ownPlants.put(plant);
+                  homes.changeItem(home, plant.id, null);
+                }
+              });
+            }}>Add them to {home.name}</button>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="page phyton-page">
