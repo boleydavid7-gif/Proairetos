@@ -66,8 +66,8 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
           </button>
         ))}
         <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
-        <a className="tab-bar__item tab-bar__resource" href="/?open=connections"><BookIcon size={22} /><span>Library</span></a>
-        <a className="tab-bar__item tab-bar__resource" href="/?open=account"><GearIcon size={22} /><span>Settings</span></a>
+        <a className="tab-bar__item tab-bar__resource tab-bar__desktop-only" href="/?open=connections"><BookIcon size={22} /><span>Library</span></a>
+        <a className="tab-bar__item tab-bar__resource tab-bar__desktop-only" href="/?open=account"><GearIcon size={22} /><span>Settings</span></a>
         <AppsTab />
       </nav>
     </div>

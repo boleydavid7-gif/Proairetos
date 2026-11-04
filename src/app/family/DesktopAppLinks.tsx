@@ -16,7 +16,7 @@ export default function DesktopAppLinks() {
         <a className="tab-bar__pinned-app tab-bar__pinned-store" href="/?open=settings:store"><Sym name="plus" size={20} /><span>App Store</span></a>
       </div>
       <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
-      <a className="tab-bar__pinned-app" href="/?open=account"><Sym name="gear" size={21} /><span>Settings</span></a>
+      <a className="tab-bar__pinned-app tab-bar__desktop-only" href="/?open=account"><Sym name="gear" size={21} /><span>Settings</span></a>
     </>
   );
 }

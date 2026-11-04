@@ -161,5 +161,6 @@
 @media (max-width: 61.99rem) {
   .tab-bar__search,
   .tab-bar__section-label,
-  .tab-bar__pinned { display: none; }
+  .tab-bar__pinned,
+  .tab-bar__desktop-only { display: none; }
 }
