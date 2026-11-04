@@ -79,9 +79,8 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
       <section className="settings-card" aria-label="Subscription link">
         <h2 className="section-label">Subscription link</h2>
         <p className="section-description">
-          Your calendar checks this link and updates on its own (Google can take several hours). Unlike the rest of
-          Proairetos, the calendar file is not encrypted: the server and anyone with the link can read what you chose
-          above.
+          Unlike the rest of Proairetos, the calendar file is not encrypted: the server and anyone with the link can
+          read what you chose above.
         </p>
 
         {!ready ? (
@@ -150,7 +149,7 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
               </div>
             )}
             {confirmingOff && (
-              <p className="sheet__hint">Calendars using it stop updating. Make a new link any time.</p>
+              <p className="sheet__hint">Calendars using it stop updating.</p>
             )}
           </>
         ) : (

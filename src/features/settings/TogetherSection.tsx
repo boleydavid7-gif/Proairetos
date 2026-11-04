@@ -46,7 +46,7 @@ export default function TogetherSection({ onOpenAccount }: { onOpenAccount: () =
   if (!signedIn) {
     return (
       <section className="settings-card">
-        <p className="section-description">A to-do list for the people at home: anyone on it adds and ticks things off. Sign in first.</p>
+        <p className="section-description">Sign in to share a to-do list.</p>
         <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>Account and sync</button>
       </section>
     );
@@ -83,7 +83,7 @@ export default function TogetherSection({ onOpenAccount }: { onOpenAccount: () =
   if (!list) {
     return (
       <section className="settings-card">
-        <p className="section-description">A to-do list for the people at home. It shows on Today for everyone on it; anyone adds and ticks things off. Encrypted end to end.</p>
+        <p className="section-description">Encrypted end to end.</p>
         <form
           className="field"
           onSubmit={(event) => {

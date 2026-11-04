@@ -137,7 +137,6 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
                 ? `Your ${formatDistance(shoe.targetMeters!, unit)} reminder has been reached.`
                 : `${formatDistance(remaining!, unit)} until your ${formatDistance(shoe.targetMeters!, unit)} reminder.`}
             </p>
-            <p className="hint">A personal reminder, not a shoe-wear assessment.</p>
           </div>
         )}
         <div className="button-row shoe-card__actions">
@@ -159,7 +158,6 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
     <div className="page shoes-page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Running shoes</h1>
-      <p className="lead">Keep an eye on the distance each pair has covered. A shoe only accumulates runs you assign to it.</p>
 
       {active.length > 0 ? (
         <div className="shoe-list">{active.map((shoe) => shoeCard(shoe))}</div>
@@ -167,7 +165,6 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
         <section className="card shoe-empty">
           <span className="card__eyebrow">Your rotation</span>
           <h2 className="card__title card__title--small">No shoes tracked yet</h2>
-          <p className="muted">Add the pair you run in. You can include mileage from before you started tracking.</p>
         </section>
       )}
 
@@ -181,15 +178,15 @@ export default function ShoesPage({ nav }: { nav: Nav }) {
           </div>
           <label className="field">
             <span className="label">Name</span>
-            <input className="input" autoFocus value={name} maxLength={60} placeholder="e.g. Pegasus 41" onChange={(event) => setName(event.target.value)} />
+            <input className="input" autoFocus value={name} maxLength={60} onChange={(event) => setName(event.target.value)} />
           </label>
           <label className="field">
             <span className="label">Mileage already on these shoes ({unit})</span>
-            <input className="input" inputMode="decimal" value={starting} onChange={(event) => setStarting(event.target.value)} placeholder="0" />
+            <input className="input" inputMode="decimal" value={starting} onChange={(event) => setStarting(event.target.value)} />
           </label>
           <label className="field">
             <span className="label">Remind me at ({unit}) · optional</span>
-            <input className="input" inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} placeholder="Set your own reminder" />
+            <input className="input" inputMode="decimal" value={target} onChange={(event) => setTarget(event.target.value)} />
           </label>
           {problem && <p className="form-error" role="alert">{problem}</p>}
           <button type="button" className="button-main" onClick={save}>Save pair</button>

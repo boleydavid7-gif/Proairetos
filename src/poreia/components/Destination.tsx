@@ -53,7 +53,7 @@ export function Weather({ target, today }: { target: Target; today: string }) {
       <h2 className="card__title">{near ? 'Weather' : 'Weather a year ago'}</h2>
       {loading && <p className="muted"><Waiting>Looking…</Waiting></p>}
       {unreached && <p className="muted">Couldn’t get the weather. Check the connection.</p>}
-      {!near && days.length > 0 && <p className="fine">Last year on these dates. Forecasts start two weeks out.</p>}
+      {!near && days.length > 0 && <p className="fine">Last year on these dates.</p>}
       {days.length > 0 && (
         <ul className="poreia-weather">
           {days.map((day) => (

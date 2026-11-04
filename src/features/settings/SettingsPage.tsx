@@ -323,7 +323,6 @@ function ImportSection() {
             type="password"
             className="field-input"
             aria-label="Backup password"
-            placeholder="This backup is locked"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
@@ -471,7 +470,6 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
     >
       <p className="sheet__label">Profile</p>
       {status.email && <p className="section-description">{status.email}</p>}
-      <p className="section-description">Choose the name Proairetos uses when it greets you.</p>
       <input
         className="field-input"
         autoComplete="given-name"
@@ -560,81 +558,81 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
       {
         label: 'Capture',
         parts: [
-          { part: 'brain-dump', label: 'Empty your head', detail: 'Write everything at once, then check each item.' },
-          { part: 'sort-through', label: 'Sort through', detail: 'Go through unsorted items one at a time.' },
-          { part: 'gratitude', label: 'Grateful', detail: 'Things you’re grateful for, saved to Reflect.' },
-          { part: 'energy', label: 'Energy', detail: 'Set your energy for the day; light items show first.' },
+          { part: 'brain-dump', label: 'Empty your head' },
+          { part: 'sort-through', label: 'Sort through' },
+          { part: 'gratitude', label: 'Grateful' },
+          { part: 'energy', label: 'Energy' },
         ],
       },
       {
         label: 'Compass',
         parts: [
-          { part: 'pursuits', label: 'Pursuits', detail: 'A flexible space to clarify a project, change, care responsibility, or question.' },
-          { part: 'people', label: 'People', detail: 'The people who matter to you.' },
+          { part: 'pursuits', label: 'Pursuits' },
+          { part: 'people', label: 'People' },
           { part: 'words', label: 'Words', detail: 'What’s worth getting up for, and what you’ve set aside.' },
         ],
       },
       {
         label: 'Reflect',
         parts: [
-          { part: 'meditate', label: 'Meditate', detail: 'Sessions, breathing, sounds, and music.' },
-          { part: 'insights', label: 'Insights', detail: 'Counts of what you recorded.' },
-          { part: 'weekly-review', label: 'Weekly review', detail: 'About 15 minutes.' },
-          { part: 'decisions', label: 'Decisions', detail: 'Choices you wrote down, to look back on.' },
+          { part: 'meditate', label: 'Meditate' },
+          { part: 'insights', label: 'Insights' },
+          { part: 'weekly-review', label: 'Weekly review' },
+          { part: 'decisions', label: 'Decisions' },
         ],
       },
     ],
   },
   {
             app: 'Askesis',
-            sections: [{ parts: [{ part: 'askesis', label: 'Runs', detail: 'Finished runs in Done today and Reflect; the current session appears in Daily practices.' }] }],
+            sections: [{ parts: [{ part: 'askesis', label: 'Runs' }] }],
   },
   {
     app: 'Soma',
-    sections: [{ parts: [{ part: 'soma', label: 'Meals', detail: 'Meals planned for today on Today; meals cooked for someone in Reflect.' }] }],
+    sections: [{ parts: [{ part: 'soma', label: 'Meals' }] }],
   },
   {
     app: 'Theoria',
-    sections: [{ parts: [{ part: 'praxis', label: 'Reading time', detail: 'Reading sessions in Done today and Reflect; the daily total appears in Daily practices.' }] }],
+    sections: [{ parts: [{ part: 'praxis', label: 'Reading time' }] }],
   },
   {
     app: 'Philia',
     sections: [
       {
         parts: [
-          { part: 'birthdays', label: 'Birthdays on Today', detail: 'Birthdays and dates in the next week.' },
-          { part: 'birthday-dates', label: 'Birthdays in Days ahead', detail: 'On their day in the list and the calendar.' },
+          { part: 'birthdays', label: 'Birthdays on Today' },
+          { part: 'birthday-dates', label: 'Birthdays in Days ahead' },
         ],
       },
     ],
   },
   {
     app: 'Ergon',
-    sections: [{ parts: [{ part: 'chores', label: 'Chores', detail: 'Chores whose day has come.' }] }],
+    sections: [{ parts: [{ part: 'chores', label: 'Chores' }] }],
   },
   {
     app: 'Therapeia',
-    sections: [{ parts: [{ part: 'medicines', label: 'Medicines', detail: 'Today’s doses not yet marked, and a visit today.' }] }],
+    sections: [{ parts: [{ part: 'medicines', label: 'Medicines' }] }],
   },
   {
     app: 'Ktema',
-    sections: [{ parts: [{ part: 'upkeep', label: 'Upkeep', detail: 'Upkeep whose day has come.' }] }],
+    sections: [{ parts: [{ part: 'upkeep', label: 'Upkeep' }] }],
   },
   {
     app: 'Phyton',
-    sections: [{ parts: [{ part: 'plants', label: 'Plants', detail: 'Plants whose day to check has come.' }] }],
+    sections: [{ parts: [{ part: 'plants', label: 'Plants' }] }],
   },
   {
     app: 'Poreia',
-    sections: [{ parts: [{ part: 'trips', label: 'Trips', detail: 'A trip under way or a few days off, with its next thing.' }] }],
+    sections: [{ parts: [{ part: 'trips', label: 'Trips' }] }],
   },
   {
     app: 'Oikonomia',
     sections: [
       {
         parts: [
-          { part: 'bill-dates', label: 'Bills in Days ahead', detail: 'Bill dates in the list and the calendar, with the paid ones marked.' },
-          { part: 'bills', label: 'Bills coming up on Today', detail: 'Bills with a date in the next few days and no payment recorded.' },
+          { part: 'bill-dates', label: 'Bills in Days ahead' },
+          { part: 'bills', label: 'Bills coming up on Today' },
         ],
       },
     ],
@@ -1097,7 +1095,6 @@ function LockSection() {
           autoComplete="off"
           maxLength={8}
           aria-label="Choose a passcode"
-          placeholder="4 to 8 digits"
           value={code}
           onChange={(event) => setCode(digits(event.target.value))}
         />
@@ -1414,7 +1411,6 @@ export default function SettingsPage() {
         className="field-input settings-find"
         type="search"
         aria-label="Find a setting"
-        placeholder="Search settings…"
         value={find}
         onChange={(event) => setFind(event.target.value)}
       />

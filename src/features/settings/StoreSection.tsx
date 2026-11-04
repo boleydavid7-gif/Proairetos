@@ -81,11 +81,11 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     <section className="store" aria-label="App Store">
       <div className="store__paywall">
         <h2>App Store</h2>
-        <p>Proairetos is free. Plans add the other apps and follow your account to every device.</p>
+        <p>Proairetos is free.</p>
         {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
         <div className="store__plans">
-          <PlanCard plan="core" title="Proairetos Core" detail="Proairetos add on apps for an enhanced Proairetos experience" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="core" title="Proairetos Core" detail="The other apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
         </div>
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
@@ -171,7 +171,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
           );
         })}
       </ul>}
-      {!tester && !owner ? <p className="store__fine">Plans renew monthly and stay with your account on every device. Proairetos itself is free.</p> : null}
+      {!tester && !owner ? <p className="store__fine">Plans renew monthly.</p> : null}
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/#install">
         Adding Proairetos to your Home Screen

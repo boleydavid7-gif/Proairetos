@@ -140,7 +140,7 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
         <h1 className="title">Share with someone who helps</h1>
         <section className="card">
           <h2 className="card__title card__title--small">A partner, a parent, a carer</h2>
-          <p className="muted">Everyone with the link sees the same medicines and doses, and can mark them taken. Encrypted end to end. Readings, visits and the health card stay on this device.</p>
+          <p className="muted">Encrypted end to end. Readings, visits and the health card stay on this device.</p>
           {signedIn ? (
             <form
               className="field"
@@ -213,7 +213,7 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">Anyone with the invite link can join, see the medicines and mark doses. Each medicine is encrypted on the device before it’s sent.</p>
+        <p className="muted">Anyone with the link can join and mark doses.</p>
         <button type="button" className="button-main" onClick={() => void share()}><ShareIcon size={18} />Invite</button>
         {copied && <p className="hint" role="status">Link copied.</p>}
       </section>

@@ -66,7 +66,6 @@ export default function FocusScreen({ session, nextStep, onPause, onResume, onSt
           }}
         >
           <p className="focus-screen__item">Where did you leave off?</p>
-          <p className="focus-screen__message">A few words now make it easier to pick up later. It becomes the next step.</p>
           <input
             className="field-input"
             aria-label="Where you left off"

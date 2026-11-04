@@ -118,7 +118,6 @@ export default function ValueConnections({
           aria-label="Search connected items"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search reflections, decisions, pursuits…"
         />
       </label>
 

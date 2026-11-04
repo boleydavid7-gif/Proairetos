@@ -84,7 +84,6 @@ export default function PasswordRecoveryPage() {
           <>
             <h1 id="password-recovery-title" className="page-header__title">Choose a new password</h1>
             {email && <p className="section-description">For {email}</p>}
-            <p className="section-description">This password will open Proairetos and your companion apps.</p>
             <form className="stack-tight" onSubmit={(event) => void savePassword(event)}>
               <input className="field-input" type="password" autoComplete="new-password" aria-label="New password" placeholder="New password" value={password} onChange={(event) => setPassword(event.target.value)} />
               <input className="field-input" type="password" autoComplete="new-password" aria-label="Confirm new password" placeholder="Confirm new password" value={again} onChange={(event) => setAgain(event.target.value)} />

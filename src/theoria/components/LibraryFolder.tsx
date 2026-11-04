@@ -42,7 +42,7 @@ function FolderBrowser({ provider, onChosen, onClose }: { provider: CloudProvide
           {!folders.length && <li><p className="muted theoria-folder-browser__empty">No folders.</p></li>}
         </ul>
       )}
-      {entries && <p className="muted">{books === 0 ? 'No books here.' : books === 1 ? 'One book directly in this folder.' : `${books} books directly in this folder.`} Subfolders included.</p>}
+      {entries && <p className="muted">{books === 0 ? 'No books here.' : books === 1 ? 'One book directly in this folder.' : `${books} books directly in this folder.`}</p>}
       <div className="button-row">
         <button type="button" className="button-quiet" onClick={onClose}>Cancel</button>
         {here.id !== undefined || provider === 'dropbox' ? (

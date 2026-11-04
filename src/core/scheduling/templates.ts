@@ -21,7 +21,7 @@ export const scheduleTemplates: ScheduleTemplate[] = [
   {
     id: 'weekly',
     name: 'Same days every week',
-    description: 'Monday to Friday, 9 to 5. Change the days and hours to match yours.',
+    description: 'Monday to Friday, 9 to 5.',
     kind: 'COMMITTED',
     weekly: true,
     segments: [...Array.from({ length: 5 }, () => on(1, '09:00', '17:00')), off(1), off(1)],

@@ -151,7 +151,6 @@ function DailyCheckIn({ entries, onSaved }: { entries: Reflection[]; onSaved: ()
             className="field-input field-input--area reflect-checkin__input"
             rows={2}
             aria-label="What’s your weather like today?"
-            placeholder="A few words about how things are going…"
             value={body}
             onChange={(event) => setBody(event.target.value)}
           />
@@ -181,7 +180,7 @@ export default function ReflectPage() {
 
   return (
     <div className="page reflect-home">
-      <PageHeader title="Reflect" subtitle="Pause. Notice. Choose." settings />
+      <PageHeader title="Reflect" settings />
 
       <button type="button" className="button-accent reflect-write-button" onClick={() => navigate('journal')}>
         <PenIcon size={18} />

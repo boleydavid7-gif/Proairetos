@@ -180,7 +180,7 @@ function BackupCards({ older }: { older?: Older }) {
     <>
       <section className="card family-backup" aria-label="Back up">
         <h2 className="card__title card__title--small">One backup for the family</h2>
-        <p className="muted">All the apps and their settings.{added.includes('theoria') ? ' Theoria’s books stay on the device.' : ''}</p>
+        {added.includes('theoria') && <p className="muted">Theoria’s books stay on the device.</p>}
         <StorageFacts />
         <label className="field">
           <span className="label">Password (optional)</span>
@@ -206,7 +206,7 @@ function BackupCards({ older }: { older?: Older }) {
         <h2 className="card__title card__title--small">Restore</h2>
         {own && own.days.length > 0 && (
           <>
-            <p className="muted">Sealed copies in {own.storage}, for any device signed in to your account.</p>
+            <p className="muted">In {own.storage}.</p>
             <ul className="daily-copies">
               {own.days.map((day) => (
                 <li key={day}>
@@ -295,7 +295,7 @@ function BackupFolder({ name }: { name?: string }) {
   return (
     <section className="card family-backup" aria-label="Backup folder">
       <h2 className="card__title card__title--small">Backup folder</h2>
-      <p className="muted">{name ? `Backups and daily copies also go to “${name}”.` : 'Backups and daily copies can also go to a folder you choose, such as one Drive or OneDrive keeps.'}</p>
+      {name && <p className="muted">{`Backups and daily copies also go to “${name}”.`}</p>}
       <div className="button-row">
         <button type="button" className="button-quiet" disabled={busy} onClick={() => void choose()}>{name ? 'Choose another' : 'Choose a folder'}</button>
         {name && <button type="button" className="text-link" onClick={() => void forgetBackupFolder()}>Stop using it</button>}

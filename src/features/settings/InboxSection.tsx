@@ -78,7 +78,6 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
       <section className="settings-group" aria-label="Make the Shortcut">
         <h2 className="settings-group__label">Set up on iPhone</h2>
         <div className="settings-card">
-          <p className="inbox-intro">Make a Shortcut once. Then send a thought to Proairetos without opening the app.</p>
           <ol className="inbox-steps">
             <Step number={1} title="Ask for the text">
               <p>Open <strong>Shortcuts</strong>, tap the <strong>Add</strong> button, and add <strong>Ask for Input</strong>. Set the input type to <strong>Text</strong>.</p>
@@ -117,7 +116,6 @@ export default function InboxSection({ onOpenAccount }: { onOpenAccount: () => v
             <Copy label="Token" value={kept.token} />
           </div>
           <p className="sheet__hint inbox-security-note">Keep your token private. Anyone with it can send items to your Capture, but they can’t read your data. If it gets out, make a new token.</p>
-          <p className="inbox-result">When you run the Shortcut, your note appears in Capture the next time you open Proairetos.</p>
         </div>
       </section>
       <section className="settings-group" aria-label="Inbox">

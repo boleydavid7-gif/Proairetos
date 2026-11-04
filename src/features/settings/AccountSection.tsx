@@ -124,7 +124,7 @@ function SignIn() {
       });
     }}>
       <p className="section-description">
-        Set the one password you'll use across Proairetos and every app. Your recovery key is the only fallback if you lose it.
+        Your recovery key is the only fallback if you lose this password.
       </p>
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Create password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} />
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Confirm password" placeholder="Confirm password" value={again} onChange={(event) => setAgain(event.target.value)} />
@@ -135,7 +135,6 @@ function SignIn() {
 
   return (
     <>
-      <p className="section-description">One account and one password for Proairetos and every companion app.</p>
       <PasskeySignIn className="button-accent account-wide" errorClass="form-error" />
       <form className="stack-tight" onSubmit={(event: FormEvent) => {
         event.preventDefault();
@@ -325,7 +324,7 @@ function PasswordSetUp({ note }: { note: string }) {
       }}
     >
       {note && <p className="section-description">{note}</p>}
-      <p className="section-description">Create the password you will use to open your data. You will only need the recovery key if you forget it.</p>
+      <p className="section-description">You will only need the recovery key if you forget it.</p>
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Account password" placeholder={`Account password, at least ${MIN_ACCOUNT_PASSWORD_LENGTH} characters`} value={password} onChange={(event) => setPassword(event.target.value)} />
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Account password again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
       <button type="submit" className="button-accent account-wide" disabled={busy || password.length < MIN_ACCOUNT_PASSWORD_LENGTH || password !== again}>{busy ? 'Saving…' : 'Set password'}</button>
@@ -471,7 +470,6 @@ function DeviceSessions() {
       </button>
       {expanded && (
         <div className="stack-tight">
-          <p className="section-description">Devices that have signed into your Proairetos account. Last active times update when an app opens or returns to the foreground.</p>
           {loading && <p className="sheet__hint">Loading devices…</p>}
           {!loading && devices.length === 0 && <p className="sheet__hint">No registered devices yet.</p>}
           {devices.map((device) => (

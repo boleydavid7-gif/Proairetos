@@ -74,7 +74,7 @@ export default function WhenToGo({ place, start, end }: { place: Place; start?: 
             ))}
           </div>
           <p className="fine">
-            The past twelve months as recorded{touched.size ? '; a dot marks your dates' : ''}. From Open-Meteo’s archive.
+            From Open-Meteo’s archive.
           </p>
           <details className="poreia-fold">
             <summary>As a table</summary>

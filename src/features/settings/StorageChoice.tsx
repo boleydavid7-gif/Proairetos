@@ -79,10 +79,9 @@ export function StorageChoice() {
           </li>
         ))}
       </ul>
-      {now === 'proairetos' && !owner && !mayUseCloud() && <p className="section-description">Local-only mode is available without a subscription. Connect your own storage above, or subscribe to Proairetos cloud to sync between devices.</p>}
       {picked === 'proairetos' && !owner && !mayUseCloud() ? (
         <div className="storage-choice__paywall">
-          <p className="section-description">Proairetos cloud keeps an encrypted backup for your account. It requires its own subscription; beta access does not include it.</p>
+          <p className="section-description">Proairetos cloud needs its own subscription; beta access does not include it.</p>
           <div className="chip-row">
             <button type="button" className="button-quiet" onClick={() => setPicked(undefined)}>Cancel</button>
             <button type="button" className="chip chip--accent" disabled={busy} onClick={() => void run(async () => {

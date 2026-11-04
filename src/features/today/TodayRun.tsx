@@ -20,7 +20,7 @@ export default function TodayRun({ today }: { today: string }) {
           </span>
           <span className="quiet-row__text">
             <span>Start your running plan</span>
-            <span className="quiet-row__detail">Askesis · built around your week</span>
+            <span className="quiet-row__detail">Askesis</span>
           </span>
           <ChevronRightIcon size={18} className="quiet-row__chevron" />
         </a>

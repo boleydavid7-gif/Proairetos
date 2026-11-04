@@ -139,7 +139,7 @@ export default function HomePage({ nav }: { nav: PhytonNav }) {
         <h1 className="title">Share your plants</h1>
         <section className="card">
           <h2 className="card__title card__title--small">Share with the people you live with</h2>
-          <p className="muted">Everyone with the link sees the same plants and can mark them watered. Encrypted end to end.</p>
+          <p className="muted">Encrypted end to end.</p>
           {signedIn ? (
             <form
               className="field"
@@ -212,7 +212,7 @@ export default function HomePage({ nav }: { nav: PhytonNav }) {
       {top}
       <h1 className="title">{home.name}</h1>
       <section className="card">
-        <p className="muted">Anyone with the invite link can join. Each plant is encrypted on the device before it’s sent.</p>
+        <p className="muted">Anyone with the link can join.</p>
         <button type="button" className="button-main" onClick={() => void share()}><ShareIcon size={18} />Invite</button>
         {copied && <p className="hint" role="status">Link copied.</p>}
       </section>

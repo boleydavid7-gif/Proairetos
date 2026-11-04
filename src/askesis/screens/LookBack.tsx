@@ -62,7 +62,6 @@ export default function LookBack({
           {seconds ? `, ${formatHours(seconds)} on your feet` : ''}.
         </li>
       </ul>
-      <p className="muted">What comes next is up to you.</p>
       <div className="actions">
         <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
           Set a new aim

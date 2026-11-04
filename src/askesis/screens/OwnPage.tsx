@@ -61,7 +61,7 @@ function StepEditor({
       </div>}
       <label className="own-step__note">
         <span className="sr-only">Optional step note</span>
-        <input className="input" value={step.note ?? ''} maxLength={60} placeholder="Add a note (optional)" onChange={(event) => onChange({ ...step, note: event.target.value || undefined })} />
+        <input className="input" value={step.note ?? ''} maxLength={60} aria-label="Note (optional)" onChange={(event) => onChange({ ...step, note: event.target.value || undefined })} />
       </label>
     </div>
   );
@@ -98,14 +98,13 @@ function Builder({ start, fresh = false, onDone, onCancel }: { start: OwnSession
     <div className="stack own-builder">
       <label className="field">
         <span className="label">Session name</span>
-        <input className="input" value={title} maxLength={60} placeholder="Give this session a name" onChange={(event) => setTitle(event.target.value)} />
+        <input className="input" value={title} maxLength={60} aria-label="Session name" onChange={(event) => setTitle(event.target.value)} />
       </label>
 
       <section className="own-builder__sequence" aria-label="Workout steps">
         <div className="own-builder__heading">
           <div>
             <h2 className="card__title card__title--small">Your session</h2>
-            <p className="muted">Put each effort in the order you want to do it.</p>
           </div>
           <span className="card__eyebrow">{parts.length} {parts.length === 1 ? 'part' : 'parts'}</span>
         </div>

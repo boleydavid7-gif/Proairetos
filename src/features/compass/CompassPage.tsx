@@ -98,7 +98,6 @@ function ValueCard({ value, editing, onOpenPursuit }: { value: ChosenValue; edit
               <span className="daily-line__label">Your principles</span>
               <span>{principles.length}/{MAX_VALUE_PRINCIPLES}</span>
             </div>
-            <p className="value-card__principles-help">Small commitments that show how you want to live this value. They are guides, not rules you have to meet perfectly.</p>
             {principles.length > 0 && (
               <ul className="value-card__principles-list">
                 {principles.map((principle, index) => (
@@ -123,7 +122,6 @@ function ValueCard({ value, editing, onOpenPursuit }: { value: ChosenValue; edit
                   className="field-input"
                   aria-label={`Add a personal principle for ${value.name}`}
                   maxLength={MAX_VALUE_PRINCIPLE_LENGTH}
-                  placeholder="A small choice I want to practice…"
                   value={principleDraft}
                   onChange={(event) => { setPrincipleDraft(event.target.value); setPrincipleError(''); }}
                 />
@@ -132,7 +130,7 @@ function ValueCard({ value, editing, onOpenPursuit }: { value: ChosenValue; edit
                 </button>
               </form>
             )}
-            {principles.length >= MAX_VALUE_PRINCIPLES && <p className="value-card__principles-help">You can keep up to {MAX_VALUE_PRINCIPLES} principles here. Remove one to make room.</p>}
+            {principles.length >= MAX_VALUE_PRINCIPLES && <p className="value-card__principles-help">Five is the most.</p>}
             {principleError && <p className="form-error" role="alert">{principleError}</p>}
           </section>
         </div>

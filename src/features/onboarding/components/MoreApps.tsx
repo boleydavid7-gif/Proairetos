@@ -8,7 +8,7 @@ import { priceText } from '../../../app/family/purchases';
 /** The prices, from the Store's own figures (the server's when known). */
 const PLANS: { name: string; price: () => string; detail?: string }[] = [
   { name: 'Proairetos', price: () => 'Free' },
-  { name: 'Proairetos Core', price: () => `${priceText('core')}/mo`, detail: 'Proairetos add on apps for an enhanced Proairetos experience' },
+  { name: 'Proairetos Core', price: () => `${priceText('core')}/mo`, detail: 'The other apps' },
 ];
 
 /** What can pull at a person's attention, and the apps for each. Choosing only brings those apps forward; nothing is added. */

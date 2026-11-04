@@ -145,7 +145,6 @@ export default function CloseDay({
       <button type="button" className="quiet-row" onClick={() => setOpen(true)}>
         <span className="quiet-row__text">
           <span>Close the day</span>
-          <span className="quiet-row__detail">A minute to look back and set things down.</span>
         </span>
         <ChevronRightIcon size={18} className="quiet-row__chevron" />
       </button>

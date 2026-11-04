@@ -106,7 +106,7 @@ export default function JournalPage({ nav }: { nav: PoreiaNav }) {
         <label className="field"><span className="field__label">Title <span className="muted">(optional)</span></span><input className="input" value={title} onChange={(event) => setTitle(event.target.value)} /></label>
         <label className="field"><span className="field__label">Your entry</span><textarea className="input area" rows={5} value={text} onChange={(event) => setText(event.target.value)} /></label>
         <button type="button" className="button-main" disabled={!tripId || !date || !text.trim()} onClick={save}>{editing ? 'Update entry' : 'Save entry'}</button>
-        {editing && <div className="poreia-journal__photos"><Attachments itemId={editing} /><p className="fine">Photos stay on this device until your selected backup runs, then follow your connected BYO storage.</p></div>}
+        {editing && <div className="poreia-journal__photos"><Attachments itemId={editing} /><p className="fine">Photos stay on this device until your selected backup runs, then follow your own storage.</p></div>}
       </section>
 
       <section className="poreia-journal-page__log" aria-labelledby="journal-log-heading">

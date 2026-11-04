@@ -354,9 +354,9 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                     </span>
                   </span>
                 </button>
-                {part && state === 'elsewhere' && <p className="hint household__note">Shared through another list on this device; manage that list there.</p>}
+                {part && state === 'elsewhere' && <p className="hint household__note">Shared through another list on this device.</p>}
                 {part && state === 'join' && <p className="hint household__note">Connecting this list to your device…</p>}
-                {part && state === 'unavailable' && <p className="hint household__note">This list is no longer available to the household. Ask the person who shared it to reconnect it.</p>}
+                {part && state === 'unavailable' && <p className="hint household__note">This list is no longer available to the household.</p>}
               </div>
             );
           })}
@@ -379,7 +379,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                 </label>
               ))}
             </div>
-            <p className="hint">Children are 13 and over. Shared lists are sealed, so devices follow these choices; they guard against mistakes, not against someone changing the app.</p>
+            <p className="hint">Children are 13 and over. Shared lists are sealed, so these choices guard against mistakes, not a changed app.</p>
           </>
         )}
         <section className="settings-card household__sharing-note">

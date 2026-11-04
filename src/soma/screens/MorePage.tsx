@@ -191,7 +191,7 @@ export function AboutPage({ nav }: { nav: Nav }) {
         ))}
       </ul>
       <h2 className="label">Ideas</h2>
-      <p className="muted">Ideas from TheMealDB and Wikibooks. Each result links to its source.</p>
+      <p className="muted">TheMealDB and Wikibooks.</p>
       <h2 className="label">Lines for the day</h2>
       <p className="muted">
         Musonius Rufus, Lecture 18A; Epictetus, Enchiridion; Seneca, Letters; Epicurus, Letter to Menoeceus; Cicero, Tusculan Disputations.

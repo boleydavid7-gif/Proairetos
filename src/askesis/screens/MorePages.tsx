@@ -263,7 +263,6 @@ export function DataPage({ nav }: { nav: Nav }) {
     <div className="page">
       <BackLink label="More" onBack={nav.back} />
       <h1 className="title">Your data</h1>
-      <p className="lead">On this device, and synced when signed in to Proairetos.</p>
       <FamilyBackup
         inline
         older={async (text: string) => {
@@ -304,9 +303,6 @@ export function AboutPage({ nav }: { nav: Nav }) {
       <h1 className="title">About Askesis</h1>
       <p>
         <em>Askesis</em> (ἄσκησις) is the Stoics’ word for training: practice, repeated. Epictetus used it for the mind and the body alike.
-      </p>
-      <p>
-        No streaks, no scores, nothing to catch up on.
       </p>
       <h2 className="label">How your path is built</h2>
       <p>

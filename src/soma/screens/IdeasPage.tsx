@@ -95,7 +95,7 @@ export default function IdeasPanel({ nav }: { nav: Nav }) {
           </li>
         ))}
       </ul>
-      <p className="hint">TheMealDB and Wikibooks. Each result links to its source.</p>
+      <p className="hint">TheMealDB and Wikibooks.</p>
     </div>
   );
 }

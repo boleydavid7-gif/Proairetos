@@ -603,7 +603,7 @@ function RecipeBudgetHint({ recipe, recipes }: { recipe: Recipe; recipes: Recipe
 
   if (mealCost === undefined) return null;
   if (state?.mismatch) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, state.currency)} · Oikonomia uses another currency for this plan.</p>;
-  if (!state || state.limit <= 0) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, recipe.estimatedCostCurrency ?? state?.currency ?? loadOikonomiaSettings().currency)}{isAdded('oikonomia') ? ' · Set a monthly or food limit in Oikonomia to compare.' : ''}</p>;
+  if (!state || state.limit <= 0) return <p className="recipe-budget-hint">Estimated cost · {formatMoney(mealCost, recipe.estimatedCostCurrency ?? state?.currency ?? loadOikonomiaSettings().currency)}</p>;
   const after = state.remaining;
   return (
     <div className="recipe-budget-hint">

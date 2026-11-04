@@ -177,11 +177,11 @@ function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; o
     : !trip.start
       ? { title: 'Choose your dates', detail: 'Add dates to start planning.', label: 'Add dates', run: () => nav.go({ name: 'trip-form', id: trip.id }) }
       : bookingList.length === 0
-        ? { title: 'Add your first booking', detail: 'Paste a confirmation, upload a file or enter details.', label: 'Add a booking', run: () => nav.go({ name: 'booking', tripId: trip.id, paste: true }) }
+        ? { title: 'Add your first booking', label: 'Add a booking', run: () => nav.go({ name: 'booking', tripId: trip.id, paste: true }) }
         : planList.length === 0
           ? { title: 'Shape your days', detail: 'Add a place or activity.', label: 'Open the itinerary', run: () => onView('days') }
           : packingList.length === 0
-            ? { title: 'Start your packing list', detail: 'Suggested from your dates and bookings.', label: 'Start packing', run: () => onView('packing') }
+            ? { title: 'Start your packing list', label: 'Start packing', run: () => onView('packing') }
             : undefined;
 
   if (!action) return null;
@@ -189,7 +189,7 @@ function PlanningNextCard({ trip, nav, onView }: { trip: Trip; nav: PoreiaNav; o
     <section className="card poreia-next-action" data-ll-lit>
       <h2 className="card__title">Next up</h2>
       <p className="poreia-next-action__title">{action.title}</p>
-      <p className="muted">{action.detail}</p>
+      {action.detail && <p className="muted">{action.detail}</p>}
       <button type="button" className="button-main" onClick={action.run}>
         {action.label}
       </button>

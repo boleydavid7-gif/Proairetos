@@ -193,7 +193,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
       {view === 'overview' && (
         <div className="progress__period">
           <Segmented label="Period" value={period} options={periods} onChange={setPeriod} small />
-          {comparison && <p className="progress__comparison-note">Compared with the same point in the previous period.</p>}
         </div>
       )}
 
@@ -278,7 +277,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
               <div className="tile">
                 <span className="tile__label">Average pace</span>
                 <span className="tile__value">{averagePace ? formatPace(averagePace, unit) : '–'}</span>
-                <span className="tile__change">Combined average across logged running time and distance</span>
               </div>
             </div>
 
@@ -287,13 +285,11 @@ export default function LogPage({ nav }: { nav: Nav }) {
                 {runningEntries.some((entry) => (entry.meters ?? 0) > 0) && (
                   <section className="card progress__panel progress__performance-distance">
                     <LineChart title={`Distance per week (${unit}), last 12 weeks`} points={performanceDistance} series={[{ name: 'Distance' }]} unit={unit} />
-                    <p className="muted progress__chart-note">Each point is the distance recorded during that Monday–Sunday week. The current week is still in progress.</p>
                   </section>
                 )}
                 {runningEntries.some((entry) => (entry.seconds ?? 0) > 0) && (
                   <section className="card progress__panel progress__performance-time">
                     <LineChart title="Running time per week, last 12 weeks" points={performanceTime} series={[{ name: 'Time' }]} unit="min" />
-                    <p className="muted progress__chart-note">Each point is the running time recorded during that Monday–Sunday week. The current week is still in progress.</p>
                   </section>
                 )}
               </>
@@ -341,7 +337,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
             {feltSummary && (
               <section className="card progress__panel progress__feelings">
                 <h2 className="card__title card__title--small">How your runs felt</h2>
-                <p className="muted">Your own ratings over the last four weeks. These describe how sessions felt, not a fitness score.</p>
                 <div className="records__grid">
                   <div><span className="tile__label">Easy or good</span><strong>{feltSummary.good}</strong></div>
                   <div><span className="tile__label">Challenging</span><strong>{feltSummary.challenging}</strong></div>
@@ -362,7 +357,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
               <span className="card__eyebrow">{filteredHistory.length} {filteredHistory.length === 1 ? 'workout' : 'workouts'}</span>
             </div>
             <div className="progress__filters">
-              <input className="input" type="search" value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} placeholder="Search workouts" aria-label="Search workouts" />
+              <input className="input" type="search" value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} aria-label="Search workouts" />
               <select className="input" value={historyActivity} onChange={(event) => setHistoryActivity(event.target.value as HistoryActivity)} aria-label="Filter by activity">
                 <option value="all">All activities</option>
                 {(Object.keys(activities) as Activity[]).map((activity) => <option key={activity} value={activity}>{activities[activity]}</option>)}

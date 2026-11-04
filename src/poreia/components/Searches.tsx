@@ -76,7 +76,7 @@ export function StayResults({ target, nav, tripId }: { target: Target; nav: Pore
           ))}
         </ul>
       )}
-      {state?.stays && state.stays.length > 0 && <p className="fine">Prices for the whole stay{nights ? `, ${nights} ${nights === 1 ? 'night' : 'nights'}` : ''}, from LiteAPI. Booked on the provider’s site.</p>}
+      {state?.stays && state.stays.length > 0 && <p className="fine">Prices for the whole stay{nights ? `, ${nights} ${nights === 1 ? 'night' : 'nights'}` : ''}, from LiteAPI.</p>}
     </>
   );
 }

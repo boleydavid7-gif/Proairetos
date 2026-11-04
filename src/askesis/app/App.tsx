@@ -203,7 +203,7 @@ export default function App() {
             <section className="session-recovery__panel" role="dialog" aria-modal="true" aria-labelledby="session-recovery-title">
               <span className="card__eyebrow">Saved workout</span>
               <h2 className="card__title" id="session-recovery-title">An unfinished session was found</h2>
-              <p className="muted">Your elapsed time and recorded distance are saved on this device. The session will reopen paused so you can decide when to continue. GPS points from the time Askesis was closed cannot be recovered.</p>
+              <p className="muted">The session reopens paused. GPS points from while Askesis was closed cannot be recovered.</p>
               <div className="session-recovery__actions">
                 <button type="button" className="button-main" onClick={() => {
                   setRecovery(undefined);

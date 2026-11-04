@@ -177,7 +177,7 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
           <span><small>Usual income</small><strong>{income.expectedCents ? formatMoney(income.expectedCents, planCurrency) : 'Not set'}</strong></span>
           <span><small>Available after spending</small><strong className={actualRemaining < 0 ? 'is-over' : ''}>{limit ? formatMoney(actualRemaining, planCurrency) : '—'}</strong></span>
         </div>
-        {income.unknownPayDates > 0 && <p className="hint">{income.unknownPayDates} pay {income.unknownPayDates === 1 ? 'date has' : 'dates have'} no amount yet. Add one in More → Pay.</p>}
+        {income.unknownPayDates > 0 && <p className="hint">{income.unknownPayDates} pay {income.unknownPayDates === 1 ? 'date has' : 'dates have'} no amount yet.</p>}
       </section>
 
       <section className="oiko-budget-section">

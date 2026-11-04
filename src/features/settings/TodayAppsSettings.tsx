@@ -39,12 +39,8 @@ export default function TodayAppsSettings() {
   return (
     <section className="settings-group today-app-settings" aria-label="App summaries">
       <h2 className="settings-group__label">Apps on Today</h2>
-      <p className="section-description">
-        Choose which companion apps appear in the two compact Today sections. Tap a row on Today to open its app. The detailed switches below still control which items each app contributes.
-      </p>
       {!any && (
         <div className="settings-card">
-          <p className="empty-note">Add companion apps to build your Today overview.</p>
           <a className="text-link" href="/?open=settings%3Astore">Open App Store</a>
         </div>
       )}
@@ -60,7 +56,6 @@ export default function TodayAppsSettings() {
           <AppRows apps={WORTH_ATTENTION_APPS} hidden={hidden} added={added} />
         </div>
       )}
-      <p className="sheet__hint">These choices sync with your Proairetos account. They do not remove an app or change its records.</p>
     </section>
   );
 }

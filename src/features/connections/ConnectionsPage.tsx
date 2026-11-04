@@ -594,13 +594,13 @@ export default function ConnectionsPage() {
 
   return (
     <div className="page connections-page">
-      <PageHero title="Library" subtitle="A searchable home for the things you think, choose, do and want to remember." back={{ label: 'Reflect', onBack: leave }} />
+      <PageHero title="Library" back={{ label: 'Reflect', onBack: leave }} />
 
       <div className="connections-toolbar">
         <label className="connections-search">
           <Sym name="search" size={19} />
           <span className="sr-only">Search your library</span>
-          <input type="search" aria-label="Search your library" placeholder="Find a note, idea, decision, trip, milestone or experience…" value={search} onChange={(event) => setSearch(event.target.value)} />
+          <input type="search" aria-label="Search your library" value={search} onChange={(event) => setSearch(event.target.value)} />
           {search && <button type="button" className="connections-clear" aria-label="Clear search" onClick={() => setSearch('')}><Sym name="close" size={16} /></button>}
         </label>
       </div>

@@ -64,7 +64,6 @@ function SetupInstructions({ phone, setPhone }: { phone: 'iphone' | 'android'; s
               <li>Tap <strong>Sync now</strong> once to try it. Its <strong>Logs</strong> show each send.</li>
             </ol>
           )}
-          <p className="sheet__hint">New data syncs when you open an app. Your manual entries stay unchanged.</p>
         </div>
       </section>
   );
@@ -155,7 +154,7 @@ export default function HealthSection({ onOpenAccount, onOpenStore }: { onOpenAc
       <div className="settings-sections">
         <SetupInstructions phone={phone} setPhone={setPhone} />
         <section className="settings-card">
-          <p className="section-description">Sign in and connect a health source to sync data automatically.</p>
+          <p className="section-description">Sign in to sync health data.</p>
           <button type="button" className="button-accent account-wide" onClick={onOpenAccount}>
             Account and sync
           </button>

@@ -107,8 +107,7 @@ export default function WeatherSection() {
         </p>
       )}
       <p className="sheet__hint">
-        From Open-Meteo, a free weather service with no account or tracking. Your place is kept on this device, rounded
-        to about a kilometer, and only that is sent to ask for the weather.
+        From Open-Meteo. Only your place, rounded to about a kilometer, is sent; it stays on this device.
       </p>
     </section>
   );

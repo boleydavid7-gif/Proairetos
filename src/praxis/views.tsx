@@ -253,7 +253,7 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
       <div className="praxis-after__part">
         <p>Look at this again?</p>
         {looked ? <p className="praxis-muted">{looked}</p> : <div className="praxis-chips">{LOOK_AGAIN.map((choice) => <button type="button" key={choice.days} onClick={() => { onLookAgain(choice.days); setLooked(`It will show under To look at again, ${choice.label.toLowerCase()}.`); }}>{choice.label}</button>)}</div>}
-        <details className="praxis-source"><summary>Why spacing</summary><p>Coming back after a gap, and recalling before rereading, tends to hold learning longer. {LOOK_AGAIN_SOURCE}</p></details>
+        <details className="praxis-source"><summary>Why spacing</summary><p>{LOOK_AGAIN_SOURCE}</p></details>
       </div>
       <button type="button" className="praxis-button praxis-button--quiet" onClick={onClose}>Close</button>
     </div>
@@ -284,7 +284,7 @@ export function SessionsView({ events, titles, dayAt, onRemove }: { events: Item
   return (
     <section className="praxis-view">
       <div className="praxis-page-heading"><div><h1>Sessions</h1></div></div>
-      {!books.length ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">Sessions show here once a block has run.</p></article> : selectedBook ? (
+      {!books.length ? <article className="praxis-card praxis-wide-card"><p className="praxis-empty">No sessions yet</p></article> : selectedBook ? (
         <>
           <button type="button" className="praxis-text-button praxis-sessions-back" onClick={() => setSelectedId(undefined)}>All books</button>
           <article className="praxis-card praxis-wide-card">
