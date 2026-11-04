@@ -118,6 +118,8 @@ const listeners = createListeners();
 let status: SyncStatus = { phase: 'unavailable', syncing: false, reminders: 'unsupported' };
 let dataKey: CryptoKey | null = null;
 let userId: string | null = null;
+// Kept only in memory after password sign-in/creation; never persisted or sent to the sync service.
+let accountPasswordForKeySetup: string | null = null;
 /** The account whose things this page was opened with (`proairetosAccount`, see deviceAccount.ts). */
 let deviceAccountAtStart: string | null = (() => {
   try {
@@ -459,6 +461,7 @@ export const syncStatus = {
 
 export async function signInWithEmailPassword(email: string, password: string): Promise<void> {
   await remoteSignInWithPassword(email.trim(), password);
+  accountPasswordForKeySetup = password;
   await resolvePhase();
   tellFamily('account');
   if (status.phase === 'ready') void syncNow();
@@ -466,6 +469,11 @@ export async function signInWithEmailPassword(email: string, password: string): 
 
 export async function saveAccountPassword(password: string): Promise<void> {
   await setAccountPassword(password);
+  accountPasswordForKeySetup = password;
+}
+
+export function hasAccountPasswordForKeySetup(): boolean {
+  return Boolean(accountPasswordForKeySetup);
 }
 
 export async function requestPasswordReset(email: string): Promise<void> {
@@ -550,7 +558,7 @@ let setupPasskey: { made: Awaited<ReturnType<typeof createPasskey>>; wrap: Wrapp
 
 /** Makes the keys in memory, ahead of the tap that makes the passkey. */
 export async function prepareKeysForPasskey(): Promise<void> {
-  setupKeys ??= await createKeysForPasskey();
+  setupKeys ??= await createKeysForPasskey(accountPasswordForKeySetup ?? undefined);
 }
 
 /**
@@ -597,7 +605,7 @@ async function savePasskeyMade(wrap: WrappedKey | null): Promise<void> {
 /** After "I've saved it": the keys and the passkey go to the server, the key stays here, and syncing starts. */
 export async function finishSetupWithPasskey(): Promise<void> {
   if (!userId || !setupKeys || !setupPasskey?.wrap) throw new Error('Make the passkey first.');
-  await saveWrappedKeys(userId, null, setupKeys.recoveryWrap);
+  await saveWrappedKeys(userId, setupKeys.passphraseWrap, setupKeys.recoveryWrap);
   await savePasskeyMade(setupPasskey.wrap);
   const key = setupKeys.dataKey;
   setupKeys = null;
@@ -608,8 +616,10 @@ export async function finishSetupWithPasskey(): Promise<void> {
  * First device, step 1: creates the keys in memory only, so the recovery key
  * can be shown. Nothing is saved or uploaded yet.
  */
-export function prepareEncryption(passphrase: string): Promise<KeySetup> {
-  return createKeys(passphrase);
+export function prepareEncryption(legacyPassphrase?: string): Promise<KeySetup> {
+  const secret = accountPasswordForKeySetup ?? legacyPassphrase;
+  if (!secret) throw new KeyError('Sign in with your account password before setting up encrypted sync.');
+  return createKeys(secret);
 }
 
 /**
@@ -898,6 +908,7 @@ export async function signOut(): Promise<void> {
   await signOutRemote().catch(() => undefined);
   await (await localState())?.clear();
   dataKey = null;
+  accountPasswordForKeySetup = null;
   passkeyKey = null;
   passkeyToFinish = null;
   userId = null;
