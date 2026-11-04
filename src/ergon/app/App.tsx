@@ -2,23 +2,25 @@ import { useEffect } from 'react';
 import { startSync } from '../../app/sync/syncController';
 import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
-import { BroomIcon, HomeIcon, SettingsIcon } from '../../app/family/icons';
+import { BroomIcon, HomeIcon, ListIcon, SettingsIcon } from '../../app/family/icons';
 import { settings } from './state';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
 import ChoresPage from '../screens/ChoresPage';
+import TodosPage from '../screens/TodosPage';
 import ChorePage from '../screens/ChorePage';
 import HouseholdPage, { pendingInvite } from '../screens/HouseholdPage';
 import MorePage from '../screens/MorePage';
 import YearScreen from '../screens/YearScreen';
 
-export type Tab = 'today' | 'chores' | 'more';
+export type Tab = 'today' | 'chores' | 'todos' | 'more';
 export type Route = { name: 'welcome' } | { name: Tab } | { name: 'chore'; id?: string } | { name: 'household' } | { name: 'year' };
 export type ErgonNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'chores', label: 'Chores', Icon: BroomIcon },
+  { id: 'todos', label: 'To-dos', Icon: ListIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
 const tabNames = tabs.map((tab) => tab.id) as string[];
@@ -48,6 +50,8 @@ export default function App() {
         return <TodayPage nav={nav} />;
       case 'chores':
         return <ChoresPage nav={nav} />;
+      case 'todos':
+        return <TodosPage nav={nav} />;
       case 'chore':
         return <ChorePage nav={nav} id={route.id} />;
       case 'household':

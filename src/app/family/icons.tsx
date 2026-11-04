@@ -46,6 +46,8 @@ export const CakeIcon = glyphIcon('cake', 22);
 
 export const BroomIcon = glyphIcon('broom', 22);
 
+export const ListIcon = glyphIcon('list', 22);
+
 export const RoomIcon = glyphIcon('room', 22);
 
 export const CheckIcon = glyphIcon('check', 22);
