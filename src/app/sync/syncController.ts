@@ -692,6 +692,13 @@ export async function saveAccountPassword(password: string): Promise<void> {
   writeAccountPasswordSetupPending(false);
 }
 
+/** Changes the Supabase account password after the encrypted-data wrap has been updated. */
+export async function changeAccountPassword(password: string): Promise<void> {
+  await setAccountPassword(password);
+  clearAccountAuthPending();
+  accountPasswordForKeySetup = password;
+}
+
 export function hasAccountPasswordForKeySetup(): boolean {
   return Boolean(accountPasswordForKeySetup);
 }

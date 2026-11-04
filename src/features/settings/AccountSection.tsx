@@ -12,6 +12,7 @@ import {
   requestCode,
   signInWithEmailPassword,
   saveAccountPassword,
+  changeAccountPassword,
   hasAccountPasswordForKeySetup,
   clearAccountPasswordReadyForSetup,
   clearAccountAuthPending,
@@ -30,6 +31,7 @@ import {
   listAccountDevices,
   revokeAccountDevice,
   linkAccountPasswordToEncryption,
+  changePassphrase,
   continueSetupPasskey,
   finishSetupWithPasskey,
   hasPassphrase,
@@ -514,6 +516,76 @@ function DeviceSessions() {
   );
 }
 
+function PasswordChange() {
+  const status = useSyncStatus();
+  const [method, setMethod] = useState<'password' | 'recovery'>('password');
+  const [current, setCurrent] = useState('');
+  const [recoveryKey, setRecoveryKey] = useState('');
+  const [next, setNext] = useState('');
+  const [again, setAgain] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [messageText, setMessageText] = useState('');
+  const [error, setError] = useState('');
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setBusy(true);
+    setError('');
+    setMessageText('');
+    try {
+      if (next.length < MIN_ACCOUNT_PASSWORD_LENGTH) throw new Error(`Use at least ${MIN_ACCOUNT_PASSWORD_LENGTH} characters for your new password.`);
+      if (next !== again) throw new Error('The new passwords do not match.');
+      if (method === 'password') {
+        if (!status.email) throw new Error('Sign in again before changing your password.');
+        if (!current) throw new Error('Enter your current password.');
+        await signInWithEmailPassword(status.email, current);
+        if (syncStatus.get().phase !== 'ready') throw new Error('Open your data with the recovery key once, then change the password here.');
+        await changeAccountPassword(next);
+        await changePassphrase(current, 'passphrase', next);
+      } else {
+        if (!recoveryKey.trim()) throw new Error('Enter your recovery key.');
+        await unlock(recoveryKey.trim(), 'recovery');
+        await changeAccountPassword(next);
+        await linkAccountPasswordToEncryption(next, recoveryKey.trim(), 'recovery');
+      }
+      setCurrent('');
+      setRecoveryKey('');
+      setNext('');
+      setAgain('');
+      setMessageText('Your password has been changed. Your recovery key is still the same.');
+    } catch (cause) {
+      setError(message(cause));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <details className="settings-sub account-password-change">
+      <summary>Change password</summary>
+      <div className="stack-tight">
+        <p className="section-description">Use your recovery key if you no longer know the current password.</p>
+        <div className="chip-row" role="group" aria-label="Password change method">
+          <button type="button" className={method === 'password' ? 'chip' : 'button-quiet'} onClick={() => { setMethod('password'); setError(''); }}>Current password</button>
+          <button type="button" className={method === 'recovery' ? 'chip' : 'button-quiet'} onClick={() => { setMethod('recovery'); setError(''); }}>Recovery key</button>
+        </div>
+        <form className="stack-tight" onSubmit={(event) => void submit(event)}>
+          {method === 'password' ? (
+            <input className="field-input" type="password" autoComplete="current-password" aria-label="Current password" placeholder="Current password" value={current} onChange={(event) => setCurrent(event.target.value)} />
+          ) : (
+            <input className="field-input" type="text" autoComplete="off" aria-label="Recovery key" placeholder="Recovery key" value={recoveryKey} onChange={(event) => setRecoveryKey(event.target.value)} />
+          )}
+          <input className="field-input" type="password" autoComplete="new-password" aria-label="New password" placeholder="New password" value={next} onChange={(event) => setNext(event.target.value)} />
+          <input className="field-input" type="password" autoComplete="new-password" aria-label="Confirm new password" placeholder="Confirm new password" value={again} onChange={(event) => setAgain(event.target.value)} />
+          <button type="submit" className="button-accent" disabled={busy || next.length < MIN_ACCOUNT_PASSWORD_LENGTH || next !== again}>{busy ? 'Changing…' : 'Change password'}</button>
+        </form>
+        {messageText && <p className="sheet__hint" role="status">{messageText}</p>}
+        {error && <p className="form-error" role="alert">{error}</p>}
+      </div>
+    </details>
+  );
+}
+
 function Ready() {
   const status = useSyncStatus();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -540,6 +612,7 @@ function Ready() {
         </p>
       ) : null}
       {status.error && <p className="form-error" role="alert">{status.error}</p>}
+      <PasswordChange />
       <Passkeys />
       <SignInAnotherApp />
       <DeviceSessions />
