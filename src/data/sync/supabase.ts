@@ -227,11 +227,14 @@ export async function revokeAccountDevice(id: string): Promise<void> {
 
 // ---------- Wrapped key ----------
 
-/** The account's wrapped data key. `passphrase` is null for an account set up with a passkey and no passphrase. */
-export async function fetchWrappedKeys(): Promise<{ passphrase: WrappedKey | null; recovery: WrappedKey } | null> {
-  const { data, error } = await (await supabase()).from('user_keys').select('passphrase_wrap, recovery_wrap').maybeSingle();
+/** The data-key envelopes. `passphrase` is a read-only compatibility alias for older app builds. */
+export async function fetchWrappedKeys(): Promise<{ password: WrappedKey | null; passphrase: WrappedKey | null; recovery: WrappedKey } | null> {
+  const { data, error } = await (await supabase()).from('user_keys').select('password_wrap, passphrase_wrap, recovery_wrap').maybeSingle();
   if (error) throw new Error(error.message);
-  return data ? { passphrase: (data.passphrase_wrap as WrappedKey | null) ?? null, recovery: data.recovery_wrap as WrappedKey } : null;
+  if (!data) return null;
+  const password = (data.password_wrap as WrappedKey | null) ?? null;
+  const passphrase = (data.passphrase_wrap as WrappedKey | null) ?? null;
+  return { password, passphrase, recovery: data.recovery_wrap as WrappedKey };
 }
 
 /** Raised when the server still requires a passphrase (before migration 20261023000000_passkey_first.sql). */
@@ -248,7 +251,18 @@ export async function saveWrappedKeys(userId: string, passphrase: WrappedKey | n
   if (error) throw new Error(signInExpired(error.message));
 }
 
-/** Replaces the passphrase wrap only (a new passphrase); the recovery wrap stays as it is. */
+/** Stores the account-password wrap. The legacy column is mirrored temporarily so older app builds can still unlock. */
+export async function savePasswordWrap(userId: string, password: WrappedKey): Promise<void> {
+  const { data, error } = await (await supabase())
+    .from('user_keys')
+    .update({ password_wrap: password, passphrase_wrap: password, updated_at: new Date().toISOString() })
+    .eq('user_id', userId)
+    .select('user_id');
+  if (error) throw new Error(signInExpired(error.message));
+  if (!data?.length) throw new Error('The account password key was not saved. Sign in again and try once more.');
+}
+
+/** Replaces the legacy passphrase wrap only; retained temporarily for older account migrations. */
 export async function savePassphraseWrap(userId: string, passphrase: WrappedKey): Promise<void> {
   const { data, error } = await (await supabase())
     .from('user_keys')
