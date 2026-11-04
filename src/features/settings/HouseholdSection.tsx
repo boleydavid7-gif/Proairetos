@@ -360,8 +360,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         </section>
       </section>
 
-      {currentRole === 'owner' && !rolesReady ? (
-      ) : currentRole === 'owner' ? (
+      {currentRole === 'owner' && rolesReady ? (
         <section className="settings-group" aria-label="Household management">
           <h2 className="settings-group__label">Household management</h2>
           <div className="settings-card household__lifecycle">
