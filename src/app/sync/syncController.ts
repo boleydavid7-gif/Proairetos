@@ -14,6 +14,7 @@ import {
   createSupabaseFileStore,
   createSupabaseRemoteStore,
   currentUser,
+  registerAccountDevice,
   supabase,
   deleteCalendarFeed,
   deleteRemoteAccount,
@@ -192,6 +193,17 @@ async function resolvePhase(): Promise<void> {
     deviceAccountAtStart = user.id;
   }
   userId = user.id;
+  try {
+    await registerAccountDevice();
+  } catch (cause) {
+    const reason = cause instanceof Error ? cause.message : 'This device could not be registered.';
+    if (reason.includes('device was revoked')) {
+      await (await supabase()).auth.signOut({ scope: 'local' }).catch(() => undefined);
+      userId = null;
+      return set({ phase: 'signed-out', email: undefined, target: undefined, error: reason });
+    }
+    set({ phase: status.phase, email: user.email, error: reason });
+  }
   const st = (await localState())!;
   dataKey = (await st.getMeta<CryptoKey>(KEY_META)) ?? null;
   const lastSyncedAt = await st.getMeta<string>(LAST_SYNC_META);
