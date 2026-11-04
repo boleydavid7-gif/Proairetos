@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { changePassphrase, confirmCode, hasPassphrase, passkeysAvailable, requestCode, signInWithEmailPassword, unlockWithAccountPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { changePassphrase, hasPassphrase, passkeysAvailable, requestCode, signInWithEmailPassword, unlockWithAccountPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
 import { storageName } from '../sync/ownStorage';
 import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
