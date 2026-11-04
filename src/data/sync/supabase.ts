@@ -44,6 +44,27 @@ export function supabase(): Promise<SupabaseClient> {
   return client;
 }
 
+// ---------- Unified email and password account ----------
+
+/** Verifies a new or existing email with a one-time code, then allows the person to set a password. */
+export async function setAccountPassword(password: string): Promise<void> {
+  const { error } = await (await supabase()).auth.updateUser({ password });
+  if (error) throw new Error(error.message);
+}
+
+/** Signs in to the shared Proairetos account with its email and password. */
+export async function signInWithPassword(email: string, password: string): Promise<User> {
+  const { data, error } = await (await supabase()).auth.signInWithPassword({ email: email.trim(), password });
+  if (error || !data.user) throw new Error(error?.message ?? 'Sign-in failed. Check your email and password.');
+  return data.user;
+}
+
+/** Sends Supabase's password recovery email. */
+export async function sendPasswordRecovery(email: string): Promise<void> {
+  const { error } = await (await supabase()).auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin + location.pathname });
+  if (error) throw new Error(error.message);
+}
+
 // ---------- Sign-in by emailed code ----------
 // A code, not a link: on iPhone a link opens Safari, which does not share
 // storage with the app added to the Home Screen.
