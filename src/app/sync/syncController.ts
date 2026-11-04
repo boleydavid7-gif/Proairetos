@@ -373,7 +373,7 @@ async function syncHere(): Promise<SyncResult | null> {
       if (!mayUseCloud()) {
         // A signed-in beta user can still use every app locally. Leave the IndexedDB records in place and skip the
         // remote engine until they choose their own storage or subscribe to Proairetos cloud.
-        set({ target: 'proairetos', syncing: false, error: undefined });
+        set({ target: 'proairetos', syncing: false, error: 'Proairetos cloud access is not active for this account. The owner entitlement could not be confirmed. Check the account email and Worker deployment, then try again.' });
         return null;
       }
     }
