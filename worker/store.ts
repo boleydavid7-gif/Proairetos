@@ -18,8 +18,10 @@ export type StoreEnv = {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_URL?: string;
   SUPABASE_ANON_KEY?: string;
-  /** The only account allowed to manage temporary beta access. */
+  /** Primary account allowed to manage store access. */
   OWNER_EMAIL?: string;
+  /** Additional permanent owner accounts, comma-separated. */
+  OWNER_EMAILS?: string;
 };
 
 export const PLAN_PRICES = { core: 999, soma: 399, phyton: 399, bundle: 699, cloud: 299 } as const;
@@ -65,7 +67,8 @@ export function isTester(env: StoreEnv, email: string | undefined): boolean {
   return false;
 }
 
-const ownerEmail = (_env: StoreEnv) => 'boleydavid7@gmail.com';
+const ownerEmails = (env: StoreEnv) => new Set([env.OWNER_EMAIL || 'boleydavid7@gmail.com', ...(env.OWNER_EMAILS ?? '').split(',')].map((email) => email.trim().toLowerCase()).filter(Boolean));
+const isOwnerEmail = (env: StoreEnv, email: string | undefined) => Boolean(email && ownerEmails(env).has(email.trim().toLowerCase()));
 const validEmail = (email: string) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) && email.length <= 254;
 const betaSetupMessage = 'Run supabase/migrations/20261029000000_beta_access.sql, add SUPABASE_SERVICE_ROLE_KEY to the Worker secrets, and redeploy.';
 
@@ -94,7 +97,7 @@ export async function mine(request: Request, env: StoreEnv, fetcher: Fetcher = f
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) return reply(200, { tester: false, owner: false });
   const person = await personFrom(request, env, fetcher);
   if (!person) return reply(401, { error: 'Sign in first.' });
-  const owner = person.email?.trim().toLowerCase() === ownerEmail(env);
+  const owner = isOwnerEmail(env, person.email);
   const listed = isTester(env, person.email);
   const temporary = listed ? undefined : await temporaryExpiry(env, person.email, fetcher);
   return reply(200, { tester: owner || listed || Boolean(temporary), expiresAt: temporary, owner, trialUntil: trialUntil(person.createdAt) });
@@ -173,7 +176,7 @@ export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fe
   if (!plan) return reply(400, { error: 'That is not a plan in the Store.' });
   const person = await personFrom(request, env, fetcher);
   if (!person) return reply(401, { error: 'Sign in to buy an app.' });
-  const owner = person.email?.trim().toLowerCase() === ownerEmail(env);
+  const owner = isOwnerEmail(env, person.email);
   const tester = !owner && (isTester(env, person.email) || Boolean(await temporaryExpiry(env, person.email, fetcher)));
   if (owner || (tester && app !== 'cloud')) return reply(200, { owned: true, tester });
   if (tester && app === 'cloud') return reply(403, { error: 'Beta access includes the apps, but not Proairetos cloud. Choose local or your own cloud storage.' });
