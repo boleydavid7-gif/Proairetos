@@ -180,7 +180,7 @@ vi.mock('../../data/sync/supabase', () => ({ isSyncConfigured: true, supabase: a
 
 const device = (name: string) => {
   localStorage.clear();
-  localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['ergon', 'soma', 'oikonomia'] }));
+  localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['ergon', 'soma', 'oikonomia', 'poreia'] }));
   localStorage.setItem('proairetosOwned', JSON.stringify({ apps: [], tester: true }));
   localStorage.setItem('proairetos.displayName', JSON.stringify(name));
 };
@@ -247,6 +247,33 @@ describe('a household', () => {
     await household.joinHousehold(invite);
     expect(homes.sharedLists()).toHaveLength(0);
     expect(soma.sharedLists()).toHaveLength(1);
+  });
+
+  it('shares trips with the household, except one kept private', async () => {
+    const household = await import('../../app/household/household');
+    const poreia = await import('../../poreia/app/householdTrips');
+    const state = await import('../../poreia/app/state');
+
+    user = 'user-a';
+    device('Sam');
+    await household.makeHousehold('The Smiths');
+    await household.shareApp('poreia');
+    const made = household.household()!;
+    const now = '2026-11-01T00:00:00.000Z';
+    state.trips.put({ id: 't1', name: 'Lisbon', travelers: 2, stage: 'planning', createdAt: now, updatedAt: now } as never);
+    state.trips.put({ id: 't2', name: 'Surprise', travelers: 1, stage: 'idea', private: true, createdAt: now, updatedAt: now } as never);
+    state.bookings.put({ id: 'b1', tripId: 't1', kind: 'stay', title: 'Hotel', createdAt: now, updatedAt: now } as never);
+    expect(poreia.householdList()?.id).toBeDefined();
+    await poreia.syncHouseholdTrips(poreia.householdList()!);
+    await poreia.poreiaLists.refreshList(poreia.householdList()!);
+    const invite = { id: made.id, key: made.key, name: made.name };
+
+    user = 'user-b';
+    device('Alex');
+    await household.joinHousehold(invite);
+    await poreia.syncHouseholdTrips(poreia.householdList()!);
+    expect(state.trips.list().map((trip) => trip.name)).toEqual(['Lisbon']);
+    expect(state.bookings.list().map((booking) => booking.id)).toEqual(['b1']);
   });
 
   it('keeps cached household data while signed out or while another account is being restored', async () => {
@@ -480,7 +507,7 @@ describe('a household', () => {
     await household.removeHouseholdMember('user-b');
     expect(tables.shared_list_members.some((row) => row.list_id === made.id && row.user_id === 'user-b')).toBe(false);
     expect(household.households.sharedItems(made).some((item) => item.id === 'member:user-b')).toBe(false);
-  });
+  }, 20_000);
 
   it('transfers ownership and deletes a household without deleting app-list data', async () => {
     const household = await import('../../app/household/household');

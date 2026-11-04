@@ -49,6 +49,8 @@ export type Trip = {
   people?: string[];
   /** The shared list this trip is kept in step with, when it is shared. */
   sharedList?: string;
+  /** Kept out of the household's trips (only meaningful while the household shares Trips). */
+  private?: boolean;
   createdAt: string;
   updatedAt: string;
 };

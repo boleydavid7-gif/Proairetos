@@ -82,9 +82,12 @@ function firstRoute(): Route {
   return settings.load().started || opening ? { name: 'trips' } : { name: 'welcome' };
 }
 
+import { useHouseholdTrips } from './householdTrips';
+
 export default function App() {
   const { route, nav, isTab } = useRoutes<Route>('poreia', tabNames, firstRoute, { name: 'trips' }, { keepBackInApp: true });
   const [checked, setChecked] = useState(false);
+  useHouseholdTrips();
 
   useEffect(() => {
     // The first Poreia's records: said once, with Save a copy, then cleared (FreshPage).

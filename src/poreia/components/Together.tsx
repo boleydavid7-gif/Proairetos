@@ -1,5 +1,8 @@
 import { RollingNumber } from '../../lamplight/RollingNumber';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
+import { householdLists, householdVersion, subscribeHousehold } from '../../app/household/household';
+import { Switch } from '../../askesis/app/ui';
+import { householdList } from '../app/householdTrips';
 import { offerUndo } from '../../app/family/shell';
 import { Sym } from '../../lamplight/icons';
 import { myName, trips } from '../app/state';
@@ -15,6 +18,8 @@ export const peopleOf = (trip: Trip): string[] => (trip.people?.length ? trip.pe
 export function TogetherCard({ trip }: { trip: Trip }) {
   const people = peopleOf(trip);
   const [name, setName] = useState('');
+  useSyncExternalStore(subscribeHousehold, householdVersion);
+  const household = householdList() ? householdLists('poreia') : undefined;
   // Travelers follow the names once there are two or more, so who is going is said once.
   const setPeople = (next: string[]) => trips.put({ ...trip, people: next, travelers: next.length > 1 ? next.length : trip.travelers, updatedAt: new Date().toISOString() });
 
@@ -60,7 +65,16 @@ export function TogetherCard({ trip }: { trip: Trip }) {
           Add
         </button>
       </form>
-
+      {household && !trip.sharedList && (
+        <>
+          <Switch
+            on={!trip.private}
+            label={`Shared with ${household.name}`}
+            onToggle={() => trips.put({ ...trip, private: trip.private ? undefined : true, updatedAt: new Date().toISOString() })}
+          />
+          <a className="text-link" href="/?open=settings:household">Household settings</a>
+        </>
+      )}
     </section>
   );
 }

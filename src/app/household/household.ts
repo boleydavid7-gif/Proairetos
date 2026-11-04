@@ -36,6 +36,8 @@ async function listsOf(app: HouseholdApp): Promise<Lists> {
       return await import('../../soma/data/sharedLists');
     case 'oikonomia':
       return (await import('../../oikonomia/app/together')).oikonomiaLists;
+    case 'poreia':
+      return (await import('../../poreia/app/householdTrips')).poreiaLists;
     case 'ergon':
       return (await import('../../ergon/app/state')).homes;
     case 'phyton':

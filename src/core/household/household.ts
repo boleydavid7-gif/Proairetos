@@ -5,7 +5,7 @@
  * their name so everyone sees who is in. Nothing here reads or changes an app's records; each app keeps sharing
  * through its own list exactly as before.
  */
-export type HouseholdApp = 'proairetos' | 'soma' | 'oikonomia' | 'ergon' | 'phyton' | 'therapeia';
+export type HouseholdApp = 'proairetos' | 'soma' | 'oikonomia' | 'poreia' | 'ergon' | 'phyton' | 'therapeia';
 
 export type ListRef = { id: string; key: string; name: string };
 
@@ -27,6 +27,7 @@ export const HOUSEHOLD_APPS: readonly {
   { app: 'proairetos', name: 'To-dos', description: 'Only items added to the shared to-do list. Personal tasks, reflections and Compass stay private.', single: true },
   { app: 'soma', name: 'Groceries', description: 'The grocery lists you choose to share. Recipes and personal meal notes stay private.', single: false },
   { app: 'oikonomia', name: 'Bills and expenses', description: 'Bills with their payments, and the expenses you record, with who paid. The monthly plan, envelopes, pay and anything a trip adds stay private.', single: true },
+  { app: 'poreia', name: 'Trips', description: 'Every trip you have not kept private: its bookings, plans, packing, spending and saved places, with who is going and who paid. Documents, time off, and your own goals and savings stay private.', single: true },
   { app: 'ergon', name: 'Chores', description: 'Chores in the shared home, including assignments and completion history.', single: true },
   { app: 'phyton', name: 'Plants', description: 'The plants in the shared home collection.', single: true },
   { app: 'therapeia', name: 'Medicines', description: 'The medicine list and its entries. This can include sensitive medication details.', single: true, sensitive: true },

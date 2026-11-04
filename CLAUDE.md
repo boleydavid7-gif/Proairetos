@@ -1442,7 +1442,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   make, invite, join, leave (open to-dos kept as the person's own to-dos, one undo). Needs sign-in, not the passphrase.
 - Household (Settings > The app > Household, view `household`, `features/settings/HouseholdSection.tsx`; the row
   replaced "Shared list", whose page `together` still opens from older links): one invite for the people at home.
-  `core/household/household.ts` (types, `HOUSEHOLD_APPS`: To-dos, Groceries, Bills and expenses, Chores, Plants, Medicines; `partState`,
+  `core/household/household.ts` (types, `HOUSEHOLD_APPS`: To-dos, Groceries, Bills and expenses, Trips, Chores, Plants, Medicines; `partState`,
   `householdLink` `/?open=household:ID#k=KEY&n=NAME`, `readHouseholdInvite`, tests `src/tests/household/`) and
   `app/household/household.ts`: the household is itself a sealed shared list (`createSharedLists`, setting
   `proairetos.household`, cache `proairetosHousehold`, AD `proairetos-household`) whose items are parts (`part:<app>`:
@@ -1672,6 +1672,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   dates, Therapeia's medicines with the doses the days take onto the packing list (`TripWithApps`), the trip's spends into
   Oikonomia's Spent by month in its currency (ids `poreia-<spend>`, `ToOikonomia` on Money). Back from a trip in the last
   14 days, the Trips page offers one line kept in Reflect (`LookBack`, promptKey `after-trip`, `Trip.lookedBack`).
+- Trips in a household (Settings > Household > Trips, `poreia/app/householdTrips.ts`, merge in `app/family/recordMerge.ts`; Poreia's older per-trip link sharing in `sharedTrips.ts` has no screen now): the household's list for this app holds one sealed item per record of every trip that is not private (`sharesWithHousehold`: not `Trip.private`, no own `sharedList`): the trip, bookings, plans, packing, spending, saved places and journal lines. Documents, time off and `poreia:links` (goals, envelopes) never go. A trip's "Shared with <household>" switch (Travel together card, shown only while the household shares Trips) sets `Trip.private`; a private trip is left out of the comparison on both sides and from the remembered state, so keeping one private takes nothing off the household's copy and deletes nothing here. `useHouseholdTrips` runs from App (every 4 s on a change, pulled every 20 s in view).
 - Stops (`Stop`, `Trip.stops`, `placesOf`, `stopOn`, `stopNow`, `placeLine`, `withStops` in `core/model.ts`): a trip can
   have several places with their own dates (fewer than two stops are dropped); Overview and Around have stop chips, each
   day's head names its place, offline keeps every stop's map.
