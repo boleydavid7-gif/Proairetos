@@ -536,6 +536,9 @@ export async function linkAccountPasswordToEncryption(
     : await unlockWithRecoveryKey(wrapped.recovery, currentSecret, true);
   const nextWrap = await rewrapWithPassphrase(key, accountPassword);
   await savePassphraseWrap(userId, nextWrap);
+  // The same authenticated device can now create short-lived, single-use
+  // handoffs without asking the person for a second encryption secret.
+  await (await localState())!.setMeta(HANDOFF_META, key);
   const localKey = await crypto.subtle.importKey(
     'raw',
     await crypto.subtle.exportKey('raw', key),
