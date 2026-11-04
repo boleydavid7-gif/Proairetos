@@ -14,6 +14,7 @@ import {
   createSupabaseFileStore,
   createSupabaseRemoteStore,
   currentUser,
+  supabase,
   deleteCalendarFeed,
   deleteRemoteAccount,
   fetchCalendarFeedToken,
@@ -426,6 +427,19 @@ export async function startSync(): Promise<void> {
   if (started) return;
   started = true;
   await resolvePhase();
+
+  // Apps served from the same origin share the Supabase session storage.
+  // Refresh the local account/key state whenever another app changes that session.
+  if (isSyncConfigured) {
+    const client = await supabase();
+    client.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        window.setTimeout(() => {
+          void resolvePhase().then(() => status.phase === 'ready' && void syncNow());
+        }, 0);
+      }
+    });
+  }
   if (status.phase === 'ready') {
     const last = status.lastSyncedAt ? Date.parse(status.lastSyncedAt) : NaN;
     if (!Number.isFinite(last) || Date.now() - last >= STARTUP_CHECK_MS) void syncNow();
