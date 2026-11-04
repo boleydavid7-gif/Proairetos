@@ -305,6 +305,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
         {found.workout.title}
         {startedAt !== undefined && !finished && ` · step ${index + 1} of ${steps.length}`}
       </p>
+      {recovery && <p className="hint">Recovered session · paused. Continue when you’re ready.</p>}
 
       {finished ? (
         <div className="guide__done">
