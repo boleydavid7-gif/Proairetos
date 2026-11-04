@@ -48,6 +48,9 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
     await logDrink({ profileId: profile.id, amountOz: unitToOunces(amount, unit) }, nextProfiles, unit);
     nav.swap({ name: 'today' });
   };
+  const round = unit === 'oz' ? [8, 12, 16, 20, 24] : unit === 'ml' ? [250, 330, 500, 750] : [0.25, 0.33, 0.5, 0.75];
+  const usual = (settings.glasses ?? []).map((glass) => Math.round(Number(formatVolume(glass.amountOz, unit as HydrosUnit)) * 100) / 100);
+  const amounts = [...new Set([...usual, ...round])].filter((value) => value > 0).sort((a, b) => a - b);
   const step = unit === 'oz' ? 1 : unit === 'ml' ? 50 : .1;
   const changeAmount = (direction: number) => setAmount((value) => Math.max(step, Math.round((value + direction * step) * 100) / 100));
   return (
@@ -86,6 +89,13 @@ export default function AddPage({ nav, profileId, custom = false }: Props) {
         )}
         <section className="hydros-add__amount" aria-label="Amount">
           <div className="hydros-section-title"><h2>Amount</h2></div>
+          <div className="hydros-amount-chips" role="group" aria-label="Usual amounts">
+            {amounts.map((value) => (
+              <button type="button" key={value} className={value === amount ? 'is-selected' : ''} aria-pressed={value === amount} onClick={() => setAmount(value)}>
+                {value} {unit}
+              </button>
+            ))}
+          </div>
           <div className="amount-picker">
             <IconButton size="md" label="Decrease amount" onClick={() => changeAmount(-1)}><MinusIcon /></IconButton>
             <strong>{formatVolume(amount, unit as HydrosUnit)}<small> {unit}</small></strong>

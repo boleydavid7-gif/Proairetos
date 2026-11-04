@@ -70,27 +70,24 @@ export default function TodayPage({ nav }: { nav: Nav }) {
             ? formatVolume(amount, unit) + ' of ' + formatVolume(goal, unit) + ' ' + unit
             : formatVolume(amount, unit) + ' ' + unit + ' today'}
         >
-          <div className="hydros-amount__overview">
-            <div
-              className="hydros-amount__ring"
-              style={{ '--hydros-progress': (settings.goalChosen ? percent : 0) + '%' } as CSSProperties}
-              role="img"
-              aria-label={settings.goalChosen ? Math.round(percent) + ' percent of daily hydration goal' : 'Daily goal not set'}
-            >
-              <div className="hydros-amount__ring-center">
-                <strong><RollingNumber value={amount} format={(n) => formatVolume(n, unit) + ' ' + unit} /></strong>
-                <span>{settings.goalChosen ? 'of ' + formatVolume(goal, unit) + ' ' + unit : 'today'}</span>
+          <div className={'hydros-amount__overview' + (settings.goalChosen ? '' : ' hydros-amount__overview--plain')}>
+            {settings.goalChosen && (
+              <div
+                className="hydros-amount__ring"
+                style={{ '--hydros-progress': percent + '%' } as CSSProperties}
+                role="img"
+                aria-label={Math.round(percent) + ' percent of the daily amount'}
+              >
+                <div className="hydros-amount__ring-center"><DropIcon size={32} /></div>
               </div>
-            </div>
-
+            )}
             <div className="hydros-amount__stats">
+              <strong className="hydros-amount__now"><RollingNumber value={amount} format={(n) => formatVolume(n, unit) + ' ' + unit} /></strong>
               {settings.goalChosen ? (
                 <>
-                  <span className="hydros-eyebrow">Daily hydration</span>
-                  <strong className="hydros-amount__percent">{Math.round(percent)}%</strong>
+                  <span className="hydros-amount__remaining">of {formatVolume(goal, unit)} {unit}</span>
                   <span className="hydros-amount__remaining">
-                    <DropIcon size={18} />
-                    {remaining > 0 ? formatVolume(remaining, unit) + ' ' + unit + ' remaining' : 'Daily goal reached'}
+                    {remaining > 0 ? formatVolume(remaining, unit) + ' ' + unit + ' remaining' : 'Daily amount reached'}
                   </span>
                   {extra > 0 && (
                     <p className="hydros-amount__note">
@@ -99,61 +96,43 @@ export default function TodayPage({ nav }: { nav: Nav }) {
                   )}
                 </>
               ) : (
-                <>
-                  <span className="hydros-eyebrow">Daily goal</span>
-                  <strong className="hydros-amount__percent">Not set</strong>
-                  <button type="button" className="button-quiet button--sm" onClick={() => nav.go({ name: 'settings' })}>
-                    Set goal
-                  </button>
-                </>
+                <span className="hydros-amount__remaining">today</span>
               )}
             </div>
           </div>
-
-          <button type="button" className="button-main button--lg hydros-amount__action" onClick={() => nav.go({ name: 'add' })}>
-            <DropIcon size={20} />
-            Log a drink
-          </button>
         </article>
 
-        {(glasses.length > 0 || (last && !sameAsGlass)) && (
-          <section className="hydros-quick-log" aria-label="Quick log">
-            <div className="hydros-section-title"><h2>Quick log</h2></div>
-            <div className="hydros-glasses">
-              {glasses.map((glass) => (
-                <button type="button" key={glass.id} className="hydros-glass" onClick={() => void logDrink(glass, profiles, unit)}>
-                  <PlusIcon size={18} />
-                  <span><strong>{glass.label}</strong><small>{volumeLabel(glass.amountOz, unit)}</small></span>
-                </button>
-              ))}
-              {last && !sameAsGlass && (
-                <button type="button" className="hydros-glass" onClick={() => void logDrink({ profileId: last.profileId ?? last.kind, amountOz: last.amountOz }, profiles, unit)}>
-                  <PlusIcon size={18} />
-                  <span><strong>Same again</strong><small>{last.label ?? 'Drink'} · {volumeLabel(last.amountOz, unit)}</small></span>
-                </button>
-              )}
-            </div>
-          </section>
-        )}
-
-      {history.length > 0 && (
-        <section className="hydros-history" aria-label="History">
-          <div className="hydros-section-title"><h2>History</h2></div>
-          <div className="hydros-history__items">
-            {history.map(({ profile, last: previous }) => (
-              <button type="button" key={profile.id} onClick={() => void logDrink({ profileId: profile.id, amountOz: previous?.amountOz ?? unitToOunces(12, unit) }, profiles, unit)}>
-                <strong>{profile.label}</strong>
-                <small>{volumeLabel(previous?.amountOz ?? unitToOunces(12, unit), unit)}</small>
+        <section className="hydros-quick-log" aria-label="Quick log">
+          <div className="hydros-section-title"><h2>Quick log</h2></div>
+          <div className="hydros-glasses">
+            {glasses.map((glass) => (
+              <button type="button" key={glass.id} className="hydros-glass" onClick={() => void logDrink(glass, profiles, unit)}>
+                <PlusIcon size={18} />
+                <span><strong>{glass.label}</strong><small>{volumeLabel(glass.amountOz, unit)}</small></span>
               </button>
             ))}
+            {last && !sameAsGlass && (
+              <button type="button" className="hydros-glass" onClick={() => void logDrink({ profileId: last.profileId ?? last.kind, amountOz: last.amountOz }, profiles, unit)}>
+                <PlusIcon size={18} />
+                <span><strong>Same again</strong><small>{last.label ?? 'Drink'} · {volumeLabel(last.amountOz, unit)}</small></span>
+              </button>
+            )}
+            {history.map(({ profile, last: previous }) => (
+              <button type="button" className="hydros-glass" key={profile.id} onClick={() => void logDrink({ profileId: profile.id, amountOz: previous?.amountOz ?? unitToOunces(12, unit) }, profiles, unit)}>
+                <PlusIcon size={18} />
+                <span><strong>{profile.label}</strong><small>{volumeLabel(previous?.amountOz ?? unitToOunces(12, unit), unit)}</small></span>
+              </button>
+            ))}
+            <button type="button" className="hydros-glass hydros-glass--other" onClick={() => nav.go({ name: 'add' })}>
+              <DropIcon size={18} />
+              <span><strong>Other drink</strong></span>
+            </button>
           </div>
         </section>
-      )}
 
       <section className="hydros-today-list" aria-label="Today’s drinks">
         <div className="hydros-section-title">
           <h2>Drinks</h2>
-          <button type="button" aria-label="Add a custom drink" onClick={() => nav.go({ name: 'add', custom: true })}><PlusIcon size={20} /></button>
         </div>
         {caffeine.mg > 0 && <p className="hydros-caffeine">{caffeine.mg} mg caffeine{caffeine.lastAt ? ` · last at ${hourLabel(caffeine.lastAt)}` : ''}</p>}
         {all && todays.length === 0 && <p className="pattern-empty">Nothing logged yet.</p>}

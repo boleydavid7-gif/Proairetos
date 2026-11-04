@@ -35,8 +35,6 @@ export default function FlowPage({ nav }: { nav: Nav }) {
   const loggedDays = values.filter((value) => value > 0).length;
   const total = values.reduce((sum, value) => sum + value, 0);
   const average = loggedDays ? total / loggedDays : 0;
-  const highest = Math.max(0, ...values);
-  const goalDays = goal ? values.filter((value) => value >= goal).length : undefined;
   // About a liter at least (amounts are in ounces), so an empty or light week keeps a readable scale; no target is
   // drawn from it.
   const max = Math.max(goal ?? 0, ...values, 32) * 1.1;
@@ -82,20 +80,10 @@ export default function FlowPage({ nav }: { nav: Nav }) {
         <strong>{average ? formatVolume(average, unit) : '—'}{average ? ` ${unit}` : ''}</strong>
         <small>{average ? 'on logged days' : 'No drinks logged'}</small>
       </article>
-      <article className="hydros-insight-card">
-        <small>Highest day</small>
-        <strong>{highest ? `${formatVolume(highest, unit)} ${unit}` : '—'}</strong>
-        <small>{highest ? 'counted intake' : 'No drinks logged yet'}</small>
-      </article>
-      {goalDays !== undefined && <article className="hydros-insight-card">
-        <small>Reached your amount</small>
-        <strong>{goalDays} of {range.length}</strong>
-        <small>{goalDays === 1 ? 'day' : 'days'}</small>
-      </article>}
     </section>
     <section className="recent-entries">
       <div className="hydros-section-title"><h2>{isCurrent ? (span === 'Week' ? 'This week' : 'This month') : periodTitle}</h2></div>
-      {periodDrinks.length ? periodDrinks.slice(0, shown).map((drink) => <DrinkEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} />) : <p className="pattern-empty">Nothing logged in this {span.toLowerCase()}.</p>}
+      {periodDrinks.length ? <div className="hydros-drinks">{periodDrinks.slice(0, shown).map((drink) => <DrinkEntry key={drink.id} drink={drink} profiles={profiles} unit={unit} />)}</div> : <p className="pattern-empty">Nothing logged in this {span.toLowerCase()}.</p>}
       {periodDrinks.length > shown && <button type="button" className="recent-entry__cancel hydros-more" onClick={() => setShown(shown + PAGE)}>Show more</button>}
     </section>
     <button type="button" className="recent-entry__cancel hydros-more" onClick={() => setShowYear(true)}>Your year</button>
