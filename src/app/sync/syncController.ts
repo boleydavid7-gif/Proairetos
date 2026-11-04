@@ -712,10 +712,11 @@ export async function handoffReady(): Promise<boolean> {
 }
 
 /** Turns passes on here: the passphrase once, to keep an exportable copy of the key on this device. */
-export async function enableHandoff(passphrase: string): Promise<void> {
+export async function enableHandoff(accountPassword: string): Promise<void> {
   const wrapped = await fetchWrappedKeys();
   if (!wrapped) throw new KeyError('No encrypted data was found for this account.');
-  const key = await unlockWithPassphrase(passphraseOf(wrapped), passphrase, true);
+  if (!wrapped.passphrase) throw new KeyError('This account has not yet connected its account password to encrypted data. Complete the password migration first.');
+  const key = await unlockWithPassphrase(wrapped.passphrase, accountPassword, true);
   await (await localState())!.setMeta(HANDOFF_META, key);
 }
 
