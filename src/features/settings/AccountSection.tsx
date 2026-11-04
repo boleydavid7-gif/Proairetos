@@ -10,6 +10,9 @@ import { StorageChoice } from './StorageChoice';
 import {
   confirmCode,
   requestCode,
+  signInWithEmailPassword,
+  saveAccountPassword,
+  requestPasswordReset,
   confirmEncryption,
   prepareEncryption,
   deleteAccount,
@@ -38,92 +41,78 @@ export function useSyncStatus() {
 
 function SignIn() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [again, setAgain] = useState('');
   const [code, setCode] = useState('');
-  const [sent, setSent] = useState(false);
+  const [stage, setStage] = useState<'choice' | 'verify' | 'password'>('choice');
+  const [mode, setMode] = useState<'signin' | 'create'>('signin');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const autofillError = usePasskeyAutofill(!sent);
+  const [notice, setNotice] = useState('');
+  const autofillError = usePasskeyAutofill(stage === 'choice');
 
   async function run(action: () => Promise<void>) {
     setBusy(true);
     setError('');
-    try {
-      await action();
-    } catch (cause) {
-      setError(message(cause));
-    } finally {
-      setBusy(false);
-    }
+    setNotice('');
+    try { await action(); }
+    catch (cause) { setError(message(cause)); }
+    finally { setBusy(false); }
   }
 
-  if (sent) {
-    return (
-      <form
-        className="stack-tight"
-        onSubmit={(event: FormEvent) => {
-          event.preventDefault();
-          run(() => confirmCode(email, code));
-        }}
-      >
-        <p className="section-description">Code sent to {email}.</p>
-        <input
-          autoComplete="one-time-code"
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck={false}
-          className="field-input"
-          aria-label="Code or link from the email"
-          placeholder="Code or link"
-          value={code}
-          onChange={(event) => setCode(event.target.value)}
-        />
-        <button type="submit" className="button-accent account-wide" disabled={code.trim().length < 6 || busy}>
-          {busy ? 'Signing in…' : 'Sign in'}
-        </button>
-        <button type="button" className="text-link" onClick={() => setSent(false)}>
-          Use a different email
-        </button>
-        {error && <p className="form-error" role="alert">{error}</p>}
-      </form>
-    );
-  }
+  if (stage === 'verify') return (
+    <form className="stack-tight" onSubmit={(event: FormEvent) => {
+      event.preventDefault();
+      void run(async () => { await confirmCode(email, code); setStage('password'); });
+    }}>
+      <p className="section-description">Enter the confirmation code sent to {email}.</p>
+      <input className="field-input" autoComplete="one-time-code" aria-label="Email confirmation code" placeholder="Confirmation code" value={code} onChange={(event) => setCode(event.target.value)} />
+      <button type="submit" className="button-accent account-wide" disabled={busy || code.trim().length < 6}>{busy ? 'Confirming…' : 'Confirm email'}</button>
+      <button type="button" className="text-link" onClick={() => setStage('choice')}>Back</button>
+      {error && <p className="form-error" role="alert">{error}</p>}
+    </form>
+  );
+
+  if (stage === 'password') return (
+    <form className="stack-tight" onSubmit={(event: FormEvent) => {
+      event.preventDefault();
+      void run(async () => {
+        if (password.length < 10) throw new Error('Use at least 10 characters for your password.');
+        if (password !== again) throw new Error('The passwords do not match.');
+        await saveAccountPassword(password);
+        await refreshSyncStatus();
+      });
+    }}>
+      <p className="section-description">Email confirmed. Create the one password you'll use across Proairetos and its apps.</p>
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="Create password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} />
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="Confirm password" placeholder="Confirm password" value={again} onChange={(event) => setAgain(event.target.value)} />
+      <button type="submit" className="button-accent account-wide" disabled={busy || password.length < 10 || password !== again}>{busy ? 'Saving…' : 'Set password'}</button>
+      {error && <p className="form-error" role="alert">{error}</p>}
+    </form>
+  );
 
   return (
     <>
-      <p className="section-description">7 days free. No card needed.</p>
+      <p className="section-description">One account and one password for Proairetos and every companion app.</p>
       <PasskeySignIn className="button-accent account-wide" errorClass="form-error" />
-      <form
-        className="stack-tight"
-        onSubmit={(event: FormEvent) => {
-          event.preventDefault();
-          run(async () => {
-            await requestCode(email);
-            setSent(true);
-          });
-        }}
-      >
-        <input
-          type="email"
-          className="field-input"
-          autoComplete="email webauthn"
-          aria-label="Email"
-          placeholder="Email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-        />
-        <button type="submit" className="chip account-wide" disabled={!email.includes('@') || busy}>
-          {busy ? 'Sending…' : 'Continue with email'}
-        </button>
+      <form className="stack-tight" onSubmit={(event: FormEvent) => {
+        event.preventDefault();
+        void run(async () => {
+          if (mode === 'signin') await signInWithEmailPassword(email, password);
+          else { await requestCode(email); setStage('verify'); }
+        });
+      }}>
+        <input type="email" className="field-input" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+        {mode === 'signin' && <input type="password" className="field-input" autoComplete="current-password" aria-label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />}
+        <button type="submit" className="button-accent account-wide" disabled={busy || !email.includes('@') || (mode === 'signin' && !password)}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Confirm email'}</button>
       </form>
-      {signInProviders.length > 0 && (
-        <details className="sheet__more">
-          <summary>Other ways to sign in</summary>
-          <div className="sheet__more-body">
-            <ProviderButtons className="chip account-wide" />
-          </div>
-        </details>
-      )}
+      <div className="chip-row">
+        <button type="button" className="text-link" onClick={() => { setMode(mode === 'signin' ? 'create' : 'signin'); setError(''); }}>{mode === 'signin' ? 'Create an account' : 'Already have an account? Sign in'}</button>
+        {mode === 'signin' && <button type="button" className="text-link" onClick={() => void run(async () => { await requestPasswordReset(email); setNotice('Password reset email sent.'); })}>Forgot password?</button>}
+      </div>
+      {signInProviders.length > 0 && <details className="sheet__more"><summary>Other ways to sign in</summary><div className="sheet__more-body"><ProviderButtons className="chip account-wide" /></div></details>}
       {(error || autofillError) && <p className="form-error" role="alert">{error || autofillError}</p>}
+      {notice && <p className="sheet__hint" role="status">{notice}</p>}
     </>
   );
 }
