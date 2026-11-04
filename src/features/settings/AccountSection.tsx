@@ -312,6 +312,7 @@ function PassphraseSetUp({ note }: { note: string }) {
 }
 
 function Unlock() {
+  const status = useSyncStatus();
   const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
   const [secret, setSecret] = useState('');
   const [next, setNext] = useState('');
@@ -334,6 +335,7 @@ function Unlock() {
   if (opening.length > 0 && !typing) {
     return (
       <>
+        {status.error && <p className="form-error" role="alert">{status.error}</p>}
         <PasskeyOpen rows={opening} className="button-accent account-wide" errorClass="form-error" />
         <button type="button" className="text-link" onClick={() => setTyping(true)}>
           {withPassphrase ? 'Use my passphrase' : 'Use my recovery key'}
@@ -362,6 +364,7 @@ function Unlock() {
         }
       }}
     >
+      {status.error && <p className="form-error" role="alert">{status.error}</p>}
       {hasAccountPasswordForKeySetup() && (
         <button type="button" className="button-accent account-wide" disabled={passwordBusy} onClick={async () => {
           setPasswordBusy(true); setPasswordError('');
