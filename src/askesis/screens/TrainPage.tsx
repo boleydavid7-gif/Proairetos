@@ -102,50 +102,71 @@ export default function TrainPage({ nav, plan, planState }: { nav: Nav; plan?: P
               </span>
             </div>
           )}
+          {(felt || change) && (
+            <details className="more-about">
+              <summary>Then and now</summary>
           {felt && (
-            <div className="progress__row">
-              <span className="card__eyebrow">How runs felt, last four weeks</span>
-              <span>
-                {[
-                  felt.good && `${felt.good} easy or good`,
-                  felt.challenging && `${felt.challenging} challenging`,
-                  felt.hard && `${felt.hard} hard`,
-                ]
-                  .filter(Boolean)
-                  .join(', ')}
-              </span>
-            </div>
-          )}
-          {change && (
-            <>
               <div className="progress__row">
-                <span className="card__eyebrow">Your first two weeks</span>
+                <span className="card__eyebrow">How runs felt, last four weeks</span>
                 <span>
-                  {lengthLabel(change.then.weekly)} a week, longest run {lengthLabel(change.then.longest)}
+                  {[
+                    felt.good && `${felt.good} easy or good`,
+                    felt.challenging && `${felt.challenging} challenging`,
+                    felt.hard && `${felt.hard} hard`,
+                  ]
+                    .filter(Boolean)
+                    .join(', ')}
                 </span>
               </div>
-              <div className="progress__row">
-                <span className="card__eyebrow">The last three weeks</span>
-                <span>
-                  {lengthLabel(change.now.weekly)} a week, longest run {lengthLabel(change.now.longest)}
-                </span>
-              </div>
-            </>
+            )}
+            {change && (
+              <>
+                <div className="progress__row">
+                  <span className="card__eyebrow">Your first two weeks</span>
+                  <span>
+                    {lengthLabel(change.then.weekly)} a week, longest run {lengthLabel(change.then.longest)}
+                  </span>
+                </div>
+                <div className="progress__row">
+                  <span className="card__eyebrow">The last three weeks</span>
+                  <span>
+                    {lengthLabel(change.now.weekly)} a week, longest run {lengthLabel(change.now.longest)}
+                  </span>
+                </div>
+              </>
+            )}
+            </details>
           )}
         </section>
       )}
 
-      {stagesOf(shown).map((stage) => (
-        <section key={`${stage.stage}-${stage.from}`} className="stage" aria-label={stage.stage}>
-          <div className="stage__head">
-            <h2 className="stage__name">{stage.stage}</h2>
-            <span className="stage__weeks">
-              {stage.from === stage.to ? `Week ${stage.from}` : `Weeks ${stage.from}–${stage.to}`}
-            </span>
-          </div>
-          <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
-        </section>
-      ))}
+      {(() => {
+        const stages = stagesOf(shown);
+        const earlier = currentListed === undefined ? [] : stages.filter((stage) => stage.to < currentListed);
+        const stageList = (list: typeof stages) =>
+          list.map((stage) => (
+            <section key={`${stage.stage}-${stage.from}`} className="stage" aria-label={stage.stage}>
+              <div className="stage__head">
+                <h2 className="stage__name">{stage.stage}</h2>
+                <span className="stage__weeks">
+                  {stage.from === stage.to ? `Week ${stage.from}` : `Weeks ${stage.from}–${stage.to}`}
+                </span>
+              </div>
+              <ol className="weeks">{shown.weeks.filter((week) => week.n >= stage.from && week.n <= stage.to).map(row)}</ol>
+            </section>
+          ));
+        return (
+          <>
+            {earlier.length > 0 && (
+              <details className="more-about earlier-weeks">
+                <summary>Weeks {earlier[0].from}–{earlier[earlier.length - 1].to}</summary>
+                {stageList(earlier)}
+              </details>
+            )}
+            {stageList(stages.filter((stage) => !earlier.includes(stage)))}
+          </>
+        );
+      })()}
 
       <section className="stage own-sessions" aria-label="Your sessions">
         <div className="stage__head">
