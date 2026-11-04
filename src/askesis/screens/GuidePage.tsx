@@ -18,6 +18,7 @@ import { saveSettings } from '../data/store';
 import { locate } from './WorkoutPage';
 import { addFix, paused, type Track } from '../core/track';
 import { formatDistance } from '../core/pace';
+import { clearSessionRecovery, pauseRecoveredSession, readSessionRecovery, saveSessionRecovery } from '../core/sessionRecovery';
 
 const clock = (seconds: number) => {
   const whole = Math.max(0, Math.ceil(seconds));
@@ -80,15 +81,19 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
   const [pocket, setPocket] = useState(false);
   const held = useRef(false);
 
-  const [startedAt, setStartedAt] = useState<number>();
-  const [pausedAt, setPausedAt] = useState<number>();
-  const [pausedFor, setPausedFor] = useState(0);
+  const [recovery] = useState(() => {
+    const saved = readSessionRecovery();
+    return saved?.workoutId === id ? pauseRecoveredSession(saved) : undefined;
+  });
+  const [startedAt, setStartedAt] = useState<number | undefined>(() => recovery?.startedAt);
+  const [pausedAt, setPausedAt] = useState<number | undefined>(() => recovery?.pausedAt);
+  const [pausedFor, setPausedFor] = useState(() => recovery?.pausedFor ?? 0);
   const [now, setNow] = useState(Date.now());
-  const [finished, setFinished] = useState(false);
+  const [finished, setFinished] = useState(() => recovery?.finished ?? false);
   const spokenIndex = useRef(-1);
   const minuteWarned = useRef(-1);
   const lock = useRef<{ release(): Promise<void> } | null>(null);
-  const [track, setTrack] = useState<Track>({ meters: 0 });
+  const [track, setTrack] = useState<Track>(() => ({ meters: recovery?.meters ?? 0 }));
   const [gpsStatus, setGpsStatus] = useState<'off' | 'waiting' | 'recording' | 'unavailable' | 'denied'>('off');
   const [screenVisible, setScreenVisible] = useState(true);
 
@@ -204,6 +209,25 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     }
   });
 
+  // Checkpoint the active session on meaningful changes and periodically. No GPS coordinates are stored.
+  useEffect(() => {
+    if (startedAt === undefined) return;
+    const save = () => saveSessionRecovery({
+      version: 1,
+      workoutId: id,
+      startedAt,
+      pausedAt,
+      pausedFor,
+      meters: track.meters,
+      intention,
+      finished,
+      savedAt: Date.now(),
+    });
+    save();
+    const timer = window.setInterval(save, 2_000);
+    return () => window.clearInterval(timer);
+  }, [id, startedAt, pausedAt, pausedFor, track.meters, intention, finished]);
+
   // The bell, ready before Start (and kept on the device for sessions without signal).
   useEffect(() => void buffer(BELL_FILE).catch(() => undefined), []);
 
@@ -233,6 +257,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
     }
     if (settings.bells) void scheduleCues(cues, 0);
     if (settings.music === 'mine') void playSongs(settings.shuffle);
+    clearSessionRecovery();
     setStartedAt(Date.now());
     setNow(Date.now());
   };
@@ -246,11 +271,17 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       const total = pausedFor + (Date.now() - pausedAt);
       setPausedFor(total);
       setPausedAt(undefined);
+      if (settings.music === 'other') shareAudio();
+      else if (!held.current) {
+        wakeAudio();
+        held.current = true;
+      }
       if (settings.bells && startedAt !== undefined) void scheduleCues(cues, (Date.now() - startedAt - total) / 1000);
       resumeSongs();
     }
   };
   const end = () => {
+    clearSessionRecovery();
     window.speechSynthesis?.cancel();
     nav.swap({ name: 'entry', workoutId: found.workout.id, seconds: Math.round(elapsed), meters: track.meters >= 50 ? Math.round(track.meters) : undefined, intention });
   };
