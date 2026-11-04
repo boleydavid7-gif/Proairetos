@@ -501,6 +501,20 @@ export async function signInWithEmailPassword(email: string, password: string): 
   await remoteSignInWithPassword(email.trim(), password);
   accountPasswordForKeySetup = password;
   await resolvePhase();
+
+  // A successful account-password sign-in should also unlock the existing
+  // data key when this account has completed the one-time key migration.
+  // Legacy accounts that have not migrated yet remain locked and can use
+  // their old passphrase/recovery key once through the migration flow.
+  if (status.phase === 'locked') {
+    try {
+      await unlockWithAccountPassword();
+    } catch {
+      // Authentication succeeded. A missing/legacy password wrap is not a
+      // reason to sign the person back out; keep the recovery unlock available.
+    }
+  }
+
   tellFamily('account');
   if (status.phase === 'ready') void syncNow();
 }
