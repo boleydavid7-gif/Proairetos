@@ -107,7 +107,7 @@ export async function mine(request: Request, env: StoreEnv, fetcher: Fetcher = f
 export async function betaAccess(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, { error: `Beta access is not set up yet. ${betaSetupMessage}` });
   const person = await personFrom(request, env, fetcher);
-  if (!person || person.email?.trim().toLowerCase() !== ownerEmail(env)) return reply(403, { error: 'Only the owner can manage beta access.' });
+  if (!person || !isOwnerEmail(env, person.email)) return reply(403, { error: 'Only the owner can manage beta access.' });
   if (request.method === 'GET') {
     const query = new URLSearchParams({ expires_at: `gt.${new Date().toISOString()}`, select: 'email,expires_at', order: 'expires_at.asc' });
     const response = await fetcher(`${base(env)}/rest/v1/beta_access?${query}`, { headers: serviceHeaders(env) });
@@ -139,7 +139,7 @@ export async function betaAccess(request: Request, env: StoreEnv, fetcher: Fetch
 export async function signedInUsers(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
   if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(503, { error: 'User directory is not set up yet.' });
   const person = await personFrom(request, env, fetcher);
-  if (!person || person.email?.trim().toLowerCase() !== ownerEmail(env)) return reply(403, { error: 'Only the owner can view signed-in users.' });
+  if (!person || !isOwnerEmail(env, person.email)) return reply(403, { error: 'Only the owner can view signed-in users.' });
   const query = new URLSearchParams({ page: '1', per_page: '100' });
   const response = await fetcher(`${base(env)}/auth/v1/admin/users?${query}`, { headers: serviceHeaders(env) });
   if (!response.ok) return reply(502, { error: 'The signed-in user list could not be read.' });
