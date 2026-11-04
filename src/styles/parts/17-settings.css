@@ -10,6 +10,29 @@
   background: var(--color-surface);
 }
 
+.password-recovery {
+  min-height: 100dvh;
+  justify-content: center;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--space-5);
+}
+
+.password-recovery__brand {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.password-recovery__card {
+  width: 100%;
+}
+
+.password-recovery__card .page-header__title {
+  margin-bottom: 0;
+}
+
 /* A short list of switches: rows edge to edge, a hairline between them. */
 .settings-card--rows {
   gap: 0;

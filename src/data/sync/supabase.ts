@@ -61,7 +61,11 @@ export async function signInWithPassword(email: string, password: string): Promi
 
 /** Sends Supabase's password recovery email. */
 export async function sendPasswordRecovery(email: string): Promise<void> {
-  const { error } = await (await supabase()).auth.resetPasswordForEmail(email.trim(), { redirectTo: location.origin + location.pathname });
+  // Password recovery always returns to Proairetos' dedicated recovery screen.
+  // Returning to the page that requested the email used to reopen whatever
+  // account happened to be active in that app instead of the account in the
+  // recovery session.
+  const { error } = await (await supabase()).auth.resetPasswordForEmail(email.trim(), { redirectTo: `${location.origin}/?auth=recovery` });
   if (error) throw new Error(error.message);
 }
 

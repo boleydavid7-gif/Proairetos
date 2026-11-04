@@ -3,7 +3,7 @@ import LockScreen from './lock/LockScreen';
 import { lock, lockedRoutes } from './lock/lock';
 import EdgeSwipe from './back/EdgeSwipe';
 import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { startSync } from './sync/syncController';
+import { isPasswordRecoveryPending, startSync, syncStatus } from './sync/syncController';
 import { otherCalendars } from './calendars/otherCalendars';
 import { weather } from './weather/weather';
 import NowPage from '../features/now/NowPage';
@@ -30,6 +30,7 @@ import { defaultRoute, parentRoute, type AppRoute } from './routes/routeTypes';
 import { depthFromHistoryState, pathForRoute, routeForPath, routeFromHistoryState } from './routes/browserRoutes';
 import { canGoBack, unwindThen } from './back/backStack';
 import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
+import PasswordRecoveryPage from '../features/settings/PasswordRecoveryPage';
 
 const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
 /** Lets a family app hand a short piece of text straight into Think it through. */
@@ -48,12 +49,18 @@ export default function App() {
   // Coming back from signing in (Google, Apple or the email's link) goes straight to the account, past the welcome.
   const [started, setStarted] = useState(() => {
     if (hasOnboarded()) return true;
+    if (new URLSearchParams(location.search).get('auth') === 'recovery') {
+      markOnboarded();
+      startLight();
+      return true;
+    }
     if (new URLSearchParams(location.search).get('open') !== 'account') return false;
     markOnboarded();
     startLight();
     return true;
   });
   const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
+  const passwordRecovery = useSyncExternalStore(syncStatus.subscribe, isPasswordRecoveryPending);
   useEffect(() => lock.watchAway(), []);
   useEffect(() => laterPages(), []);
   const [route, setRoute] = useState<AppRoute>(() => routeForPath(window.location.pathname));
@@ -177,6 +184,8 @@ export default function App() {
       </Suspense>
     );
   }
+
+  if (passwordRecovery) return <PasswordRecoveryPage />;
 
   return (
     <NavigationContext.Provider value={go}>

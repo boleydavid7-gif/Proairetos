@@ -210,6 +210,30 @@ export function clearAccountAuthPending(): void {
   writeAccountAuthPending(false);
 }
 
+let passwordRecoveryPending = typeof location !== 'undefined' && new URLSearchParams(location.search).get('auth') === 'recovery';
+
+/** The recovery link has its own screen so it cannot act on a previously signed-in account. */
+export function isPasswordRecoveryPending(): boolean {
+  return passwordRecoveryPending || (typeof location !== 'undefined' && new URLSearchParams(location.search).get('auth') === 'recovery');
+}
+
+export function markPasswordRecoveryPending(): void {
+  if (passwordRecoveryPending) return;
+  passwordRecoveryPending = true;
+  listeners.notify();
+}
+
+export function clearPasswordRecoveryPending(): void {
+  passwordRecoveryPending = false;
+  if (typeof location !== 'undefined' && new URLSearchParams(location.search).get('auth') === 'recovery') {
+    const params = new URLSearchParams(location.search);
+    params.delete('auth');
+    const search = params.toString();
+    history.replaceState(history.state, '', `${location.pathname}${search ? `?${search}` : ''}${location.hash}`);
+  }
+  listeners.notify();
+}
+
 export function isAccountPasswordReadyForSetup(): boolean {
   return Boolean(accountPasswordForKeySetup) || readAccountPasswordReadyForSetup();
 }
@@ -568,13 +592,16 @@ async function syncHere(): Promise<SyncResult | null> {
 export async function startSync(): Promise<void> {
   if (started) return;
   started = true;
-  await resolvePhase();
 
   // Apps served from the same origin share the Supabase session storage.
   // Refresh the local account/key state whenever another app changes that session.
   if (isSyncConfigured) {
     const client = await supabase();
     client.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        markPasswordRecoveryPending();
+        return;
+      }
       if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
         window.setTimeout(() => {
           void resolvePhase().then(() => status.phase === 'ready' && void syncNow());
@@ -582,6 +609,11 @@ export async function startSync(): Promise<void> {
       }
     });
   }
+  // Keep a recovery session on its dedicated password screen until the person
+  // chooses a new password. Resolving it as a normal session can load the
+  // account that was already open in this browser.
+  if (isPasswordRecoveryPending()) return;
+  await resolvePhase();
   if (status.phase === 'ready') {
     const last = status.lastSyncedAt ? Date.parse(status.lastSyncedAt) : NaN;
     if (!Number.isFinite(last) || Date.now() - last >= STARTUP_CHECK_MS) void syncNow();
@@ -640,7 +672,9 @@ export async function signInWithEmailPassword(email: string, password: string): 
       // Authentication succeeded. A missing/legacy password wrap is not a
       // reason to sign the person back out; keep the recovery unlock available
       // and explain why the one-time migration is still needed.
-      const reason = cause instanceof Error ? cause.message : 'Your encrypted data still needs its one-time unlock.';
+      const reason = cause instanceof KeyError && /does not unlock your data/i.test(cause.message)
+        ? 'Your account password was accepted. This device’s encrypted data still needs its recovery key once; choose “Use recovery key” below.'
+        : cause instanceof Error ? cause.message : 'Your encrypted data still needs its one-time unlock.';
       set({ phase: 'locked', error: reason });
     }
   }

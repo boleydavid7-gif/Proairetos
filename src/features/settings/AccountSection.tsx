@@ -382,7 +382,6 @@ function Unlock() {
           if (method === 'password') {
             if (!status.email) throw new Error('Sign in again before opening your data.');
             await signInWithEmailPassword(status.email, password);
-            await unlockWithAccountPassword();
           } else {
             await unlock(recoveryKey, 'recovery');
             // Existing accounts may still have their old storage column. Once

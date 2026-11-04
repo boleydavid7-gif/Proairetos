@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { hasPassphrase, linkAccountPasswordToEncryption, passkeysAvailable, requestCode, signInWithEmailPassword, unlockWithAccountPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { hasPassphrase, linkAccountPasswordToEncryption, passkeysAvailable, requestCode, signInWithEmailPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
 import { storageName } from '../sync/ownStorage';
 import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH as MIN_ACCOUNT_PASSWORD_LENGTH } from '../../data/sync/keys';
@@ -163,7 +163,6 @@ function Unlock() {
           if (method === 'password') {
             if (!account.email) throw new Error('Sign in again before opening your data.');
             await signInWithEmailPassword(account.email, password);
-            await unlockWithAccountPassword();
           } else {
             await unlock(recoveryKey, 'recovery', passkeysAvailable() && !opening.length);
             if (password.length >= MIN_ACCOUNT_PASSWORD_LENGTH && account.email) {
