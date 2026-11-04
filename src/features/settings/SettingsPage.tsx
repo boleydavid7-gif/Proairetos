@@ -55,7 +55,6 @@ import {
   MoonIcon,
   NoteIcon,
   PartlyCloudyIcon,
-  PenIcon,
   ShieldIcon,
   StarIcon,
   SunIcon,
@@ -65,7 +64,6 @@ import PageHeader from '../../components/layout/PageHeader';
 import { countRecords, parseBackupFile, type BackupData } from '../../data/backup/format';
 import {
   clearPreferences,
-  displayName,
   customDisplayName,
   nameFromEmail,
   hiddenOffers,
@@ -84,8 +82,6 @@ import {
   setShowNotForMe,
   showNotForMe,
 } from '../../data/storage/preferences';
-import valley from '../../assets/images/scenes/valley.webp';
-import valleyWide from '../../assets/images/scenes/valley-wide.webp';
 import { signOut, syncSoon, syncStatus } from '../../app/sync/syncController';
 import AccountSection, { useSyncStatus } from './AccountSection';
 import CalendarSection from './CalendarSection';
@@ -473,7 +469,9 @@ function ProfileSection({ onDone }: { onDone: () => void }) {
         onDone();
       }}
     >
-      <p className="sheet__label">How would you like Proairetos to greet you?</p>
+      <p className="sheet__label">Profile</p>
+      {status.email && <p className="section-description">{status.email}</p>}
+      <p className="section-description">Choose the name Proairetos uses when it greets you.</p>
       <input
         className="field-input"
         autoComplete="given-name"
@@ -1199,8 +1197,6 @@ export default function SettingsPage() {
       setView(null);
     }
   };
-  // Re-read after the name page closes.
-  const name = view === null ? displayName() : '';
   const [mode, setMode] = useState<'device' | 'memory'>('device');
   useEffect(() => {
     storageMode.then(setMode);
@@ -1244,8 +1240,8 @@ export default function SettingsPage() {
         {view === 'together' && <TogetherSection onOpenAccount={() => setView('account')} />}
         {view === 'household' && <HouseholdSection onOpenAccount={() => setView('account')} />}
         {view === 'install' && <PwaInstallSection />}
+        {view === 'account' && <ProfileSection onDone={() => undefined} />}
         {view === 'account' && <AccountSection />}
-        {view === 'profile' && <ProfileSection onDone={() => undefined} />}
         {view === 'notifications' && <NotificationsSection />}
         {view === 'attention' && <AttentionSection open={openFromAttention} />}
         {view === 'backup' && (
@@ -1302,6 +1298,22 @@ export default function SettingsPage() {
 
   type Entry = { id: string; icon: ReactNode; tone?: Tone; title: string; value?: string; onClick: () => void; words?: string };
   const groups: { label: string; entries: Entry[] }[] = [
+    {
+      label: 'Account and data',
+      entries: [
+        { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey password storage google drive dropbox onedrive' },
+        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock privacy server encrypted data services' },
+        {
+          id: 'backup',
+          icon: <InboxIcon size={18} />,
+          tone: 'green',
+          title: 'Your data',
+          value: lastCopyLabel(lastBackupDate()),
+          onClick: () => setView('backup'),
+          words: 'back up backup export download markdown readable daily copies restore file import todoist csv google tasks bring in delete erase',
+        },
+      ],
+    },
     {
       label: 'Your days',
       entries: [
@@ -1364,23 +1376,6 @@ export default function SettingsPage() {
       ],
     },
     {
-      label: 'Account and data',
-      entries: [
-        { id: 'profile', icon: <PenIcon size={18} />, tone: 'gold', title: 'Profile', value: displayName() || undefined, onClick: () => setView('profile'), words: 'name greeting profile' },
-        { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey password storage google drive dropbox onedrive' },
-        { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock privacy server encrypted data services' },
-        {
-          id: 'backup',
-          icon: <InboxIcon size={18} />,
-          tone: 'green',
-          title: 'Your data',
-          value: lastCopyLabel(lastBackupDate()),
-          onClick: () => setView('backup'),
-          words: 'back up backup export download markdown readable daily copies restore file import todoist csv google tasks bring in delete erase',
-        },
-      ],
-    },
-    {
       label: 'Apps',
       entries: [
         {
@@ -1404,10 +1399,7 @@ export default function SettingsPage() {
   ];
   const needle = find.trim().toLowerCase();
   const matches = needle
-    ? [
-        ...groups.flatMap((group) => group.entries),
-        { id: 'profile-search', icon: <PenIcon size={18} />, tone: 'gold', title: 'Profile', onClick: () => setView('profile'), words: 'name greeting called' } as Entry,
-      ].filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
+    ? groups.flatMap((group) => group.entries).filter((entry) => `${entry.title} ${entry.words ?? ''}`.toLowerCase().includes(needle))
     : [];
 
   const list = (
@@ -1436,17 +1428,6 @@ export default function SettingsPage() {
         </div>
       ) : (
         <>
-          <button type="button" className="profile-card" onClick={() => setView('profile')}>
-            <span className="profile-card__photo" aria-hidden="true" style={{ backgroundImage: `url(${valley})`, '--photo-wide': `url(${valleyWide})` } as React.CSSProperties} />
-            <span className="profile-card__text">
-              <span className="profile-card__name">{name || 'Add your name'}</span>
-              <span className="profile-card__detail">
-                {status.email ?? (name ? 'Greets you in every app' : 'So the apps can greet you')}
-              </span>
-            </span>
-            <ChevronRightIcon size={18} className="settings-row__chevron" />
-          </button>
-
           {groups.map((group) => (
             <SettingsGroup key={group.label} label={group.label}>
               {group.entries.map((entry) => (

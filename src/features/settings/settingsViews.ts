@@ -39,6 +39,7 @@ const FOLDED: Partial<Record<View, View>> = {
   offers: 'today',
   calendar: 'calendars',
   sources: 'about',
+  profile: 'account',
 };
 
 /** The page that shows a view, after folding. */
