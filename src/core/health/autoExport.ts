@@ -48,7 +48,13 @@ const quantity = (value: unknown): { qty: number; units: string } | undefined =>
   return qty === undefined ? undefined : { qty, units: '' };
 };
 
-const METERS: Record<string, number> = { m: 1, km: 1000, mi: 1609.344, yd: 0.9144, ft: 0.3048 };
+const METERS: Record<string, number> = {
+  m: 1, meter: 1, meters: 1,
+  km: 1000, kilometer: 1000, kilometers: 1000,
+  mi: 1609.344, mile: 1609.344, miles: 1609.344,
+  yd: 0.9144, yard: 0.9144, yards: 0.9144,
+  ft: 0.3048, foot: 0.3048, feet: 0.3048,
+};
 
 function workoutType(name: string): string | undefined {
   if (/run/i.test(name)) return 'run';
@@ -66,11 +72,18 @@ function readWorkout(raw: Record<string, unknown>): HealthWorkout | undefined {
   const end = readMoment(raw.end ?? raw.endDate);
   const duration = quantity(raw.duration);
   // Health Auto Export sends the duration in seconds; a few older exports give minutes as "min".
-  const seconds = duration ? (duration.units === 'min' ? duration.qty * 60 : duration.qty) : end ? (end.ms - start.ms) / 1000 : undefined;
+  const durationUnit = duration?.units.trim().toLowerCase();
+  const durationFactor = durationUnit === 'min' || durationUnit === 'minute' || durationUnit === 'minutes' ? 60
+    : durationUnit === 'h' || durationUnit === 'hr' || durationUnit === 'hour' || durationUnit === 'hours' ? 3600 : 1;
+  const seconds = duration ? duration.qty * durationFactor : end ? (end.ms - start.ms) / 1000 : undefined;
   const distance = quantity(raw.distance ?? raw.totalDistance);
-  const meters = distance && distance.qty > 0 ? distance.qty * (METERS[distance.units.toLowerCase()] ?? 1000) : undefined;
+  const distanceUnit = distance?.units.trim().toLowerCase();
+  // Never guess that an unfamiliar unit means kilometers; omit only the unsupported measurement.
+  const meters = distance && distance.qty > 0 && distanceUnit && METERS[distanceUnit] !== undefined
+    ? distance.qty * METERS[distanceUnit] : undefined;
   const heart = raw.heartRate && typeof raw.heartRate === 'object' ? (raw.heartRate as { avg?: unknown }).avg : undefined;
-  const avgHr = quantity(raw.avgHeartRate ?? heart)?.qty;
+  const heartValue = quantity(raw.avgHeartRate ?? heart)?.qty;
+  const avgHr = heartValue !== undefined && heartValue >= 30 && heartValue <= 240 ? heartValue : undefined;
   const id = typeof raw.id === 'string' && raw.id ? raw.id : `${start.iso}-${type}`;
   return {
     id,
