@@ -29,7 +29,7 @@ export const PRICE_CENTS = PLAN_PRICES.core;
 export const CURRENCY = 'usd';
 
 export const STORE_PLANS: Record<string, { name: string; cents: number; apps: string[] }> = {
-  core: { name: 'All apps', cents: PLAN_PRICES.core, apps: ['core'] },
+  core: { name: 'Proairetos Core', cents: PLAN_PRICES.core, apps: ['core'] },
   cloud: { name: 'Proairetos cloud sync', cents: PLAN_PRICES.cloud, apps: ['cloud'] },
 };
 

@@ -27,7 +27,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     // Back from Stripe: wait for the purchase to be recorded, then add the app.
     const bought = takeBought();
     if (!bought) return;
-    const name = bought === 'core' ? 'All apps' : bought === 'cloud' ? 'Proairetos cloud' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
+    const name = bought === 'core' ? 'Proairetos Core' : bought === 'cloud' ? 'Proairetos cloud' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
     setFinishing(bought);
     void waitForPurchase(bought).then((done) => {
       setFinishing(null);
@@ -85,7 +85,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
         {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
         <div className="store__plans">
-          <PlanCard plan="core" title="All apps" detail="Every Proairetos app, including Soma and Phyton" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="core" title="Proairetos Core" detail="Proairetos add on apps for an enhanced Proairetos experience" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
         </div>
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
@@ -148,7 +148,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
                     type="button"
                     className="button-accent store__button"
                     disabled={busy !== null || finishing === id}
-                    onClick={() => void purchase('core', 'All apps')}
+                    onClick={() => void purchase('core', 'Proairetos Core')}
                   >
                     {finishing === id ? <Waiting>Finishing…</Waiting> : busy === id ? <Waiting>Opening…</Waiting> : `Buy · ${priceText()}`}
                   </button>
