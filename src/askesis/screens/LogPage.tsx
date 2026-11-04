@@ -14,8 +14,7 @@ import { howItFelt } from '../core/progress';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
 import { useShoes } from '../app/shoes';
-import { dismissPendingHealthWorkout, importPendingHealthWorkout, pendingHealthWorkouts } from '../../app/health/health';
-import type { HealthWorkout } from '../../core/health/autoExport';
+import { addHeldHealthWorkouts } from '../../app/health/health';
 
 type ProgressView = 'overview' | 'performance' | 'consistency' | 'history';
 type HistoryActivity = Activity | 'all';
@@ -51,17 +50,8 @@ export default function LogPage({ nav }: { nav: Nav }) {
   const [historyActivity, setHistoryActivity] = useState<HistoryActivity>('all');
   const file = useRef<HTMLInputElement>(null);
   const [fileProblem, setFileProblem] = useState('');
-  const [pendingHealth, setPendingHealth] = useState<HealthWorkout[]>(pendingHealthWorkouts);
-  const [healthBusy, setHealthBusy] = useState<string>();
-  useEffect(() => { setPendingHealth(pendingHealthWorkouts()); }, [entries]);
-  const reviewHealth = async (id: string, action: 'import' | 'dismiss') => {
-    setHealthBusy(id);
-    try {
-      if (action === 'import') await importPendingHealthWorkout(id);
-      else dismissPendingHealthWorkout(id);
-      setPendingHealth(pendingHealthWorkouts());
-    } finally { setHealthBusy(undefined); }
-  };
+  // Runs an older version held for review are added to the log.
+  useEffect(() => { void addHeldHealthWorkouts(); }, []);
 
   const bringIn = async (chosen: File | undefined) => {
     if (!chosen) return;
@@ -197,30 +187,6 @@ export default function LogPage({ nav }: { nav: Nav }) {
       </div>
       <h1 className="title">Progress</h1>
       <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-
-      {pendingHealth.length > 0 && (
-        <section className="card progress__panel" aria-label="Workouts waiting for review">
-          <div className="progress__section-head">
-            <h2 className="card__title card__title--small">From your health data</h2>
-            <span className="card__eyebrow">{pendingHealth.length} to review</span>
-          </div>
-          <p className="muted">Review these workouts before adding them to your log. Existing entries are never replaced.</p>
-          <div className="entries">
-            {pendingHealth.map((workout) => {
-              const kind = (['run', 'walk', 'hike', 'bike'].includes(workout.type) ? workout.type : 'other') as Activity;
-              const facts = [workout.meters ? formatDistance(workout.meters, unit) : undefined, workout.seconds ? formatDuration(workout.seconds) : undefined, workout.avgHr ? `${workout.avgHr} bpm average` : undefined].filter(Boolean).join(' · ');
-              return <div className="entry-row" key={workout.id}>
-                <span className="entry-row__day">{dayLabel(workout.date, today, true)}</span>
-                <span className="entry-row__text"><span>{activities[kind]}</span><span className="entry-row__facts">{facts || 'Workout details unavailable'}</span></span>
-                <span className="entry-row__actions">
-                  <button type="button" className="text-link" disabled={healthBusy === workout.id} onClick={() => void reviewHealth(workout.id, 'dismiss')}>Skip</button>
-                  <button type="button" className="chip" disabled={healthBusy === workout.id} onClick={() => void reviewHealth(workout.id, 'import')}>{healthBusy === workout.id ? 'Saving…' : 'Add'}</button>
-                </span>
-              </div>;
-            })}
-          </div>
-        </section>
-      )}
 
       <div className="progress__views">
         <Segmented label="Progress sections" value={view} options={views} onChange={setView} small />

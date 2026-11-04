@@ -119,40 +119,42 @@ export async function turnOffHealth(): Promise<void> {
   saveHealthChoices(undefined);
 }
 
+/** Runs that older versions held back for review sit here until they are added to the log. */
 const PENDING_ASKESIS = 'askesis:health-pending-workouts';
-export function pendingHealthWorkouts(): HealthWorkout[] {
+function leftToReview(): HealthWorkout[] {
   try { const raw = localStorage.getItem(PENDING_ASKESIS); return raw ? JSON.parse(raw) as HealthWorkout[] : []; } catch { return []; }
 }
-function savePendingHealthWorkouts(items: HealthWorkout[]): void {
-  try { localStorage.setItem(PENDING_ASKESIS, JSON.stringify(items)); } catch { /* Available for this visit. */ }
-}
-async function queueHealthWorkouts(workouts: HealthWorkout[]): Promise<HealthWorkout[]> {
+
+/** Writes workouts from Health into Askesis's log, skipping any already there. Returns the entries written. */
+async function logHealthWorkouts(workouts: readonly HealthWorkout[]): Promise<{ id: string }[]> {
   if (!workouts.length || !isAdded('askesis')) return [];
   const { newWorkouts } = await import('../../core/health/fromHealth');
   const store = await import('../../askesis/data/store');
-  const logged = await store.listEntries();
-  const pending = pendingHealthWorkouts();
-  const fresh = newWorkouts(workouts, [...logged, ...pending.map((item) => ({ id: HEALTH_ID + item.id, date: item.date, activity: item.type, meters: item.meters, seconds: item.seconds }))]);
-  if (fresh.length) savePendingHealthWorkouts([...pending, ...fresh]);
-  return fresh;
-}
-export async function importPendingHealthWorkout(id: string): Promise<void> {
-  const pending = pendingHealthWorkouts();
-  const workout = pending.find((item) => item.id === id);
-  if (!workout) return;
-  const store = await import('../../askesis/data/store');
-  const entryId = HEALTH_ID + workout.id;
+  const { openSessionOn } = await import('../../askesis/app/strava');
+  const { toLocalDate } = await import('../../core/scheduling/dates');
   const log = await store.listEntries();
-  if (!log.some((entry) => entry.id === entryId)) {
-    const { openSessionOn } = await import('../../askesis/app/strava');
-    const linked = workout.type === 'run' || workout.type === 'walk' ? openSessionOn(log, new Date().toISOString().slice(0, 10))(workout.date) : undefined;
+  const fresh = newWorkouts(workouts, log);
+  const open = openSessionOn(log, toLocalDate(new Date()));
+  const written: { id: string }[] = [];
+  for (const workout of fresh) {
     const activity = (['run', 'walk', 'hike', 'bike'].includes(workout.type) ? workout.type : 'other') as 'run' | 'walk' | 'hike' | 'bike' | 'other';
-    await store.putEntry({ id: entryId, date: workout.date, activity, seconds: workout.seconds, meters: workout.meters, avgHr: workout.avgHr, workoutId: linked?.id, workoutTitle: linked?.title, createdAt: new Date().toISOString() });
+    // A run or walk counts as that day's open session, once.
+    const linked = activity === 'run' || activity === 'walk' ? open(workout.date) : undefined;
+    const entry = { id: HEALTH_ID + workout.id, date: workout.date, activity, seconds: workout.seconds, meters: workout.meters, avgHr: workout.avgHr, workoutId: linked?.id, workoutTitle: linked?.title, createdAt: new Date().toISOString() };
+    await store.putEntry(entry);
+    written.push({ id: entry.id });
+    if (linked) log.push(entry);
   }
-  savePendingHealthWorkouts(pending.filter((item) => item.id !== id));
+  return written;
 }
-export function dismissPendingHealthWorkout(id: string): void {
-  savePendingHealthWorkouts(pendingHealthWorkouts().filter((item) => item.id !== id));
+
+/** Adds anything an older version held for review, then forgets the list. */
+export async function addHeldHealthWorkouts(): Promise<number> {
+  const held = leftToReview();
+  if (!held.length) return 0;
+  const written = await logHealthWorkouts(held);
+  try { localStorage.removeItem(PENDING_ASKESIS); } catch { /* Tried again next time. */ }
+  return written.length;
 }
 
 export type BroughtIn = { counts: { workouts: number; sleep: number; water: number; readings: number }; undo: () => Promise<void> };
@@ -178,9 +180,13 @@ export async function applyHealth(sent: HealthBatch, choices: HealthChoices | un
   const on = (part: keyof HealthChoices, app: string) => (choices ? choices[part] : true) && isAdded(app);
 
   if (batch.workouts.length && on('workouts', 'askesis')) {
-    const queued = await queueHealthWorkouts(batch.workouts);
-    counts.workouts = queued.length;
-    if (queued.length) undo.push(() => savePendingHealthWorkouts(pendingHealthWorkouts().filter((item) => !queued.some((each) => each.id === item.id))));
+    await addHeldHealthWorkouts();
+    const written = await logHealthWorkouts(batch.workouts);
+    counts.workouts = written.length;
+    if (written.length) {
+      const store = await import('../../askesis/data/store');
+      undo.push(async () => { for (const entry of written) await store.deleteEntry(entry.id); });
+    }
   }
 
   if (batch.sleep.length && on('sleep', 'diaita')) {
