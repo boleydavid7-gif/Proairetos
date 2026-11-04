@@ -682,6 +682,10 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
   await saveWrappedKeys(userId, setup.passphraseWrap, setup.recoveryWrap);
   await savePasskeyMade(null).catch(() => undefined);
   setupKeys = null;
+  if (accountPasswordForKeySetup && setup.passphraseWrap) {
+    const handoffKey = await unlockWithPassphrase(setup.passphraseWrap, accountPasswordForKeySetup, true);
+    await (await localState())!.setMeta(HANDOFF_META, handoffKey);
+  }
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
   dataKey = setup.dataKey;
   set({ phase: 'ready' });
