@@ -65,7 +65,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
       <p className="ll-section-label">Reminders</p>
       <section className="card switches">
         <Switch on={current.notices.on} label="Chores" onToggle={() => notice({ on: !current.notices.on })} />
-        {current.notices.on && myName(current) && <Switch on={current.notices.onlyMine} label="Only mine" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
+        {current.notices.on && myName(current) && <Switch on={current.notices.onlyMine} label="Only my assignments" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
         {current.notices.on && (
           <label className="field philia-at">
             <span className="field__label">At</span>
