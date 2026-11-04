@@ -154,6 +154,77 @@ export async function signOutRemote(): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+// ---------- Account devices ----------
+
+export type AccountDevice = {
+  id: string;
+  device_key: string;
+  label: string;
+  platform: string;
+  app_ids: string[];
+  created_at: string;
+  last_seen_at: string;
+  revoked_at: string | null;
+};
+
+function accountDeviceKey(): string {
+  const storageKey = 'proairetos.deviceKey';
+  let key = localStorage.getItem(storageKey);
+  if (!key) {
+    key = crypto.randomUUID();
+    localStorage.setItem(storageKey, key);
+  }
+  return key;
+}
+
+function accountDeviceDetails(): { key: string; label: string; platform: string; appId: string } {
+  const ua = navigator.userAgent;
+  const platform = /iPhone|iPad/.test(ua) ? 'ios'
+    : /Android/.test(ua) ? 'android'
+    : /Windows/.test(ua) ? 'windows'
+    : /Mac OS/.test(ua) ? 'macos'
+    : /Linux/.test(ua) ? 'linux' : 'web';
+  const label = platform === 'ios' ? 'Apple device'
+    : platform === 'android' ? 'Android device'
+    : platform === 'windows' ? 'Windows device'
+    : platform === 'macos' ? 'Mac'
+    : platform === 'linux' ? 'Linux device' : 'Web browser';
+  const path = location.pathname.split('/').filter(Boolean);
+  const knownApps = ['askesis','soma','oikonomia','hydros','poreia','praxis','theoria','diaita','philia','ergon','therapeia','dynamis','ktema','phyton','mneme'];
+  const appId = knownApps.includes(path[0] ?? '') ? path[0] : 'proairetos';
+  return { key: accountDeviceKey(), label, platform, appId };
+}
+
+/** Register or refresh this browser installation. Device metadata only; no credentials or keys. */
+export async function registerAccountDevice(): Promise<void> {
+  const { key, label, platform, appId } = accountDeviceDetails();
+  const client = await supabase();
+  const { data: existing, error: readError } = await client
+    .from('account_devices').select('app_ids, revoked_at').eq('device_key', key).maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (existing?.revoked_at) throw new Error('This device was revoked from your Proairetos account. Sign in again to reconnect it.');
+  const appIds = [...new Set([...(existing?.app_ids ?? []), appId])];
+  const { error } = await client.from('account_devices').upsert({
+    device_key: key, label, platform, app_ids: appIds, last_seen_at: new Date().toISOString(), revoked_at: null,
+  }, { onConflict: 'user_id,device_key' });
+  if (error) throw new Error(error.message);
+}
+
+export async function listAccountDevices(): Promise<AccountDevice[]> {
+  const { data, error } = await (await supabase()).from('account_devices')
+    .select('id, device_key, label, platform, app_ids, created_at, last_seen_at, revoked_at')
+    .order('last_seen_at', { ascending: false });
+  if (error) throw new Error(error.message);
+  return (data ?? []) as AccountDevice[];
+}
+
+/** Marks a device revoked. Session-token enforcement is performed by auth revocation, not this metadata flag alone. */
+export async function revokeAccountDevice(id: string): Promise<void> {
+  const { error } = await (await supabase()).from('account_devices')
+    .update({ revoked_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
 // ---------- Wrapped key ----------
 
 /** The account's wrapped data key. `passphrase` is null for an account set up with a passkey and no passphrase. */
