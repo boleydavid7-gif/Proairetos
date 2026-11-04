@@ -262,6 +262,17 @@ export async function savePasswordWrap(userId: string, password: WrappedKey): Pr
   if (!data?.length) throw new Error('The account password key was not saved. Sign in again and try once more.');
 }
 
+/** First-time save for the new password + recovery-key model. */
+export async function savePasswordWrappedKeys(userId: string, password: WrappedKey, recovery: WrappedKey): Promise<void> {
+  const { error } = await (await supabase()).from('user_keys').insert({
+    user_id: userId,
+    password_wrap: password,
+    passphrase_wrap: password,
+    recovery_wrap: recovery,
+  });
+  if (error) throw new Error(signInExpired(error.message));
+}
+
 /** Replaces the legacy passphrase wrap only; retained temporarily for older account migrations. */
 export async function savePassphraseWrap(userId: string, passphrase: WrappedKey): Promise<void> {
   const { data, error } = await (await supabase())
