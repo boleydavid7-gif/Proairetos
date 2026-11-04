@@ -52,12 +52,12 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
     ? family.members.map((member) => ({ id: member.id.slice('member:'.length), name: member.name }))
     : [];
   const today = toLocalDate(new Date());
-  const [whose, setWhose] = useState('');
+  // Today starts on this person's assignments. An empty value is the explicit Everyone choice.
+  const [whose, setWhose] = useState<string | null>(null);
   const people = familyMode ? familyPeople.map((person) => person.name) : peopleFor(all, current);
-  const selectedPerson = familyPeople.find((person) => person.id === whose);
-  const forWhom = familyMode
-    ? selectedPerson?.id ?? ''
-    : whose && people.includes(whose) ? whose : '';
+  const defaultWhose = familyMode ? family.currentUserId ?? '' : myName(current);
+  const forWhom = whose === '' ? '' : whose ?? defaultWhose;
+  const selectedPerson = familyPeople.find((person) => person.id === forWhom);
   const [room, setRoom] = useState('');
   const whoseShown = forWhom
     ? all.filter((chore) => familyMode
