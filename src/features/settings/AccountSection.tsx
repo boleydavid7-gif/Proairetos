@@ -51,7 +51,9 @@ function SignIn() {
   const [password, setPassword] = useState('');
   const [again, setAgain] = useState('');
   const [code, setCode] = useState('');
-  const [stage, setStage] = useState<'choice' | 'verify' | 'password'>('choice');
+  const [stage, setStage] = useState<'choice' | 'verify' | 'password'>(() =>
+    isAccountPasswordSetupPending() ? 'password' : 'choice',
+  );
   const [mode, setMode] = useState<'signin' | 'create' | 'code'>('signin');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -171,7 +173,9 @@ function RecoveryKey({ value, busy, onSaved }: { value: string; busy: boolean; o
 
 /** First device: a passkey locks and opens the data; a passphrase is the way for devices without passkeys. */
 function SetUp() {
-  const [stage, setStage] = useState<'passkey' | 'continue' | 'recovery' | 'passphrase'>(passkeysAvailable() ? 'passkey' : 'passphrase');
+  const [stage, setStage] = useState<'passkey' | 'continue' | 'recovery' | 'passphrase'>(() =>
+    passkeysAvailable() ? 'passkey' : 'passphrase',
+  );
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -221,7 +225,7 @@ function SetUp() {
             {busy ? 'Making it…' : 'Create a passkey'}
           </button>
           <button type="button" className="text-link" onClick={() => setStage('passphrase')}>
-            Use a passphrase instead
+            {hasAccountPasswordForKeySetup() ? 'Skip passkey' : 'Use a passphrase instead'}
           </button>
         </>
       )}

@@ -124,11 +124,26 @@ let dataKey: CryptoKey | null = null;
 let userId: string | null = null;
 // Kept only in memory after password sign-in/creation; never persisted or sent to the sync service.
 let accountPasswordForKeySetup: string | null = null;
-// Keep the email-confirmation/password-creation screen mounted while auth state advances.
-let accountPasswordSetupPending = false;
+// Persist the email-confirmation/password-creation step across the account-switch
+// reload in resolvePhase(). This marker contains no credential or secret.
+const ACCOUNT_PASSWORD_SETUP_PENDING = 'proairetos.accountPasswordSetupPending';
+
+function readAccountPasswordSetupPending(): boolean {
+  try { return sessionStorage.getItem(ACCOUNT_PASSWORD_SETUP_PENDING) === '1'; }
+  catch { return false; }
+}
+
+function writeAccountPasswordSetupPending(pending: boolean): void {
+  try {
+    if (pending) sessionStorage.setItem(ACCOUNT_PASSWORD_SETUP_PENDING, '1');
+    else sessionStorage.removeItem(ACCOUNT_PASSWORD_SETUP_PENDING);
+  } catch { /* The flow still works in memory when session storage is unavailable. */ }
+}
+
+let accountPasswordSetupPending = readAccountPasswordSetupPending();
 
 export function isAccountPasswordSetupPending(): boolean {
-  return accountPasswordSetupPending;
+  return accountPasswordSetupPending || readAccountPasswordSetupPending();
 }
 /** The account whose things this page was opened with (`proairetosAccount`, see deviceAccount.ts). */
 let deviceAccountAtStart: string | null = (() => {
@@ -532,6 +547,7 @@ export async function saveAccountPassword(password: string): Promise<void> {
   await setAccountPassword(password);
   accountPasswordForKeySetup = password;
   accountPasswordSetupPending = false;
+  writeAccountPasswordSetupPending(false);
 }
 
 export function hasAccountPasswordForKeySetup(): boolean {
@@ -606,10 +622,15 @@ export async function confirmCode(email: string, codeOrLink: string, creatingAcc
   const value = codeOrLink.trim();
   if (/^https?:\/\//i.test(value)) await verifySignInLink(value);
   else await verifySignInCode(email.trim(), value);
+  // Set this BEFORE resolvePhase: a new account may trigger a device-account
+  // reload there. The password step must survive that reload.
+  if (creatingAccount) {
+    accountPasswordSetupPending = true;
+    writeAccountPasswordSetupPending(true);
+  }
   // Opening the link in this browser leaves tokens in the address; tidy it.
   if (location.hash.includes('access_token')) history.replaceState(history.state, '', location.pathname);
   await resolvePhase();
-  if (creatingAccount) accountPasswordSetupPending = true;
   tellFamily('account');
   if (status.phase === 'ready') void syncNow();
 }
