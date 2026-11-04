@@ -5,6 +5,7 @@ import { navigation } from './navigation';
 import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
 import PwaStatus from './pwa/PwaStatus';
+import { SearchIcon, GearIcon, BookIcon, StarIcon } from '../components/icons/Icons';
 
 type AppShellProps = {
   route: AppRoute;
@@ -48,6 +49,10 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
         <span className="tab-bar__brand" aria-hidden="true">
           Proairetos
         </span>
+        <a className="tab-bar__search" href="/?open=search" aria-label="Search">
+          <SearchIcon size={22} /><span>Search</span><kbd>⌘ K</kbd>
+        </a>
+        <span className="tab-bar__section-label">Workspace</span>
         {navigation.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -60,6 +65,10 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
             <span>{label}</span>
           </button>
         ))}
+        <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
+        <a className="tab-bar__item tab-bar__resource" href="/?open=connections"><BookIcon size={22} /><span>Library</span></a>
+        <a className="tab-bar__item tab-bar__resource" href="/?open=account"><GearIcon size={22} /><span>Settings</span></a>
+        <a className="tab-bar__item tab-bar__resource" href="/?open=account"><StarIcon size={22} /><span>Profile</span></a>
         <AppsTab />
       </nav>
     </div>

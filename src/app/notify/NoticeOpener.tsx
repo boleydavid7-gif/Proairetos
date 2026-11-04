@@ -39,6 +39,7 @@ export function useNoticeOpen() {
       openRoute('today');
       startFocus();
     } else if (open === 'reflect') openRoute('reflect');
+    else if (open === 'connections') openRoute('connections');
     else if (open === 'compass') openRoute('compass');
     else if (open === 'settings') openRoute('settings');
     else if (open.startsWith('settings:')) {
@@ -67,7 +68,10 @@ export default function NoticeOpener() {
       window.history.replaceState(null, '', window.location.pathname + window.location.hash);
       // A companion app can have just handed the browser to this document. Open the route immediately so it does not
       // compete with the browser's navigation transition.
-      open(target);
+      if (target === 'search') {
+        window.dispatchEvent(new Event('ll-open-search'));
+      } else if (target === 'connections') open('connections');
+      else open(target);
     }
     const onMessage = (event: MessageEvent) => {
       if (event.data?.type === 'open' && typeof event.data.open === 'string') open(event.data.open);

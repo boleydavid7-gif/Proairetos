@@ -103,7 +103,7 @@ export default function App() {
       }),
     [],
   );
-  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(() => new URLSearchParams(location.search).get('open') === 'search');
   const openPalette = useCallback(() => setPaletteOpen(true), []);
   useShortcuts(go, openPalette);
   const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);

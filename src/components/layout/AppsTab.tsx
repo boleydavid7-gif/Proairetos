@@ -60,8 +60,15 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
 /** Apps, the last place on the bar: the added apps and the Store, in a sheet. */
 export default function AppsTab() {
   const [open, setOpen] = useState(false);
+  const added = useAddedApps();
+  const apps = familyApps.filter((app) => app.id !== 'proairetos' && added.includes(app.id as never));
   return (
     <>
+      <div className="tab-bar__pinned" aria-label="Pinned apps">
+        <span className="tab-bar__section-label">Pinned apps</span>
+        {apps.map((app) => <a className="tab-bar__pinned-app" key={app.id} href={app.href}><img src={app.icon} alt="" width={22} height={22} /><span>{app.name}</span></a>)}
+        <a className="tab-bar__pinned-app tab-bar__pinned-store" href="/?open=settings:store"><Sym name="plus" size={20} /><span>App Store</span></a>
+      </div>
       <button type="button" className="tab-bar__item" data-to-header="" aria-label="Apps" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
         <AppsIcon size={24} />
         <span>Apps</span>

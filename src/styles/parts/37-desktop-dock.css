@@ -1,0 +1,165 @@
+/* Shared desktop navigation: an architectural dock that expands into one sidebar. */
+@media (min-width: 62rem) {
+  .app-shell,
+  .shell--tabs {
+    --desktop-dock-width: 4.75rem;
+    padding-left: var(--desktop-dock-width);
+  }
+
+  /* Askesis-family styles define shell padding earlier in their own sheets; keep this shared dock authoritative. */
+  html .shell--tabs { padding-left: var(--desktop-dock-width); }
+
+  .app-shell .tab-bar,
+  .shell--tabs .tab-bar {
+    inset: 0 auto 0 0;
+    z-index: 20;
+    width: var(--desktop-dock-width);
+    min-width: var(--desktop-dock-width);
+    height: 100dvh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.2rem;
+    padding: 1rem 0.65rem;
+    overflow-x: hidden;
+    border: 0;
+    border-right: 1px solid var(--color-border, var(--line, rgba(255,255,255,.12)));
+    border-radius: 0;
+    background: var(--color-bar, var(--bar, #10151a));
+    transition: width 180ms ease, box-shadow 180ms ease;
+  }
+
+  .app-shell .tab-bar:hover,
+  .app-shell .tab-bar:focus-within,
+  .shell--tabs .tab-bar:hover,
+  .shell--tabs .tab-bar:focus-within {
+    width: 17rem;
+    box-shadow: 12px 0 28px rgba(0, 0, 0, .16);
+  }
+
+  .app-shell .tab-bar__brand,
+  .shell--tabs .tab-bar::before {
+    display: block;
+    height: 2.2rem;
+    margin: 0 0 1rem;
+    padding: 0 .75rem;
+    overflow: hidden;
+    color: var(--color-text, var(--text));
+    font-family: var(--font-serif, var(--serif));
+    font-size: 1.15rem;
+    line-height: 2.2rem;
+    text-align: left;
+    white-space: nowrap;
+    content: var(--app-name, '');
+  }
+
+  .app-shell .tab-bar__brand { opacity: 0; }
+  .app-shell .tab-bar:hover .tab-bar__brand,
+  .app-shell .tab-bar:focus-within .tab-bar__brand { opacity: 1; }
+
+  .app-shell .tab-bar__section-label,
+  .shell--tabs .tab-bar__section-label {
+    display: block;
+    height: 1.35rem;
+    margin: .65rem .75rem .15rem;
+    overflow: hidden;
+    color: var(--color-text-faint, var(--muted));
+    font-size: .68rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    line-height: 1.35rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  .app-shell .tab-bar:hover .tab-bar__section-label,
+  .app-shell .tab-bar:focus-within .tab-bar__section-label,
+  .shell--tabs .tab-bar:hover .tab-bar__section-label,
+  .shell--tabs .tab-bar:focus-within .tab-bar__section-label { opacity: 1; }
+
+  .app-shell .tab-bar__search,
+  .shell--tabs .tab-bar__search {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .7rem;
+    min-height: 2.9rem;
+    padding: 0 .78rem;
+    border: 1px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-text-muted, var(--muted));
+    text-align: left;
+    text-decoration: none;
+  }
+
+  .app-shell .tab-bar__search:hover,
+  .shell--tabs .tab-bar__search:hover { border-color: var(--color-border, var(--line)); background: rgba(255,255,255,.045); color: var(--color-text, var(--text)); }
+  .app-shell .tab-bar__search span,
+  .app-shell .tab-bar__search kbd,
+  .shell--tabs .tab-bar__search span,
+  .shell--tabs .tab-bar__search kbd { display: none; }
+  .app-shell .tab-bar:hover .tab-bar__search span,
+  .app-shell .tab-bar:hover .tab-bar__search kbd,
+  .app-shell .tab-bar:focus-within .tab-bar__search span,
+  .app-shell .tab-bar:focus-within .tab-bar__search kbd,
+  .shell--tabs .tab-bar:hover .tab-bar__search span,
+  .shell--tabs .tab-bar:hover .tab-bar__search kbd,
+  .shell--tabs .tab-bar:focus-within .tab-bar__search span,
+  .shell--tabs .tab-bar:focus-within .tab-bar__search kbd { display: inline; }
+  .app-shell .tab-bar__search kbd,
+  .shell--tabs .tab-bar__search kbd { margin-left: auto; color: var(--color-text-faint, var(--muted)); font: inherit; font-size: .72rem; }
+
+  .app-shell .tab-bar__item,
+  .shell--tabs .tab-bar__item,
+  .app-shell .tab-bar__pinned-app,
+  .shell--tabs .tab-bar__pinned-app {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: .8rem;
+    min-height: 2.9rem;
+    padding: 0 .78rem;
+    border: 0;
+    border-left: 2px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--color-text-muted, var(--muted));
+    font-size: .92rem;
+    text-align: left;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .app-shell .tab-bar__item span,
+  .shell--tabs .tab-bar__item span,
+  .app-shell .tab-bar__pinned-app span,
+  .shell--tabs .tab-bar__pinned-app span { display: none; }
+  .app-shell .tab-bar:hover .tab-bar__item span,
+  .app-shell .tab-bar:focus-within .tab-bar__item span,
+  .shell--tabs .tab-bar:hover .tab-bar__item span,
+  .shell--tabs .tab-bar:focus-within .tab-bar__item span,
+  .app-shell .tab-bar:hover .tab-bar__pinned-app span,
+  .app-shell .tab-bar:focus-within .tab-bar__pinned-app span,
+  .shell--tabs .tab-bar:hover .tab-bar__pinned-app span,
+  .shell--tabs .tab-bar:focus-within .tab-bar__pinned-app span { display: inline; }
+  .app-shell .tab-bar__item svg,
+  .shell--tabs .tab-bar__item svg { flex: 0 0 1.45rem; }
+  .app-shell .tab-bar__item[aria-current='page'] { border-left-color: var(--color-accent, var(--accent)); background: rgba(var(--color-accent-rgb, 201,162,116), .1); color: var(--color-accent, var(--accent)); }
+  .shell--tabs .tab-bar__item[aria-current='page'] { border-left-color: var(--mint, var(--accent)); background: rgba(255,255,255,.06); color: var(--mint, var(--accent)); }
+
+  .app-shell .tab-bar__pinned,
+  .shell--tabs .tab-bar__pinned { display: flex; flex-direction: column; gap: .2rem; }
+  .app-shell .tab-bar__pinned-app img,
+  .shell--tabs .tab-bar__pinned-app img { flex: 0 0 1.45rem; width: 1.45rem; height: 1.45rem; object-fit: contain; }
+  .app-shell .tab-bar__pinned-store { margin-top: .25rem; color: var(--color-text-faint, var(--muted)); }
+  .app-shell .tab-bar__item[data-to-header] { display: none; }
+}
+
+@media (max-width: 61.99rem) {
+  .tab-bar__search,
+  .tab-bar__section-label,
+  .tab-bar__pinned { display: none; }
+}

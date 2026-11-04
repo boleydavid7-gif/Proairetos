@@ -4,6 +4,9 @@ import ProairetosTab from './ProairetosTab';
 import { directionAlong, transition, type Direction } from '../transitions';
 import { onRemoteChanges, syncSoon } from '../sync/syncController';
 import PwaStatus from '../pwa/PwaStatus';
+import { familyApps } from './FamilyApps';
+import { useAddedApps } from './added';
+import { Sym } from '../../lamplight/icons';
 
 /*
  * The shell the newer family apps share (Diaita, Philia, Ergon): routes with the phone's back button, sliding
@@ -231,14 +234,27 @@ export function useRoutes<R extends { name: string }>(app: string, tabs: readonl
 export type TabDef<T extends string> = { id: T; label: string; Icon: (props: { size?: number }) => ReactNode };
 
 export function TabBar<T extends string>({ tabs, current, onPick }: { tabs: readonly TabDef<T>[]; current: T | undefined; onPick: (tab: T) => void }) {
+  const added = useAddedApps();
+  const pinned = familyApps.filter((app) => app.id !== 'proairetos' && added.includes(app.id as never));
   return (
     <nav className="tab-bar" aria-label="Main">
+      <button type="button" className="tab-bar__search" aria-label="Search" onClick={() => { window.location.assign('/?open=search'); }}>
+        <Sym name="search" size={21} /><span>Search</span><kbd>⌘ K</kbd>
+      </button>
+      <span className="tab-bar__section-label">Workspace</span>
       {tabs.map(({ id, label, Icon }) => (
         <button key={id} type="button" className="tab-bar__item" data-to-header={['more', 'settings'].includes(id) ? '' : undefined} aria-current={current === id ? 'page' : undefined} onClick={() => onPick(id)}>
           <Icon size={22} />
           <span>{label}</span>
         </button>
       ))}
+      <div className="tab-bar__pinned" aria-label="Pinned apps">
+        <span className="tab-bar__section-label">Pinned apps</span>
+        {pinned.map((app) => <a className="tab-bar__pinned-app" href={app.href} key={app.id}><img src={app.icon} alt="" width={22} height={22} /><span>{app.name}</span></a>)}
+        <a className="tab-bar__pinned-app tab-bar__pinned-store" href="/?open=search"><Sym name="plus" size={20} /><span>App Store</span></a>
+      </div>
+      <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
+      <a className="tab-bar__pinned-app" href="/?open=account"><Sym name="gear" size={21} /><span>Settings</span></a>
       <ProairetosTab />
     </nav>
   );
