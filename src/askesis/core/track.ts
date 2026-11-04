@@ -27,9 +27,12 @@ export type Track = { meters: number; last?: Fix };
  * standing still adds nothing); a jump faster than any runner starts afresh from the new point.
  */
 export function addFix(track: Track, fix: Fix): Track {
-  if ((fix.accuracy ?? 0) > ROUGH_FIX) return track;
+  if (!Number.isFinite(fix.lat) || !Number.isFinite(fix.lon) || !Number.isFinite(fix.at)) return track;
+  if (Math.abs(fix.lat) > 90 || Math.abs(fix.lon) > 180 || (fix.accuracy ?? 0) > ROUGH_FIX) return track;
   const last = track.last;
   if (!last) return { ...track, last: fix };
+  // Out-of-order location callbacks must not reset the baseline or inflate distance.
+  if (fix.at <= last.at) return track;
   const step = between(last, fix);
   const seconds = Math.max(0.001, (fix.at - last.at) / 1000);
   if (step / seconds > TOO_FAST) return { ...track, last: fix };
