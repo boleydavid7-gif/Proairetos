@@ -142,18 +142,22 @@ export type PasskeyKeySetup = {
   dataKey: CryptoKey;
   /** Memory only, until the passkey has wrapped it. */
   exportable: CryptoKey;
+  passphraseWrap: WrappedKey;
   recoveryWrap: WrappedKey;
   recoveryKey: string;
 };
 
 /** First device, with a passkey and no passphrase: the passkey and the recovery key are the two ways in. */
-export async function createKeysForPasskey(): Promise<PasskeyKeySetup> {
+export async function createKeysForPasskey(accountPassword?: string): Promise<PasskeyKeySetup> {
   const exportable = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
   const recoverySalt = crypto.getRandomValues(new Uint8Array(16));
   const recovery = crypto.getRandomValues(new Uint8Array(RECOVERY_BYTES));
   const recoveryWrap = await wrap(exportable, await recoveryWrappingKey(recovery, recoverySalt), 'recovery', recoverySalt);
+  const passphraseWrap = accountPassword
+    ? await rewrapWithPassphrase(exportable, accountPassword)
+    : null;
   const dataKey = await crypto.subtle.importKey('raw', await crypto.subtle.exportKey('raw', exportable), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-  return { dataKey, exportable, recoveryWrap, recoveryKey: encodeRecovery(recovery) };
+  return { dataKey, exportable, passphraseWrap, recoveryWrap, recoveryKey: encodeRecovery(recovery) };
 }
 
 export async function unlockWithPassphrase(envelope: WrappedKey, passphrase: string, extractable = false): Promise<CryptoKey> {
