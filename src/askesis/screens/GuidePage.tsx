@@ -89,6 +89,8 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
   const minuteWarned = useRef(-1);
   const lock = useRef<{ release(): Promise<void> } | null>(null);
   const [track, setTrack] = useState<Track>({ meters: 0 });
+  const [gpsStatus, setGpsStatus] = useState<'off' | 'waiting' | 'recording' | 'unavailable' | 'denied'>('off');
+  const [screenVisible, setScreenVisible] = useState(true);
 
   const running = startedAt !== undefined && pausedAt === undefined && !finished;
   const elapsed = startedAt === undefined ? 0 : ((pausedAt ?? now) - startedAt - pausedFor) / 1000;
@@ -134,17 +136,42 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
 
   // Distance from the phone's location, while running; a pause starts afresh from the next point.
   useEffect(() => {
-    if (!running || !settings.gps || !navigator.geolocation) return;
+    if (!running || !settings.gps) {
+      setGpsStatus('off');
+      return;
+    }
+    if (!navigator.geolocation) {
+      setGpsStatus('unavailable');
+      return;
+    }
+    setGpsStatus('waiting');
+    let live = true;
     const watch = navigator.geolocation.watchPosition(
-      (position) => setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy })),
-      () => undefined,
+      (position) => {
+        if (!live) return;
+        setGpsStatus('recording');
+        setTrack((before) => addFix(before, { lat: position.coords.latitude, lon: position.coords.longitude, at: position.timestamp, accuracy: position.coords.accuracy }));
+      },
+      (error) => {
+        if (!live) return;
+        setGpsStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'unavailable');
+      },
       { enableHighAccuracy: true, maximumAge: 0, timeout: 30_000 },
     );
     return () => {
+      live = false;
       navigator.geolocation.clearWatch(watch);
       setTrack(paused);
     };
   }, [running, settings.gps]);
+
+  // Make interruptions visible instead of implying GPS continued while the page was backgrounded.
+  useEffect(() => {
+    const update = () => setScreenVisible(document.visibilityState === 'visible');
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  }, []);
 
   // Cues: a bell and a few words as each step begins, and a minute's notice on long steps.
   useEffect(() => {
@@ -281,6 +308,15 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
                 : 'Last step'}
           </p>
           {intention && <p className="guide__intention">“{intention}”</p>}
+          {startedAt !== undefined && settings.gps && (
+            <p className="hint" role="status">
+              {gpsStatus === 'recording' && screenVisible && 'GPS distance recording'}
+              {gpsStatus === 'waiting' && 'Waiting for GPS signal…'}
+              {gpsStatus === 'unavailable' && 'GPS is unavailable. Time and guided cues will continue; distance may be incomplete.'}
+              {gpsStatus === 'denied' && 'Location access is blocked. Allow location access to record distance.'}
+              {gpsStatus === 'recording' && !screenVisible && 'Askesis is in the background. GPS updates may pause until you return.'}
+            </p>
+          )}
           {startedAt !== undefined && song.name && (
             <div className="guide__music">
               <span className="guide__song">♪ {song.name}</span>
