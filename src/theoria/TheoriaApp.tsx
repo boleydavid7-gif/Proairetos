@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type Compon
 import ProairetosTab, { ProairetosMark } from '../app/family/ProairetosTab';
 import YearPage from '../app/family/YearPage';
 import { theoriaDates, theoriaYear } from './core/year';
-import { BookIcon, BookmarkIcon, BulbIcon, GearIcon, PenIcon } from '../components/icons/Icons';
+import { BookIcon, BookmarkIcon, GearIcon, PenIcon } from '../components/icons/Icons';
 import { TimerIcon } from '../app/family/icons';
 import { enableReminders, startSync, syncStatus, type SyncStatus } from '../app/sync/syncController';
 import TheoriaMark from '../components/brand/TheoriaMark';
@@ -39,7 +39,7 @@ type CaptureState = { bookId: string; kind: InsightKind; selection?: ReaderSelec
 type NoteState = { current?: NotePageDraft & { id?: string } };
 
 const navGroups: readonly { items: readonly { id: View; label: string; Icon: ComponentType<{ size?: number }> }[] }[] = [
-  { items: [{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflections', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }] },
+  { items: [{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }] },
 ];
 
 function useBooks(): { books: TheoriaBook[]; loading: boolean; error?: string } {
@@ -84,6 +84,7 @@ function withLock<T>(name: string, work: () => Promise<T>): Promise<T> {
 export default function TheoriaApp() {
   const [view, setView] = useState<View>('library');
   // What a link asks of the Pomodoro place (`pomodoro:block:ID` opens that study block).
+  const [notesPart, setNotesPart] = useState<'notebooks' | 'reflections'>('notebooks');
   const [pomodoroOpening, setPomodoroOpening] = useState<string | null>(null);
   useEnterMark(view, ['library', 'reader', 'pomodoro', 'notes', 'reflections'] as View[]);
   const [addOpen, setAddOpen] = useState(false);
@@ -200,12 +201,16 @@ export default function TheoriaApp() {
       if (book) void openReader(book);
     }
   }, [booksState.loading]);
+  const notesTabs = <div className="theoria-segmented" role="tablist" aria-label="Notes"><button type="button" role="tab" aria-selected={notesPart === 'notebooks'} className={notesPart === 'notebooks' ? 'is-active' : ''} onClick={() => setNotesPart('notebooks')}>Notebooks</button><button type="button" role="tab" aria-selected={notesPart === 'reflections'} className={notesPart === 'reflections' ? 'is-active' : ''} onClick={() => setNotesPart('reflections')}>Reflections</button></div>;
   const chooseView = (next: View) => {
     if (next === 'reader') {
-      const nextBook = selected ?? shelf.find((book) => book.status === 'reading') ?? shelf[0];
-      if (nextBook) { setSelectedId(nextBook.id); void openReader(nextBook); } else setView('library');
+      // The book read last; with none read yet, the library.
+      const lastRead = shelf.filter((book) => book.lastOpenedAt).sort((a, b) => (b.lastOpenedAt ?? '').localeCompare(a.lastOpenedAt ?? ''))[0];
+      if (lastRead) { setSelectedId(lastRead.id); void openReader(lastRead); } else setView('library');
       return;
     }
+    if (next === 'reflections') { setNotesPart('reflections'); setView('notes'); return; }
+    if (next === 'notes') setNotesPart('notebooks');
     setView(next);
   };
   const openBook = (book: TheoriaBook) => { setSelectedId(book.id); setView('detail'); };
@@ -675,13 +680,13 @@ export default function TheoriaApp() {
       {view === 'detail' && selected && <BookDetailView book={selected} copy={copy} onRemoveItem={(kind, id) => void removeItem(kind, id)} onExport={() => downloadBookNotes(selected)} onCloudCopy={(on) => void setCloudCopy(on)} onBack={() => setView('library')} onRead={() => void openReader(selected)} onExternal={() => void openExternal(selected)} onCapture={(kind) => openCapture(kind, selected)} onToggleFavorite={() => void toggleFavorite()} onRefresh={() => refreshMetadata(selected)} onEdit={() => setEditBookOpen(true)} onRemove={() => void removeSelectedBook()} onShelf={(shelf) => void moveToShelf(shelf)} onMakeCard={(item) => { try { localStorage.setItem(CARD_DRAFT_KEY, JSON.stringify({ back: item.text, from: item.book.title, blockTitle: `Read: ${item.book.title}` })); } catch { /* Pomodoro will still open if storage is unavailable. */ } window.location.assign('/theoria/?open=pomodoro'); }} />}
       {view === 'reader' && readerBook && <ReaderView book={readerBook} pdf={readerText?.bookId === readerBook.id ? readerText.pdf : undefined} loadingText={readerText?.loading} onChooseFile={(file) => void chooseFile(file)} theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} onBack={() => setView('detail')} onPosition={updatePosition} onHighlight={addHighlight} onCapture={(kind, selection) => openCapture(kind, selected, selection)} onBookmark={async (chapterId, location) => { if (!selected) return; await putBook({ ...selected, bookmarks: [...selected.bookmarks, { id: newId(), chapter: selected.chapters.find((item) => item.id === chapterId)?.title, location, createdAt: new Date().toISOString() }], updatedAt: new Date().toISOString() }); toast('Bookmark saved.'); }} onExternal={() => void openExternal(selected)} onLoadSource={loadSource} />}
       {view === 'pomodoro' && <PraxisApp embedded opening={pomodoroOpening} />}
-      {view === 'notes' && <NotesPage notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
-      {view === 'reflections' && <ReflectionsPage reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
+      {view === 'notes' && notesPart === 'notebooks' && <NotesPage tabs={notesTabs} notebooks={notebooks} shelf={shelf} loading={notebooksState.loading} error={notebooksState.error} onNewNotebook={() => setNotebookOpen(true)} onNewPage={newPage} onEditPage={editPage} onDeletePage={deletePage} />}
+      {view === 'notes' && notesPart === 'reflections' && <ReflectionsPage tabs={notesTabs} reflections={insightSets.reflections} onNew={() => openCapture('reflection')} onEdit={editReflection} onDelete={(item) => void deleteReflection(item)} />}
       {view === 'search' && <SearchPage shelf={shelf} notebooks={notebooks} reflections={insightSets.reflections} onOpen={openBook} />}
       {view === 'settings' && <SettingsPage theme={theme} font={font} onTheme={changeTheme} onFont={changeFont} copyNew={copyNew} onCopyNew={changeCopyNew} onHighlights={(file) => void bringInHighlights(file)} onYear={() => setView('year')} onCheckFolder={() => syncLibraryFolder(true)} onClearLibrary={clearLibrary} bookCount={shelf.length} driveReturn={driveReturn} folderBooksHere={shelf.some((book) => book.fromFolder)} notices={notices} onNotices={allowNotices} />}
       {view === 'year' && <section className="theoria-view"><div className="family-surface"><YearPage dates={theoriaDates(shelf)} build={(year) => theoriaYear(shelf, year)} onBack={() => setView('settings')} /></div></section>}
     </div></FileDropZone></main>
-    <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'reflections', label: 'Reflect', Icon: BulbIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
+    <nav className="theoria-bottom-nav"><TheoriaNav bottom view={view} onView={chooseView} items={[{ id: 'library', label: 'Library', Icon: BookIcon }, { id: 'reader', label: 'Reader', Icon: BookmarkIcon }, { id: 'pomodoro', label: 'Pomodoro', Icon: TimerIcon }, { id: 'notes', label: 'Notes', Icon: PenIcon }, { id: 'settings', label: 'Settings', Icon: GearIcon }]} /></nav>
     {addOpen && <AddBookDialog onMany={(files) => void saveMany(files)} initialFile={launched} onClose={() => (setAddOpen(false), setLaunched(undefined))} onSave={saveBook} onLookup={lookupBookMetadata} />}{editBookOpen && selected && <EditBookDialog book={selected} onClose={() => setEditBookOpen(false)} onSave={saveBookDetails} />}{capture && <CaptureDialog kind={capture.kind} selection={capture.selection} initial={capture.initial} onClose={() => setCapture(undefined)} onSave={saveInsight} />}{notebookOpen && <NotebookDialog onClose={() => setNotebookOpen(false)} onSave={createNotebook} />}{noteState && <NotePageDialog notebooks={notebooks} shelf={shelf} current={noteState.current} onClose={() => setNoteState(undefined)} onSave={savePage} />}<UndoBar />
   </div>;
 }
