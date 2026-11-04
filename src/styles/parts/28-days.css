@@ -364,6 +364,21 @@
   .days-page .days-toolbar .days-view-toggle {
     display: none;
   }
+
+  /* Give the desktop time rail enough room for a complete, calm label
+     ("10 AM" should never break into two lines). The compact mobile grid
+     keeps its existing proportions. */
+  .days-page--desktop .days-calendar--week .cal-head,
+  .days-page--desktop .days-calendar--week .cal-grid {
+    grid-template-columns: 4.5rem repeat(var(--days, 3), minmax(0, 1fr));
+  }
+
+  .days-page--desktop .days-calendar--week .cal-hours span {
+    right: 0.75rem;
+    white-space: nowrap;
+    font-size: var(--text-sm);
+    line-height: 1;
+  }
 }
 
 /* ---------- Month ---------- */
