@@ -90,6 +90,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
   const [pausedFor, setPausedFor] = useState(() => recovery?.pausedFor ?? 0);
   const [now, setNow] = useState(Date.now());
   const [finished, setFinished] = useState(() => recovery?.finished ?? false);
+  const [recoveredPause, setRecoveredPause] = useState(Boolean(recovery));
   const spokenIndex = useRef(-1);
   const minuteWarned = useRef(-1);
   const lock = useRef<{ release(): Promise<void> } | null>(null);
@@ -271,6 +272,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       const total = pausedFor + (Date.now() - pausedAt);
       setPausedFor(total);
       setPausedAt(undefined);
+      setRecoveredPause(false);
       if (settings.music === 'other') shareAudio();
       else if (!held.current) {
         wakeAudio();
@@ -305,7 +307,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
         {found.workout.title}
         {startedAt !== undefined && !finished && ` · step ${index + 1} of ${steps.length}`}
       </p>
-      {recovery && <p className="hint">Recovered session · paused. Continue when you’re ready.</p>}
+      {recoveredPause && pausedAt !== undefined && <p className="hint">Recovered session · paused. Continue when you’re ready.</p>}
 
       {finished ? (
         <div className="guide__done">
