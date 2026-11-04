@@ -15,6 +15,7 @@ import { lineFor } from '../core/stoic';
 import { asToday, comeBackOffer, gapWords } from '../core/gentler';
 import { layOut, weekdayNames, weekDates, type DayPlan } from '../core/week';
 import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
+import type { Unit } from '../core/pace';
 import { savePlan, type PlanState } from '../data/store';
 import RunWeather from '../app/RunWeather';
 import { useRunsPlaced } from '../app/fitted';
@@ -94,10 +95,8 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
             <div className="home-top">
             {comeBack && (
               <section className="card card--offer" aria-label="Coming back">
-                <h2 className="card__title">Good to see you</h2>
-                <p className="muted">
-                  It has been {gapWords(comeBack.gapDays)}. Week {comeBack.toWeek} is there to ease back in, or carry on.
-                </p>
+                <h2 className="card__title">It has been {gapWords(comeBack.gapDays)}</h2>
+                <p className="muted">Week {comeBack.toWeek} eases back in. Week {comeBack.fromWeek} carries on.</p>
                 <div className="button-row">
                   <button
                     type="button"
@@ -150,17 +149,6 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
                 )}
               </section>
             )}
-
-            <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'train' })}>
-              <span className="card__eyebrow">{planState.aimWords ?? aimWords(plan.aim, settings.unit)}</span>
-              <span className="card__title">{week.stage}</span>
-              <span className="muted">{week.theme}</span>
-              <span className="card__foot">
-                Week {week.n}
-                {plan.cycleFrom ? '' : ` · ${toAimWords(weeksToAim(plan, week.n))}`}
-                <ChevronIcon size={18} />
-              </span>
-            </button>
 
             </div>
 
@@ -233,35 +221,21 @@ export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Pl
               )}
             </section>
 
-            <WeekCalendar dates={dates} plans={days} entries={thisWeeks} today={today} nav={nav} />
+            <WeekCalendar dates={dates} plans={days} entries={thisWeeks} today={today} nav={nav} unit={settings.unit} />
 
-            <section aria-label="Logged this week" className="entries">
-              <h2 className="label">Logged this week</h2>
-              {thisWeeks.length > 0 ? (
-                thisWeeks
-                  .slice()
-                  .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
-                  .map((entry) => (
-                    <button key={entry.id} type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
-                      <span className="entry-row__day">{dayLabel(entry.date, today, true)}</span>
-                      <span className="entry-row__text">
-                        <span>{runTitle(entry, settings.unit)}</span>
-                        <span className="entry-row__facts">{entry.workoutTitle ? `Planned: ${entry.workoutTitle}` : 'Logged workout'}</span>
-                      </span>
-                      <span className="entry-row__felt">{entry.felt ? feelings[entry.felt] : ''}</span>
-                      <ChevronIcon size={16} />
-                    </button>
-                  ))
-              ) : (
-                <p className="muted">
-                  Nothing logged this week yet.{' '}
-                  <button type="button" className="text-link" onClick={() => nav.go({ name: 'entry' })}>
-                    Log a workout
-                  </button>
-                </p>
-              )}
-            </section>
+            </div>
 
+            <div className="home-plan">
+            <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'train' })}>
+              <span className="card__eyebrow">{planState.aimWords ?? aimWords(plan.aim, settings.unit)}</span>
+              <span className="card__title">{week.stage}</span>
+              <span className="muted">{week.theme}</span>
+              <span className="card__foot">
+                Week {week.n}
+                {plan.cycleFrom ? '' : ` · ${toAimWords(weeksToAim(plan, week.n))}`}
+                <ChevronIcon size={18} />
+              </span>
+            </button>
             </div>
           </>
         )}
@@ -283,10 +257,11 @@ type WeekCalendarProps = {
   entries: LogEntry[];
   today: string;
   nav: Nav;
+  unit: Unit;
 };
 
 /** A quiet seven-day view: see the week's shape, open a planned run, or log an unplanned day. */
-function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) {
+function WeekCalendar({ dates, plans, entries, today, nav, unit }: WeekCalendarProps) {
   const done = plans.filter((day) => day.done).length;
   const summary = plans.length ? `${done} of ${plans.length} done` : 'No sessions placed';
   const latestEntry = (date: string) => entries
@@ -342,7 +317,30 @@ function WeekCalendar({ dates, plans, entries, today, nav }: WeekCalendarProps) 
           );
         })}
       </div>
-      <p className="week-calendar__hint">Choose a day to view its session or add a workout to your log.</p>
+      {entries.length > 0 ? (
+        <ul className="week-calendar__logged">
+          {entries
+            .slice()
+            .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
+            .map((entry) => (
+              <li key={entry.id}>
+                <button type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
+                  <span className="entry-row__day">{dayLabel(entry.date, today, true)}</span>
+                  <span className="entry-row__text">
+                    <span>{runTitle(entry, unit)}</span>
+                    <span className="entry-row__facts">{entry.workoutTitle ? `Planned: ${entry.workoutTitle}` : 'Logged workout'}</span>
+                  </span>
+                  <span className="entry-row__felt">{entry.felt ? feelings[entry.felt] : ''}</span>
+                  <ChevronIcon size={16} />
+                </button>
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <button type="button" className="text-link" onClick={() => nav.go({ name: 'entry' })}>
+          Log a workout
+        </button>
+      )}
     </section>
   );
 }

@@ -66,8 +66,6 @@ button {
   outline-offset: 2px;
 }
 
-
-
 img {
   display: block;
 }
@@ -1886,9 +1884,6 @@ input[type='date'].input {
   gap: 8px;
 }
 
-
-
-
 @media (max-width: 380px) {
   .records__grid {
     grid-template-columns: 1fr;
@@ -2024,14 +2019,6 @@ input[type='date'].input {
   cursor: default;
 }
 
-
-.week-calendar__hint {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
 .week-calendar__day:focus-visible {
   outline: 2px solid var(--mint);
   outline-offset: 2px;
@@ -2047,109 +2034,6 @@ input[type='date'].input {
   }
   .week-calendar__weekday {
     font-size: 0.64rem;
-  }
-}
-
-.device-page {
-  gap: 16px;
-}
-
-.device-bridge {
-  gap: 10px;
-}
-
-.device-bridge__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.device-bridge__head .card__title {
-  margin-top: 3px;
-}
-
-.device-bridge__state {
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-size: 0.78rem;
-  white-space: nowrap;
-}
-
-.device-bridge__state--ready,
-.device-row__status--ready {
-  color: var(--mint);
-}
-
-.device-bridge > .muted {
-  margin: 0;
-}
-
-.device-section {
-  display: grid;
-  gap: 8px;
-}
-
-.device-section > .label {
-  margin: 0;
-}
-
-.device-list {
-  gap: 0;
-}
-
-.device-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.device-row:first-child {
-  padding-top: 0;
-}
-
-.device-row:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
-}
-
-.device-row__copy {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.device-row__title {
-  color: var(--text);
-  font-size: 0.9rem;
-  font-weight: 550;
-}
-
-.device-row__detail {
-  color: var(--muted);
-  font-size: 0.78rem;
-  line-height: 1.4;
-}
-
-.device-row__status {
-  flex: 0 0 auto;
-  color: var(--muted);
-  font-size: 0.76rem;
-  white-space: nowrap;
-}
-
-.device-page > .hint {
-  margin: 0;
-  font-size: 0.78rem;
-}
-
-@media (max-width: 360px) {
-  .device-row {
-    flex-direction: column;
-    gap: 5px;
   }
 }
 
@@ -2266,6 +2150,25 @@ input[type='date'].input {
   .shoe-card__mileage {
     font-size: 1.2rem;
   }
+}
+
+.week-calendar__logged {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.week-calendar__logged li:last-child .entry-row {
+  border-bottom: 0;
+}
+
+.home-plan {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-plan:empty {
+  display: none;
 }
 
 .entries {
@@ -3378,8 +3281,6 @@ html[data-nav='back']::view-transition-new(root) {
   }
 }
 
-
-
 /* ---------- Weather at your run ---------- */
 
 .run-weather {
@@ -3425,7 +3326,6 @@ html[data-nav='back']::view-transition-new(root) {
 .home-main:empty {
   display: none;
 }
-
 
 /* Recover an interrupted guided workout without losing the page beneath it. */
 .session-recovery {

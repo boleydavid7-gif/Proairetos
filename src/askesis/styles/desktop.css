@@ -72,8 +72,9 @@
     grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
     grid-template-areas:
       'main top'
+      'main plan'
       'main bottom';
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto auto 1fr;
     column-gap: 36px;
     row-gap: 20px;
     align-items: start;
@@ -89,6 +90,7 @@
 
   :root.askesis .home-top { grid-area: top; display: flex; flex-direction: column; gap: 16px; }
   :root.askesis .home-main { grid-area: main; display: flex; flex-direction: column; gap: 20px; }
+  :root.askesis .home-plan { grid-area: plan; }
   :root.askesis .home-bottom { grid-area: bottom; margin: 0; align-self: start; }
 
   /* Today's session is the heart of the page: bigger picture, bigger type. */

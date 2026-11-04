@@ -307,7 +307,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
         {found.workout.title}
         {startedAt !== undefined && !finished && ` · step ${index + 1} of ${steps.length}`}
       </p>
-      {recoveredPause && pausedAt !== undefined && <p className="hint">Recovered session · paused. Continue when you’re ready.</p>}
+      {recoveredPause && pausedAt !== undefined && <p className="hint">Recovered session, paused.</p>}
 
       {finished ? (
         <div className="guide__done">
@@ -323,7 +323,7 @@ export default function GuidePage({ nav, id, plan, intention }: { nav: Nav; id: 
       ) : (
         <>
           <div className="guide__now">
-            <h1 className="guide__effort">{startedAt === undefined ? 'Ready when you are' : efforts[current.effort].say}</h1>
+            <h1 className="guide__effort">{efforts[current.effort].say}</h1>
             <p className="guide__talk">
               {startedAt === undefined
                 ? `${lengthLabel(total / 60)} in all. Start your watch too, if you wear one.`
