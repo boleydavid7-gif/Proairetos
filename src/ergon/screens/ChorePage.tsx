@@ -6,7 +6,7 @@ import { useHousehold } from '../../app/household/household';
 import { Segmented } from '../../askesis/app/ui';
 import { parseLocalDate, toLocalDate } from '../../core/scheduling/dates';
 import type { ErgonNav } from '../app/App';
-import { addPerson, findChore, newId, peopleFor, putChore, removeChore, settings, useChores } from '../app/state';
+import { addPerson, findChore, myName, newId, peopleFor, putChore, removeChore, settings, useChores } from '../app/state';
 import { HouseholdWhoChips, WhoChips, done } from '../app/ui';
 import { BroomIcon } from '../../app/family/icons';
 import { useDaysOff } from '../app/daysOff';
@@ -190,7 +190,7 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
         {!turns ? (
           familyMode ? (
             <>
-              {who && !selectedWhoIsCurrent && <p className="hint">This chore was previously assigned to {who}. Choose a current family member to update the assignment.</p>}
+              {who && !selectedWhoIsCurrent && <p className="hint">Was assigned to {who}.</p>}
               <HouseholdWhoChips
                 people={familyPeople}
                 value={selectedWhoId}
@@ -222,8 +222,6 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
                 );
               })}
             </div>
-            {familyPeople.length === 0 && <p className="hint">Family members will appear here once the household list has synced.</p>}
-            {rota.length > 0 && selectedRotaIds.length === 0 && <p className="hint">This rotation uses saved names. Select household members to link the turns to your family.</p>}
           </>
         ) : (
           <>
@@ -293,6 +291,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
   const people = peopleFor(useChores(), settings.use());
   const assignedId = existing.whoId ?? memberIdForName(existing.who, familyPeople);
   const assignedName = choreAssignee(existing, familyPeople);
+  const alone = !familyMode && !existing.who && people.every((name) => name === myName());
   const rotationNames = choreRotaNames(existing, familyPeople);
   const who = (existing.rotaIds?.length || existing.rota?.length)
     ? `Taking turns: ${rotationNames.join(', ')}${assignedName ? ` (next ${assignedName})` : ''}`
@@ -353,12 +352,42 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
         </section>
       )}
 
-      {(existing.rota?.length || existing.rotaIds?.length) ? null : (
+      {(existing.rota?.length || existing.rotaIds?.length) ? null : alone ? (
+        <MoreDetails label="Assign">
         <section className="card">
           <h2 className="card__title card__title--small">Who</h2>
           {familyMode ? (
             <>
-              {existing.who && (!assignedId || !familyPeople.some((person) => person.id === assignedId)) && <p className="hint">Previously assigned to {existing.who}. Choose a current household member to update it.</p>}
+              {existing.who && (!assignedId || !familyPeople.some((person) => person.id === assignedId)) && <p className="hint">Was assigned to {existing.who}.</p>}
+              <HouseholdWhoChips
+                people={familyPeople}
+                value={assignedId ?? ''}
+                meId={family.currentUserId}
+                onChange={(id) => {
+                  const name = familyPeople.find((person) => person.id === id)?.name;
+                  putChore({ ...existing, who: name, whoId: id || undefined });
+                  offerUndo(name ? `“${existing.name}” given to ${name}` : `“${existing.name}” for anyone`, () => putChore(existing));
+                }}
+              />
+            </>
+          ) : (
+            <WhoChips
+              people={people}
+              value={existing.who ?? ''}
+              onChange={(name) => {
+                putChore({ ...existing, who: name || undefined, whoId: undefined });
+                offerUndo(name ? `“${existing.name}” given to ${name}` : `“${existing.name}” for anyone`, () => putChore(existing));
+              }}
+            />
+          )}
+        </section>
+        </MoreDetails>
+      ) : (
+        <section className="card">
+          <h2 className="card__title card__title--small">Who</h2>
+          {familyMode ? (
+            <>
+              {existing.who && (!assignedId || !familyPeople.some((person) => person.id === assignedId)) && <p className="hint">Was assigned to {existing.who}.</p>}
               <HouseholdWhoChips
                 people={familyPeople}
                 value={assignedId ?? ''}

@@ -38,12 +38,10 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
           <ChoreList chores={chores} today={today} room={room === 'Anywhere'} daysOff={daysOff} onOpen={(chore) => nav.go({ name: 'chore', id: chore.id })} people={familyPeople} />
         </section>
       ))}
-      {all.length > 0 && (
-        <section className="chore-group">
-          <p className="label">Ideas</p>
-          <Ideas chores={all} />
-        </section>
-      )}
+      <section className="chore-group">
+        <p className="label">Ideas</p>
+        <Ideas chores={all} />
+      </section>
     </div>
   );
 }

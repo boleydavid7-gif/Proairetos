@@ -4,6 +4,7 @@ import { takeOpening } from '../../app/family/opening';
 import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
 import { BroomIcon, HomeIcon, ListIcon, SettingsIcon } from '../../app/family/icons';
 import { settings } from './state';
+import { pendingInvite as todoInvite, useTogether } from '../../app/together/together';
 import WelcomePage from '../screens/WelcomePage';
 import TodayPage from '../screens/TodayPage';
 import ChoresPage from '../screens/ChoresPage';
@@ -17,13 +18,13 @@ export type Tab = 'today' | 'chores' | 'todos' | 'more';
 export type Route = { name: 'welcome' } | { name: Tab } | { name: 'chore'; id?: string } | { name: 'household' } | { name: 'year' };
 export type ErgonNav = Nav<Route>;
 
-const tabs: readonly TabDef<Tab>[] = [
+const allTabs: readonly TabDef<Tab>[] = [
   { id: 'today', label: 'Today', Icon: HomeIcon },
   { id: 'chores', label: 'Chores', Icon: BroomIcon },
   { id: 'todos', label: 'To-dos', Icon: ListIcon },
   { id: 'more', label: 'More', Icon: SettingsIcon },
 ];
-const tabNames = tabs.map((tab) => tab.id) as string[];
+const tabNames = allTabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
   // A link from another app, a notice or an invite: `add`, `household`, `chore:ID`, or a tab.
@@ -41,6 +42,10 @@ export default function App() {
   useEffect(() => {
     void startSync();
   }, []);
+
+  // To-dos has a tab only while the household shares a list (or an invite waits, or it is the open page).
+  const { list: sharedList } = useTogether();
+  const tabs = sharedList || todoInvite() || route.name === 'todos' ? allTabs : allTabs.filter((tab) => tab.id !== 'todos');
 
   const page = (() => {
     switch (route.name) {

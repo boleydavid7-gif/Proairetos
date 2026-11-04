@@ -6,7 +6,6 @@ import { dropInvite, newId, pendingInvite, sharingAvailable, togetherLists, useT
 import { arrange, type SharedTodo } from '../../core/together/sharedTodos';
 import { Empty, offerUndo } from '../../app/family/shell';
 import { ListIcon, PlusIcon } from '../../app/family/icons';
-import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
 import { TodoList } from '../app/ui';
 
@@ -69,14 +68,12 @@ function JoinCard({ invite, onDone }: { invite: { id: string; key: string; name:
 export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
   const sync = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
   const { list, todos } = useTogether();
-  const family = useHousehold();
   const [invite, setInvite] = useState(pendingInvite);
   const [text, setText] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [showDone, setShowDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const signedIn = sync.phase !== 'signed-out' && sync.phase !== 'unavailable';
-  const familySharesTodos = family.parts.some((part) => part.app === 'proairetos');
   const { open, done } = list ? arrange(todos, new Date()) : { open: [], done: [] };
 
   if (invite && invite.id !== list?.id) return <div className="page ergon-page"><div className="page-top"><h1 className="title">To-dos</h1></div><JoinCard invite={invite} onDone={() => setInvite(undefined)} /></div>;
@@ -123,19 +120,17 @@ export default function TodosPage({ nav: _nav }: { nav: ErgonNav }) {
       {!sharingAvailable ? (
         <section className="card"><h2 className="card__title">Sharing is unavailable</h2><p className="muted">Connect the server before making a shared family list.</p></section>
       ) : !list && !signedIn ? (
-        <section className="card"><h2 className="card__title">Share to-dos with family</h2><p className="muted">Sign in to keep a to-do list with the people at home.</p><a className="button-main" href="/?open=account">Sign in</a></section>
+        <section className="card"><h2 className="card__title">Share to-dos with family</h2><a className="button-main" href="/?open=account">Sign in</a></section>
       ) : !list ? (
         <section className="card">
           <h2 className="card__title">No shared to-dos yet</h2>
-          <p className="muted">Turn on To-dos under Family in Proairetos. The list will appear here for everyone in your household.</p>
           <a className="button-main" href="/?open=settings:household">Set up in Family</a>
-          {!familySharesTodos && <p className="hint">Personal tasks stay in Proairetos; only items added to the shared list appear here.</p>}
         </section>
       ) : (
         <>
           {showAdd && (
             <form className="add-line" onSubmit={add}>
-              <input ref={inputRef} className="input" aria-label={`Add to ${list.name}`} placeholder="Add a to-do" value={text} onChange={(event) => setText(event.target.value)} />
+              <input ref={inputRef} className="input" aria-label={`Add to ${list.name}`} value={text} onChange={(event) => setText(event.target.value)} />
               <button type="submit" className="button-quiet" disabled={!text.trim()}>Add</button>
               <button type="button" className="text-link" onClick={() => { setShowAdd(false); setText(''); }}>Cancel</button>
             </form>

@@ -45,6 +45,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         </li>
       </ul>
 
+      {!family.parts.some((part) => part.app === 'ergon') && (
       <section className="card">
         <label className="field">
           <span className="field__label">Your name here (optional)</span>
@@ -52,6 +53,7 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
           <datalist id="ergon-me">{names.map((name) => <option key={name} value={name} />)}</datalist>
         </label>
       </section>
+      )}
 
       <section className="card switches">
         <Switch
@@ -68,21 +70,21 @@ export default function MorePage({ nav }: { nav: ErgonNav }) {
         {current.notices.on && myName(current) && <Switch on={current.notices.onlyMine} label="Only my assignments" onToggle={() => notice({ onlyMine: !current.notices.onlyMine })} />}
         {current.notices.on && (
           <label className="field philia-at">
-            <span className="field__label">At</span>
+            <span className="field__label">Time</span>
             <input className="input" type="time" value={current.notices.at} onChange={(event) => event.target.value && notice({ at: event.target.value })} />
           </label>
         )}
       </section>
 
       {facts.length > 0 && (
-        <section className="card">
-          <h2 className="card__title card__title--small">Done, last 30 days</h2>
-          <ul className="notes-list">
+        <>
+          <p className="ll-section-label">Done, last 30 days</p>
+          <ul className="rows">
             {facts.map((fact) => (
-              <li key={fact.name} className="note-line"><span>{fact.name}</span><span className="muted">{fact.times}</span></li>
+              <li key={fact.name} className="row row--aside"><span className="row__text"><span>{fact.name}</span></span><span className="muted">{fact.times}</span></li>
             ))}
           </ul>
-        </section>
+        </>
       )}
 
       <ul className="rows">

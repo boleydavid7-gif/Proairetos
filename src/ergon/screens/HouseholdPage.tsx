@@ -145,8 +145,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         {top}
         <h1 className="title">Family</h1>
         <section className="card">
-          <h2 className="card__title card__title--small">Connect Ergon to your family</h2>
-          <p className="muted">Create your household in Proairetos, then turn on Chores under Settings → Family → What you share. Your personal chores stay private until you add them to the shared home.</p>
+          <h2 className="card__title card__title--small">Not connected</h2>
           <a className="button-main" href="/?open=settings:household">Open Family settings</a>
           {!signedIn && <AccountCard app="Ergon" what="Your chores" waiting="Chores" />}
         </section>
@@ -169,33 +168,29 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
       {top}
       <h1 className="title">{familyName}</h1>
 
-      <section className="card">
-        <div className="section-head">
-          <h2>People</h2>
-          <span className="muted">{familyConnected ? members.length : 'Not connected'}</span>
-        </div>
-        {familyConnected ? (
-          members.length > 0 ? (
-            <ul className="notes-list">
-              {members.map((member) => (
-                <li key={member.id} className="note-line">
-                  <span>
-                    <strong>{member.name}{member.userId === family.currentUserId ? ' · You' : ''}</strong>
-                    <span className="muted"> · {member.role === 'owner' ? 'Owner' : member.role === 'admin' ? 'Administrator' : 'Member'}</span>
-                  </span>
-                  <span className="muted">{member.assigned} open{member.estimatedMinutes > 0 ? ` · ${member.estimatedMinutes} min estimated` : ''} · {member.completed} done</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="muted">Your family members are syncing. They will appear here shortly.</p>
-          )
+      <div className="section-head">
+        <h2>People</h2>
+        <span className="muted">{familyConnected ? members.length : 'Not connected'}</span>
+      </div>
+      {familyConnected && (
+        members.length > 0 ? (
+          <ul className="rows">
+            {members.map((member) => (
+              <li key={member.id} className="row row--aside">
+                <span className="row__text">
+                  <span>{member.name}{member.userId === family.currentUserId ? ' (you)' : ''}</span>
+                  <span className="row__detail">{member.role === 'owner' ? 'Owner' : member.role === 'admin' ? 'Administrator' : 'Member'}</span>
+                </span>
+                <span className="muted">{member.assigned} open{member.estimatedMinutes > 0 ? ` · ${member.estimatedMinutes} min` : ''} · {member.completed} done</span>
+              </li>
+            ))}
+          </ul>
         ) : (
-          <p className="muted">Connect Ergon under Proairetos Settings → Family → What you share. Once connected, chores can be assigned to actual household members and turns can follow the family roster.</p>
-        )}
-        {familyConnected && unassigned > 0 && <p className="muted">{unassigned} {unassigned === 1 ? 'chore is' : 'chores are'} open to everyone.</p>}
-        <a className="button-main" href="/?open=settings:household">Manage family settings</a>
-      </section>
+          <p className="muted">Members are syncing.</p>
+        )
+      )}
+      {familyConnected && unassigned > 0 && <p className="muted">{unassigned} {unassigned === 1 ? 'chore is' : 'chores are'} open to everyone.</p>}
+      <a className="button-quiet" href="/?open=settings:household">Family settings</a>
 
       {familyConnected && (
         <section className="card">
@@ -224,20 +219,9 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
               );
             })}
           </ul>
-        ) : (
-          <p className="muted">Chore activity will appear here as your household uses Ergon.</p>
-        )}
+        ) : null}
         </section>
       )}
-
-      <section className="card">
-        <div className="section-head">
-          <h2>Shared chores</h2>
-          <span className="muted">{chores.length}</span>
-        </div>
-        <p className="muted">Assignments and rotating turns use the household roster. Each person’s personal chores stay private unless added to this shared list.</p>
-        <button type="button" className="button-quiet" onClick={() => nav.swap({ name: 'chores' })}>View chores</button>
-      </section>
 
       {own.length > 0 && (
         <section className="card">

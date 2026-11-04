@@ -437,7 +437,8 @@
   border-radius: 50%;
 }
 
-.rows > li.row.philia-date {
+.rows > li.row.philia-date,
+.rows > li.row.row--aside {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
