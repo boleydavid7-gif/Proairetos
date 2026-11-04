@@ -473,8 +473,16 @@ export async function startSync(): Promise<void> {
     window.clearTimeout(changeTimer);
     changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
   });
-  window.setInterval(() => document.visibilityState === 'visible' && void syncNow(), AUTO_SYNC_MS);
-  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && void syncNow());
+  window.setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    void registerAccountDevice().catch((cause) => set({ phase: status.phase, email: status.email, error: cause instanceof Error ? cause.message : 'Could not update this device.' }));
+    void syncNow();
+  }, AUTO_SYNC_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    void registerAccountDevice().catch(() => undefined);
+    void syncNow();
+  });
   window.addEventListener('online', () => void syncNow());
 }
 
