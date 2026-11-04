@@ -54,7 +54,6 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
       <div className="page page--under-hero">
         <section className="card" data-ll-lit={!doneToday || undefined}>
           <span className="card__eyebrow">{live ? 'In progress' : doneToday ? 'Next time' : trainingToday ? 'Today' : 'Next'}</span>
-          <h2 className="card__title">{session.name}</h2>
           <ul className="notes-list">
             {targets.map((target) => (
               <li key={target.exercise} className="note-line dynamis-line">
@@ -96,7 +95,7 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
         {done.filter((workout) => weekAllDays(today).includes(workout.date) && !week.includes(workout.date)).length > 0 && <p className="fine">Also trained on other days this week.</p>}
 
         <div className="section-head">
-          <h2>Mobility</h2>
+          <h2>Mobility{moved.days > 0 && <span className="section-head__fact">{moved.days === 1 ? 'One day' : `${moved.days} days`} this week, {moved.minutes} min</span>}</h2>
           <button type="button" className="text-link" onClick={() => nav.swap({ name: 'mobility' })}>All</button>
         </div>
         <div className="chip-row">
@@ -104,7 +103,6 @@ export default function TodayPage({ nav }: { nav: DynamisNav }) {
             <button key={routine.id} type="button" className="chip" onClick={() => nav.go({ name: 'guide', routine: routine.id })}>{routine.name} · {routineMinutes(routine)} min</button>
           ))}
         </div>
-        {moved.days > 0 && <p className="fine">This week: {moved.days === 1 ? 'one day' : `${moved.days} days`}, {moved.minutes} min.</p>}
         <DailyLine app="dynamis" />
       </div>
     </div>

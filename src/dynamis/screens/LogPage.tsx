@@ -5,7 +5,7 @@ import { LineChart } from '../../app/family/charts';
 import type { DynamisNav } from '../app/App';
 import { isSetup, mobility, plan, workouts } from '../app/state';
 import { ROUTINES } from '../core/mobility';
-import { exerciseFacts, setsText, type Unit } from '../core/plan';
+import { exerciseFacts, sessionName, setsText, type Unit } from '../core/plan';
 
 const dayText = (date: string) => new Date(`${date}T12:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
 
@@ -38,8 +38,8 @@ export default function LogPage({ nav }: { nav: DynamisNav }) {
           {sorted.slice(0, 40).map((workout) => (
             <li key={workout.id} className="chore">
               <button type="button" className="chore__open" onClick={() => nav.go({ name: 'workout', id: workout.id })}>
-                <span>{workout.exercises.length ? workout.exercises.map((each) => each.name).join(', ') : 'Session'}</span>
-                <small>{[workout.minutes ? `${workout.minutes} min` : undefined, workout.felt ? workout.felt[0].toUpperCase() + workout.felt.slice(1) : undefined].filter(Boolean).join(' · ')}</small>
+                <span>{sessionName(isSetup(setup) ? setup : undefined, workout.session)}</span>
+                <small>{[workout.exercises.map((each) => each.name).join(', ') || undefined, workout.minutes ? `${workout.minutes} min` : undefined, workout.felt ? workout.felt[0].toUpperCase() + workout.felt.slice(1) : undefined].filter(Boolean).join(' · ')}</small>
               </button>
               <span className="chore__when">{dayText(workout.date)}</span>
             </li>

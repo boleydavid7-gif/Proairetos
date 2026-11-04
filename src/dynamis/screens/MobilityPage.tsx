@@ -10,6 +10,7 @@ export default function MobilityPage({ nav }: { nav: DynamisNav }) {
   return (
     <div className="page dynamis-page">
       <div className="page-top"><h1 className="title">Mobility</h1></div>
+      {week.days > 0 && <div className="section-head"><h2>This week<span className="section-head__fact">{week.days === 1 ? 'One day' : `${week.days} days`}, {week.minutes} min</span></h2></div>}
       <ul className="chore-list">
         {ROUTINES.map((routine) => (
           <li key={routine.id} className="chore">
@@ -21,7 +22,6 @@ export default function MobilityPage({ nav }: { nav: DynamisNav }) {
           </li>
         ))}
       </ul>
-      {week.days > 0 && <p className="fine">This week: {week.days === 1 ? 'one day' : `${week.days} days`}, {week.minutes} min.</p>}
     </div>
   );
 }

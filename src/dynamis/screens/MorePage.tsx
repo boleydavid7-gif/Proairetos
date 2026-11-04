@@ -55,7 +55,7 @@ export default function MorePage({ nav }: { nav: DynamisNav }) {
           <Switch on={current.reminders} label="Training days" onToggle={() => { settings.save({ ...settings.load(), reminders: !current.reminders }); notifications.refreshSoon(); }} />
           {current.reminders && (
             <label className="field">
-              <span className="field__label">At</span>
+              <span className="field__label">Time</span>
               <input className="input" type="time" value={setup.at ?? '17:30'} onChange={(event) => event.target.value && savePlan({ ...setup, at: event.target.value })} />
             </label>
           )}

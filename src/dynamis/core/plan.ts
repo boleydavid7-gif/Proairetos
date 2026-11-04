@@ -94,6 +94,11 @@ export function sessionsFor(setup: Pick<Setup, 'days'>): Session[] {
   ];
 }
 
+/** A logged session's name from its key, under the plan's own sessions ("Session A", "Upper body"). */
+export function sessionName(setup: Pick<Setup, 'days'> | undefined, key: string): string {
+  return (setup ? sessionsFor(setup).find((session) => session.key === key)?.name : undefined) ?? 'Session';
+}
+
 /** The session to do next: the one after the last done, whatever day it is. */
 export function nextSession(setup: Setup, workouts: readonly Workout[]): Session {
   const sessions = sessionsFor(setup);
