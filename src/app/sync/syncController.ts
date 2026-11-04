@@ -502,16 +502,19 @@ export async function signInWithEmailPassword(email: string, password: string): 
   accountPasswordForKeySetup = password;
   await resolvePhase();
 
-  // A successful account-password sign-in should also unlock the existing
+  // A successful account-password sign-in can also unlock the existing
   // data key when this account has completed the one-time key migration.
   // Legacy accounts that have not migrated yet remain locked and can use
   // their old passphrase/recovery key once through the migration flow.
   if (status.phase === 'locked') {
     try {
       await unlockWithAccountPassword();
-    } catch {
+    } catch (cause) {
       // Authentication succeeded. A missing/legacy password wrap is not a
-      // reason to sign the person back out; keep the recovery unlock available.
+      // reason to sign the person back out; keep the recovery unlock available
+      // and explain why the one-time migration is still needed.
+      const reason = cause instanceof Error ? cause.message : 'Your encrypted data still needs its one-time unlock.';
+      set({ phase: 'locked', error: reason });
     }
   }
 
