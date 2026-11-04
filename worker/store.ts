@@ -24,15 +24,12 @@ export type StoreEnv = {
   OWNER_EMAILS?: string;
 };
 
-export const PLAN_PRICES = { core: 999, soma: 399, phyton: 399, bundle: 699, cloud: 299 } as const;
+export const PLAN_PRICES = { core: 999, cloud: 299 } as const;
 export const PRICE_CENTS = PLAN_PRICES.core;
 export const CURRENCY = 'usd';
 
 export const STORE_PLANS: Record<string, { name: string; cents: number; apps: string[] }> = {
-  core: { name: 'Core apps', cents: PLAN_PRICES.core, apps: ['core'] },
-  soma: { name: 'Soma', cents: PLAN_PRICES.soma, apps: ['soma'] },
-  phyton: { name: 'Phyton', cents: PLAN_PRICES.phyton, apps: ['phyton'] },
-  bundle: { name: 'Soma + Phyton', cents: PLAN_PRICES.bundle, apps: ['soma', 'phyton'] },
+  core: { name: 'All apps', cents: PLAN_PRICES.core, apps: ['core'] },
   cloud: { name: 'Proairetos cloud sync', cents: PLAN_PRICES.cloud, apps: ['cloud'] },
 };
 
@@ -167,11 +164,13 @@ async function ownsAny(env: StoreEnv, fetcher: Fetcher, user: string, apps: stri
   return found;
 }
 
-/** Starts Stripe Checkout for one add-on; the person comes back to the Store, which adds the app once it is theirs. */
+/** Starts Stripe Checkout for the family plan or Proairetos cloud. */
 export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
   if (!storeReady(env)) return reply(503, { error: 'The Store is not taking payments yet.' });
   const body = (await request.json().catch(() => ({}))) as { app?: string };
-  const app = String(body.app ?? '');
+  const requested = String(body.app ?? '');
+  // Old links for Soma, Phyton and their bundle now lead to the single family plan.
+  const app = ['soma', 'phyton', 'bundle'].includes(requested) ? 'core' : requested;
   const plan = STORE_PLANS[app];
   if (!plan) return reply(400, { error: 'That is not a plan in the Store.' });
   const person = await personFrom(request, env, fetcher);
@@ -183,14 +182,9 @@ export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fe
   const existing = await ownsAny(env, fetcher, person.id, ['core', 'soma', 'phyton', 'cloud']);
   if (app === 'core' && existing.includes('core')) return reply(200, { owned: true });
   if (app === 'cloud' && existing.includes('cloud')) return reply(200, { owned: true });
-  if (app === 'soma' && (existing.includes('soma') || existing.includes('bundle'))) return reply(200, { owned: true });
-  if (app === 'phyton' && (existing.includes('phyton') || existing.includes('bundle'))) return reply(200, { owned: true });
-  if (app === 'bundle' && existing.includes('bundle')) return reply(200, { owned: true });
-  const hasSoma = existing.includes('soma') || existing.includes('bundle');
-  const hasPhyton = existing.includes('phyton') || existing.includes('bundle');
-  const missing = app === 'bundle' ? (hasSoma ? 'phyton' : hasPhyton ? 'soma' : '') : '';
-  const cents = app === 'bundle' && missing ? 300 : plan.cents;
-  const purchaseApps = app === 'bundle' && missing ? [missing] : plan.apps;
+  if (app === 'core' && existing.includes('core')) return reply(200, { owned: true });
+  const cents = plan.cents;
+  const purchaseApps = plan.apps;
   const origin = new URL(request.url).origin;
   const form = new URLSearchParams({
     mode: 'subscription',
@@ -198,7 +192,7 @@ export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fe
     'line_items[0][price_data][currency]': CURRENCY,
     'line_items[0][price_data][unit_amount]': String(cents),
     'line_items[0][price_data][recurring][interval]': 'month',
-    'line_items[0][price_data][product_data][name]': `${missing ? missing === 'soma' ? 'Soma' : 'Phyton' : plan.name} by Proairetos`,
+    'line_items[0][price_data][product_data][name]': `${plan.name} by Proairetos`,
     client_reference_id: person.id,
     'metadata[app]': app,
     'metadata[plan]': app,

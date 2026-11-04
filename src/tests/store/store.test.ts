@@ -20,7 +20,7 @@ function fake(options: { email?: string; owned?: boolean; insert?: number } = {}
       const token = new Headers(init?.headers).get('authorization');
       return token === 'Bearer good' ? new Response(JSON.stringify({ id: 'user-1', email: options.email ?? 'reader@example.com' })) : new Response('{}', { status: 401 });
     }
-    if (url.includes('/rest/v1/purchases?user_id')) return new Response(JSON.stringify(options.owned ? [{ app: 'soma' }] : []));
+    if (url.includes('/rest/v1/purchases?user_id')) return new Response(JSON.stringify(options.owned ? [{ app: 'core' }] : []));
     if (url.includes('/rest/v1/purchases?on_conflict')) return new Response('', { status: options.insert ?? 201 });
     if (url === 'https://api.stripe.com/v1/checkout/sessions') return new Response(JSON.stringify({ url: 'https://checkout.stripe.com/c/1' }));
     return new Response('{}', { status: 404 });
@@ -40,24 +40,24 @@ async function signedBody(payload: string, secret: string, time: number) {
 describe('the Store on the Worker', () => {
   it('stays free until every secret is set', async () => {
     const free = await handleStoreRequest(new Request('https://proairetos.com/api/store'), {});
-    expect(await free.json()).toEqual({ paid: false, prices: { core: 999, soma: 399, phyton: 399, bundle: 699, cloud: 299 }, price: 999, currency: 'usd' });
+    expect(await free.json()).toEqual({ paid: false, prices: { core: 999, cloud: 299 }, price: 999, currency: 'usd' });
     const paid = await handleStoreRequest(new Request('https://proairetos.com/api/store'), env);
     expect(((await paid.json()) as { paid: boolean }).paid).toBe(true);
     expect((await startCheckout(checkout({ app: 'soma' }), {}, fake().fetcher)).status).toBe(503);
   });
 
-  it('opens monthly Stripe checkout at $3.99 for a signed-in person, and says when an app is already theirs', async () => {
+  it('opens monthly Stripe checkout at $9.99 for the family plan, and says when it is already theirs', async () => {
     const { fetcher, calls } = fake();
     const response = await startCheckout(checkout({ app: 'soma' }), env, fetcher);
     expect(await response.json()).toEqual({ url: 'https://checkout.stripe.com/c/1' });
     const form = new URLSearchParams(String(calls.at(-1)!.init!.body));
     expect(form.get('mode')).toBe('subscription');
-    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('399');
+    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('999');
     expect(form.get('line_items[0][price_data][recurring][interval]')).toBe('month');
-    expect(form.get('metadata[app]')).toBe('soma');
+    expect(form.get('metadata[app]')).toBe('core');
     expect(form.get('metadata[user]')).toBe('user-1');
-    expect(form.get('success_url')).toBe('https://proairetos.com/?open=settings:store#bought=soma');
-    expect(await (await startCheckout(checkout({ app: 'soma' }), env, fake({ owned: true }).fetcher)).json()).toEqual({ owned: true });
+    expect(form.get('success_url')).toBe('https://proairetos.com/?open=settings:store#bought=core');
+    expect(await (await startCheckout(checkout({ app: 'core' }), env, fake({ owned: true }).fetcher)).json()).toEqual({ owned: true });
   });
 
   it('turns away unknown apps and people not signed in', async () => {
@@ -148,7 +148,7 @@ describe('the Store on the Worker', () => {
 
   it('records a paid checkout once, and leaves unpaid ones alone', async () => {
     const event = (type: string, status = 'paid') =>
-      JSON.stringify({ type, data: { object: { id: 'cs_1', subscription: 'sub_1', payment_status: status, amount_total: 399, currency: 'usd', metadata: { app: 'soma', apps: 'soma', user: 'user-1' } } } });
+      JSON.stringify({ type, data: { object: { id: 'cs_1', subscription: 'sub_1', payment_status: status, amount_total: 999, currency: 'usd', metadata: { app: 'core', apps: 'core', user: 'user-1' } } } });
     const post = async (payload: string) =>
       new Request('https://proairetos.com/api/store/webhook', {
         method: 'POST',
@@ -158,7 +158,7 @@ describe('the Store on the Worker', () => {
     const paid = fake();
     expect((await handleWebhook(await post(event('checkout.session.completed')), env, paid.fetcher)).status).toBe(200);
     const insert = paid.calls.find((call) => call.url.includes('on_conflict'))!;
-    expect(JSON.parse(String(insert.init!.body))).toEqual([{ user_id: 'user-1', app: 'soma', session_id: 'cs_1:soma', subscription_id: 'sub_1', active: true, current_period_end: null, amount: 399, currency: 'usd' }]);
+    expect(JSON.parse(String(insert.init!.body))).toEqual([{ user_id: 'user-1', app: 'core', session_id: 'cs_1:core', subscription_id: 'sub_1', active: true, current_period_end: null, amount: 999, currency: 'usd' }]);
     expect(new Headers(insert.init!.headers).get('prefer')).toContain('ignore-duplicates');
 
     const unpaid = fake();

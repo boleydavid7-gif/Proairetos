@@ -1,11 +1,11 @@
 import { familyApps } from './FamilyApps';
-import { useAddedApps } from './added';
+import { usePinnedApps } from './added';
 import { Sym } from '../../lamplight/icons';
 
 /** Desktop-only navigation content shared by the older app shells. */
 export default function DesktopAppLinks() {
-  const added = useAddedApps();
-  const pinned = familyApps.filter((app) => app.id !== 'proairetos' && added.includes(app.id as never));
+  const pinnedIds = usePinnedApps();
+  const pinned = familyApps.filter((app) => app.id !== 'proairetos' && pinnedIds.includes(app.id as never));
   return (
     <>
       <a className="tab-bar__search" href="/?open=search" aria-label="Search"><Sym name="search" size={22} /><span>Search</span><kbd>⌘ K</kbd></a>

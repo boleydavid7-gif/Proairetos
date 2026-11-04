@@ -5,8 +5,9 @@ import { directionAlong, transition, type Direction } from '../transitions';
 import { onRemoteChanges, syncSoon } from '../sync/syncController';
 import PwaStatus from '../pwa/PwaStatus';
 import { familyApps } from './FamilyApps';
-import { useAddedApps } from './added';
+import { usePinnedApps } from './added';
 import { Sym } from '../../lamplight/icons';
+import { AllAppsTrigger } from '../../components/layout/AppsTab';
 
 /*
  * The shell the newer family apps share (Diaita, Philia, Ergon): routes with the phone's back button, sliding
@@ -234,10 +235,11 @@ export function useRoutes<R extends { name: string }>(app: string, tabs: readonl
 export type TabDef<T extends string> = { id: T; label: string; Icon: (props: { size?: number }) => ReactNode };
 
 export function TabBar<T extends string>({ tabs, current, onPick }: { tabs: readonly TabDef<T>[]; current: T | undefined; onPick: (tab: T) => void }) {
-  const added = useAddedApps();
-  const pinned = familyApps.filter((app) => app.id !== 'proairetos' && added.includes(app.id as never));
+  const pinnedIds = usePinnedApps();
+  const pinned = familyApps.filter((app) => app.id !== 'proairetos' && pinnedIds.includes(app.id as never));
   return (
     <nav className="tab-bar" aria-label="Main">
+      <a className="tab-bar__brand" href="/" aria-label="Proairetos"><img src="/icons/icon.svg" alt="" width="30" height="30" /><span>Proairetos</span></a>
       <button type="button" className="tab-bar__search" aria-label="Search" onClick={() => { window.location.assign('/?open=search'); }}>
         <Sym name="search" size={21} /><span>Search</span><kbd>⌘ K</kbd>
       </button>
@@ -256,6 +258,7 @@ export function TabBar<T extends string>({ tabs, current, onPick }: { tabs: read
       <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
       <a className="tab-bar__pinned-app tab-bar__desktop-only" href="/?open=account"><Sym name="gear" size={21} /><span>Settings</span></a>
       <ProairetosTab />
+      <AllAppsTrigger desktopOnly />
     </nav>
   );
 }

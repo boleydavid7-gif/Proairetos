@@ -16,7 +16,7 @@ import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
 import { settings as diaitaSettings, sleeps as diaitaSleeps } from '../../diaita/app/state';
 import { hoursText, sleptMinutes } from '../../diaita/core/rhythm';
 import { studyBetween, useStudy } from '../../app/praxis/study';
-import { ChevronRightIcon } from '../../components/icons/Icons';
+import { ChevronRightIcon, GearIcon } from '../../components/icons/Icons';
 
 type DayRange = { start: Date; end: Date };
 
@@ -119,7 +119,7 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
     <section className="today-app-overview today-app-overview--daily" aria-labelledby="daily-practices-title">
       <div className="section-heading">
         <h2 id="daily-practices-title" className="section-label">Daily practices</h2>
-        <a className="text-link" href="/?open=settings%3Atoday">Customize</a>
+        <a className="today-customize" href="/?open=settings%3Atoday" aria-label="Customize daily practices" title="Customize daily practices"><GearIcon size={18} /></a>
       </div>
       <div className="today-app-overview__card">
         {visible.map((app) => (
@@ -149,7 +149,7 @@ export function WorthYourAttention({ today, now }: { today: string; now: Date })
     <section className="today-app-overview today-app-overview--attention" aria-labelledby="worth-attention-title">
       <div className="section-heading">
         <h2 id="worth-attention-title" className="section-label">Worth your attention</h2>
-        <a className="text-link" href="/?open=settings%3Atoday">Customize</a>
+        <a className="today-customize" href="/?open=settings%3Atoday" aria-label="Customize what appears here" title="Customize what appears here"><GearIcon size={18} /></a>
       </div>
       <div className="today-app-overview__card">
         <SwipeDay.Provider value={today}>

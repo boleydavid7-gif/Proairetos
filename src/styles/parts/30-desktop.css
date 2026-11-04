@@ -83,7 +83,7 @@
 
   /* Today's landscape fills the page beside the rail. */
   .page-landscape {
-    left: var(--rail-width);
+    left: 0;
     right: 0;
     width: auto;
     transform: none;
@@ -198,12 +198,33 @@
   background: var(--color-accent-soft);
 }
 
+.today-customize {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.today-customize:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
 /*
  * Today on a computer screen: the cards sit in two columns, like a desk with things laid out, instead of
  * one long strip down the middle. The greeting runs across the top; capture and what was done run across
  * the bottom. Phones are unchanged.
  */
 @media (min-width: 62rem) {
+  .app-shell[data-route='plan'] .app-shell__content {
+    max-width: 82rem;
+  }
+
   .app-shell[data-route='today'] .app-shell__content {
     max-width: 66rem;
   }
@@ -211,7 +232,7 @@
   .page--landscape {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--space-5) var(--space-6);
+    gap: var(--space-5) clamp(3rem, 6vw, 7rem);
     align-items: start;
     /* Rows hug their cards; stretched to the page's height, each row grew a band of empty space. */
     align-content: start;

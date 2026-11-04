@@ -39,8 +39,10 @@
   }
 
   .app-shell .tab-bar__brand,
-  .shell--tabs .tab-bar::before {
-    display: block;
+  .shell--tabs .tab-bar__brand {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
     height: 2.2rem;
     margin: 0 0 1rem;
     padding: 0 .75rem;
@@ -51,12 +53,23 @@
     line-height: 2.2rem;
     text-align: left;
     white-space: nowrap;
-    content: var(--app-name, '');
+    text-decoration: none;
   }
 
-  .app-shell .tab-bar__brand { opacity: 0; }
+  .app-shell .tab-bar::before,
+  .shell--tabs .tab-bar::before { display: none; }
+  .app-shell .tab-bar__brand img,
+  .shell--tabs .tab-bar__brand img { flex: 0 0 1.9rem; width: 1.9rem; height: 1.9rem; object-fit: contain; }
+  .app-shell .tab-bar__brand span,
+  .shell--tabs .tab-bar__brand span { display: none; }
   .app-shell .tab-bar:hover .tab-bar__brand,
-  .app-shell .tab-bar:focus-within .tab-bar__brand { opacity: 1; }
+  .app-shell .tab-bar:focus-within .tab-bar__brand,
+  .shell--tabs .tab-bar:hover .tab-bar__brand,
+  .shell--tabs .tab-bar:focus-within .tab-bar__brand { color: var(--color-text, var(--text)); }
+  .app-shell .tab-bar:hover .tab-bar__brand span,
+  .app-shell .tab-bar:focus-within .tab-bar__brand span,
+  .shell--tabs .tab-bar:hover .tab-bar__brand span,
+  .shell--tabs .tab-bar:focus-within .tab-bar__brand span { display: inline; }
 
   .app-shell .tab-bar__section-label,
   .shell--tabs .tab-bar__section-label {
@@ -156,9 +169,12 @@
   .shell--tabs .tab-bar__pinned-app img { flex: 0 0 1.45rem; width: 1.45rem; height: 1.45rem; object-fit: contain; }
   .app-shell .tab-bar__pinned-store { margin-top: .25rem; color: var(--color-text-faint, var(--muted)); }
   .app-shell .tab-bar__item[data-to-header] { display: none; }
+  .app-shell .tab-bar__apps-trigger { margin-top: auto; }
+  .shell--tabs .tab-bar__apps-trigger { margin-top: auto; }
 }
 
 @media (max-width: 61.99rem) {
+  .tab-bar__brand,
   .tab-bar__search,
   .tab-bar__section-label,
   .tab-bar__pinned,

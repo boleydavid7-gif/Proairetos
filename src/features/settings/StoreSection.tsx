@@ -27,7 +27,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     // Back from Stripe: wait for the purchase to be recorded, then add the app.
     const bought = takeBought();
     if (!bought) return;
-    const name = bought === 'core' ? 'Core apps' : bought === 'bundle' ? 'Soma + Phyton' : bought === 'cloud' ? 'Proairetos cloud' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
+    const name = bought === 'core' ? 'All apps' : bought === 'cloud' ? 'Proairetos cloud' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
     setFinishing(bought);
     void waitForPurchase(bought).then((done) => {
       setFinishing(null);
@@ -85,10 +85,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
         {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
         <div className="store__plans">
-          <PlanCard plan="core" title="Core apps" detail="Every app but Soma and Phyton" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
-          <PlanCard plan="soma" title="Soma" detail="Recipes and groceries" price={priceText('soma')} owned={owner || tester || owned.includes('soma')} busy={busy} finishing={finishing} onBuy={purchase} />
-          <PlanCard plan="phyton" title="Phyton" detail="Plant identification" price={priceText('phyton')} owned={owner || tester || owned.includes('phyton')} busy={busy} finishing={finishing} onBuy={purchase} />
-          <PlanCard plan="bundle" title="Soma + Phyton" detail={owned.includes('soma') && !owned.includes('phyton') ? 'Add Phyton' : owned.includes('phyton') && !owned.includes('soma') ? 'Add Soma' : 'Both apps together'} price={owned.includes('soma') !== owned.includes('phyton') ? '$3.00' : priceText('bundle')} owned={owner || tester || (owned.includes('soma') && owned.includes('phyton'))} busy={busy} finishing={finishing} onBuy={purchase} />
+          <PlanCard plan="core" title="All apps" detail="Every Proairetos app, including Soma and Phyton" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
         </div>
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
@@ -101,8 +98,8 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
           const id = app.id as AddOn;
           const isAdded = added.includes(id);
           const coreAccess = owner || tester || Boolean(trialUntil) || owned.includes('core');
-          const yours = owner || tester || Boolean(trialUntil) || (id === 'soma' ? owned.includes('soma') : id === 'phyton' ? owned.includes('phyton') : coreAccess);
-          const label = isAdded ? 'Added' : yours ? tester ? 'Beta' : trialUntil && !owned.includes(id === 'soma' || id === 'phyton' ? id : 'core') ? 'Trial' : 'Available' : 'Locked';
+          const yours = coreAccess;
+          const label = isAdded ? 'Added' : yours ? tester ? 'Beta' : trialUntil && !owned.includes('core') ? 'Trial' : 'Available' : 'Locked';
           return (
             <li key={app.id} className="store__app">
               <div
@@ -151,7 +148,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
                     type="button"
                     className="button-accent store__button"
                     disabled={busy !== null || finishing === id}
-                    onClick={() => void purchase(id === 'soma' ? 'soma' : id === 'phyton' ? 'phyton' : 'core', app.name)}
+                    onClick={() => void purchase('core', 'All apps')}
                   >
                     {finishing === id ? <Waiting>Finishing…</Waiting> : busy === id ? <Waiting>Opening…</Waiting> : `Buy · ${priceText()}`}
                   </button>
@@ -185,7 +182,6 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
 
 function addPlan(plan: string): void {
   if (plan === 'core') CORE_APPS.forEach((app) => addApp(app));
-  else if (plan === 'bundle') { addApp('soma'); addApp('phyton'); }
   else if (plan !== 'cloud') addApp(plan as AddOn);
 }
 

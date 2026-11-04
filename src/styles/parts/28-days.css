@@ -288,8 +288,9 @@
   .days-toolbar {
     display: flex;
     align-items: center;
-    gap: var(--space-4);
+    gap: var(--space-6);
     flex-wrap: wrap;
+    width: 100%;
   }
 
   .days-toolbar .segmented,
@@ -308,6 +309,7 @@
   .days-toolbar .days-stepper {
     order: -1;
     gap: var(--space-3);
+    margin-right: auto;
   }
 
   .days-toolbar .days-stepper__range {

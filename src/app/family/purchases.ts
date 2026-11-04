@@ -4,8 +4,8 @@ import { apiUrl } from '../apiBase';
 
 /*
  * The Store's payments, on the device side. Proairetos is free. The service-free family is one monthly Core Apps
- * subscription; Soma, Phyton and Proairetos cloud are separate monthly subscriptions. Entitlements live with the
- * signed-in account and are refreshed whenever the Store or an app starts.
+ * subscription; Proairetos cloud remains a separate storage service. Entitlements live with the signed-in account and
+ * are refreshed whenever the Store or an app starts.
  *
  * Two small device-only caches let the apps decide at once, offline too: whether the Store takes payments and what
  * this account owns. Their keys sit outside `proairetos.` so they are neither synced nor backed up; the account is
@@ -17,9 +17,9 @@ const OWNED_KEY = 'proairetosOwned';
 
 type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: number; currency: string };
 
-export type PurchaseItem = 'core' | 'soma' | 'phyton' | 'bundle' | 'cloud';
+export type PurchaseItem = 'core' | 'cloud';
 // Praxis is retained as a compatibility route into Theoria's Pomodoro, but is no longer a purchasable or addable app.
-export const CORE_APPS = ['askesis', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'mneme'] as const;
+export const CORE_APPS = ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'] as const;
 
 const listeners = new Set<() => void>();
 const changed = () => listeners.forEach((listener) => listener());
@@ -48,7 +48,7 @@ export const storePaid = (): boolean => readJson<StoreInfo>(STORE_KEY)?.paid ===
 /** A plan price in the person's own way of writing money. */
 export function priceText(item: PurchaseItem | string = 'core'): string {
   const info = readJson<StoreInfo>(STORE_KEY);
-  const cents = info?.prices?.[item] ?? ({ core: 999, soma: 399, phyton: 399, bundle: 699, cloud: 299 }[item] ?? info?.price ?? 999);
+  const cents = info?.prices?.[item] ?? ({ core: 999, cloud: 299 }[item] ?? info?.price ?? 999);
   try {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: (info?.currency ?? 'usd').toUpperCase() }).format(cents / 100);
   } catch {

@@ -33,6 +33,17 @@
 
 .fast-capture .capture-bar__input {
   font-size: var(--text-md);
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  -webkit-appearance: none;
+}
+
+.fast-capture .capture-bar__input:focus,
+.fast-capture .capture-bar__input:focus-visible {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
 }
 
 .fast-capture .capture-bar__submit {

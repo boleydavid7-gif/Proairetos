@@ -16,6 +16,7 @@ export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydro
 export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(['praxis']);
 
 const KEY = 'proairetos.apps';
+const PINNED_KEY = 'proairetos.pinnedApps';
 
 type Stored = { added: AddOn[] };
 
@@ -89,6 +90,23 @@ function write(next: Stored): void {
   void import('../sync/syncController').then((sync) => sync.syncSoon()).catch(() => undefined);
 }
 
+function readPinned(): AddOn[] | null {
+  try {
+    const raw = localStorage.getItem(PINNED_KEY);
+    if (!raw) return null;
+    const value = JSON.parse(raw) as { pinned?: unknown };
+    return Array.isArray(value.pinned) ? value.pinned.filter((app): app is AddOn => ADD_ONS.includes(app as AddOn)) : [];
+  } catch {
+    return null;
+  }
+}
+
+function writePinned(pinned: AddOn[]): void {
+  try { localStorage.setItem(PINNED_KEY, JSON.stringify({ pinned: [...new Set(pinned)] })); } catch { /* Storage may be blocked. */ }
+  listeners.forEach((listener) => listener());
+  void import('../sync/syncController').then((sync) => sync.syncSoon()).catch(() => undefined);
+}
+
 /** What the setting holds, apps no longer offered included; the first time on a device, the ones already used here. */
 function storedApps(): AddOn[] {
   const stored = read();
@@ -119,6 +137,19 @@ export function removeApp(app: AddOn): void {
   write({ added: storedApps().filter((each) => each !== app) });
 }
 
+/** Apps pinned in the desktop dock. Existing added apps are pinned by default on first use. */
+export function pinnedApps(): AddOn[] {
+  return (readPinned() ?? storedApps()).filter((app) => !NOT_OFFERED.has(app));
+}
+
+export function pinApp(app: AddOn): void {
+  if (!pinnedApps().includes(app)) writePinned([...pinnedApps(), app]);
+}
+
+export function unpinApp(app: AddOn): void {
+  writePinned(pinnedApps().filter((each) => each !== app));
+}
+
 /** Removes the family apps from this device after a temporary beta entitlement expires. */
 export function clearAddedApps(): void {
   if (storedApps().length > 0) write({ added: [] });
@@ -127,7 +158,7 @@ export function clearAddedApps(): void {
 export function subscribeAdded(listener: () => void): () => void {
   listeners.add(listener);
   const offPurchases = subscribePurchases(listener);
-  const onStorage = (event: StorageEvent) => (event.key === KEY || event.key === null) && listener();
+  const onStorage = (event: StorageEvent) => (event.key === KEY || event.key === PINNED_KEY || event.key === null) && listener();
   window.addEventListener('storage', onStorage);
   // A change made on another device arrives with sync.
   let offSync: (() => void) | undefined;
@@ -151,7 +182,16 @@ export function addedSnapshot(): string {
     .join(',');
 }
 
+export function pinnedSnapshot(): string {
+  return pinnedApps().filter((app) => mayUse(app)).join(',');
+}
+
 export function useAddedApps(): AddOn[] {
   const snapshot = useSyncExternalStore(subscribeAdded, addedSnapshot);
+  return snapshot ? (snapshot.split(',') as AddOn[]) : [];
+}
+
+export function usePinnedApps(): AddOn[] {
+  const snapshot = useSyncExternalStore(subscribeAdded, pinnedSnapshot);
   return snapshot ? (snapshot.split(',') as AddOn[]) : [];
 }

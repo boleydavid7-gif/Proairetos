@@ -46,9 +46,10 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
       </main>
 
       <nav className="tab-bar" aria-label="Main navigation">
-        <span className="tab-bar__brand" aria-hidden="true">
-          Proairetos
-        </span>
+        <a className="tab-bar__brand" href="/" aria-label="Proairetos">
+          <img src="/icons/icon.svg" alt="" width="30" height="30" />
+          <span>Proairetos</span>
+        </a>
         <a className="tab-bar__search" href="/?open=search" aria-label="Search">
           <SearchIcon size={22} /><span>Search</span><kbd>⌘ K</kbd>
         </a>

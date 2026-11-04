@@ -3,7 +3,7 @@ import { useNavigate } from '../../app/navigationContext';
 import { openSettingsAt } from '../../features/settings/settingsViews';
 import { useSheet } from '../ui/useSheet';
 import { familyApps } from '../../app/family/FamilyApps';
-import { useAddedApps } from '../../app/family/added';
+import { pinApp, unpinApp, useAddedApps, usePinnedApps } from '../../app/family/added';
 import { LampIcon, Sym } from '../../lamplight/icons';
 
 export function AppsIcon({ size = 22 }: { size?: number }) {
@@ -15,10 +15,10 @@ export function AppsIcon({ size = 22 }: { size?: number }) {
   );
 }
 
-function AppsSheet({ onClose }: { onClose: () => void }) {
+function AppsSheet({ onClose, onStore }: { onClose: () => void; onStore: () => void }) {
   const { dialog, panel, close } = useSheet({ from: 'top' });
-  const navigate = useNavigate();
   const added = useAddedApps();
+  const pinned = usePinnedApps();
   const apps = familyApps.filter((app) => added.includes(app.id as never));
   return (
     <dialog ref={dialog} className="sheet sheet--top" aria-label="Your apps" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
@@ -26,14 +26,18 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
         <button type="button" className="sheet__close" onClick={close}>
           Close
         </button>
-        <p className="sheet__title sheet__title--static">Your apps</p>
+        <p className="sheet__title sheet__title--static">All apps</p>
+        <p className="sheet__hint">Pin an installed app to keep it in the dock.</p>
         <ul className="apps-grid">
           {apps.map((app) => (
-            <li key={app.id}>
+            <li key={app.id} className="apps-grid__managed">
               <a className="apps-grid__app" href={app.href}>
                 <img src={app.icon} alt="" width={52} height={52} />
                 <span>{app.name}</span>
               </a>
+              <button type="button" className="text-link" onClick={() => (pinned.includes(app.id as never) ? unpinApp(app.id as never) : pinApp(app.id as never))}>
+                {pinned.includes(app.id as never) ? 'Unpin' : 'Pin'}
+              </button>
             </li>
           ))}
           <li>
@@ -41,9 +45,8 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
               type="button"
               className="apps-grid__app"
               onClick={() => {
-                openSettingsAt('store');
                 close();
-                navigate('settings');
+                onStore();
               }}
             >
               <span className="apps-grid__store" aria-hidden="true"><Sym name="plus" /></span>
@@ -59,9 +62,9 @@ function AppsSheet({ onClose }: { onClose: () => void }) {
 
 /** Apps, the last place on the bar: the added apps and the Store, in a sheet. */
 export default function AppsTab() {
-  const [open, setOpen] = useState(false);
-  const added = useAddedApps();
-  const apps = familyApps.filter((app) => app.id !== 'proairetos' && added.includes(app.id as never));
+  const navigate = useNavigate();
+  const pinned = usePinnedApps();
+  const apps = familyApps.filter((app) => app.id !== 'proairetos' && pinned.includes(app.id as never));
   return (
     <>
       <div className="tab-bar__pinned" aria-label="Pinned apps">
@@ -69,11 +72,20 @@ export default function AppsTab() {
         {apps.map((app) => <a className="tab-bar__pinned-app" key={app.id} href={app.href}><img src={app.icon} alt="" width={22} height={22} /><span>{app.name}</span></a>)}
         <a className="tab-bar__pinned-app tab-bar__pinned-store" href="/?open=settings:store"><Sym name="plus" size={20} /><span>App Store</span></a>
       </div>
-      <button type="button" className="tab-bar__item" data-to-header="" aria-label="Apps" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+      <AllAppsTrigger onStore={() => { openSettingsAt('store'); navigate('settings'); }} />
+    </>
+  );
+}
+
+export function AllAppsTrigger({ onStore = () => window.location.assign('/?open=settings:store'), desktopOnly = false }: { onStore?: () => void; desktopOnly?: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button type="button" className={`tab-bar__item tab-bar__apps-trigger${desktopOnly ? ' tab-bar__desktop-only' : ''}`} data-to-header="" aria-label="Apps" title="All apps" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
         <AppsIcon size={24} />
-        <span>Apps</span>
+        <span>All apps</span>
       </button>
-      {open && <AppsSheet onClose={() => setOpen(false)} />}
+      {open && <AppsSheet onClose={() => setOpen(false)} onStore={onStore} />}
     </>
   );
 }
