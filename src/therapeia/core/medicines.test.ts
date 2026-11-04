@@ -176,3 +176,13 @@ describe('medicines for someone else', () => {
     expect(own).not.toMatch(/Amoxicillin/);
   });
 });
+
+describe('who marked a dose', () => {
+  it('keeps the name on a mark only when one is given', () => {
+    const at = new Date('2026-10-05T08:02:00');
+    expect(take(base(), '2026-10-05#0', at, 'Sam').taken[0]).toMatchObject({ by: 'Sam' });
+    expect(take(base(), '2026-10-05#0', at).taken[0]).not.toHaveProperty('by');
+    expect(skip(base(), '2026-10-05#0', at, 'Alex').taken[0]).toMatchObject({ skipped: true, by: 'Alex' });
+    expect(takeNow(base(), at, 'Jo').taken[0]).toMatchObject({ by: 'Jo' });
+  });
+});

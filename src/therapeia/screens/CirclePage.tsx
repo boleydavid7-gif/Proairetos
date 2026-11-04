@@ -7,6 +7,7 @@ import type { TherapeiaNav } from '../app/App';
 import { circles, medicines, sharingAvailable, useCircle, useMedicines } from '../app/state';
 import { forSharing } from '../core/history';
 import { inviteLink } from '../core/invite';
+import { householdLists } from '../../app/household/household';
 
 const INVITE = 'therapeiaShared.invite';
 
@@ -177,6 +178,35 @@ export default function CirclePage({ nav }: { nav: TherapeiaNav }) {
       // Closed without sharing.
     }
   };
+
+  // A list the household shares is managed there: who is in it, and leaving, are Settings > Household's.
+  const ofHousehold = Boolean(householdLists('therapeia')?.ids.includes(home.id));
+  if (ofHousehold) {
+    return (
+      <div className="page">
+        {top}
+        <h1 className="title">{home.name}</h1>
+        <p className="hint">
+          Shared with {householdLists('therapeia')?.name}. <a className="text-link" href="/?open=settings:household">Household settings</a>
+        </p>
+        {own.length > 0 && (
+          <section className="card">
+            <p className="muted">{own.length === 1 ? 'One medicine is still only on this device.' : `${own.length} medicines are still only on this device.`}</p>
+            <button type="button" className="button-quiet" onClick={() => {
+              const before = medicines.list();
+              const moved = moveOwnInto(home);
+              offerUndo(moved === 1 ? 'One medicine shared' : `${moved} medicines shared`, () => {
+                for (const medicine of before) {
+                  medicines.put(medicine);
+                  circles.changeItem(home, medicine.id, null);
+                }
+              });
+            }}>Add them to {home.name}</button>
+          </section>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="page">

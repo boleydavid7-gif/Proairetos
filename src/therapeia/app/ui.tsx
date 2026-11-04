@@ -4,7 +4,11 @@ import { offerUndo } from '../../app/family/shell';
 import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
 import { skip, take, takeNow, unmark, whoOf, withWho, type Dose, type Medicine } from '../core/medicines';
+import { householdActor } from '../../app/household/household';
 import { putMedicine, restoreMedicine } from './state';
+
+/** Who is marking, only while the medicines are shared with the household. */
+const actor = () => householdActor('therapeia')?.name;
 import PillMark from './PillMark';
 
 export const at = (date: Date) => date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
@@ -17,18 +21,18 @@ export function dayWord(date: Date, today: string): string {
 
 export function markTaken(dose: Dose): void {
   tap();
-  putMedicine(take(dose.medicine, dose.slot, new Date()));
+  putMedicine(take(dose.medicine, dose.slot, new Date(), actor()));
   offerUndo(`${withWho(dose.medicine, dose.medicine.name)} taken`, () => restoreMedicine(dose.medicine));
 }
 
 export function markSkipped(dose: Dose): void {
-  putMedicine(skip(dose.medicine, dose.slot, new Date()));
+  putMedicine(skip(dose.medicine, dose.slot, new Date(), actor()));
   offerUndo(`${withWho(dose.medicine, dose.medicine.name)} skipped`, () => restoreMedicine(dose.medicine));
 }
 
 export function takeOneNow(medicine: Medicine): void {
   tap();
-  putMedicine(takeNow(medicine, new Date()));
+  putMedicine(takeNow(medicine, new Date(), actor()));
   offerUndo(`${withWho(medicine, medicine.name)} taken`, () => restoreMedicine(medicine));
 }
 
@@ -55,7 +59,7 @@ export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
         <small>{[dose.medicine.dose, dose.medicine.how].filter(Boolean).join(' · ') || dose.label}</small>
       </button>
       <span className="chore__when">
-        {marked ? (marked.skipped ? 'Skipped' : `Taken ${at(new Date(marked.at))}`) : at(dose.at)}
+        {marked ? `${marked.skipped ? 'Skipped' : `Taken ${at(new Date(marked.at))}`}${marked.by ? ` · ${marked.by}` : ''}` : at(dose.at)}
         {!marked && (
           <button type="button" className="text-link dose__skip" onClick={() => markSkipped(dose)}>
             Skip

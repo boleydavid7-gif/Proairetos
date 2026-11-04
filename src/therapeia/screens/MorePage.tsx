@@ -2,6 +2,7 @@ import AccountCard from '../../app/family/AccountCard';
 import { DailyLineSwitch } from '../../app/family/DailyLine';
 import FamilyApps from '../../app/family/FamilyApps';
 import FamilyBackup from '../../app/family/FamilyBackup';
+import MoreDetails from '../../app/family/MoreDetails';
 import { HistoryIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
 import { notifications } from '../../app/notify/notifications';
 import { Switch } from '../../askesis/app/ui';
@@ -41,8 +42,7 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
         <DailyLineSwitch app="therapeia" />
       </section>
 
-      <section className="card">
-        <h2 className="card__title card__title--small">Health card</h2>
+      <MoreDetails label="Health card">
         <label className="field">
           <span className="field__label">Allergies (optional)</span>
           <input className="input" value={current.card.allergies ?? ''} onChange={(event) => settings.save({ ...settings.load(), card: { ...current.card, allergies: event.target.value || undefined } })} />
@@ -55,7 +55,7 @@ export default function MorePage({ nav }: { nav: TherapeiaNav }) {
           <span className="field__label">Emergency contact (optional)</span>
           <input className="input" value={current.card.contact ?? ''} onChange={(event) => settings.save({ ...settings.load(), card: { ...current.card, contact: event.target.value || undefined } })} />
         </label>
-      </section>
+      </MoreDetails>
 
       <p className="ll-section-label">Reminders</p>
       <section className="card switches">

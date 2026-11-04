@@ -1,13 +1,14 @@
 import { Brand } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
 import { AppMark, PlusIcon } from '../../app/family/icons';
+import { useState } from 'react';
 import { useNow } from '../../hydros/app/day';
 import photoWide from '../../assets/images/scenes/therapeia-stoic-wide.webp';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { appointments, useAnchors, useMedicines } from '../app/state';
 import { at, DoseRow, dayWord, takeOneNow } from '../app/ui';
-import { dosesOn, isCurrent, lastTaken, spacedFrom, splitAppointments, withWho } from '../core/medicines';
+import { dosesOn, isCurrent, lastTaken, peopleIn, sameWho, spacedFrom, splitAppointments, withWho } from '../core/medicines';
 
 
 export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
@@ -17,12 +18,17 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
   const calendarToday = toLocalDate(now);
   const { anchors, dayAt } = useAnchors(addDays(calendarToday, -1), addDays(calendarToday, 1));
   const today = dayAt(now);
-  const current = all.filter((medicine) => isCurrent(medicine, today));
+  // With medicines for other people, Today starts on the person's own ('' is the person's own, undefined everyone).
+  const people = peopleIn([...all, ...visits]);
+  const [chosen, setChosen] = useState<string | undefined>(undefined);
+  const whose = people.length === 0 ? undefined : chosen === undefined ? '' : chosen === '*' ? undefined : chosen;
+  const mine = <T extends { who?: string }>(records: readonly T[]) => (whose === undefined ? records : records.filter((record) => sameWho(record, whose)));
+  const current = mine(all).filter((medicine) => isCurrent(medicine, today));
   const doses = dosesOn(current, today, anchors);
   const open = doses.filter((dose) => !dose.taken);
   const next = open.find((dose) => dose.at >= now) ?? open[0];
   const asNeeded = current.filter((medicine) => medicine.asNeeded);
-  const coming = splitAppointments(visits, now).coming.filter((visit) => visit.at.slice(0, 10) <= addDays(today, 14));
+  const coming = splitAppointments(mine(visits) as typeof visits, now).coming.filter((visit) => visit.at.slice(0, 10) <= addDays(today, 14));
 
   return (
     <div className="home therapeia-home">
@@ -52,6 +58,13 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
               <h2>Today</h2>
               <button type="button" className="text-link" onClick={() => nav.go({ name: 'medicine' })}>Add</button>
             </div>
+            {people.length > 0 && (
+              <div className="chip-row" role="group" aria-label="Whose">
+                <button type="button" className="chip" aria-pressed={whose === undefined} onClick={() => setChosen('*')}>Everyone</button>
+                <button type="button" className="chip" aria-pressed={whose === ''} onClick={() => setChosen('')}>Me</button>
+                {people.map((name) => <button key={name} type="button" className="chip" aria-pressed={whose === name} onClick={() => setChosen(name)}>{name}</button>)}
+              </div>
+            )}
             {doses.length ? (
               <ul className="chore-list" data-ll-lit>
                 {doses.map((dose) => <DoseRow key={`${dose.medicine.id}${dose.slot}`} dose={dose} onOpen={() => nav.go({ name: 'medicine', id: dose.medicine.id })} />)}

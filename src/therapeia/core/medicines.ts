@@ -18,7 +18,7 @@ export type DoseTime =
 export type DoseDays = { kind: 'daily' } | { kind: 'weekdays'; days: number[] } | { kind: 'every'; every: number };
 
 /** One dose marked: `slot` is `DATE#INDEX` for a planned dose, `extra:ISO` for one taken as needed. */
-export type Taken = { slot: string; at: string; skipped?: boolean };
+export type Taken = { slot: string; at: string; skipped?: boolean; /** Who marked it, written only when the list is shared. */ by?: string };
 
 export type Supply = {
   /** How many were on hand when last counted. */
@@ -186,12 +186,12 @@ function mark(medicine: Medicine, entry: Taken): Medicine {
   return { ...medicine, taken: [...medicine.taken.filter((each) => each.slot !== entry.slot), entry] };
 }
 
-export function take(medicine: Medicine, slot: string, at: Date): Medicine {
-  return mark(medicine, { slot, at: at.toISOString() });
+export function take(medicine: Medicine, slot: string, at: Date, by?: string): Medicine {
+  return mark(medicine, { slot, at: at.toISOString(), ...(by ? { by } : {}) });
 }
 
-export function skip(medicine: Medicine, slot: string, at: Date): Medicine {
-  return mark(medicine, { slot, at: at.toISOString(), skipped: true });
+export function skip(medicine: Medicine, slot: string, at: Date, by?: string): Medicine {
+  return mark(medicine, { slot, at: at.toISOString(), skipped: true, ...(by ? { by } : {}) });
 }
 
 export function unmark(medicine: Medicine, slot: string): Medicine {
@@ -199,8 +199,8 @@ export function unmark(medicine: Medicine, slot: string): Medicine {
 }
 
 /** A dose taken as needed, at this moment. */
-export function takeNow(medicine: Medicine, at: Date): Medicine {
-  return mark(medicine, { slot: `extra:${at.toISOString()}`, at: at.toISOString() });
+export function takeNow(medicine: Medicine, at: Date, by?: string): Medicine {
+  return mark(medicine, { slot: `extra:${at.toISOString()}`, at: at.toISOString(), ...(by ? { by } : {}) });
 }
 
 export function lastTaken(medicine: Medicine): Date | undefined {

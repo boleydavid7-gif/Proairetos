@@ -3,6 +3,7 @@ import { PillIcon, PlusIcon, PrintIcon, ShareIcon } from '../../app/family/icons
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { useState } from 'react';
+import { Switch } from '../../askesis/app/ui';
 import { readings, settings, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { latestLines } from '../core/readings';
@@ -68,18 +69,32 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
       ) : (
         <Empty icon={<PillIcon size={28} />} title="No medicines yet" />
       )}
-      {(card.allergies || card.conditions) && (
-        <section className="card">
-          {card.allergies && <p><span className="label">Allergies</span><br />{card.allergies}</p>}
-          {card.conditions && <p><span className="label">Conditions</span><br />{card.conditions}</p>}
-        </section>
-      )}
       {current.length > 0 && (
-        <div className="button-row">
-          <button type="button" className="button-quiet" onClick={() => void share()}><ShareIcon size={18} />Share the list</button>
-          <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'print', who: whose })}><PrintIcon size={18} />Print</button>
-          {kept.length > 0 && !whose && <button type="button" className="chip" aria-pressed={withReadings} onClick={() => setWithReadings(!withReadings)}>With latest readings</button>}
-        </div>
+        <ul className="rows">
+          <li>
+            <button type="button" className="row" onClick={() => void share()}>
+              <span className="row__icon"><ShareIcon size={22} /></span>
+              <span className="row__text"><span>Share the list</span></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" className="row" onClick={() => nav.go({ name: 'print', who: whose })}>
+              <span className="row__icon"><PrintIcon size={22} /></span>
+              <span className="row__text"><span>Print</span></span>
+            </button>
+          </li>
+          {kept.length > 0 && !whose && (
+            <li className="switches">
+              <Switch on={withReadings} label="With latest readings" onToggle={() => setWithReadings(!withReadings)} />
+            </li>
+          )}
+        </ul>
+      )}
+      {(card.allergies || card.conditions) && (
+        <ul className="rows rows--plain">
+          {card.allergies && <li className="row row--aside"><span className="row__text"><span>Allergies</span></span><span className="muted">{card.allergies}</span></li>}
+          {card.conditions && <li className="row row--aside"><span className="row__text"><span>Conditions</span></span><span className="muted">{card.conditions}</span></li>}
+        </ul>
       )}
       {before.length > 0 && (
         <>

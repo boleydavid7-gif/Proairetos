@@ -299,6 +299,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
 
       {existing?.supply && (
         <section className="card">
+          <h2 className="card__title card__title--small">Refill</h2>
           <span className="card__eyebrow">{`${supplyLeft(existing)} left${left !== undefined && existing.times.length ? ` · about ${left} days` : ''}`}</span>
           <form
             className="add-line"
@@ -311,7 +312,10 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
               setRefillCount('');
             }}
           >
-            <input className="input" inputMode="numeric" aria-label="How many came" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
+            <label className="field">
+              <span className="field__label">How many came</span>
+              <input className="input" inputMode="numeric" value={refillCount} onChange={(event) => setRefillCount(event.target.value.replace(/\D/g, ''))} />
+            </label>
             <button type="submit" className="button-quiet" disabled={!(Number(refillCount) > 0)}>Add</button>
           </form>
         </section>

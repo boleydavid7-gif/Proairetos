@@ -1386,8 +1386,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   that comes round on a work day to the next day off within two weeks (`dayOffFrom`); only chores every 2+ days, weeks,
   monthly or once, and not someone else's turn (`movesToDayOff`); counting still runs from when it was done. Work days are
   committed blocks of 4 h+ on the day they begin (`core/scheduling/workDays.ts` `workDates`), read by `ergon/app/daysOff.ts`
-  (`useDaysOff` for pages and Proairetos's From your apps, `daysOffNow` for notices). Today keeps the Ideas chips under the
-  lists while there are fewer than five chores (the Chores page always has them). The chore page says "Moved from Tue, a work day."
+  (`useDaysOff` for pages and Proairetos's From your apps, `daysOffNow` for notices). Today shows only what is due for the person (no Ideas, no Add: chores and to-dos are added in their own tabs); the Chores page always has the Ideas chips, empty or not. The To-dos tab shows only while a shared list exists, an invite waits or it is open; a chore's Who card folds under "Assign" while nobody else is known; More's name field hides once the household supplies names; the Household page lists members as grouped rows. The chore page says "Moved from Tue, a work day."
 - In Proairetos: Settings > More apps rows; Notifications switches "Sleep and naps, from Diaita", "Birthdays,
   from Philia", "Chores, from Ergon" (`rhythm`, `people`, `chores` in NoticeSettings; notices from
   `app/notify/familyNotices.ts`); What's included parts `birthdays`
@@ -1409,6 +1408,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   pass with their day. Visits with questions to tick and notes. Health card (allergies, conditions, contact) and "Share
   the list" (`listText`). Notices (`core/notices.ts`): doses kind `dose` (not held by quiet hours; names only if
   "Names on the lock screen"), refills and visits kind `care`. Welcome and More say it gives no medical advice.
+- Therapeia review pass: Today starts on the person's own medicines with Everyone / Me / names chips once medicines or visits name someone else (`peopleIn`, `sameWho`); a dose mark carries `Taken.by` (`take`/`skip`/`takeNow` take it) only while the household shares Medicines (`householdActor('therapeia')`), shown as "Taken 8:02 AM · Sam"; the care circle page says "Shared with <household>" with a link in place of Invite and Leave when the household shares its list; the Medicines footer is grouped rows (Share the list, Print, a "With latest readings" switch, allergies and conditions); a refill has its own labeled field; Readings leads with the latest values and keeps the entry form behind Add (open when there are none); More folds the health card under a row.
 - Dynamis (`core/library.ts`, `core/plan.ts`, `core/mobility.ts`, tests, sources in `SOURCES` / `WHY`, shown on "How the
   plan is built"): full-body A/B sessions on 2-3 days or upper/lower on 4, each major group twice a week (ACSM 2026,
   Schoenfeld 2016); 2 sets to begin, one more offered after six sessions up to the aim's full number (`setsOffer`,

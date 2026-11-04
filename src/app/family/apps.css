@@ -714,3 +714,8 @@
   min-height: 0;
   padding: 0;
 }
+
+/* A labeled field beside its button: the button sits on the field's line. */
+.add-line:has(> .field) {
+  align-items: end;
+}

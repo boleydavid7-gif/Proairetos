@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { offerUndo } from '../../app/family/shell';
+import { PlusIcon } from '../../app/family/icons';
 import { LineChart } from '../../app/family/charts';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { newId, readings } from '../app/state';
@@ -30,6 +31,7 @@ export default function ReadingsPage() {
   const [at, setAt] = useState(localNow());
   const [note, setNote] = useState('');
   const [open, setOpen] = useState<string>();
+  const [adding, setAdding] = useState(false);
   const chosenUnit = kind === 'other' ? unit ?? '' : unit && units.includes(unit) ? unit : lastUnit && units.includes(lastUnit) ? lastUnit : units[0];
   const valid = number(value) !== undefined && (kind !== 'blood-pressure' || number(value2) !== undefined) && (kind !== 'other' || label.trim());
 
@@ -50,13 +52,17 @@ export default function ReadingsPage() {
     setValue2('');
     setNote('');
     setAt(localNow());
+    setAdding(false);
   };
 
   return (
     <div className="page therapeia-page">
-      <div className="page-top"><h1 className="title">Readings</h1></div>
+      <div className="page-top section-head">
+        <h1 className="title">Readings</h1>
+        {!adding && <button type="button" className="button-main" onClick={() => setAdding(true)}><PlusIcon size={18} />Add</button>}
+      </div>
 
-      <section className="card">
+      {(adding || groups.length === 0) && <section className="card">
         <div className="chip-row" role="group" aria-label="What">
           {KINDS.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={kind === each.id} onClick={() => { setKind(each.id); setUnit(undefined); }}>{each.name}</button>)}
         </div>
@@ -87,8 +93,11 @@ export default function ReadingsPage() {
           <label className="field"><span className="field__label">When</span><input className="input" type="datetime-local" value={at} onChange={(event) => event.target.value && setAt(event.target.value)} /></label>
           <label className="field"><span className="field__label">Note (optional)</span><input className="input" value={note} onChange={(event) => setNote(event.target.value)} /></label>
         </div>
-        <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
-      </section>
+        <div className="button-row">
+          <button type="button" className="button-main" disabled={!valid} onClick={save}>Save</button>
+          {adding && <button type="button" className="button-quiet" onClick={() => setAdding(false)}>Cancel</button>}
+        </div>
+      </section>}
 
       {groups.map((group) => {
         const sums = facts(group.readings, today);
