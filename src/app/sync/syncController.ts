@@ -692,8 +692,18 @@ export async function unlockWithAccountPassword(): Promise<void> {
   if (!accountPasswordForKeySetup) throw new Error('Sign in with your account password first.');
   const wrapped = await fetchWrappedKeys();
   if (!wrapped?.passphrase) throw new KeyError('This account has not connected its account password to encrypted data yet. Use the existing recovery method once.');
-  const key = await unlockWithPassphrase(passphraseOf(wrapped), accountPasswordForKeySetup);
-  await keepKey(key);
+  // Keep a non-exportable key for normal local encryption and an exportable,
+  // device-local copy solely for the existing short-lived companion-app handoff.
+  const handoffKey = await unlockWithPassphrase(passphraseOf(wrapped), accountPasswordForKeySetup, true);
+  const localKey = await crypto.subtle.importKey(
+    'raw',
+    await crypto.subtle.exportKey('raw', handoffKey),
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+  await (await localState())!.setMeta(HANDOFF_META, handoffKey);
+  await keepKey(localKey);
 }
 
 export async function unlock(secret: string, method: 'passphrase' | 'recovery', forPasskey = false): Promise<void> {
