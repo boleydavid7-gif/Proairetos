@@ -48,6 +48,17 @@ export const offered = (app: HouseholdApp) => app === 'proairetos' || isAdded(ap
 
 export const household = (): SharedListRef | undefined => households.sharedLists()[0];
 
+/** The signed-in member behind an app action, only when that app is shared with this household. */
+export function householdActor(app: HouseholdApp): { id?: string; name: string } | undefined {
+  const list = household();
+  if (!list) return undefined;
+  const items = households.sharedItems(list);
+  if (!partsOf(items).some((part) => part.app === app)) return undefined;
+  const userId = roleState.userId;
+  const member = userId ? membersOf(items).find((person) => person.id === memberId(userId)) : undefined;
+  return { id: userId, name: member?.name || displayName().trim() || 'Someone' };
+}
+
 // ---------- Where this device stands with each part ----------
 
 let states: Partial<Record<HouseholdApp, PartState>> = {};
