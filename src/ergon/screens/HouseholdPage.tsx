@@ -197,9 +197,10 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         <a className="button-main" href="/?open=settings:household">Manage family settings</a>
       </section>
 
-      <section className="card">
-        <div className="section-head">
-          <h2>Recent activity</h2>
+      {familyConnected && (
+        <section className="card">
+          <div className="section-head">
+            <h2>Recent activity</h2>
           <span className="muted">{recentActivity.length ? `Latest ${recentActivity.length}` : 'No activity yet'}</span>
         </div>
         {recentActivity.length > 0 ? (
@@ -226,7 +227,8 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
         ) : (
           <p className="muted">Chore activity will appear here as your household uses Ergon.</p>
         )}
-      </section>
+        </section>
+      )}
 
       <section className="card">
         <div className="section-head">
