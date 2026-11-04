@@ -6,8 +6,8 @@ import { syncStatus } from '../../app/sync/syncController';
 import { useHousehold } from '../../app/household/household';
 import type { ErgonNav } from '../app/App';
 import { homes, ownChores, sharingAvailable, useChores, useHome } from '../app/state';
-import { nextDay, whoDidWhat } from '../core/chores';
-import { toLocalDate } from '../../core/scheduling/dates';
+import { nextDay } from '../core/chores';
+import { addDays, toLocalDate } from '../../core/scheduling/dates';
 
 const INVITE = 'ergonShared.invite';
 
@@ -60,7 +60,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
   const own = ownChores.use();
   const today = toLocalDate(new Date());
   const familyConnected = family.parts.some((part) => part.app === 'ergon');
-  const completionFacts = whoDidWhat(chores, today);
+  const from = addDays(today, -30);
   const recentActivity = chores
     .flatMap((chore) => (chore.activity ?? []).map((event) => ({ ...event, choreId: chore.id, choreName: chore.name })))
     .sort((a, b) => b.at.localeCompare(a.at))
@@ -160,7 +160,7 @@ export default function HouseholdPage({ nav }: { nav: ErgonNav }) {
     const assignedChores = chores.filter((chore) => nextDay(chore) && (chore.whoId === userId || (!chore.whoId && chore.who === member.name)));
     const assigned = assignedChores.length;
     const estimatedMinutes = assignedChores.reduce((total, chore) => total + (chore.minutes ?? 0), 0);
-    const completed = completionFacts.find((fact) => fact.name === member.name)?.times ?? 0;
+    const completed = chores.reduce((total, chore) => total + chore.history.filter((done) => done.date > from && (done.byId === userId || (!done.byId && done.by === member.name))).length, 0);
     return { ...member, userId, assigned, estimatedMinutes, completed, role: family.rolesReady ? family.roles[userId] ?? 'member' : 'member' };
   });
 
