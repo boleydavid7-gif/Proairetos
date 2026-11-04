@@ -22,6 +22,7 @@ import ShoesPage from '../screens/ShoesPage';
 import DevicePage from '../screens/DevicePage';
 import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
 import PwaStatus from '../../app/pwa/PwaStatus';
+import { clearSessionRecovery, readSessionRecovery, type SessionRecovery } from '../core/sessionRecovery';
 
 export type Route =
   | { name: Tab }
@@ -68,6 +69,7 @@ export default function App() {
   const plan = usePlan(planState);
   const [route, setRoute] = useState<Route>(() => (settings.started || planState ? { name: 'home' } : { name: 'welcome' }));
   const [lastTab, setLastTab] = useState<Tab>('home');
+  const [recovery, setRecovery] = useState<SessionRecovery | undefined>(() => readSessionRecovery());
   const routeHistory = useRef<Route[]>([]);
   if (routeHistory.current.length === 0) routeHistory.current.push(route);
 
@@ -200,6 +202,25 @@ export default function App() {
         </main>
         {route.name !== 'strava' && <StravaOnOpen />}
         {showTabs && <TabBar current={isTab(route.name) ? route.name : lastTab} onPick={(tab) => swap({ name: tab })} />}
+        {recovery && (
+          <div className="session-recovery" role="presentation">
+            <section className="session-recovery__panel" role="dialog" aria-modal="true" aria-labelledby="session-recovery-title">
+              <span className="card__eyebrow">Saved workout</span>
+              <h2 className="card__title" id="session-recovery-title">An unfinished session was found</h2>
+              <p className="muted">Your elapsed time and recorded distance are saved on this device. The session will reopen paused so you can decide when to continue. GPS points from the time Askesis was closed cannot be recovered.</p>
+              <div className="session-recovery__actions">
+                <button type="button" className="button-main" onClick={() => {
+                  setRecovery(undefined);
+                  go({ name: 'guide', id: recovery.workoutId, intention: recovery.intention });
+                }}>Resume session</button>
+                <button type="button" className="button-quiet" onClick={() => {
+                  clearSessionRecovery();
+                  setRecovery(undefined);
+                }}>Discard saved session</button>
+              </div>
+            </section>
+          </div>
+        )}
       </div>
     </UndoProvider>
   );
