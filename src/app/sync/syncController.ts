@@ -549,6 +549,16 @@ export async function linkAccountPasswordToEncryption(
   tellFamily('account');
 }
 
+/** One-time migration for existing accounts: after the person proves the old data secret,
+ * wrap the same data key with the authenticated account password. */
+export async function migrateCurrentAccountPasswordToEncryption(
+  currentSecret: string,
+  method: 'passphrase' | 'recovery',
+): Promise<void> {
+  if (!accountPasswordForKeySetup) return;
+  await linkAccountPasswordToEncryption(accountPasswordForKeySetup, currentSecret, method);
+}
+
 // ---------- Account steps ----------
 
 export async function requestCode(email: string): Promise<void> {
