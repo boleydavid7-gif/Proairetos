@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { changePassphrase, confirmCode, hasPassphrase, passkeysAvailable, requestCode, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { changePassphrase, confirmCode, hasPassphrase, passkeysAvailable, requestCode, signInWithEmailPassword, unlockWithAccountPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
 import { storageName } from '../sync/ownStorage';
 import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
 import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
@@ -93,10 +93,9 @@ function useStep() {
 function SignIn() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [sent, setSent] = useState(false);
+  const [password, setPassword] = useState('');
   const { busy, error, run } = useStep();
-  const autofillError = usePasskeyAutofill(open && !sent);
+  const autofillError = usePasskeyAutofill(open);
   if (!open)
     return (
       <button type="button" className="button-quiet account__link" onClick={() => setOpen(true)}>
@@ -105,70 +104,26 @@ function SignIn() {
     );
   return (
     <div className="card account__step">
-      {!sent ? (
-        <form
-          className="field"
-          onSubmit={(event: FormEvent) => {
-            event.preventDefault();
-            void run(async () => {
-              await requestCode(email);
-              setSent(true);
-            });
-          }}
-        >
-          <span className="label">Your Proairetos email</span>
-          <input className="input" type="email" autoComplete="email webauthn" aria-label="Email" value={email} onChange={(event) => setEmail(event.target.value)} />
-          <button type="submit" className="button-main" disabled={!email.includes('@') || busy}>
-            {busy ? 'Sending…' : 'Continue'}
-          </button>
-        </form>
-      ) : (
-        <form
-          className="field"
-          onSubmit={(event: FormEvent) => {
-            event.preventDefault();
-            void run(() => confirmCode(email, code));
-          }}
-        >
-          <span className="label">Code or link from the email to {email}</span>
-          <input
-            className="input"
-            autoComplete="one-time-code"
-            autoCapitalize="off"
-            autoCorrect="off"
-            spellCheck={false}
-            aria-label="Code or link from the email"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-          />
-          <button type="submit" className="button-main" disabled={code.trim().length < 6 || busy}>
-            Sign in
-          </button>
-          <button type="button" className="button-quiet" onClick={() => setSent(false)}>
-            Use a different email
-          </button>
-        </form>
-      )}
-      {!sent && (
-        <details className="account__other">
-          <summary>Other ways to sign in</summary>
-          <PasteFromProairetos className="button-quiet" />
-          <ProviderButtons className="button-quiet" />
-        </details>
-      )}
-      <button type="button" className="button-quiet" onClick={() => setOpen(false)}>
-        Cancel
-      </button>
-      {autofillError && (
-        <p className="hint" role="alert">
-          {autofillError}
-        </p>
-      )}
-      {error && (
-        <p className="hint" role="alert">
-          {error}
-        </p>
-      )}
+      <form className="field" onSubmit={(event: FormEvent) => {
+        event.preventDefault();
+        void run(() => signInWithEmailPassword(email, password));
+      }}>
+        <span className="label">Your Proairetos account</span>
+        <input className="input" type="email" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <input className="input" type="password" autoComplete="current-password" aria-label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        <button type="submit" className="button-main" disabled={!email.includes('@') || !password || busy}>
+          {busy ? 'Signing in…' : 'Sign in'}
+        </button>
+      </form>
+      <details className="account__other">
+        <summary>Other ways to sign in</summary>
+        <PasteFromProairetos className="button-quiet" />
+        <ProviderButtons className="button-quiet" />
+        <button type="button" className="button-quiet" onClick={() => void run(() => requestCode(email))} disabled={!email.includes('@') || busy}>Email me a sign-in code</button>
+      </details>
+      <button type="button" className="button-quiet" onClick={() => setOpen(false)}>Cancel</button>
+      {autofillError && <p className="hint" role="alert">{autofillError}</p>}
+      {error && <p className="hint" role="alert">{error}</p>}
     </div>
   );
 }
@@ -184,6 +139,8 @@ function Unlock() {
   // A passkey that opens the data is the way in here too; the passphrase and a pass are one link away.
   const opening = useOpeningPasskeys();
   const [typing, setTyping] = useState(false);
+  const [passwordBusy, setPasswordBusy] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   if (opening === undefined || withPassphrase === undefined) return null;
   const recovery = method === 'recovery' || !withPassphrase;
   // A forgotten passphrase is replaced; an account without one simply opens with the recovery key.
@@ -201,8 +158,18 @@ function Unlock() {
   }
   return (
     <>
+    <div className="card account__step field">
+      <button type="button" className="button-main" disabled={passwordBusy} onClick={async () => {
+        setPasswordBusy(true); setPasswordError('');
+        try { await unlockWithAccountPassword(); }
+        catch (cause) { setPasswordError(message(cause)); }
+        finally { setPasswordBusy(false); }
+      }}>
+        {passwordBusy ? 'Unlocking…' : 'Unlock with account password'}
+      </button>
+      {passwordError && <p className="hint" role="alert">{passwordError}</p>}
     <form
-      className="card account__step field"
+      className="field"
       onSubmit={(event: FormEvent) => {
         event.preventDefault();
         void run(async () => {
@@ -244,6 +211,7 @@ function Unlock() {
         </p>
       )}
     </form>
+    </div>
     {!opening.length && <PasteFromProairetos className="button-quiet account__link" />}
     </>
   );
