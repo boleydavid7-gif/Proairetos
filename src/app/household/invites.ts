@@ -4,6 +4,7 @@ import { displayName } from '../../data/storage/preferences';
 import { openSealed } from '../capture/inbox';
 import { openWithAccount, sealWithAccount, syncStatus } from '../sync/syncController';
 import type { ListRef } from '../../core/household/household';
+import { apiUrl } from '../apiBase';
 
 /*
  * Household invites by email (migration 20261031000000_household_invites.sql). Each account has a key pair made on its
@@ -90,7 +91,24 @@ export async function inviteByEmail(email: string, household: ListRef): Promise<
   if (!found) throw new Error('No account with that email has opened Proairetos on this version yet. Send the link instead.');
   const from = displayName().trim() || user.email;
   const sealed = await sealFor(found.public_key, { household, from });
-  plain((await client.from('household_invites').insert({ household_id: household.id, to_user: found.user_id, to_email: address, from_user: user.id, sealed })).error);
+  const { data: saved, error: saveError } = await client
+    .from('household_invites')
+    .insert({ household_id: household.id, to_user: found.user_id, to_email: address, from_user: user.id, sealed })
+    .select('id')
+    .single();
+  plain(saveError);
+  const session = (await client.auth.getSession()).data.session;
+  if (!session?.access_token) throw new Error('The invitation was saved, but your sign-in expired before the email could be sent. Sign in again to retry.');
+  const response = await fetch(apiUrl('/api/household/invite-email'), {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify({ inviteId: (saved as { id: string }).id }),
+  });
+  const result = await response.json().catch(() => ({})) as { error?: string; sent?: boolean };
+  if (!response.ok || result.sent !== true) {
+    await refreshInvites();
+    throw new Error(result.error || 'The invitation was saved in Proairetos, but its email could not be sent.');
+  }
   await refreshInvites();
 }
 
