@@ -5,6 +5,7 @@ import { notifications } from '../../app/notify/notifications';
 import { defaultChoreNotices, type ChoreNoticeChoices } from '../core/notices';
 import { namesIn, type Chore } from '../core/chores';
 import { displayName } from '../../data/storage/preferences';
+import { householdActor } from '../../app/household/household';
 
 export type ErgonSettings = { started: boolean; me: string; notices: ChoreNoticeChoices; /** Chores that come round on a work day show on the next day off (from the Proairetos schedule). */ daysOff?: boolean; /** Names added to give chores to, kept even before a chore has them. */ people?: string[] };
 
@@ -91,9 +92,38 @@ export function allChores(): Chore[] {
   return list ? homes.sharedItems(list) : ownChores.list();
 }
 
+function recordHouseholdActivity(chore: Chore, before: Chore | undefined, actor: { id?: string; name: string }): Chore {
+  const previous = before ? { ...before, activity: undefined } : undefined;
+  const next = { ...chore, activity: undefined };
+  if (previous && JSON.stringify(previous) === JSON.stringify(next)) return chore;
+
+  const historyChanged = Boolean(before && JSON.stringify(before.history) !== JSON.stringify(chore.history) && chore.history.length >= before.history.length);
+  const assignmentChanged = Boolean(before && (before.whoId !== chore.whoId || before.who !== chore.who));
+  const action = !before ? 'added' : historyChanged ? 'completed' : assignmentChanged ? 'assigned' : 'changed';
+  const at = new Date().toISOString();
+  let history = chore.history;
+  if (historyChanged && actor.id) {
+    const last = history.at(-1);
+    if (last && !last.byId) history = [...history.slice(0, -1), { ...last, byId: actor.id, by: last.by ?? actor.name, at: last.at ?? at }];
+  }
+  const event = {
+    id: newId(),
+    action,
+    at,
+    by: actor.name,
+    byId: actor.id,
+    ...(assignmentChanged && action === 'assigned' ? { assignedTo: chore.who ?? 'Anyone', assignedToId: chore.whoId } : {}),
+    ...(assignmentChanged && action === 'completed' ? { nextAssignee: chore.who ?? 'Anyone', nextAssigneeId: chore.whoId } : {}),
+  } as const;
+  return { ...chore, history, activity: [...(before?.activity ?? chore.activity ?? []), event].slice(-40) };
+}
+
 export function putChore(chore: Chore): void {
   const list = home();
-  if (list) homes.changeItem(list, chore.id, chore);
+  const existing = (list ? homes.sharedItems(list) : ownChores.list()).find((item) => item.id === chore.id);
+  const actor = list ? householdActor('ergon') : undefined;
+  const next = actor ? recordHouseholdActivity(chore, existing, actor) : chore;
+  if (list) homes.changeItem(list, chore.id, next);
   else ownChores.put(chore);
   notifications.refreshSoon();
 }
