@@ -357,6 +357,13 @@
   .days-toolbar .days-back {
     margin-left: auto;
   }
+
+  /* Desktop uses the list and full calendar side by side, so the mobile
+     List/Calendar switch has no purpose here. Keep it available below this
+     breakpoint for the compact mobile layout. */
+  .days-page .days-toolbar .days-view-toggle {
+    display: none;
+  }
 }
 
 /* ---------- Month ---------- */
