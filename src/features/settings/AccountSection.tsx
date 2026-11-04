@@ -24,8 +24,11 @@ import {
   refreshSyncStatus,
   syncStatus,
   unlock,
+  listAccountDevices,
+  revokeAccountDevice,
   changePassphrase,
   linkAccountPasswordToEncryption,
+  migrateCurrentAccountPasswordToEncryption,
   continueSetupPasskey,
   finishSetupWithPasskey,
   hasPassphrase,
@@ -325,8 +328,10 @@ function Unlock() {
         setError('');
         try {
           if (choosing) await changePassphrase(secret, 'recovery', next);
-          // Without a passkey that opens the data here, the next tap makes one (offered on the next screen).
+          // Unlock with the existing secret once, then migrate the same data key to the
+          // account password in the background. No records are re-encrypted or lost.
           await unlock(secret, recovery ? 'recovery' : 'passphrase', passkeysAvailable() && !opening.length);
+          await migrateCurrentAccountPasswordToEncryption(secret, recovery ? 'recovery' : 'passphrase');
         } catch (cause) {
           setError(message(cause));
         } finally {
@@ -502,35 +507,62 @@ function LinkAccountPassword() {
  * deliberately identifies only this browser and offers account-wide revocation. */
 function DeviceSessions() {
   const [expanded, setExpanded] = useState(false);
-  const [confirming, setConfirming] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const [devices, setDevices] = useState<Awaited<ReturnType<typeof listAccountDevices>>>([]);
+  const [loading, setLoading] = useState(false);
+  const [busyId, setBusyId] = useState('');
+  const [confirmingAll, setConfirmingAll] = useState(false);
   const [error, setError] = useState('');
-  const deviceLabel = typeof navigator !== 'undefined'
-    ? /iPhone|iPad/.test(navigator.userAgent) ? 'Apple device' : /Android/.test(navigator.userAgent) ? 'Android device' : /Windows/.test(navigator.userAgent) ? 'Windows device' : /Mac OS/.test(navigator.userAgent) ? 'Mac device' : 'This browser'
-    : 'This device';
+
+  async function refresh() {
+    setLoading(true); setError('');
+    try { setDevices(await listAccountDevices()); }
+    catch (cause) { setError(message(cause)); }
+    finally { setLoading(false); }
+  }
 
   return (
     <section className="settings-sub">
-      <button type="button" className="text-link" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
+      <button type="button" className="text-link" aria-expanded={expanded} onClick={() => {
+        const next = !expanded; setExpanded(next); if (next) void refresh();
+      }}>
         {expanded ? 'Hide devices & sessions' : 'Devices & sessions'}
       </button>
       {expanded && (
         <div className="stack-tight">
-          <p className="sheet__label">Currently using</p>
-          <p className="section-description">{deviceLabel} · This session</p>
-          <p className="section-description">For security, Proairetos can revoke all refreshable sign-in sessions at once. A complete per-device session list and individual device revocation require a server-side device registry and are not available yet.</p>
-          {!confirming ? (
-            <button type="button" className="text-link" onClick={() => setConfirming(true)}>Sign out everywhere…</button>
+          <p className="section-description">Devices that have signed into your Proairetos account. Last active times update when an app opens or returns to the foreground.</p>
+          {loading && <p className="sheet__hint">Loading devices…</p>}
+          {!loading && devices.length === 0 && <p className="sheet__hint">No registered devices yet.</p>}
+          {devices.map((device) => (
+            <div className="settings-sub" key={device.id}>
+              <div className="row-between">
+                <div>
+                  <p className="label">{device.label}</p>
+                  <p className="sheet__hint">{device.platform} · {device.app_ids.join(', ') || 'Proairetos'}</p>
+                  <p className="sheet__hint">Last active {new Date(device.last_seen_at).toLocaleString()}</p>
+                  {device.revoked_at && <p className="form-error">Revoked</p>}
+                </div>
+                {!device.revoked_at && (
+                  <button type="button" className="text-link" disabled={busyId === device.id} onClick={async () => {
+                    setBusyId(device.id); setError('');
+                    try {
+                      await revokeAccountDevice(device.id);
+                      await refresh();
+                    } catch (cause) { setError(message(cause)); }
+                    finally { setBusyId(''); }
+                  }}>{busyId === device.id ? 'Revoking…' : 'Revoke'}</button>
+                )}
+              </div>
+            </div>
+          ))}
+          <button type="button" className="text-link" onClick={() => void refresh()} disabled={loading}>Refresh device list</button>
+          {!confirmingAll ? (
+            <button type="button" className="text-link" onClick={() => setConfirmingAll(true)}>Sign out everywhere…</button>
           ) : (
             <>
-              <p className="section-description">This signs this device and your other signed-in devices out. You will need to sign in again.</p>
+              <p className="section-description">This revokes refreshable sessions for the account. You will need to sign in again on your devices.</p>
               <div className="chip-row">
-                <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>Cancel</button>
-                <button type="button" className="chip" disabled={busy} onClick={async () => {
-                  setBusy(true); setError('');
-                  try { await signOut(); }
-                  catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not revoke sessions.'); setBusy(false); }
-                }}>{busy ? 'Signing out…' : 'Sign out everywhere'}</button>
+                <button type="button" className="button-quiet" onClick={() => setConfirmingAll(false)}>Cancel</button>
+                <button type="button" className="chip" onClick={() => void signOut()}>Sign out everywhere</button>
               </div>
             </>
           )}

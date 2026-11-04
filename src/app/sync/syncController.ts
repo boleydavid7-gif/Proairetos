@@ -14,6 +14,9 @@ import {
   createSupabaseFileStore,
   createSupabaseRemoteStore,
   currentUser,
+  listAccountDevices,
+  revokeAccountDevice,
+  registerAccountDevice,
   supabase,
   deleteCalendarFeed,
   deleteRemoteAccount,
@@ -192,6 +195,17 @@ async function resolvePhase(): Promise<void> {
     deviceAccountAtStart = user.id;
   }
   userId = user.id;
+  try {
+    await registerAccountDevice();
+  } catch (cause) {
+    const reason = cause instanceof Error ? cause.message : 'This device could not be registered.';
+    if (reason.includes('device was revoked')) {
+      await (await supabase()).auth.signOut({ scope: 'local' }).catch(() => undefined);
+      userId = null;
+      return set({ phase: 'signed-out', email: undefined, target: undefined, error: reason });
+    }
+    set({ phase: status.phase, email: user.email, error: reason });
+  }
   const st = (await localState())!;
   dataKey = (await st.getMeta<CryptoKey>(KEY_META)) ?? null;
   const lastSyncedAt = await st.getMeta<string>(LAST_SYNC_META);
@@ -461,10 +475,20 @@ export async function startSync(): Promise<void> {
     window.clearTimeout(changeTimer);
     changeTimer = window.setTimeout(() => void syncNow(), AFTER_CHANGE_MS);
   });
-  window.setInterval(() => document.visibilityState === 'visible' && void syncNow(), AUTO_SYNC_MS);
-  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && void syncNow());
+  window.setInterval(() => {
+    if (document.visibilityState !== 'visible') return;
+    void registerAccountDevice().catch((cause) => set({ phase: status.phase, email: status.email, error: cause instanceof Error ? cause.message : 'Could not update this device.' }));
+    void syncNow();
+  }, AUTO_SYNC_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    void registerAccountDevice().catch(() => undefined);
+    void syncNow();
+  });
   window.addEventListener('online', () => void syncNow());
 }
+
+export { listAccountDevices, revokeAccountDevice };
 
 export const syncStatus = {
   subscribe: listeners.subscribe,
@@ -512,6 +536,9 @@ export async function linkAccountPasswordToEncryption(
     : await unlockWithRecoveryKey(wrapped.recovery, currentSecret, true);
   const nextWrap = await rewrapWithPassphrase(key, accountPassword);
   await savePassphraseWrap(userId, nextWrap);
+  // The same authenticated device can now create short-lived, single-use
+  // handoffs without asking the person for a second encryption secret.
+  await (await localState())!.setMeta(HANDOFF_META, key);
   const localKey = await crypto.subtle.importKey(
     'raw',
     await crypto.subtle.exportKey('raw', key),
@@ -523,6 +550,16 @@ export async function linkAccountPasswordToEncryption(
   dataKey = localKey;
   set({ phase: 'ready', error: undefined });
   tellFamily('account');
+}
+
+/** One-time migration for existing accounts: after the person proves the old data secret,
+ * wrap the same data key with the authenticated account password. */
+export async function migrateCurrentAccountPasswordToEncryption(
+  currentSecret: string,
+  method: 'passphrase' | 'recovery',
+): Promise<void> {
+  if (!accountPasswordForKeySetup) return;
+  await linkAccountPasswordToEncryption(accountPasswordForKeySetup, currentSecret, method);
 }
 
 // ---------- Account steps ----------
@@ -645,6 +682,10 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
   await saveWrappedKeys(userId, setup.passphraseWrap, setup.recoveryWrap);
   await savePasskeyMade(null).catch(() => undefined);
   setupKeys = null;
+  if (accountPasswordForKeySetup && setup.passphraseWrap) {
+    const handoffKey = await unlockWithPassphrase(setup.passphraseWrap, accountPasswordForKeySetup, true);
+    await (await localState())!.setMeta(HANDOFF_META, handoffKey);
+  }
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
   dataKey = setup.dataKey;
   set({ phase: 'ready' });
@@ -658,8 +699,18 @@ export async function unlockWithAccountPassword(): Promise<void> {
   if (!accountPasswordForKeySetup) throw new Error('Sign in with your account password first.');
   const wrapped = await fetchWrappedKeys();
   if (!wrapped?.passphrase) throw new KeyError('This account has not connected its account password to encrypted data yet. Use the existing recovery method once.');
-  const key = await unlockWithPassphrase(passphraseOf(wrapped), accountPasswordForKeySetup);
-  await keepKey(key);
+  // Keep a non-exportable key for normal local encryption and an exportable,
+  // device-local copy solely for the existing short-lived companion-app handoff.
+  const handoffKey = await unlockWithPassphrase(passphraseOf(wrapped), accountPasswordForKeySetup, true);
+  const localKey = await crypto.subtle.importKey(
+    'raw',
+    await crypto.subtle.exportKey('raw', handoffKey),
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+  await (await localState())!.setMeta(HANDOFF_META, handoffKey);
+  await keepKey(localKey);
 }
 
 export async function unlock(secret: string, method: 'passphrase' | 'recovery', forPasskey = false): Promise<void> {
