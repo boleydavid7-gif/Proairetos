@@ -31,9 +31,9 @@ VAPID **private** key in Cloudflare or in this repository.
 6. And with `supabase/migrations/20261010000000_soma_sync.sql`, so Soma
    (recipes) syncs its recipes and grocery list too. Until it runs, Soma keeps
    them on the phone.
+7. Run `supabase/migrations/20261104000000_device_registry.sql` to enable the Devices & Sessions registry. It stores device labels, platform, connected app IDs, last-seen times and revocation status only; never passwords, tokens or encryption keys.
 
-This creates four tables, each locked so a person can only ever reach their
-own rows:
+These migrations create the sync tables and account device registry, each locked so a person can only ever reach their own rows:
 
 | Table | Holds | Readable by the server? |
 | --- | --- | --- |
@@ -42,6 +42,7 @@ own rows:
 | `push_subscriptions` | Where to deliver notifications to your devices | Yes (an address, no content) |
 | `reminders` | When to remind you, as times and hashed ids | Times only |
 | `calendar_feeds` | Only if you turn on the calendar link: the calendar file you chose to publish | Yes, by your choice |
+| `account_devices` | Device label, platform, connected app IDs, last active time and revocation status | Yes (metadata only) |
 
 ## 3. Sign-in emails
 
