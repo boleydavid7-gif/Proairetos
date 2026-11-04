@@ -660,3 +660,8 @@ button.inbox-card {
   padding: 0 16px;
   overflow-wrap: anywhere;
 }
+
+.household__member-error {
+  grid-column: 1 / -1;
+  margin: 0;
+}

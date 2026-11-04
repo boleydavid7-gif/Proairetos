@@ -44,6 +44,7 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState('');
   const [removeConfirm, setRemoveConfirm] = useState<string | null>(null);
+  const [memberActionError, setMemberActionError] = useState<{ userId: string; message: string } | null>(null);
   const [transferTarget, setTransferTarget] = useState('');
   const [confirmTransfer, setConfirmTransfer] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -223,14 +224,16 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                           <button
                             type="button"
                             className="text-link household__remove-member"
+                            aria-expanded={removeConfirm === userId}
                             disabled={busy !== null}
-                            onClick={() => setRemoveConfirm(removeConfirm === userId ? null : userId)}
+                            onClick={() => { setMemberActionError(null); setRemoveConfirm(removeConfirm === userId ? null : userId); }}
                           >
-                            Remove
+                            Remove member
                           </button>
                         )}
                       </div>
                     ) : null}
+                    {memberActionError?.userId === userId && <p className="form-error household__member-error" role="alert">{memberActionError.message}</p>}
                     {removeConfirm === userId && canRemove && (
                       <div className="household__remove-confirm">
                         <span>Remove {member.name} from this family? They lose household access and access to connected app lists they do not own on their next sync. Existing family links can still be used to rejoin; downloaded copies cannot be recalled.</span>
@@ -240,12 +243,22 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
                             type="button"
                             className="button-danger"
                             disabled={busy !== null}
-                            onClick={() => void run(`remove:${userId}`, async () => {
-                              await removeHouseholdMember(userId);
-                              setRemoveConfirm(null);
-                            })}
+                            onClick={() => {
+                              setBusy(`remove:${userId}`);
+                              setError('');
+                              setMemberActionError(null);
+                              void removeHouseholdMember(userId)
+                                .then(() => {
+                                  setRemoveConfirm(null);
+                                  setBusy(null);
+                                })
+                                .catch((cause: unknown) => {
+                                  setMemberActionError({ userId, message: problem(cause) });
+                                  setBusy(null);
+                                });
+                            }}
                           >
-                            Remove member
+                            {busy === `remove:${userId}` ? 'Removing…' : 'Confirm removal'}
                           </button>
                         </div>
                       </div>
