@@ -17,7 +17,7 @@
     "SUPABASE_ANON_KEY": "sb_publishable_hmCwYBxhF7gC5GgKsx3slQ__syAYvhP",
     "SUPABASE_URL": "https://ccxkwfmybtouneurxunj.supabase.co",
     "OWNER_EMAIL": "boleydavid7@gmail.com",
-    "OWNER_EMAILS": "kristinasmith0513@gmail.com"
+    "OWNER_EMAILS": "kristinaboley0513@gmail.com"
   },
   // Worker Previews do not inherit production vars. Keep integrations disabled here
   // until dedicated test OAuth apps and a separate Supabase project are configured.
