@@ -110,6 +110,10 @@ A capability flag means the bridge can provide that feature; it does **not** mea
 
 The bridge can later add HealthKit on iOS, Health Connect on Android, background GPS, native haptics, lock-screen controls and watch sync. None of those are prerequisites for the web app, and no health permission is requested merely by opening Device integrations.
 
+### Health workout import (export-first)
+
+Health Auto Export on iOS and Health Connect Webhook on Android remain the supported user-facing health integrations. Their payloads are parsed by `src/core/health/autoExport.ts` and delivered through the encrypted `/api/health/<token>` inbox. Askesis workout records are now held in a local review queue (`askesis:health-pending-workouts`) rather than silently written to the training log. The Progress screen shows date, activity, distance, duration and average heart rate where available; the person can add or skip each workout. Existing log entries are checked for duplicates before queueing, and accepted records are only written when their stable `health-` id is not already present. Other health destinations retain their existing behavior. This export-first path does not require native health permissions.
+
 ## Known gaps before a store release
 - **Reminders past the next 60.** The phone keeps the soonest 60; they are set again whenever the app opens or
   something changes. Someone who does not open the app for weeks gets the first 60. Server push to the phone (Apple
