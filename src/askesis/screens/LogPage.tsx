@@ -303,6 +303,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
             <div className="tile">
               <span className="tile__label">Average pace</span>
               <span className="tile__value">{averagePace ? formatPace(averagePace, unit) : '–'}</span>
+              <span className="tile__change">Combined average across logged running time and distance</span>
             </div>
             <div className="tile">
               <span className="tile__label">Longest run</span>
@@ -349,14 +350,14 @@ export default function LogPage({ nav }: { nav: Nav }) {
         <div className="progress__content progress__content--consistency">
           <div className="tiles">
             <div className="tile">
-              <span className="tile__label">Training days</span>
+              <span className="tile__label">Running days</span>
               <span className="tile__value"><RollingNumber value={activeDays} /></span>
               <span className="tile__change">Last 8 weeks</span>
             </div>
             <div className="tile">
               <span className="tile__label">Active weeks</span>
               <span className="tile__value">{activeWeeks} of 8</span>
-              <span className="tile__change">At least one run or plan session</span>
+              <span className="tile__change">At least one logged run</span>
             </div>
             <div className="tile">
               <span className="tile__label">Sessions</span>
@@ -384,7 +385,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
           {feltSummary && (
             <section className="card progress__panel progress__feelings">
               <h2 className="card__title card__title--small">How your runs felt</h2>
-              <p className="muted">Your own ratings over the last four weeks.</p>
+              <p className="muted">Your own ratings over the last four weeks. These describe how sessions felt, not a fitness score.</p>
               <div className="records__grid">
                 <div><span className="tile__label">Easy or good</span><strong>{feltSummary.good}</strong></div>
                 <div><span className="tile__label">Challenging</span><strong>{feltSummary.challenging}</strong></div>
