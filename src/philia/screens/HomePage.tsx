@@ -1,6 +1,6 @@
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
-import { AppMark, ChevronIcon, PlusIcon } from '../../app/family/icons';
+import { AppMark, CheckIcon, ChevronIcon, PlusIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/philia-stoic-wide.webp';
 import type { PhiliaNav } from '../app/App';
@@ -60,18 +60,20 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
             {soon.length === 0 ? (
               <p className="muted">Nothing in the next 30 days.</p>
             ) : (
-              <div className="coming-up">
+              <ul className="rows coming-up">
                 {soon.slice(0, 8).map((entry) => (
-                  <button key={entry.key} type="button" className="card card--link coming-up__card" onClick={() => nav.go({ name: 'person', id: entry.person.id })}>
-                    <Initials name={entry.person.name} id={entry.person.id} />
-                    <span className="list-row__text">
-                      <strong>{entry.person.name}</strong>
-                      <small>{[entry.label, turningText(entry), timeText(entry.time)].filter(Boolean).join(' · ')}</small>
+                  <li key={entry.key}>
+                    <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: entry.person.id })}>
+                      <Initials name={entry.person.name} id={entry.person.id} />
+                      <span className="row__text">
+                        <span>{entry.person.name}</span>
+                        <span className="row__detail">{[entry.label, turningText(entry), timeText(entry.time)].filter(Boolean).join(' · ')}</span>
+                      </span>
                       <span className="coming-up__when">{whenText(entry.date, today)}</span>
-                    </span>
-                  </button>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
 
             {touch.length > 0 && (
@@ -83,9 +85,8 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
                       <button type="button" className="row person-row" onClick={() => nav.go({ name: 'person', id: person.id })}>
                         <Initials name={person.name} id={person.id} />
                         <span className="row__text"><span>{person.name}</span><span className="row__detail">{sinceText(person.lastInTouch, today)}</span></span>
-                        <ChevronIcon size={18} />
                       </button>
-                      <button type="button" className="button-quiet person-touch__mark" onClick={() => markInTouch(person, today)}>In touch today</button>
+                      <button type="button" className="button-quiet person-touch__mark" aria-label={`In touch with ${person.name} today`} onClick={() => markInTouch(person, today)}><CheckIcon size={18} /></button>
                     </SwipeItem>
                   ))}
                 </ul>

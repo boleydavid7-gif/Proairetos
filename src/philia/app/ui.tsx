@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { initials } from '../core/people';
 import { usePhoto } from '../data/photos';
 
@@ -13,8 +13,12 @@ export function Initials({ name, id, large = false }: { name: string; id?: strin
 }
 
 /** A field and a button that adds one line; Enter adds too. */
-export function AddLine({ label, onAdd, button = 'Add' }: { label: string; onAdd: (text: string) => void; button?: string }) {
+export function AddLine({ label, onAdd, button = 'Add', focus = false }: { label: string; onAdd: (text: string) => void; button?: string; focus?: boolean }) {
   const [text, setText] = useState('');
+  const field = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (focus) field.current?.focus();
+  }, [focus]);
   const add = () => {
     if (!text.trim()) return;
     onAdd(text.trim());
@@ -28,7 +32,7 @@ export function AddLine({ label, onAdd, button = 'Add' }: { label: string; onAdd
         add();
       }}
     >
-      <input className="input" aria-label={label} value={text} onChange={(event) => setText(event.target.value)} />
+      <input ref={field} className="input" aria-label={label} value={text} onChange={(event) => setText(event.target.value)} />
       <button type="submit" className="button-quiet" disabled={!text.trim()}>{button}</button>
     </form>
   );

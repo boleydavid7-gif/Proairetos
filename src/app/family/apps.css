@@ -413,24 +413,41 @@
   grid-template-columns: 44px minmax(0, 1fr) auto;
 }
 
-.coming-up {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-}
-
-.card.coming-up__card {
-  display: grid;
-  text-align: left;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
-}
-
+.row.person-row .coming-up__when,
 .coming-up__when {
   color: var(--mint);
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.person-touch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.person-touch .person-touch__mark {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-right: 12px;
+  border-radius: 50%;
+}
+
+.rows > li.row.philia-date {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-add {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .notes-list {

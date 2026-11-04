@@ -9,6 +9,7 @@ import { AddLine, Initials } from '../app/ui';
 import { CONTACTS, RHYTHMS, logContact, timeline, timelineText, dateText, nextOccurrence, shortDate, sinceText, turningText, whenText, yearOf, type Person, timeText } from '../core/people';
 import { importPhoto, photoFor, putPhoto, removePhoto, squarePhoto, usePhoto } from '../data/photos';
 import { Sym } from '../../lamplight/icons';
+import MoreDetails from '../../app/family/MoreDetails';
 import { Waiting } from '../../lamplight/Waiting';
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -16,6 +17,21 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <section className="card">
       <h2 className="card__title card__title--small">{title}</h2>
       {children}
+    </section>
+  );
+}
+
+/** A section with its list and one Add link at the head; the field opens only when it is chosen. */
+function AddSection({ title, list, add }: { title: string; list?: React.ReactNode; add: (done: () => void) => React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section className="card">
+      <div className="section-add">
+        <h2 className="card__title card__title--small">{title}</h2>
+        {!open && <button type="button" className="text-link" onClick={() => setOpen(true)}>Add</button>}
+      </div>
+      {list}
+      {open && add(() => setOpen(false))}
     </section>
   );
 }
@@ -79,28 +95,6 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         <div>
           <h1 className="title">{person.name}</h1>
           {person.relation && <p className="muted">{person.relation}</p>}
-          {photo && (
-            <div className="chip-row">
-              <button type="button" className="text-link" disabled={savingPhoto} onClick={async () => {
-                setSavingPhoto(true);
-                try {
-                  const saved = await photoFor(person.id);
-                  if (saved) downloadZip(`philia-${archiveName(person.name)}-photo-${new Date().toISOString().slice(0, 10)}`, [
-                    { path: 'manifest.json', data: JSON.stringify({ app: 'philia', personId: person.id, person: person.name, exportedAt: new Date().toISOString(), photo: { type: saved.type, at: saved.at } }) },
-                    { path: `photo.${saved.type.split('/')[1] || 'jpg'}`, data: saved.data },
-                  ]);
-                } finally {
-                  setSavingPhoto(false);
-                }
-              }}>{savingPhoto ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>
-              <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>
-              <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
-                void removePhoto(person.id);
-                if (before) offerUndo('Photo removed', () => void putPhoto(before));
-              })}>Remove photo</button>
-            </div>
-          )}
-          {!photo && <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>}
         </div>
       </div>
       <input ref={restorePhotoInput} type="file" accept=".zip,application/zip" hidden onChange={async (event) => {
@@ -131,25 +125,25 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         <button type="button" className="text-link" onClick={() => nav.go({ name: 'date', personId: person.id })}>Add a date</button>
       </div>
       {(person.birthday || (person.dates ?? []).length > 0) && (
-        <section className="card">
+        <ul className="rows">
           {person.birthday && birthdayNext && (
-            <div className="list-row philia-date">
-              <span className="list-row__text"><span>Birthday</span><small>{dateText(person.birthday)}{yearOf(person.birthday) ? ` · ${turningText({ label: 'Birthday', turning: Number(birthdayNext.slice(0, 4)) - yearOf(person.birthday)! })}` : ''}</small></span>
-              <span className="list-row__aside">{whenText(birthdayNext, today)}</span>
-            </div>
+            <li className="row philia-date">
+              <span className="row__text"><span>Birthday</span><span className="row__detail">{dateText(person.birthday)}{yearOf(person.birthday) ? ` · ${turningText({ label: 'Birthday', turning: Number(birthdayNext.slice(0, 4)) - yearOf(person.birthday)! })}` : ''}</span></span>
+              <span className="coming-up__when">{whenText(birthdayNext, today)}</span>
+            </li>
           )}
           {(person.dates ?? [])
             .filter((each) => !each.once || each.date >= today)
             .map((each) => {
               const next = each.once ? each.date : nextOccurrence(each.date, today);
               return (
-                <div key={each.id} className="list-row philia-date">
-                  <span className="list-row__text"><span>{each.label}</span><small>{[dateText(each.date), each.once ? timeText(each.time) : 'Every year'].filter(Boolean).join(' · ')}</small></span>
-                  <span className="list-row__aside">{whenText(next, today)}</span>
-                </div>
+                <li key={each.id} className="row philia-date">
+                  <span className="row__text"><span>{each.label}</span><span className="row__detail">{[dateText(each.date), each.once ? timeText(each.time) : 'Every year'].filter(Boolean).join(' · ')}</span></span>
+                  <span className="coming-up__when">{whenText(next, today)}</span>
+                </li>
               );
             })}
-        </section>
+        </ul>
       )}
 
       <Section title="Keep in touch">
@@ -190,8 +184,9 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
         )}
       </Section>
 
-      <Section title="Remember">
-        {person.notes.length > 0 && (
+      <AddSection
+        title="Remember"
+        list={person.notes.length > 0 && (
           <ul className="notes-list">
             {person.notes.map((note) => (
               <li key={note.id} className="note-line">
@@ -201,11 +196,12 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             ))}
           </ul>
         )}
-        <AddLine label="Note" onAdd={(text) => change({ notes: [...person.notes, { id: newId(), text, at: at() }] })} />
-      </Section>
+        add={(done) => <AddLine focus label="Note" onAdd={(text) => { change({ notes: [...person.notes, { id: newId(), text, at: at() }] }); done(); }} />}
+      />
 
-      <Section title="Gift ideas">
-        {person.gifts.length > 0 && (
+      <AddSection
+        title="Gift ideas"
+        list={person.gifts.length > 0 && (
           <ul className="notes-list">
             {person.gifts.map((gift) => (
               <li key={gift.id} className="note-line philia-gift">
@@ -229,10 +225,12 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             ))}
           </ul>
         )}
-        <AddLine label="Gift idea" onAdd={(text) => change({ gifts: [...person.gifts, { id: newId(), text, at: at() }] })} />
-      </Section>
+        add={(done) => <AddLine focus label="Gift idea" onAdd={(text) => { change({ gifts: [...person.gifts, { id: newId(), text, at: at() }] }); done(); }} />}
+      />
 
-      <Section title="Together and in touch">
+      <AddSection
+        title="Together and in touch"
+        list={<>
         {history.length > 0 && (
           <ul className="notes-list">
             {history.slice(0, showAll ? undefined : 8).map((entry) => (
@@ -253,15 +251,48 @@ export default function PersonPage({ nav, id }: { nav: PhiliaNav; id: string }) 
             All {history.length}
           </button>
         )}
+        </>}
+        add={(done) => (
+          <>
         <input className="input" type="date" aria-label="Day" value={timeDate} max={today} onChange={(event) => setTimeDate(event.target.value || today)} />
         <AddLine
-          label="What you did"
+            focus
+            label="What you did"
           onAdd={(text) => {
             const latest = [person.lastInTouch?.slice(0, 10), timeDate].filter(Boolean).sort().pop();
             change({ times: [...person.times, { id: newId(), date: timeDate, text }], lastInTouch: latest });
+            done();
           }}
         />
-      </Section>
+          </>
+        )}
+      />
+
+      <MoreDetails label="Photo">
+        <div className="chip-row">
+          {photo && (
+            <button type="button" className="text-link" disabled={savingPhoto} onClick={async () => {
+              setSavingPhoto(true);
+              try {
+                const saved = await photoFor(person.id);
+                if (saved) downloadZip(`philia-${archiveName(person.name)}-photo-${new Date().toISOString().slice(0, 10)}`, [
+                  { path: 'manifest.json', data: JSON.stringify({ app: 'philia', personId: person.id, person: person.name, exportedAt: new Date().toISOString(), photo: { type: saved.type, at: saved.at } }) },
+                  { path: `photo.${saved.type.split('/')[1] || 'jpg'}`, data: saved.data },
+                ]);
+              } finally {
+                setSavingPhoto(false);
+              }
+            }}>{savingPhoto ? <Waiting>Saving…</Waiting> : 'Save a copy'}</button>
+          )}
+          <button type="button" className="text-link" disabled={restoringPhoto} onClick={() => restorePhotoInput.current?.click()}>{restoringPhoto ? 'Restoring…' : 'Restore a copy'}</button>
+          {photo && (
+            <button type="button" className="text-link person-photo__remove" onClick={() => void photoFor(person.id).then((before) => {
+              void removePhoto(person.id);
+              if (before) offerUndo('Photo removed', () => void putPhoto(before));
+            })}>Remove photo</button>
+          )}
+        </div>
+      </MoreDetails>
 
       <button
         type="button"

@@ -1362,6 +1362,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   Days ahead lines until their day; the edit form keeps and changes them. Events with a time are entries (an hour) on
   Today's timeline and in Days ahead's calendar (`app/calendars/philiaCalendar.ts`, beside Poreia's; not in the published
   calendar), count as busy for open time and the training offers, and leave the quiet lines (`birthdaysOn` skips them).
+- Philia look (review pass): Home's Coming up is one grouped list (`.rows.coming-up`, the day at the row's end in the accent), Keep in touch rows carry a small round check (`.person-touch__mark`, the pull still works), no card per date. A person's Dates are grouped rows; Remember, Gift ideas and Together and in touch show only their title and an Add link until chosen (`AddSection`, `AddLine focus`); the photo's Save a copy, Restore a copy and Remove fold under "Photo" (`MoreDetails`). More's Reminders have visible labels (Birthdays and dates lead, Time shown while either switch is on) and a line saying people are not shared with the household (notes and gift ideas stay private on purpose).
 - Ergon (`core/chores.ts`, tests): chores repeat every N days or weeks from when last done, on days of the
   week, monthly (31 = last day) or once; a day that came stays "Since Tue" until done or skipped (never
   late); done late comes round one interval later; take turns (`rota`, passes on each time); Ideas chips;

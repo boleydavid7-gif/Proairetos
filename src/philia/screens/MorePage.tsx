@@ -55,6 +55,7 @@ export default function MorePage({ nav }: { nav: PhiliaNav }) {
     <div className="page philia-page">
       <div className="page-top"><h1 className="title">More</h1></div>
       <AccountCard app="Philia" what="Your people" waiting="People" />
+      <p className="muted">Not shared with your household.</p>
 
       {waiting.length > 0 && (
         <section className="card">
@@ -71,16 +72,21 @@ export default function MorePage({ nav }: { nav: PhiliaNav }) {
       <p className="ll-section-label">Reminders</p>
       <section className="card switches">
         <Switch on={current.notices.dates} label="Birthdays and dates" onToggle={() => notice({ dates: !current.notices.dates })} />
-        {current.notices.dates && (
-          <select className="input" aria-label="When" value={current.notices.dateLead} onChange={(event) => notice({ dateLead: Number(event.target.value) })}>
-            {LEADS.map((lead) => <option key={lead.days} value={lead.days}>{lead.label}</option>)}
-          </select>
-        )}
         <Switch on={current.notices.inTouch} label="Keep in touch" onToggle={() => notice({ inTouch: !current.notices.inTouch })} />
-        <label className="field philia-at">
-          <span className="field__label">At</span>
-          <input className="input" type="time" value={current.notices.at} onChange={(event) => event.target.value && notice({ at: event.target.value })} />
-        </label>
+        {current.notices.dates && (
+          <label className="field">
+            <span className="field__label">Birthdays and dates</span>
+            <select className="input" value={current.notices.dateLead} onChange={(event) => notice({ dateLead: Number(event.target.value) })}>
+              {LEADS.map((lead) => <option key={lead.days} value={lead.days}>{lead.label}</option>)}
+            </select>
+          </label>
+        )}
+        {(current.notices.dates || current.notices.inTouch) && (
+          <label className="field philia-at">
+            <span className="field__label">Time</span>
+            <input className="input" type="time" value={current.notices.at} onChange={(event) => event.target.value && notice({ at: event.target.value })} />
+          </label>
+        )}
       </section>
 
       <ul className="rows">
