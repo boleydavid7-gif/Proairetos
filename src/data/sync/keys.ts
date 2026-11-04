@@ -23,7 +23,7 @@ function toBase64(bytes: Uint8Array): string {
 const fromBase64 = (text: string): Uint8Array<ArrayBuffer> => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
 
 export interface WrappedKey {
-  method: 'passphrase' | 'recovery' | 'passkey';
+  method: 'password' | 'passphrase' | 'recovery' | 'passkey';
   salt: string;
   iterations?: number;
   iv: string;
@@ -100,9 +100,11 @@ async function unwrap(envelope: WrappedKey, wrapping: CryptoKey, extractable = f
     );
   } catch {
     throw new KeyError(
-      envelope.method === 'passphrase'
-        ? 'That passphrase does not unlock your data.'
-        : envelope.method === 'passkey'
+      envelope.method === 'password'
+        ? 'That account password does not unlock your data.'
+        : envelope.method === 'passphrase'
+          ? 'That legacy passphrase does not unlock your data.'
+          : envelope.method === 'passkey'
           ? 'That passkey does not open your data. Use your passphrase.'
           : 'That recovery key does not unlock your data.',
     );
@@ -110,6 +112,41 @@ async function unwrap(envelope: WrappedKey, wrapping: CryptoKey, extractable = f
 }
 
 export const MIN_PASSPHRASE_LENGTH = 10;
+export const MIN_ACCOUNT_PASSWORD_LENGTH = 10;
+
+export type PasswordKeySetup = {
+  dataKey: CryptoKey;
+  passwordWrap: WrappedKey;
+  recoveryWrap: WrappedKey;
+  recoveryKey: string;
+};
+
+/** New accounts: wrap the random data key with the account password and recovery key. */
+export async function createKeysWithPassword(password: string): Promise<PasswordKeySetup> {
+  if (password.length < MIN_ACCOUNT_PASSWORD_LENGTH) {
+    throw new KeyError(`Use at least ${MIN_ACCOUNT_PASSWORD_LENGTH} characters for your account password.`);
+  }
+  const extractable = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']);
+  const passwordSalt = crypto.getRandomValues(new Uint8Array(16));
+  const recoverySalt = crypto.getRandomValues(new Uint8Array(16));
+  const recovery = crypto.getRandomValues(new Uint8Array(RECOVERY_BYTES));
+  const passwordWrap = await wrap(extractable, await passphraseKey(password, passwordSalt, PBKDF2_ITERATIONS), 'password', passwordSalt, PBKDF2_ITERATIONS);
+  const recoveryWrap = await wrap(extractable, await recoveryWrappingKey(recovery, recoverySalt), 'recovery', recoverySalt);
+  const dataKey = await unwrap(passwordWrap, await passphraseKey(password, passwordSalt, PBKDF2_ITERATIONS));
+  return { dataKey, passwordWrap, recoveryWrap, recoveryKey: encodeRecovery(recovery) };
+}
+
+export async function unlockWithPassword(envelope: WrappedKey, password: string, extractable = false): Promise<CryptoKey> {
+  return unwrap(envelope, await passphraseKey(password, fromBase64(envelope.salt), envelope.iterations ?? PBKDF2_ITERATIONS), extractable);
+}
+
+export async function rewrapWithPassword(dataKey: CryptoKey, password: string): Promise<WrappedKey> {
+  if (password.length < MIN_ACCOUNT_PASSWORD_LENGTH) {
+    throw new KeyError(`Use at least ${MIN_ACCOUNT_PASSWORD_LENGTH} characters for your account password.`);
+  }
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  return wrap(dataKey, await passphraseKey(password, salt, PBKDF2_ITERATIONS), 'password', salt, PBKDF2_ITERATIONS);
+}
 
 export type KeySetup = {
   dataKey: CryptoKey;
