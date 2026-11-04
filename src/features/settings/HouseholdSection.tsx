@@ -349,7 +349,6 @@ export default function HouseholdSection({ onOpenAccount }: { onOpenAccount: () 
         <section className="settings-card household__sharing-note">
           <strong>What stays private</strong>
           <p>Personal to-dos, calendar events, reflections, Compass, finances and imported health records are not included in these shares. The Medicines list above is separate and only shared when enabled.</p>
-          <p>The person who enables a category manages its switch. Turning it off blocks other household members on their next server sync; copies already downloaded to another device cannot be recalled.</p>
         </section>
       </section>
 
