@@ -435,9 +435,10 @@ export async function removeHouseholdMember(targetUserId: string): Promise<void>
     throw new Error(error.message);
   }
   if (data !== true) throw new Error('The member could not be removed.');
-  // The server removes the encrypted member-profile row in the same transaction as membership.
-  // Refresh the household index from that authoritative copy; do not enqueue a client-side tombstone
-  // that could race with the server-side removal or be left pending offline.
+  // Clear any older queued profile write on this device and persist a tombstone for this member.
+  // Household sync can have an in-flight/queued encrypted profile upsert; without replacing that queued
+  // write, the next refresh can recreate the row immediately after the server-side delete.
+  households.changeItem(list, memberId(targetUserId), null);
   await households.refreshList(list);
   if (membersOf(households.sharedItems(list)).some((member) => member.id === memberId(targetUserId))) {
     throw new Error('The person no longer has household access, but their profile is still listed. Refresh the household and try again.');
