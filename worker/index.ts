@@ -17,8 +17,9 @@ import { handleHealthRequest } from './health';
 import { handleWaitlistRequest } from './waitlist';
 import { handleStoreRequest, type StoreEnv } from './store';
 import { handleTripEmail, type IncomingEmail } from './tripMail';
+import { sendHouseholdInviteEmail, type HouseholdInviteEmailEnv } from './householdInviteEmail';
 
-type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv & ReceiptEnv & FirstWeekEnv;
+type Env = { ASSETS: { fetch: (request: Request) => Promise<Response> }; PLANTNET_KEY?: string; TICKETMASTER_KEY?: string; LITEAPI_KEY?: string; DUFFEL_KEY?: string; AERODATABOX_KEY?: string; GOOGLE_PLACES_KEY?: string } & StorageEnv & StravaEnv & CaptureEnv & StoreEnv & RecipeIdeasEnv & ReceiptEnv & FirstWeekEnv & HouseholdInviteEmailEnv;
 
 /** The phone apps load their pages from the device, so they ask this Worker from another origin. */
 export const NATIVE_ORIGINS = new Set(['capacitor://localhost', 'ionic://localhost', 'https://localhost', 'http://localhost']);
@@ -73,6 +74,7 @@ async function route(request: Request, env: Env, url: URL): Promise<Response> {
     return handleRecipeIdeasRequest(request, env);
   }
   if (url.pathname === '/api/receipt') return handleReceiptRequest(request, env);
+  if (url.pathname === '/api/household/invite-email') return sendHouseholdInviteEmail(request, env);
   if (url.pathname === '/api/emails/stop') return handleEmailStop(request, env);
   if (url.pathname === '/api/speculation-rules') return speculationResponse();
   // Bring your own storage: which providers are set up, and the sign-in step that needs their secrets.
