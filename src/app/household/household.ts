@@ -48,7 +48,7 @@ export const offered = (app: HouseholdApp) => app === 'proairetos' || isAdded(ap
 
 export const household = (): SharedListRef | undefined => households.sharedLists()[0];
 
-/** The signed-in member behind an app action, only when that app is shared with this household. */
+/** The signed-in member for an app action, only when that app is shared with this household. */
 export function householdActor(app: HouseholdApp): { id?: string; name: string } | undefined {
   const list = household();
   if (!list) return undefined;
