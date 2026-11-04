@@ -45,7 +45,7 @@ function SignIn() {
   const [again, setAgain] = useState('');
   const [code, setCode] = useState('');
   const [stage, setStage] = useState<'choice' | 'verify' | 'password'>('choice');
-  const [mode, setMode] = useState<'signin' | 'create'>('signin');
+  const [mode, setMode] = useState<'signin' | 'create' | 'code'>('signin');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -63,7 +63,7 @@ function SignIn() {
   if (stage === 'verify') return (
     <form className="stack-tight" onSubmit={(event: FormEvent) => {
       event.preventDefault();
-      void run(async () => { await confirmCode(email, code); setStage('password'); });
+      void run(async () => { await confirmCode(email, code); setStage(mode === 'create' ? 'password' : 'choice'); });
     }}>
       <p className="section-description">Enter the confirmation code sent to {email}.</p>
       <input className="field-input" autoComplete="one-time-code" aria-label="Email confirmation code" placeholder="Confirmation code" value={code} onChange={(event) => setCode(event.target.value)} />
@@ -104,10 +104,12 @@ function SignIn() {
       }}>
         <input type="email" className="field-input" autoComplete="email" aria-label="Email" placeholder="Email address" value={email} onChange={(event) => setEmail(event.target.value)} />
         {mode === 'signin' && <input type="password" className="field-input" autoComplete="current-password" aria-label="Password" placeholder="Password" value={password} onChange={(event) => setPassword(event.target.value)} />}
-        <button type="submit" className="button-accent account-wide" disabled={busy || !email.includes('@') || (mode === 'signin' && !password)}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : 'Confirm email'}</button>
+        <button type="submit" className="button-accent account-wide" disabled={busy || !email.includes('@') || (mode === 'signin' && !password)}>{busy ? 'Please wait…' : mode === 'signin' ? 'Sign in' : mode === 'create' ? 'Continue' : 'Send sign-in code'}</button>
       </form>
       <div className="chip-row">
         <button type="button" className="text-link" onClick={() => { setMode(mode === 'signin' ? 'create' : 'signin'); setError(''); }}>{mode === 'signin' ? 'Create an account' : 'Already have an account? Sign in'}</button>
+        {mode === 'signin' && <button type="button" className="text-link" onClick={() => setMode('code')}>Sign in with an email code</button>}
+        {mode === 'code' && <button type="button" className="text-link" onClick={() => setMode('signin')}>Use password instead</button>}
         {mode === 'signin' && <button type="button" className="text-link" onClick={() => void run(async () => { await requestPasswordReset(email); setNotice('Password reset email sent.'); })}>Forgot password?</button>}
       </div>
       {signInProviders.length > 0 && <details className="sheet__more"><summary>Other ways to sign in</summary><div className="sheet__more-body"><ProviderButtons className="chip account-wide" /></div></details>}
