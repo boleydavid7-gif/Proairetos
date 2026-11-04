@@ -5,7 +5,7 @@ import { navigation } from './navigation';
 import { storageMode } from './services';
 import type { AppRoute } from './routes/routeTypes';
 import PwaStatus from './pwa/PwaStatus';
-import { SearchIcon, GearIcon, BookIcon, StarIcon } from '../components/icons/Icons';
+import { SearchIcon, GearIcon, BookIcon } from '../components/icons/Icons';
 
 type AppShellProps = {
   route: AppRoute;
@@ -68,7 +68,6 @@ export default function AppShell({ route, onNavigate, children }: AppShellProps)
         <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
         <a className="tab-bar__item tab-bar__resource" href="/?open=connections"><BookIcon size={22} /><span>Library</span></a>
         <a className="tab-bar__item tab-bar__resource" href="/?open=account"><GearIcon size={22} /><span>Settings</span></a>
-        <a className="tab-bar__item tab-bar__resource" href="/?open=account"><StarIcon size={22} /><span>Profile</span></a>
         <AppsTab />
       </nav>
     </div>

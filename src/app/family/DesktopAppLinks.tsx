@@ -17,7 +17,6 @@ export default function DesktopAppLinks() {
       </div>
       <span className="tab-bar__section-label tab-bar__resources-label">Resources</span>
       <a className="tab-bar__pinned-app" href="/?open=account"><Sym name="gear" size={21} /><span>Settings</span></a>
-      <a className="tab-bar__pinned-app" href="/?open=account"><Sym name="more" size={21} /><span>Profile</span></a>
     </>
   );
 }
