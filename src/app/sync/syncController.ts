@@ -472,6 +472,37 @@ export async function requestPasswordReset(email: string): Promise<void> {
   await sendPasswordRecovery(email.trim());
 }
 
+/**
+ * Re-wraps the existing account data key with the account password.
+ * The current encryption secret proves access to the existing key; synced records are never re-encrypted.
+ */
+export async function linkAccountPasswordToEncryption(
+  accountPassword: string,
+  currentSecret: string,
+  method: 'passphrase' | 'recovery',
+): Promise<void> {
+  if (!userId) throw new Error('Sign in before updating encryption.');
+  if (accountPassword.length < 10) throw new Error('Use at least 10 characters for your account password.');
+  const wrapped = await fetchWrappedKeys();
+  if (!wrapped) throw new KeyError('This account has no encryption keys yet. Set up encrypted sync first.');
+  const key = method === 'passphrase'
+    ? await unlockWithPassphrase(passphraseOf(wrapped), currentSecret, true)
+    : await unlockWithRecoveryKey(wrapped.recovery, currentSecret, true);
+  const nextWrap = await rewrapWithPassphrase(key, accountPassword);
+  await savePassphraseWrap(userId, nextWrap);
+  const localKey = await crypto.subtle.importKey(
+    'raw',
+    await crypto.subtle.exportKey('raw', key),
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt'],
+  );
+  await (await localState())!.setMeta(KEY_META, localKey);
+  dataKey = localKey;
+  set({ phase: 'ready', error: undefined });
+  tellFamily('account');
+}
+
 // ---------- Account steps ----------
 
 export async function requestCode(email: string): Promise<void> {
