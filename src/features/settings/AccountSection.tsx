@@ -497,6 +497,50 @@ function LinkAccountPassword() {
   );
 }
 
+
+/** Session controls. Supabase's client API does not enumerate all account sessions, so this view
+ * deliberately identifies only this browser and offers account-wide revocation. */
+function DeviceSessions() {
+  const [expanded, setExpanded] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const deviceLabel = typeof navigator !== 'undefined'
+    ? /iPhone|iPad/.test(navigator.userAgent) ? 'Apple device' : /Android/.test(navigator.userAgent) ? 'Android device' : /Windows/.test(navigator.userAgent) ? 'Windows device' : /Mac OS/.test(navigator.userAgent) ? 'Mac device' : 'This browser'
+    : 'This device';
+
+  return (
+    <section className="settings-sub">
+      <button type="button" className="text-link" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)}>
+        {expanded ? 'Hide devices & sessions' : 'Devices & sessions'}
+      </button>
+      {expanded && (
+        <div className="stack-tight">
+          <p className="sheet__label">Currently using</p>
+          <p className="section-description">{deviceLabel} · This session</p>
+          <p className="section-description">For security, Proairetos can revoke all refreshable sign-in sessions at once. A complete per-device session list and individual device revocation require a server-side device registry and are not available yet.</p>
+          {!confirming ? (
+            <button type="button" className="text-link" onClick={() => setConfirming(true)}>Sign out everywhere…</button>
+          ) : (
+            <>
+              <p className="section-description">This signs this device and your other signed-in devices out. You will need to sign in again.</p>
+              <div className="chip-row">
+                <button type="button" className="button-quiet" onClick={() => setConfirming(false)}>Cancel</button>
+                <button type="button" className="chip" disabled={busy} onClick={async () => {
+                  setBusy(true); setError('');
+                  try { await signOut(); }
+                  catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not revoke sessions.'); setBusy(false); }
+                }}>{busy ? 'Signing out…' : 'Sign out everywhere'}</button>
+              </div>
+            </>
+          )}
+          {error && <p className="form-error" role="alert">{error}</p>}
+        </div>
+      )}
+    </section>
+  );
+}
+
 function Ready() {
   const status = useSyncStatus();
   const [confirmingSignOut, setConfirmingSignOut] = useState(false);
@@ -525,6 +569,7 @@ function Ready() {
       {status.error && <p className="form-error" role="alert">{status.error}</p>}
       <Passkeys />
       <SignInAnotherApp />
+      <DeviceSessions />
 
       <details className="sheet__more account-more">
         <summary>More</summary>
