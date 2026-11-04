@@ -18,7 +18,8 @@ const OWNED_KEY = 'proairetosOwned';
 type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: number; currency: string };
 
 export type PurchaseItem = 'core' | 'soma' | 'phyton' | 'bundle' | 'cloud';
-export const CORE_APPS = ['askesis', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'mneme', 'praxis'] as const;
+// Praxis is retained as a compatibility route into Theoria's Pomodoro, but is no longer a purchasable or addable app.
+export const CORE_APPS = ['askesis', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'mneme'] as const;
 
 const listeners = new Set<() => void>();
 const changed = () => listeners.forEach((listener) => listener());
@@ -129,6 +130,7 @@ export async function refreshOwned(): Promise<string[]> {
     const { data, error } = await client.from('purchases').select('app, active, current_period_end');
     // Without the table (migration not run yet), what was bought stays as known.
     const now = Date.now();
+    const previous = readJson<Owned>(OWNED_KEY);
     const wasTester = isTester();
     const apps = error
       ? ownedApps()
@@ -136,7 +138,8 @@ export async function refreshOwned(): Promise<string[]> {
           .filter((row) => (row as { active?: boolean }).active !== false && (!(row as { current_period_end?: string }).current_period_end || Date.parse(String((row as { current_period_end: string }).current_period_end)) > now))
           .map((row) => String((row as { app: string }).app));
     writeJson(OWNED_KEY, { apps, tester: access.tester, betaExpiresAt: access.expiresAt, owner: access.owner, trialUntil: access.trialUntil, account: true });
-    if (wasTester && !access.tester && !access.owner) {
+    const trialExpired = Boolean(previous?.trialUntil && Date.parse(previous.trialUntil) <= now && !access.trialUntil && !access.tester && !access.owner);
+    if ((wasTester && !access.tester && !access.owner) || trialExpired) {
       void import('./added').then(({ clearAddedApps }) => clearAddedApps()).catch(() => undefined);
     }
     return apps;

@@ -127,6 +127,7 @@ let accountPasswordForKeySetup: string | null = null;
 // Persist the email-confirmation/password-creation step across the account-switch
 // reload in resolvePhase(). This marker contains no credential or secret.
 const ACCOUNT_PASSWORD_SETUP_PENDING = 'proairetos.accountPasswordSetupPending';
+const ACCOUNT_PASSWORD_READY_FOR_SETUP = 'proairetos.accountPasswordReadyForSetup';
 
 function readAccountPasswordSetupPending(): boolean {
   try { return sessionStorage.getItem(ACCOUNT_PASSWORD_SETUP_PENDING) === '1'; }
@@ -138,6 +139,26 @@ function writeAccountPasswordSetupPending(pending: boolean): void {
     if (pending) sessionStorage.setItem(ACCOUNT_PASSWORD_SETUP_PENDING, '1');
     else sessionStorage.removeItem(ACCOUNT_PASSWORD_SETUP_PENDING);
   } catch { /* The flow still works in memory when session storage is unavailable. */ }
+}
+
+function readAccountPasswordReadyForSetup(): boolean {
+  try { return sessionStorage.getItem(ACCOUNT_PASSWORD_READY_FOR_SETUP) === '1'; }
+  catch { return false; }
+}
+
+function writeAccountPasswordReadyForSetup(ready: boolean): void {
+  try {
+    if (ready) sessionStorage.setItem(ACCOUNT_PASSWORD_READY_FOR_SETUP, '1');
+    else sessionStorage.removeItem(ACCOUNT_PASSWORD_READY_FOR_SETUP);
+  } catch { /* The flow still works in memory when session storage is unavailable. */ }
+}
+
+export function isAccountPasswordReadyForSetup(): boolean {
+  return Boolean(accountPasswordForKeySetup) || readAccountPasswordReadyForSetup();
+}
+
+export function clearAccountPasswordReadyForSetup(): void {
+  writeAccountPasswordReadyForSetup(false);
 }
 
 let accountPasswordSetupPending = readAccountPasswordSetupPending();
@@ -170,6 +191,26 @@ let passkeyToFinish: { credentialId: string; secret: Uint8Array<ArrayBuffer> } |
 function set(changes: Partial<SyncStatus>) {
   status = { ...status, ...changes };
   listeners.notify();
+}
+
+async function handleDeviceRegistrationError(cause: unknown): Promise<void> {
+  const reason = cause instanceof Error ? cause.message : 'Could not update this device.';
+  if (!reason.includes('device was revoked')) {
+    set({ phase: status.phase, email: status.email, error: reason });
+    return;
+  }
+  // A revoked device must stop syncing immediately. Clearing the local key also
+  // prevents a queued write from being sent after the next visibility change.
+  await (await supabase()).auth.signOut({ scope: 'local' }).catch(() => undefined);
+  const local = await localState();
+  await local?.clear().catch(() => undefined);
+  dataKey = null;
+  accountPasswordForKeySetup = null;
+  accountPasswordSetupPending = false;
+  writeAccountPasswordSetupPending(false);
+  writeAccountPasswordReadyForSetup(false);
+  userId = null;
+  set({ phase: 'signed-out', email: undefined, target: undefined, error: reason, lastSyncedAt: undefined });
 }
 
 function pushSupported(): boolean {
@@ -221,9 +262,8 @@ async function resolvePhase(): Promise<void> {
   } catch (cause) {
     const reason = cause instanceof Error ? cause.message : 'This device could not be registered.';
     if (reason.includes('device was revoked')) {
-      await (await supabase()).auth.signOut({ scope: 'local' }).catch(() => undefined);
-      userId = null;
-      return set({ phase: 'signed-out', email: undefined, target: undefined, error: reason });
+      await handleDeviceRegistrationError(cause);
+      return;
     }
     set({ phase: status.phase, email: user.email, error: reason });
   }
@@ -498,13 +538,11 @@ export async function startSync(): Promise<void> {
   });
   window.setInterval(() => {
     if (document.visibilityState !== 'visible') return;
-    void registerAccountDevice().catch((cause) => set({ phase: status.phase, email: status.email, error: cause instanceof Error ? cause.message : 'Could not update this device.' }));
-    void syncNow();
+    void registerAccountDevice().then(() => syncNow()).catch((cause) => void handleDeviceRegistrationError(cause));
   }, AUTO_SYNC_MS);
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState !== 'visible') return;
-    void registerAccountDevice().catch(() => undefined);
-    void syncNow();
+    void registerAccountDevice().then(() => syncNow()).catch((cause) => void handleDeviceRegistrationError(cause));
   });
   window.addEventListener('online', () => void syncNow());
 }
@@ -546,6 +584,7 @@ export async function signInWithEmailPassword(email: string, password: string): 
 export async function saveAccountPassword(password: string): Promise<void> {
   await setAccountPassword(password);
   accountPasswordForKeySetup = password;
+  writeAccountPasswordReadyForSetup(true);
   accountPasswordSetupPending = false;
   writeAccountPasswordSetupPending(false);
 }
@@ -637,7 +676,7 @@ export async function confirmCode(email: string, codeOrLink: string, creatingAcc
 
 /** The passphrase's wrap, or a plain word when the account was set up with a passkey and has none. */
 function passphraseOf(wrapped: { passphrase: WrappedKey | null }): WrappedKey {
-  if (!wrapped.passphrase) throw new KeyError('This account has no passphrase. Open it with your passkey or your recovery key.');
+  if (!wrapped.passphrase) throw new KeyError('This account has no account-password key yet. Open it with your passkey or recovery key once.');
   return wrapped.passphrase;
 }
 
@@ -706,6 +745,7 @@ export async function finishSetupWithPasskey(): Promise<void> {
   await savePasskeyMade(setupPasskey.wrap);
   const key = setupKeys.dataKey;
   setupKeys = null;
+  writeAccountPasswordReadyForSetup(false);
   await keepKey(key);
 }
 
@@ -734,6 +774,7 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
   }
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
   dataKey = setup.dataKey;
+  writeAccountPasswordReadyForSetup(false);
   set({ phase: 'ready' });
   tellFamily('account');
   await syncNow();
@@ -941,7 +982,7 @@ export async function addPasskey(exclude: readonly string[]): Promise<{ opens: b
  */
 export async function letPasskeyOpen(credentialId: string): Promise<boolean> {
   const key = passkeyKey ?? (await (await localState())?.getMeta<CryptoKey>(HANDOFF_META));
-  if (!key) throw new Error('Enter your passphrase first.');
+  if (!key) throw new Error('Enter your account password first.');
   const used = await askForPasskey({ allow: [credentialId] });
   if (!used.secret) return false;
   await savePasskeyWrap(credentialId, await wrapWithPasskey(key, used.secret));
@@ -1019,7 +1060,7 @@ export async function openingPasskeys(): Promise<PasskeyRow[]> {
 export async function openDataWithPasskey(rows: readonly PasskeyRow[]): Promise<void> {
   const used = await askForPasskey({ allow: rows.map((row) => row.credential_id) });
   const row = rows.find((each) => each.credential_id === used.credentialId);
-  if (!row?.wrap || !used.secret) throw new Error('This passkey cannot open your data on this device. Use your passphrase.');
+  if (!row?.wrap || !used.secret) throw new Error('This passkey cannot open your data on this device. Use your account password or recovery key.');
   await keepKey(await unlockWithPasskey(row.wrap, used.secret));
 }
 
@@ -1030,6 +1071,9 @@ export async function signOut(): Promise<void> {
   await (await localState())?.clear();
   dataKey = null;
   accountPasswordForKeySetup = null;
+  accountPasswordSetupPending = false;
+  writeAccountPasswordSetupPending(false);
+  writeAccountPasswordReadyForSetup(false);
   passkeyKey = null;
   passkeyToFinish = null;
   userId = null;

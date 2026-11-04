@@ -5,8 +5,8 @@ import { signInWith } from '../sync/syncController';
 const NAMES: Record<SignInProvider, string> = { google: 'Google', apple: 'Apple' };
 
 /**
- * "Continue with Google / Apple", shown only for the services turned on for this site. Your passphrase still
- * unlocks your data afterwards: the sign-in proves who you are, the passphrase is what reads your things.
+ * "Continue with Google / Apple", shown only for the services turned on for this site. Your account password still
+ * unlocks your data afterwards: the sign-in proves who you are, the password is what reads your things.
  */
 export function ProviderButtons({ className }: { className: string }) {
   const [error, setError] = useState('');

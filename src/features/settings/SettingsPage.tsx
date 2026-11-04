@@ -1076,7 +1076,7 @@ function LockSection() {
         aria-label="Lock Reflect"
         onSubmit={async (event) => {
           event.preventDefault();
-          if (code !== again) return setMessage('The passphrases don’t match.');
+          if (code !== again) return setMessage('The passcodes don’t match.');
           try {
             await lock.turnOn(code);
             setCode('');
@@ -1361,7 +1361,7 @@ export default function SettingsPage() {
     {
       label: 'Account and data',
       entries: [
-        { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey passphrase storage google drive dropbox onedrive' },
+        { id: 'account', icon: <CloudIcon size={18} />, tone: 'blue', title: 'Account and sync', value: syncLabel(status.phase), onClick: () => setView('account'), words: 'sign in email devices recovery key passkey password storage google drive dropbox onedrive' },
         { id: 'privacy', icon: <ShieldIcon size={18} />, tone: 'gray', title: 'Privacy and lock', value: lock.isOn() ? 'Locked' : undefined, onClick: () => setView('privacy'), words: 'passcode pin journal reflect lock privacy server encrypted data services' },
         {
           id: 'backup',

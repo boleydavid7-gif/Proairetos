@@ -1,8 +1,8 @@
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { changePassphrase, hasPassphrase, passkeysAvailable, requestCode, signInWithEmailPassword, unlockWithAccountPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
+import { hasPassphrase, linkAccountPasswordToEncryption, passkeysAvailable, requestCode, signInWithEmailPassword, unlockWithAccountPassword, syncNow, syncStatus, unlock } from '../sync/syncController';
 import { storageName } from '../sync/ownStorage';
 import { MakePasskeyNow, PasskeyOpen, PasskeySignIn, useOpeningPasskeys, usePasskeyAutofill } from './Passkey';
-import { MIN_PASSPHRASE_LENGTH } from '../../data/sync/keys';
+import { MIN_PASSPHRASE_LENGTH as MIN_ACCOUNT_PASSWORD_LENGTH } from '../../data/sync/keys';
 import { ProviderButtons } from './ProviderButtons';
 import { PasteFromProairetos } from './SignInPass';
 import { Waiting } from '../../lamplight/Waiting';
@@ -13,7 +13,7 @@ const message = (error: unknown) => (error instanceof Error ? error.message : 'S
  * The account is Proairetos's, shared by the family. Where the apps share
  * this browser's storage, signing in to one signs in all three. Where they
  * do not (each app added to an iPhone's Home Screen keeps its own), Askesis
- * and Soma sign in here with the same email and passphrase, and the three
+ * and Soma sign in here with the same email and password, and the three
  * meet through sync. Setting sync up the first time stays in Proairetos,
  * where the recovery key is shown.
  */
@@ -129,29 +129,22 @@ function SignIn() {
 }
 
 function Unlock() {
-  const [secret, setSecret] = useState('');
-  const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
-  const [next, setNext] = useState('');
-  const [again, setAgain] = useState('');
+  const account = useSyncExternalStore(syncStatus.subscribe, syncStatus.get);
+  const [method, setMethod] = useState<'password' | 'recovery'>('password');
+  const [password, setPassword] = useState('');
+  const [recoveryKey, setRecoveryKey] = useState('');
   const { busy, error, run } = useStep();
-  const [withPassphrase, setWithPassphrase] = useState<boolean>();
-  useEffect(() => void hasPassphrase().then(setWithPassphrase), []);
-  // A passkey that opens the data is the way in here too; the passphrase and a pass are one link away.
   const opening = useOpeningPasskeys();
   const [typing, setTyping] = useState(false);
-  const [passwordBusy, setPasswordBusy] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
-  if (opening === undefined || withPassphrase === undefined) return null;
-  const recovery = method === 'recovery' || !withPassphrase;
-  // A forgotten passphrase is replaced; an account without one simply opens with the recovery key.
-  const choosing = recovery && withPassphrase;
-  const ready = Boolean(secret) && (!choosing || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
+  const [withPasswordWrap, setWithPasswordWrap] = useState<boolean>();
+  useEffect(() => void hasPassphrase().then(setWithPasswordWrap), []);
+  if (opening === undefined || withPasswordWrap === undefined) return null;
   if (opening.length > 0 && !typing) {
     return (
       <>
         <PasskeyOpen rows={opening} className="button-main account__link" />
         <button type="button" className="button-quiet account__link" onClick={() => setTyping(true)}>
-          {withPassphrase ? 'Use my passphrase' : 'Use my recovery key'}
+          Use account password
         </button>
       </>
     );
@@ -159,52 +152,48 @@ function Unlock() {
   return (
     <>
     <div className="card account__step field">
-      <button type="button" className="button-main" disabled={passwordBusy} onClick={async () => {
-        setPasswordBusy(true); setPasswordError('');
-        try { await unlockWithAccountPassword(); }
-        catch (cause) { setPasswordError(message(cause)); }
-        finally { setPasswordBusy(false); }
-      }}>
-        {passwordBusy ? 'Unlocking…' : 'Unlock with account password'}
-      </button>
-      {passwordError && <p className="hint" role="alert">{passwordError}</p>}
     <form
       className="field"
       onSubmit={(event: FormEvent) => {
         event.preventDefault();
         void run(async () => {
-          if (choosing) await changePassphrase(secret, 'recovery', next);
-          // Without a passkey that opens the data, the next screen offers to make one.
-          await unlock(secret, recovery ? 'recovery' : 'passphrase', passkeysAvailable() && !opening.length);
+          if (method === 'password') {
+            if (!account.email) throw new Error('Sign in again before opening your data.');
+            await signInWithEmailPassword(account.email, password);
+            await unlockWithAccountPassword();
+          } else {
+            await unlock(recoveryKey, 'recovery', passkeysAvailable() && !opening.length);
+            if (password.length >= MIN_ACCOUNT_PASSWORD_LENGTH && account.email) {
+              await signInWithEmailPassword(account.email, password);
+              await linkAccountPasswordToEncryption(password, recoveryKey, 'recovery');
+            }
+          }
         });
       }}
     >
-      <span className="label">{recovery ? 'Your recovery key' : 'Your passphrase'}</span>
+      <span className="label">Account password</span>
       <input
         className="input"
-        type={recovery ? 'text' : 'password'}
-        autoComplete={recovery ? 'off' : 'current-password'}
-        aria-label={recovery ? 'Recovery key' : 'Passphrase'}
-        value={secret}
-        onChange={(event) => setSecret(event.target.value)}
+        type="password"
+        autoComplete="current-password"
+        aria-label="Account password"
+        placeholder="Account password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
       />
-      {choosing && (
+      {method === 'recovery' && (
         <>
-          <span className="label">New passphrase</span>
-          <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
-          <input className="input" type="password" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
-          {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-          {next && again && next !== again && <p className="hint">The passphrases don’t match.</p>}
+          <span className="label">Recovery key</span>
+          <input className="input" type="text" autoComplete="off" aria-label="Recovery key" placeholder="Recovery key" value={recoveryKey} onChange={(event) => setRecoveryKey(event.target.value)} />
+          {!withPasswordWrap && <p className="hint">Enter your account password above to connect it while this recovery key opens your data.</p>}
         </>
       )}
-      <button type="submit" className="button-main" disabled={!ready || busy}>
-        {busy ? <Waiting>Opening…</Waiting> : 'Open'}
+      <button type="submit" className="button-main" disabled={busy || (method === 'password' ? !password : !recoveryKey)}>
+        {busy ? <Waiting>Opening…</Waiting> : method === 'password' ? 'Unlock with account password' : 'Unlock with recovery key'}
       </button>
-      {withPassphrase && (
-        <button type="button" className="button-quiet" onClick={() => (setMethod(method === 'recovery' ? 'passphrase' : 'recovery'), setSecret(''), setNext(''), setAgain(''))}>
-          {method === 'recovery' ? 'Use my passphrase instead' : 'Forgot your passphrase?'}
-        </button>
-      )}
+      <button type="button" className="button-quiet" onClick={() => { setMethod(method === 'password' ? 'recovery' : 'password'); setRecoveryKey(''); }}>
+        {method === 'password' ? 'Use recovery key' : 'Use account password'}
+      </button>
       {error && (
         <p className="hint" role="alert">
           {error}

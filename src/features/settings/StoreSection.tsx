@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { useOverlays } from '../../app/overlays/OverlayContext';
-import { addApp, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
+import { addApp, NOT_OFFERED, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
 import { buy, CORE_APPS, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase, type PurchaseItem } from '../../app/family/purchases';
 import { Waiting } from '../../lamplight/Waiting';
@@ -16,7 +16,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
   const added = useAddedApps();
   const { paid, owned, tester, owner, trialUntil, account } = usePurchases();
   const { offerUndo } = useOverlays();
-  const apps = familyApps.filter((app) => app.id !== 'proairetos');
+  const apps = familyApps.filter((app) => app.id !== 'proairetos' && !NOT_OFFERED.has(app.id as AddOn));
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<{ app: string; text: string; signIn?: boolean } | null>(null);
   const [finishing, setFinishing] = useState<string | null>(null);

@@ -20,14 +20,14 @@ const day = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined,
 
 /**
  * Passkeys, in Proairetos's account page: Face ID, a fingerprint or the device's PIN signs in and opens the data in
- * every app. Added with the passphrase once (or none, where this device keeps the copy for sign-in passes).
+ * every app. Added with the account password once (or none, where this device keeps the copy for sign-in passes).
  */
 export function Passkeys() {
   const [entries, setEntries] = useState<PasskeyEntry[]>();
   const [problem, setProblem] = useState('');
   const [oneTap, setOneTap] = useState(false);
   const [asking, setAsking] = useState(false);
-  const [passphrase, setPassphrase] = useState('');
+  const [password, setPassword] = useState('');
   const [round, setRound] = useState(0);
   // A passkey that only signs in, being given what opens the data.
   const [finishing, setFinishing] = useState<PasskeyEntry>();
@@ -162,8 +162,8 @@ export function Passkeys() {
               onSubmit={(event: FormEvent) => {
                 event.preventDefault();
                 void run(async () => {
-                  await preparePasskey(passphrase);
-                  setPassphrase('');
+                  await preparePasskey(password);
+                  setPassword('');
                   setAsking(false);
                   // The next tap makes the passkey, or asks the one being finished (Safari needs it straight after a tap).
                   if (!finishing) setRound((n) => n + 1);
@@ -174,16 +174,16 @@ export function Passkeys() {
                 className="field-input"
                 type="password"
                 autoComplete="current-password"
-                aria-label="Passphrase"
-                placeholder="Your passphrase"
-                value={passphrase}
-                onChange={(event) => setPassphrase(event.target.value)}
+                aria-label="Account password"
+                placeholder="Your account password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
               />
               <div className="chip-row">
-                <button type="button" className="button-quiet" onClick={() => (setAsking(false), setPassphrase(''), setFinishing(undefined))}>
+                <button type="button" className="button-quiet" onClick={() => (setAsking(false), setPassword(''), setFinishing(undefined))}>
                   Cancel
                 </button>
-                <button type="submit" className="chip chip--accent" disabled={!passphrase || busy}>
+                <button type="submit" className="chip chip--accent" disabled={!password || busy}>
                   {busy ? <Waiting>Checking…</Waiting> : 'Continue'}
                 </button>
               </div>

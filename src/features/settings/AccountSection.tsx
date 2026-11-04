@@ -1,6 +1,6 @@
 import { SignInAnotherApp } from '../../app/family/SignInPass';
 import { useEffect, useState, useSyncExternalStore, type FormEvent } from 'react';
-import { MIN_PASSPHRASE_LENGTH, type KeySetup } from '../../data/sync/keys';
+import { MIN_PASSPHRASE_LENGTH as MIN_ACCOUNT_PASSWORD_LENGTH, type KeySetup } from '../../data/sync/keys';
 import { PassphraseRequired, signInProviders, syncConfig } from '../../data/sync/supabase';
 import { PasskeyCancelled } from '../../data/sync/passkeys';
 import { ProviderButtons } from '../../app/family/ProviderButtons';
@@ -13,6 +13,8 @@ import {
   signInWithEmailPassword,
   saveAccountPassword,
   hasAccountPasswordForKeySetup,
+  clearAccountPasswordReadyForSetup,
+  isAccountPasswordReadyForSetup,
   unlockWithAccountPassword,
   requestPasswordReset,
   confirmEncryption,
@@ -26,9 +28,7 @@ import {
   unlock,
   listAccountDevices,
   revokeAccountDevice,
-  changePassphrase,
   linkAccountPasswordToEncryption,
-  migrateCurrentAccountPasswordToEncryption,
   continueSetupPasskey,
   finishSetupWithPasskey,
   hasPassphrase,
@@ -74,10 +74,9 @@ function SignIn() {
       event.preventDefault();
       void run(async () => {
         await confirmCode(email, code, mode === 'create');
-        // Legacy accounts were created with an email code plus an encryption
-        // passphrase, not a Supabase password. Let them establish the account
-        // password without creating a second account.
-        setStage(mode === 'create' || mode === 'code' ? 'password' : 'choice');
+        // Email confirmation establishes the account session; account creation
+        // continues immediately into the password step without a second login.
+        setStage(mode === 'create' ? 'password' : 'choice');
       });
     }}>
       <p className="section-description">Enter the confirmation code sent to {email}.</p>
@@ -96,25 +95,30 @@ function SignIn() {
         if (password !== again) throw new Error('The passwords do not match.');
         await saveAccountPassword(password);
         await refreshSyncStatus();
-        // If this is a legacy account and the person used their existing
-        // passphrase as the new account password, it opens the same data key.
-        // If they chose a different password, the normal unlock screen offers
-        // the existing passphrase once and then migrates it automatically.
+        // A new account now moves directly into encrypted-data setup. Existing
+        // accounts remain on the locked screen until their password is linked.
         if (syncStatus.get().phase === 'locked') {
           try {
             await unlockWithAccountPassword();
           } catch {
-            // Do not undo a valid account password. The locked view will offer
-            // the existing passphrase/recovery key as a one-time migration.
+            // Do not undo a valid account password. The locked view offers the
+            // recovery key for a one-time migration when needed.
           }
         }
+        const phase = syncStatus.get().phase;
         setPassword('');
         setAgain('');
-        setStage('choice');
+        // needs-setup is rendered by AccountSection immediately after the
+        // password step. Keeping the stage here would send a new account back
+        // to the sign-in form instead of showing recovery-key setup.
+        if (phase !== 'needs-setup') {
+          clearAccountPasswordReadyForSetup();
+          setStage('choice');
+        }
       });
     }}>
       <p className="section-description">
-        Set the one password you'll use across Proairetos and every app. If you already created encrypted sync with a passphrase, enter that same passphrase here. It will become your account password too, so you won't need two secrets.
+        Set the one password you'll use across Proairetos and every app. Your recovery key is the only fallback if you lose it.
       </p>
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Create password" placeholder="Create password" value={password} onChange={(event) => setPassword(event.target.value)} />
       <input type="password" className="field-input" autoComplete="new-password" aria-label="Confirm password" placeholder="Confirm password" value={again} onChange={(event) => setAgain(event.target.value)} />
@@ -171,17 +175,17 @@ function RecoveryKey({ value, busy, onSaved }: { value: string; busy: boolean; o
   );
 }
 
-/** First device: a passkey locks and opens the data; a passphrase is the way for devices without passkeys. */
+/** First device: the account password and recovery key protect encrypted data. */
 function SetUp() {
-  const [stage, setStage] = useState<'passkey' | 'continue' | 'recovery' | 'passphrase'>(() =>
-    passkeysAvailable() ? 'passkey' : 'passphrase',
+  const [stage, setStage] = useState<'passkey' | 'continue' | 'recovery' | 'password'>(() =>
+    isAccountPasswordReadyForSetup() && !hasAccountPasswordForKeySetup() ? 'password' : passkeysAvailable() ? 'passkey' : 'password',
   );
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (stage === 'passkey') void prepareKeysForPasskey().catch(() => setStage('passphrase'));
+    if (stage === 'passkey') void prepareKeysForPasskey().catch(() => setStage('password'));
   }, [stage]);
 
   async function run(action: () => Promise<void>) {
@@ -191,8 +195,8 @@ function SetUp() {
       await action();
     } catch (cause) {
       if (cause instanceof PassphraseRequired) {
-        setNote('This server still needs a passphrase. Choose one; your passkey signs you in.');
-        setStage('passphrase');
+        setNote('This account needs its password connected to encrypted data.');
+        setStage('password');
       } else if (!(cause instanceof PasskeyCancelled)) setError(message(cause));
     } finally {
       setBusy(false);
@@ -200,11 +204,11 @@ function SetUp() {
   }
 
   const noSecret = () => {
-    setNote('This device’s passkey can sign you in but cannot lock your data. Choose a passphrase for that.');
-    setStage('passphrase');
+    setNote('This device’s passkey can sign you in, but your account password is still needed to protect the data.');
+    setStage('password');
   };
 
-  if (stage === 'passphrase') return <PassphraseSetUp note={note} />;
+  if (stage === 'password') return <PasswordSetUp note={note} />;
 
   return (
     <div className="stack-tight">
@@ -224,8 +228,8 @@ function SetUp() {
           >
             {busy ? 'Making it…' : 'Create a passkey'}
           </button>
-          <button type="button" className="text-link" onClick={() => setStage('passphrase')}>
-            {hasAccountPasswordForKeySetup() ? 'Skip passkey' : 'Use a passphrase instead'}
+          <button type="button" className="text-link" onClick={() => setStage('password')}>
+            {hasAccountPasswordForKeySetup() ? 'Skip passkey' : 'Use account password instead'}
           </button>
         </>
       )}
@@ -248,9 +252,9 @@ function SetUp() {
   );
 }
 
-function PassphraseSetUp({ note }: { note: string }) {
-  const accountPasswordReady = hasAccountPasswordForKeySetup();
-  const [passphrase, setPassphrase] = useState('');
+function PasswordSetUp({ note }: { note: string }) {
+  const [accountPasswordReady, setAccountPasswordReady] = useState(() => hasAccountPasswordForKeySetup());
+  const [password, setPassword] = useState('');
   const [again, setAgain] = useState('');
   const [setup, setSetup] = useState<KeySetup | null>(null);
   const [busy, setBusy] = useState(false);
@@ -263,7 +267,7 @@ function PassphraseSetUp({ note }: { note: string }) {
   if (setup) {
     return (
       <>
-        {accountPasswordReady && <p className="section-description">Your Proairetos account password will also unlock your encrypted data. Save this recovery key somewhere safe.</p>}
+        {accountPasswordReady && <p className="section-description">Your account password unlocks your encrypted data. Save this recovery key somewhere safe.</p>}
         <RecoveryKey
           value={setup.recoveryKey}
           busy={busy}
@@ -298,7 +302,12 @@ function PassphraseSetUp({ note }: { note: string }) {
         setBusy(true);
         setError('');
         try {
-          setSetup(await prepareEncryption(passphrase));
+          if (password.length < MIN_ACCOUNT_PASSWORD_LENGTH) throw new Error(`Use at least ${MIN_ACCOUNT_PASSWORD_LENGTH} characters for your password.`);
+          if (password !== again) throw new Error('The passwords do not match.');
+          await saveAccountPassword(password);
+          setPassword('');
+          setAgain('');
+          setAccountPasswordReady(true);
         } catch (cause) {
           setError(message(cause));
         } finally {
@@ -307,10 +316,11 @@ function PassphraseSetUp({ note }: { note: string }) {
       }}
     >
       {note && <p className="section-description">{note}</p>}
-      <input type="password" className="field-input" autoComplete="new-password" aria-label="Passphrase" placeholder={`Passphrase, at least ${MIN_PASSPHRASE_LENGTH} characters`} value={passphrase} onChange={(event) => setPassphrase(event.target.value)} />
-      <input type="password" className="field-input" autoComplete="new-password" aria-label="Passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
-      <button type="submit" className="button-accent account-wide" disabled={busy || passphrase.length < MIN_PASSPHRASE_LENGTH || passphrase !== again}>{busy ? 'Making your keys…' : 'Continue'}</button>
-      {passphrase && again && passphrase !== again && <p className="form-error">The passphrases don’t match.</p>}
+      <p className="section-description">Create the password you will use to open your data. You will only need the recovery key if you forget it.</p>
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="Account password" placeholder={`Account password, at least ${MIN_ACCOUNT_PASSWORD_LENGTH} characters`} value={password} onChange={(event) => setPassword(event.target.value)} />
+      <input type="password" className="field-input" autoComplete="new-password" aria-label="Account password again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
+      <button type="submit" className="button-accent account-wide" disabled={busy || password.length < MIN_ACCOUNT_PASSWORD_LENGTH || password !== again}>{busy ? 'Saving…' : 'Set password'}</button>
+      {password && again && password !== again && <p className="form-error">The passwords don’t match.</p>}
       {error && <p className="form-error" role="alert">{error}</p>}
     </form>
   );
@@ -318,24 +328,16 @@ function PassphraseSetUp({ note }: { note: string }) {
 
 function Unlock() {
   const status = useSyncStatus();
-  const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
-  const [secret, setSecret] = useState('');
-  const [next, setNext] = useState('');
-  const [again, setAgain] = useState('');
+  const [method, setMethod] = useState<'password' | 'recovery'>('password');
+  const [password, setPassword] = useState('');
+  const [recoveryKey, setRecoveryKey] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [withPassphrase, setWithPassphrase] = useState<boolean>();
-  useEffect(() => void hasPassphrase().then(setWithPassphrase), []);
-  // With a passkey that opens the data, it is the way in; the passphrase or recovery key is one link away.
+  const [withPasswordWrap, setWithPasswordWrap] = useState<boolean>();
   const opening = useOpeningPasskeys();
   const [typing, setTyping] = useState(false);
-  const [passwordBusy, setPasswordBusy] = useState(false);
-  const [passwordError, setPasswordError] = useState('');
-  if (opening === undefined || withPassphrase === undefined) return null;
-  const recovery = method === 'recovery' || !withPassphrase;
-  // A forgotten passphrase is replaced; an account without one simply opens.
-  const choosing = recovery && withPassphrase;
-  const ready = Boolean(secret) && (!choosing || (next.length >= MIN_PASSPHRASE_LENGTH && next === again));
+  useEffect(() => void hasPassphrase().then(setWithPasswordWrap), []);
+  if (opening === undefined || withPasswordWrap === undefined) return null;
 
   if (opening.length > 0 && !typing) {
     return (
@@ -343,7 +345,7 @@ function Unlock() {
         {status.error && <p className="form-error" role="alert">{status.error}</p>}
         <PasskeyOpen rows={opening} className="button-accent account-wide" errorClass="form-error" />
         <button type="button" className="text-link" onClick={() => setTyping(true)}>
-          {withPassphrase ? 'Use my passphrase' : 'Use my recovery key'}
+          Use account password
         </button>
       </>
     );
@@ -357,11 +359,20 @@ function Unlock() {
         setBusy(true);
         setError('');
         try {
-          if (choosing) await changePassphrase(secret, 'recovery', next);
-          // Unlock with the existing secret once, then migrate the same data key to the
-          // account password in the background. No records are re-encrypted or lost.
-          await unlock(secret, recovery ? 'recovery' : 'passphrase', passkeysAvailable() && !opening.length);
-          await migrateCurrentAccountPasswordToEncryption(secret, recovery ? 'recovery' : 'passphrase');
+          if (method === 'password') {
+            if (!status.email) throw new Error('Sign in again before opening your data.');
+            await signInWithEmailPassword(status.email, password);
+            await unlockWithAccountPassword();
+          } else {
+            await unlock(recoveryKey, 'recovery');
+            // Existing accounts may still have their old storage column. Once
+            // the recovery key opens the data, connect the account password so
+            // the old passphrase is never needed again.
+            if (password.length >= MIN_ACCOUNT_PASSWORD_LENGTH && status.email) {
+              await signInWithEmailPassword(status.email, password);
+              await linkAccountPasswordToEncryption(password, recoveryKey, 'recovery');
+            }
+          }
         } catch (cause) {
           setError(message(cause));
         } finally {
@@ -370,169 +381,47 @@ function Unlock() {
       }}
     >
       {status.error && <p className="form-error" role="alert">{status.error}</p>}
-      {hasAccountPasswordForKeySetup() && (
-        <button type="button" className="button-accent account-wide" disabled={passwordBusy} onClick={async () => {
-          setPasswordBusy(true); setPasswordError('');
-          try { await unlockWithAccountPassword(); }
-          catch (cause) { setPasswordError(message(cause)); }
-          finally { setPasswordBusy(false); }
-        }}>
-          {passwordBusy ? 'Unlocking…' : 'Unlock with account password'}
-        </button>
-      )}
-      {passwordError && <p className="form-error" role="alert">{passwordError}</p>}
       <input
-        type={recovery ? 'text' : 'password'}
+        type="password"
         className="field-input"
-        autoComplete={recovery ? 'off' : 'current-password'}
-        aria-label={recovery ? 'Recovery key' : 'Passphrase'}
-        value={secret}
-        onChange={(event) => setSecret(event.target.value)}
+        autoComplete="current-password"
+        aria-label="Account password"
+        placeholder="Account password"
+        value={password}
+        onChange={(event) => setPassword(event.target.value)}
       />
-      {choosing && (
+      {method === 'recovery' && (
         <>
-          <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase" placeholder="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
-          <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
-          {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="sheet__hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-          {next && again && next !== again && <p className="form-error">The passphrases don’t match.</p>}
+          <input
+            type="text"
+            className="field-input"
+            autoComplete="off"
+            aria-label="Recovery key"
+            placeholder="Recovery key"
+            value={recoveryKey}
+            onChange={(event) => setRecoveryKey(event.target.value)}
+          />
+          {!withPasswordWrap && <p className="sheet__hint">Enter your account password above to connect it while this recovery key opens your data.</p>}
         </>
       )}
-      <button type="submit" className="button-accent account-wide" disabled={!ready || busy}>
-        {busy ? <Waiting>Opening…</Waiting> : 'Open'}
+      <button type="submit" className="button-accent account-wide" disabled={busy || (method === 'password' ? !password : !recoveryKey)}>
+        {busy ? <Waiting>Opening…</Waiting> : method === 'password' ? 'Unlock with account password' : 'Unlock with recovery key'}
       </button>
-      {withPassphrase && (
-        <button
-          type="button"
-          className="text-link"
-          onClick={() => {
-            setMethod(method === 'passphrase' ? 'recovery' : 'passphrase');
-            setSecret('');
-            setNext('');
-            setAgain('');
-            setError('');
-          }}
-        >
-          {method === 'passphrase' ? 'Forgot your passphrase?' : 'Use my passphrase instead'}
-        </button>
-      )}
-      {error && <p className="form-error" role="alert">{error}</p>}
-    </form>
-  );
-}
-
-/** A new passphrase while signed in (the current one, or the recovery key on an account that has none yet). */
-function ChangePassphrase() {
-  const [open, setOpen] = useState(false);
-  const [withPassphrase, setWithPassphrase] = useState(true);
-  const [current, setCurrent] = useState('');
-  const [next, setNext] = useState('');
-  const [again, setAgain] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [done, setDone] = useState(false);
-  useEffect(() => void hasPassphrase().then(setWithPassphrase), [done]);
-  const title = withPassphrase ? 'Change passphrase' : 'Add a passphrase';
-
-  if (!open) {
-    return (
-      <>
-        <button type="button" className="text-link" onClick={() => (setOpen(true), setDone(false))}>
-          {title}
-        </button>
-        {done && <p className="sheet__hint" role="status">Passphrase saved.</p>}
-      </>
-    );
-  }
-  return (
-    <form
-      className="settings-sub stack-tight"
-      onSubmit={async (event: FormEvent) => {
-        event.preventDefault();
-        setBusy(true);
-        setError('');
-        try {
-          await changePassphrase(current, withPassphrase ? 'passphrase' : 'recovery', next);
-          setOpen(false);
-          setDone(true);
-          setCurrent('');
-          setNext('');
-          setAgain('');
-        } catch (cause) {
-          setError(message(cause));
-        } finally {
-          setBusy(false);
-        }
-      }}
-    >
-      <p className="sheet__label">{title}</p>
-      <input
-        type={withPassphrase ? 'password' : 'text'}
-        className="field-input"
-        autoComplete={withPassphrase ? 'current-password' : 'off'}
-        aria-label={withPassphrase ? 'Current passphrase' : 'Recovery key'}
-        placeholder={withPassphrase ? 'Current passphrase' : 'Recovery key'}
-        value={current}
-        onChange={(event) => setCurrent(event.target.value)}
-      />
-      <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase" placeholder="New passphrase" value={next} onChange={(event) => setNext(event.target.value)} />
-      <input type="password" className="field-input" autoComplete="new-password" aria-label="New passphrase again" placeholder="Again" value={again} onChange={(event) => setAgain(event.target.value)} />
-      {next && next.length < MIN_PASSPHRASE_LENGTH && <p className="sheet__hint">At least {MIN_PASSPHRASE_LENGTH} characters.</p>}
-      {next && again && next !== again && <p className="form-error">The passphrases don’t match.</p>}
-      <div className="chip-row">
-        <button type="button" className="button-quiet" onClick={() => (setOpen(false), setError(''))}>Cancel</button>
-        <button type="submit" className="chip chip--accent" disabled={!current || next.length < MIN_PASSPHRASE_LENGTH || next !== again || busy}>
-          {busy ? <Waiting>Saving…</Waiting> : 'Save'}
-        </button>
-      </div>
-      {error && <p className="form-error" role="alert">{error}</p>}
-    </form>
-  );
-}
-
-/** Links the existing encrypted data key to the account password without changing encrypted records. */
-function LinkAccountPassword() {
-  const [open, setOpen] = useState(false);
-  const [accountPassword, setAccountPassword] = useState('');
-  const [currentSecret, setCurrentSecret] = useState('');
-  const [method, setMethod] = useState<'passphrase' | 'recovery'>('passphrase');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [done, setDone] = useState(false);
-  if (!open) return (
-    <>
-      <button type="button" className="text-link" onClick={() => { setOpen(true); setDone(false); }}>
-        Use account password to unlock encrypted data
+      <button
+        type="button"
+        className="text-link"
+        onClick={() => {
+          setMethod(method === 'password' ? 'recovery' : 'password');
+          setRecoveryKey('');
+          setError('');
+        }}
+      >
+        {method === 'password' ? 'Use recovery key' : 'Use account password'}
       </button>
-      {done && <p className="sheet__hint" role="status">Your account password now unlocks your encrypted data on new devices.</p>}
-    </>
-  );
-  return (
-    <form className="settings-sub stack-tight" onSubmit={async (event: FormEvent) => {
-      event.preventDefault();
-      setBusy(true); setError('');
-      try {
-        await linkAccountPasswordToEncryption(accountPassword, currentSecret, method);
-        setOpen(false); setDone(true); setAccountPassword(''); setCurrentSecret('');
-      } catch (cause) { setError(message(cause)); }
-      finally { setBusy(false); }
-    }}>
-      <p className="sheet__label">Connect your account password</p>
-      <p className="section-description">Enter your current account password and prove access to your existing encrypted data. Your records and recovery key will not change.</p>
-      <input type="password" className="field-input" autoComplete="current-password" aria-label="Account password" placeholder="Account password" value={accountPassword} onChange={(event) => setAccountPassword(event.target.value)} />
-      <div className="chip-row">
-        <button type="button" className={method === 'passphrase' ? 'chip chip--accent' : 'chip'} onClick={() => { setMethod('passphrase'); setCurrentSecret(''); }}>Current encryption passphrase</button>
-        <button type="button" className={method === 'recovery' ? 'chip chip--accent' : 'chip'} onClick={() => { setMethod('recovery'); setCurrentSecret(''); }}>Recovery key</button>
-      </div>
-      <input type={method === 'passphrase' ? 'password' : 'text'} className="field-input" autoComplete="off" aria-label={method === 'passphrase' ? 'Current encryption passphrase' : 'Recovery key'} placeholder={method === 'passphrase' ? 'Current encryption passphrase' : 'Recovery key'} value={currentSecret} onChange={(event) => setCurrentSecret(event.target.value)} />
-      <div className="chip-row">
-        <button type="button" className="button-quiet" onClick={() => { setOpen(false); setError(''); }}>Cancel</button>
-        <button type="submit" className="chip chip--accent" disabled={busy || accountPassword.length < 10 || !currentSecret}>{busy ? 'Updating…' : 'Connect password'}</button>
-      </div>
       {error && <p className="form-error" role="alert">{error}</p>}
     </form>
   );
 }
-
 
 /** Session controls. Supabase's client API does not enumerate all account sessions, so this view
  * deliberately identifies only this browser and offers account-wide revocation. */
@@ -639,8 +528,6 @@ function Ready() {
         <div className="sheet__more-body stack-tight">
           <StorageChoice />
           <SystemCheck />
-          <LinkAccountPassword />
-          <ChangePassphrase />
           <DeleteAccount />
         </div>
       </details>

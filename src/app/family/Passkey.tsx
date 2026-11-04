@@ -123,7 +123,7 @@ export function PasskeyOpen({ className = 'button-main', errorClass = 'hint', ro
   );
 }
 
-/** A choice on the passphrase step: after it opens the data, one more tap makes a passkey. */
+/** A choice after the account password opens the data: one more tap makes a passkey. */
 export function AddPasskeyChoice({ checked, onChange, className = 'toggle-check' }: { checked: boolean; onChange: (next: boolean) => void; className?: string }) {
   if (!passkeysAvailable()) return null;
   return (
@@ -134,7 +134,7 @@ export function AddPasskeyChoice({ checked, onChange, className = 'toggle-check'
   );
 }
 
-/** Right after the passphrase opened the data with "Add a passkey" chosen: the tap that makes it. */
+/** Right after the account password opened the data with "Add a passkey" chosen: the tap that makes it. */
 export function MakePasskeyNow({ className = 'button-main', quietClass = 'button-quiet', errorClass = 'hint', noteClass = 'hint', onDone }: Look & { quietClass?: string; noteClass?: string; onDone?: () => void }) {
   const [waiting, setWaiting] = useState(passkeyWaiting());
   const [note, setNote] = useState('');
@@ -160,7 +160,7 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
                 setWaiting(false);
                 onDone?.();
                 if (added.finish) setFinish(added.finish);
-                else setNote(added.opens ? 'Passkey added.' : 'Passkey added. It signs in; on this device your passphrase still opens your data.');
+                else setNote(added.opens ? 'Passkey added.' : 'Passkey added. It signs in; on this device your account password still opens your data.');
               })
             }
           >
@@ -190,7 +190,7 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
                 const opens = await letPasskeyOpen(finish);
                 setFinish(undefined);
                 onDone?.();
-                setNote(opens ? 'Passkey added. It opens your data in every app.' : 'Passkey added. It signs in; on this device your passphrase still opens your data.');
+                setNote(opens ? 'Passkey added. It opens your data in every app.' : 'Passkey added. It signs in; on this device your account password still opens your data.');
               })
             }
           >
@@ -202,7 +202,7 @@ export function MakePasskeyNow({ className = 'button-main', quietClass = 'button
             onClick={() => {
               forgetPreparedPasskey();
               setFinish(undefined);
-              setNote('Passkey added. It signs in; your passphrase still opens your data.');
+              setNote('Passkey added. It signs in; your account password still opens your data.');
             }}
           >
             Not now

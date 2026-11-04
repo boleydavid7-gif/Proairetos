@@ -101,9 +101,9 @@ async function unwrap(envelope: WrappedKey, wrapping: CryptoKey, extractable = f
   } catch {
     throw new KeyError(
       envelope.method === 'passphrase'
-        ? 'That passphrase does not unlock your data.'
+        ? 'That account password does not unlock your data.'
         : envelope.method === 'passkey'
-          ? 'That passkey does not open your data. Use your passphrase.'
+          ? 'That passkey does not open your data. Use your account password or recovery key.'
           : 'That recovery key does not unlock your data.',
     );
   }
