@@ -205,11 +205,15 @@ body {
 }
 
 :root .mneme-page .mneme-filters {
-  padding-block: 0 var(--ll-gap);
+  padding-block: var(--ll-gap);
 }
 
 /* The title row: the title and its Add share one baseline. */
 /* (the title box starts under the bar, so its words sit at the foot of it) */
 :root .shell .page > .page-top.section-head {
   align-items: flex-end;
+}
+
+:root .mneme-page .mneme-capture-modes {
+  margin-block: var(--ll-gap);
 }
