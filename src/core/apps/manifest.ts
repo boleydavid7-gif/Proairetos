@@ -49,6 +49,10 @@ export type AppManifest = {
     switches: readonly { key: string; label: string }[];
     /** Place in that list, 1 first. */
     page?: number;
+    /** A tap on its notice opens `/<id>/?open=…` in that app (the common case; others have their own rule in `placeFor`). */
+    genericTap?: boolean;
+    /** The icon an iPhone's own push shows, when it is not `/<id>/icons/icon-192.png`. */
+    pushIcon?: string;
     /** Proairetos writes this source too, when it holds the app's data. */
     mainWrites: boolean;
   };
@@ -58,7 +62,7 @@ export type AppManifest = {
   /** What the Store shows: what the app adds to Proairetos, how it connects, how many screenshots it has. */
   details?: { adds: string; connects: readonly { app: AppId; text: string }[]; shots: number };
   /** Which of the project's checks and public lists include the app. */
-  surfaces: { waitlist: boolean; prefetch: boolean; speed: boolean; layout: boolean; visual: boolean; smoke: boolean; alone: boolean };
+  surfaces: { /** An open window of this app is not counted as Proairetos when a notice is tapped. */ noticeWindow: boolean; waitlist: boolean; prefetch: boolean; speed: boolean; layout: boolean; visual: boolean; smoke: boolean; alone: boolean };
 };
 
 export const APPS: readonly AppManifest[] = [
@@ -73,7 +77,7 @@ export const APPS: readonly AppManifest[] = [
     urls: { href: '/', scope: '/', entry: 'index.html' },
     data: { backupPrefix: 'proairetos.', syncKnown: false },
     notices: { source: 'proairetos', kinds: [], switches: [], mainWrites: false },
-    surfaces: { waitlist: true, prefetch: false, speed: true, layout: true, visual: true, smoke: true, alone: false },
+    surfaces: { noticeWindow: false, waitlist: true, prefetch: false, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
     id: 'askesis',
@@ -95,7 +99,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'dynamis', text: 'Runs and strength sessions are scheduled around each other and around your workdays.' }, { app: 'diaita', text: 'Runs are kept out of your planned sleep time.' }, { app: 'hydros', text: 'On run days, Hydros can add to your daily water amount.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'hydros',
@@ -117,7 +121,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'askesis', text: 'On run days, Hydros can add to your daily amount.' }, { app: 'diaita', text: 'Caffeine after your cutoff time shows next to your sleep.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: false, layout: false, visual: false, smoke: true, alone: false },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: false, layout: false, visual: false, smoke: true, alone: false },
   },
   {
     id: 'soma',
@@ -138,7 +142,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'diaita', text: 'The last big meal time in Diaita opens Soma.' }],
       shots: 1,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'oikonomia',
@@ -160,7 +164,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' }, { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'poreia',
@@ -174,14 +178,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/poreia/', scope: '/poreia/', entry: 'poreia/index.html' },
     data: { backupPrefix: 'poreia:', syncKnown: true },
-    notices: { source: 'poreia', kinds: ['trip'], switches: [{ key: 'trips', label: 'Bookings and plans' }], page: 11, mainWrites: true },
+    notices: { source: 'poreia', kinds: ['trip'], switches: [{ key: 'trips', label: 'Bookings and plans' }], page: 11, genericTap: true, pushIcon: '/poreia/icon.svg', mainWrites: true },
     today: { group: 'attention', order: 6, parts: ['trips'] },
     details: {
       adds: 'Trips show on Today and plans with a time show in Days ahead. Approved time off clears those days from your schedule.',
       connects: [{ app: 'oikonomia', text: 'Trip spending is added to the month’s totals.' }, { app: 'phyton', text: 'Plant reminders pause while you’re away.' }, { app: 'therapeia', text: 'The medicines you need can be added to the packing list.' }, { app: 'diaita', text: 'Suggests how to adjust your sleep for a new time zone.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
     id: 'theoria',
@@ -202,7 +206,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 1,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'praxis',
@@ -217,7 +221,7 @@ export const APPS: readonly AppManifest[] = [
     data: { syncKnown: true },
     notices: { source: 'praxis', kinds: ['study'], switches: [], mainWrites: false },
     today: { parts: ['praxis'] },
-    surfaces: { waitlist: true, prefetch: true, speed: false, layout: false, visual: false, smoke: true, alone: false },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: false, layout: false, visual: false, smoke: true, alone: false },
   },
   {
     id: 'diaita',
@@ -231,14 +235,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/diaita/', scope: '/diaita/', entry: 'diaita/index.html' },
     data: { backupPrefix: 'diaita:', syncKnown: true },
-    notices: { source: 'diaita', kinds: ['rhythm'], switches: [{ key: 'rhythm', label: 'Sleep and naps' }], page: 4, mainWrites: true },
+    notices: { source: 'diaita', kinds: ['rhythm'], switches: [{ key: 'rhythm', label: 'Sleep and naps' }], page: 4, genericTap: true, mainWrites: true },
     today: { group: 'practice', order: 4, parts: ['diaita'] },
     details: {
       adds: 'Today shows your sleep record, and Proairetos adjusts its lighting through the day to match your waking hours.',
       connects: [{ app: 'therapeia', text: 'Medicine reminders can follow when you wake and sleep.' }, { app: 'askesis', text: 'Runs are kept out of your sleep time.' }, { app: 'hydros', text: 'Caffeine after your cutoff time shows next to your sleep.' }, { app: 'melete', text: 'Study sessions are scheduled around your sleep.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'philia',
@@ -252,14 +256,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/philia/', scope: '/philia/', entry: 'philia/index.html' },
     data: { backupPrefix: 'philia:', syncKnown: true },
-    notices: { source: 'philia', kinds: ['person'], switches: [{ key: 'people', label: 'Birthdays and keeping in touch' }], page: 5, mainWrites: true },
+    notices: { source: 'philia', kinds: ['person'], switches: [{ key: 'people', label: 'Birthdays and keeping in touch' }], page: 5, genericTap: true, mainWrites: true },
     today: { group: 'attention', order: 4, parts: ['birthdays', 'birthday-dates'] },
     details: {
       adds: 'Birthdays in the next week show on Today and dates show in Days ahead. You can import people from Compass.',
       connects: [],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'ergon',
@@ -273,7 +277,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/ergon/', scope: '/ergon/', entry: 'ergon/index.html' },
     data: { backupPrefix: 'ergon:', syncKnown: true },
-    notices: { source: 'ergon', kinds: ['chore'], switches: [{ key: 'chores', label: 'Chores' }], page: 6, mainWrites: true },
+    notices: { source: 'ergon', kinds: ['chore'], switches: [{ key: 'chores', label: 'Chores' }], page: 6, genericTap: true, mainWrites: true },
     today: { group: 'attention', order: 1, parts: ['chores'] },
     declares: { reads: ['the schedule (days off)', 'the household’s members'], writes: ['a to-do in Proairetos, when asked'] },
     details: {
@@ -281,7 +285,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'therapeia',
@@ -295,14 +299,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/therapeia/', scope: '/therapeia/', entry: 'therapeia/index.html' },
     data: { backupPrefix: 'therapeia:', syncKnown: true },
-    notices: { source: 'therapeia', kinds: ['dose', 'care'], switches: [{ key: 'medicines', label: 'Medicines and visits' }], page: 7, mainWrites: true },
+    notices: { source: 'therapeia', kinds: ['dose', 'care'], switches: [{ key: 'medicines', label: 'Medicines and visits' }], page: 7, genericTap: true, mainWrites: true },
     today: { group: 'attention', order: 8, parts: ['medicines'] },
     details: {
       adds: 'Doses and visits you haven’t marked show on Today.',
       connects: [{ app: 'diaita', text: 'Doses follow when you wake and sleep, including after night shifts.' }, { app: 'poreia', text: 'Medicines for a trip can be added to its packing list.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'dynamis',
@@ -316,14 +320,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/dynamis/', scope: '/dynamis/', entry: 'dynamis/index.html' },
     data: { backupPrefix: 'dynamis:', syncKnown: true },
-    notices: { source: 'dynamis', kinds: ['training'], switches: [{ key: 'training', label: 'Training days' }, { key: 'strengthMilestones', label: 'Milestones' }], page: 8, mainWrites: true },
+    notices: { source: 'dynamis', kinds: ['training'], switches: [{ key: 'training', label: 'Training days' }, { key: 'strengthMilestones', label: 'Milestones' }], page: 8, genericTap: true, mainWrites: true },
     today: { group: 'practice', order: 3, parts: ['training'] },
     details: {
       adds: 'Today shows the session planned for the day.',
       connects: [{ app: 'askesis', text: 'Strength sessions and runs are scheduled around each other and around your workdays.' }, { app: 'diaita', text: 'Sessions are kept out of your sleep time.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'ktema',
@@ -337,14 +341,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/ktema/', scope: '/ktema/', entry: 'ktema/index.html' },
     data: { backupPrefix: 'ktema:', syncKnown: true },
-    notices: { source: 'ktema', kinds: ['upkeep'], switches: [{ key: 'upkeep', label: 'Upkeep and warranties' }], page: 9, mainWrites: true },
+    notices: { source: 'ktema', kinds: ['upkeep'], switches: [{ key: 'upkeep', label: 'Upkeep and warranties' }], page: 9, genericTap: true, mainWrites: true },
     today: { group: 'attention', order: 2, parts: ['upkeep', 'ktema-dates'] },
     details: {
       adds: 'Upkeep that is due shows on Today. Warranty end dates and upkeep dates show on their day in Days ahead.',
       connects: [{ app: 'oikonomia', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'phyton',
@@ -358,14 +362,14 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/phyton/', scope: '/phyton/', entry: 'phyton/index.html' },
     data: { backupPrefix: 'phyton:', syncKnown: true },
-    notices: { source: 'phyton', kinds: ['plant'], switches: [{ key: 'plants', label: 'Plants to check' }], page: 10, mainWrites: true },
+    notices: { source: 'phyton', kinds: ['plant'], switches: [{ key: 'plants', label: 'Plants to check' }], page: 10, genericTap: true, mainWrites: true },
     today: { group: 'attention', order: 5, parts: ['plants'] },
     details: {
       adds: 'Plants that need checking show on Today.',
       connects: [{ app: 'poreia', text: 'Plant reminders pause while you’re away on a trip.' }],
       shots: 2,
     },
-    surfaces: { waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
+    surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
     id: 'mneme',
@@ -386,7 +390,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 0,
     },
-    surfaces: { waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
+    surfaces: { noticeWindow: false, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
   {
     id: 'melete',
@@ -400,7 +404,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/melete/', scope: '/melete/', entry: 'melete/index.html' },
     data: { backupPrefix: 'melete:', syncKnown: true },
-    notices: { source: 'melete', kinds: ['melete'], switches: [{ key: 'melete', label: 'Study sessions and dates' }], page: 12, mainWrites: true },
+    notices: { source: 'melete', kinds: ['melete'], switches: [{ key: 'melete', label: 'Study sessions and dates' }], page: 12, genericTap: true, mainWrites: true },
     today: { group: 'practice', order: 6, parts: ['study-dates'] },
     declares: { reads: ['the schedule', 'the sleep plan (Diaita)', 'other calendars', 'training days (Askesis, Dynamis)'], writes: ['a line in Reflect, when asked'] },
     details: {
@@ -408,7 +412,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'diaita', text: 'Free time is worked out around your sleep.' }, { app: 'askesis', text: 'A run scheduled for a day shows next to it in the week.' }, { app: 'dynamis', text: 'A strength session scheduled for a day shows next to it in the week.' }],
       shots: 2,
     },
-    surfaces: { waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
+    surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
 ];
 
