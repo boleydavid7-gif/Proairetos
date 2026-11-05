@@ -159,3 +159,23 @@ Origin Private File System for book files.
 - Nov 5: proposal 1 looked at and left alone. The scheme already computes a tinted ink for the lamp's fill that
   reads 4.5:1 or better; `contrast-color()` gives only black or white, a plainer look for no gain, and the person's
   tag colors draw dots and edges, never text on a fill. Worth revisiting if text ever sits on a chosen color.
+
+## Fourth round (Nov 5): scanners for bills and receipts
+
+Proposed, waiting for the owner's choice. Today: Tesseract (English) with a global gray and contrast filter, default page
+mode, one pass (`app/family/ocr.ts`); phone apps use Apple Vision / ML Kit. Parsing (`core/ocr/labels.ts`): the amount is
+the largest decimal on the page (a receipt's cash tendered can beat the total), no merchant, a due date only on a line
+that says due. Support and accuracy figures below come from blogs and vendor pages, not benchmarks; measure on a real set.
+
+1. Read the total by its words (a ranked list: grand total, total, amount due, balance due; skip subtotal, tax, change,
+   cash, tendered, savings; a number on the line after its word; largest only as the last resort). Pure code, testable.
+2. A small test set (30 to 50 of the owner's real bills and receipts, text kept, no images committed) so every later change
+   is measured field by field.
+3. Preprocessing: page mode for one column (try 4 and 6), adaptive threshold instead of one contrast value, deskew;
+   then, if the set shows it helps, edge detection and perspective correction (OpenCV.js, loaded only when scanning).
+4. PDF and QR bills: a PDF's own text (pdf.js is already in Theoria and Poreia) read by the same parser with no OCR; a
+   QR on the page (Swiss QR-bill, EPC) read by BarcodeDetector where it exists, `barcode-detector` (ZXing WASM) elsewhere.
+5. A better engine on the device: PP-OCRv5 on onnxruntime-web (already served at `/ort/` for Whisper); reported far
+   better on receipts, model size unverified. Behind a feature test, Tesseract stays as the fallback.
+6. Chrome's Prompt API (image input, text out only) to propose fields from a photo, only when the person taps it; not
+   on iPhone or Android Chrome yet.
