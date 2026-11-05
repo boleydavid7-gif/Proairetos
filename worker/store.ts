@@ -26,7 +26,7 @@ export type StoreEnv = ReferralEnv & {
   OWNER_EMAILS?: string;
 };
 
-export const PLAN_PRICES = { core: 999, coreyear: 10789, cloud: 299 } as const;
+export const PLAN_PRICES = { core: 999, coreyear: 10799, cloud: 299 } as const;
 export const PRICE_CENTS = PLAN_PRICES.core;
 export const CURRENCY = 'usd';
 

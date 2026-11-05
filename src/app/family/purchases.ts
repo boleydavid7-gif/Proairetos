@@ -49,7 +49,7 @@ export const storePaid = (): boolean => readJson<StoreInfo>(STORE_KEY)?.paid ===
 /** A plan price in the person's own way of writing money. */
 export function priceText(item: PurchaseItem | string = 'core'): string {
   const info = readJson<StoreInfo>(STORE_KEY);
-  const cents = info?.prices?.[item] ?? ({ core: 999, coreyear: 10789, cloud: 299 }[item] ?? info?.price ?? 999);
+  const cents = info?.prices?.[item] ?? ({ core: 999, coreyear: 10799, cloud: 299 }[item] ?? info?.price ?? 999);
   try {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: (info?.currency ?? 'usd').toUpperCase() }).format(cents / 100);
   } catch {
