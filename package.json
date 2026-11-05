@@ -13,6 +13,7 @@
     "check": "npm run lint && npm run typecheck && npm test",
     "apps:build": "node scripts/apps/build.mjs",
     "providers:check": "node scripts/providers-check/check.mjs",
+    "home:check": "node scripts/home-check/check.mjs",
     "apps:check": "node scripts/apps/check.mjs",
     "smoke:visual": "node scripts/visual/smoke.mjs",
     "build:native": "VITE_API_BASE=https://proairetos.com VITE_MEDIA_BASE=https://proairetos.com vite build --mode native",
