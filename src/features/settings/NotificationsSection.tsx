@@ -76,7 +76,7 @@ function Lead({
   );
 }
 
-type AppSwitch = 'runMilestones' | 'strengthMilestones' | 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips';
+type AppSwitch = 'runMilestones' | 'strengthMilestones' | 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips' | 'melete';
 
 /** Each added app's own notices, under its name. */
 const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = [
@@ -91,6 +91,7 @@ const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: str
   { id: 'ktema', switches: [['upkeep', 'Upkeep and warranties']] },
   { id: 'phyton', switches: [['plants', 'Plants to check']] },
   { id: 'poreia', switches: [['trips', 'Bookings and plans']] },
+  { id: 'melete', switches: [['melete', 'Study sessions and dates']] },
 ];
 
 function NotifyGroup({ label, icon, children }: { label: string; icon?: string; children: ReactNode }) {

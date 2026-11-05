@@ -6,7 +6,7 @@ export function placeFor(open: string): { app: string; url: string } {
   if (open === 'praxis') return { app: '/theoria/', url: '/theoria/?open=pomodoro' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia']) {
+  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete']) {
     if (open === app) return { app: '/' + app + '/', url: '/' + app + '/' };
     if (open.startsWith(app + ':')) return { app: '/' + app + '/', url: '/' + app + '/?open=' + encodeURIComponent(open.slice(app.length + 1)) };
   }

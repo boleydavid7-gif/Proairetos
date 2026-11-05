@@ -7,7 +7,7 @@ describe('where a notice leads', () => {
     const sw = readFileSync('public/sw.js', 'utf8');
     const body = sw.slice(sw.indexOf('function placeFor(open) {'), sw.indexOf('\n}\n', sw.indexOf('function placeFor(open) {')) + 2);
     const swPlaceFor = new Function(`${body}; return placeFor;`)() as typeof placeFor;
-    for (const open of ['today', 'item:abc', 'hydros', 'praxis', 'askesis', 'oikonomia:bill:1', 'therapeia:medicine:m1', 'ergon', 'poreia:trip:t', 'reflect'])
+    for (const open of ['today', 'item:abc', 'hydros', 'praxis', 'askesis', 'oikonomia:bill:1', 'therapeia:medicine:m1', 'ergon', 'poreia:trip:t', 'melete:session:s1', 'melete', 'reflect'])
       expect(placeFor(open)).toEqual(swPlaceFor(open));
   });
 

@@ -45,6 +45,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Redeploy `send-reminders` once more: pushes now go at high urgency, so Android's battery saving and an iPhone in
   Low Power Mode no longer hold reminders back.
 - [ ] Redeploy `send-reminders` again: its reply now lists any push a phone's service refused, and why (`refused` in `net._http_response`).
+- [ ] Redeploy `send-reminders` once more: it now knows Meletē's name, for its reminders on an iPhone's own notice.
 - [ ] Redeploy `send-reminders` (it now also sends a Declarative Web Push for iPhones). Optional secret `SITE_URL` if
       the site is ever not https://proairetos.com.
 - [ ] Your own storage, reusing Noesis's registrations: migration `20261021000000_storage_links.sql`; add
