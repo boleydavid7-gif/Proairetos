@@ -1,6 +1,6 @@
 # Phase 3 implementation plan: shared information architecture
 
-Status: **plan for approval. No code has been changed.** Written after reading the Life Record adapter, the sync
+Status: **approved by the owner (D1 to D6, Slice 1 only).** Slice 1 is built; Slices 2 to 6 wait for review. Written before any code changed. Written after reading the Life Record adapter, the sync
 engine and sealing, the application manifest, the provider contract and the code that already gathers other apps'
 information for search, Today, Days ahead, notices and the Library.
 

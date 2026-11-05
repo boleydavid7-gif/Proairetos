@@ -761,3 +761,31 @@ export function setTodayAppShown(app: string, shown: boolean): void {
   writeJson(TODAY_APPS_HIDDEN_KEY, [...hidden]);
   void import('../../app/sync/syncController').then((sync) => sync.syncSoon()).catch(() => undefined);
 }
+
+const PROVIDERS_KEY = 'proairetos.providers';
+
+/**
+ * Which apps' information the person has turned on or off for Proairetos's shared services (search so far), one
+ * entry per `app:capability`. Anything not chosen takes the manifest's default. Synced like the other settings.
+ */
+export type ProviderSwitches = { on: string[]; off: string[] };
+
+export function providerSwitches(): ProviderSwitches {
+  const saved = readJson<Partial<ProviderSwitches>>(PROVIDERS_KEY);
+  const list = (value: unknown) => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === 'string') : []);
+  return { on: list(saved?.on), off: list(saved?.off) };
+}
+
+export function providerSwitchesSnapshot(): string {
+  return JSON.stringify(providerSwitches());
+}
+
+export function setProviderEnabled(app: string, capability: string, enabled: boolean): void {
+  const key = `${app}:${capability}`;
+  const { on, off } = providerSwitches();
+  writeJson(PROVIDERS_KEY, {
+    on: enabled ? [...new Set([...on, key])] : on.filter((entry) => entry !== key),
+    off: enabled ? off.filter((entry) => entry !== key) : [...new Set([...off, key])],
+  });
+  void import('../../app/sync/syncController').then((sync) => sync.syncSoon()).catch(() => undefined);
+}

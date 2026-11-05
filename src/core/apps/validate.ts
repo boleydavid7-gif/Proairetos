@@ -8,6 +8,7 @@ import { APPS, type AppManifest } from './manifest';
 export type Findings = { errors: string[]; warnings: string[] };
 
 const PRIVACY = ['private', 'own-search', 'shared'];
+const CAPABILITIES = ['library', 'search', 'calendar', 'notices', 'home'];
 
 const duplicates = (values: readonly string[]): string[] => values.filter((value, index) => values.indexOf(value) !== index);
 
@@ -60,6 +61,14 @@ export function validateManifest(apps: readonly AppManifest[] = APPS): Findings 
     if (app.search) {
       if (!PRIVACY.includes(app.search.privacy)) errors.push(`${at}: unknown search privacy class ${app.search.privacy}`);
       if (!app.search.excludes.length) errors.push(`${at}: a search entry must say what it excludes`);
+      if (!app.search.indexes.length) errors.push(`${at}: a search entry must say what it indexes`);
+      for (const field of app.search.indexes) if (app.search.excludes.includes(field)) errors.push(`${at}: search field "${field}" is both indexed and excluded`);
+      if (app.search.windowDays !== undefined && !(app.search.windowDays > 0)) errors.push(`${at}: search windowDays must be a positive number`);
+    }
+    for (const capability of app.provides ?? []) {
+      if (!CAPABILITIES.includes(capability)) errors.push(`${at}: unknown capability ${capability}`);
+      if (app.status === 'retired') errors.push(`${at}: a retired app cannot provide ${capability}`);
+      if (capability === 'search' && !app.search) errors.push(`${at}: it provides search, so it must classify its search fields`);
     }
     for (const link of app.details?.connects ?? []) {
       if (!apps.some((each) => each.id === link.app)) errors.push(`${at}: connects to ${link.app}, which is not in the manifest`);

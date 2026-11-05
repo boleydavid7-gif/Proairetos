@@ -1,7 +1,7 @@
 # Provider contract (design only)
 
-Status: design for review. **No provider is implemented**, no search index exists, and nothing here changes
-behavior. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
+Status: approved design (docs/PHASE3_PLAN.md). Slice 1 is built: the provider types, host and policy, and search
+providers for Oikonomia and Hydros. No other provider exists yet. Section 4 below was revised by the owner's decision D1. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
 existing read-only `LifeRecordAdapter` (`docs/LIFE_RECORD_INTEGRATION.md`).
 
 The core rule stays: the system records life; it does not interpret life. A provider shows what an app already
@@ -44,40 +44,40 @@ validator requires `excludes` on any app that indexes.
 **Hydros** (`own-search`). May index named drink types and day-level summaries inside a rolling 30-day window
 (`windowDays: 30`). Individual drinks beyond the window are not indexed. Private to the account; no other app reads it.
 
-## 4. The encrypted search index across independently installed apps
+## 4. Search across independently installed apps (revised, D1 and D6)
 
 Server-side search is not possible: the server holds only sealed records, and plaintext indexing would break
-end-to-end encryption. So the index lives on each device and travels only sealed.
+end-to-end encryption. There is also **no synced projections collection and no persisted index**. Encrypted sync
+already carries every app's records to each signed-in install, so each install derives search results from the records
+it holds.
 
-**Projection.** Each provider writes small records (id, app, kind, display title, day, open address, a few search
-words) under its own `own-search` allowance and nothing outside the manifest's `indexes`. A projection is a
-derived record: it can be rebuilt from the app's own data and is never the source.
+- **Derive on the device.** A provider (`src/core/providers/`) is a pure function from the app's local records to
+  search rows. Rows are built when search opens and kept only in memory (`app/providers/cache.ts`).
+- **Sync.** The source records sync as they always have (sealed, per collection). Nothing new is stored on the server
+  and no migration is needed. The sync engine now reports which collections a pull changed
+  (`onChangedCollections`), so a cached result is dropped only when something it reads changed.
+- **Offline.** Providers read the install's own copy. Search needs no connection.
+- **Deletion.** Deleting a record removes it through sync (a tombstone); the next derivation no longer has it.
+- **Revocation.** The person's switch per app and capability (`proairetos.providers`, synced, What's included > Apps in
+  search) removes that app's results at once. An app that is not added, or not usable under the Store, provides nothing.
+- **Versioning.** A provider has a `version`; its cached result is rebuilt whenever it changes.
+- **Permission enforcement** is in the host (`policy.ts`), not in each provider: the manifest's `search.indexes` are the
+  only field names a result may carry, `search.excludes` never appear, unknown fields and titles are rejected, a rolling
+  `windowDays` is enforced on the host as well as by the provider, and only the `own-search` class reaches universal
+  search (`private` never leaves its app; `shared` is not built).
+- **Measure before persisting.** A persisted sealed index, or a synced projections collection, is considered only if
+  measured performance needs it.
 
-**Sync.** Projections sync like other records: sealed with the account key (AD `proairetos-search`, a collection of
-its own that needs a server migration when it is built, not in Phase 2), one record per projection, 200-number
-overlap pull as today. Each install builds its on-device search index from what it holds and what it pulled.
-Which installs hold which projections is the diagnostic's question (`IPHONE_STORAGE_DIAGNOSTIC.md`): if installs are
-isolated, an install sees another's records only through sync; if storage is shared, the same sync still applies and
-only adds a faster path.
+Search rules as built:
 
-**Offline.** Search runs on the device's copy. A projection not yet pulled is simply not found; nothing is asked of
-a server. A result whose target app is not on the device opens its address and the person's install handles it.
-
-**Deletion.** Deleting a record in its app removes its projection in the same write (tombstone), which syncs; a
-device removes it from its index when the tombstone arrives. Deleting an app's data, removing the app from the Store
-or signing out clears that app's projections on the device. Delete account removes them on the server with the rest.
-Window apps (Hydros) drop projections that leave the 30-day window on the next build.
-
-**Permission revocation.** Turning an app's `search` off in Settings (or setting its search class to `private`)
-deletes its projections here and syncs the removal; other devices follow on their next pull. Leaving a household
-removes that household's `shared` projections. A provider that raises its class (an app update that indexes more) is
-ignored until the person accepts the new manifest entry; the manifest version carries this.
-
-**Versioning.** Projections carry the provider's `version`. An index entry with an older version is rebuilt by the
-owning app, never read by guess. A version Proairetos does not know is skipped.
-
-**What is not built.** No provider, no projection collection, no index, no migration, no UI. Building them is a
-later phase and starts after the diagnostic's results and the owner's approval.
+- **Oikonomia** (`own-search`): bill name (the payee), due date, paid status. Never amounts, account numbers, balances,
+  statement lines, notes or transaction details. A result opens that bill. Notes were indexed before Slice 1 and no longer are.
+- **Hydros** (`own-search`, off until turned on): named drinks and day summaries inside a rolling 30-day window.
+  No individual drinks, times, caffeine, sugar, electrolytes or daily amount.
+- **Other apps** have their fields classified in the manifest (D4). Universal search still indexes a few fields those
+  rules exclude (Therapeia dose and notes, Ktema serial numbers, Poreia confirmation codes, Ergon chore notes), and
+  Phyton, Meletē and Mneme are indexed without a classification. Slice 2 closes each as it moves that app to a
+  provider; `src/tests/providers/knownGaps.test.ts` lists them.
 
 ## 5. Compatibility
 

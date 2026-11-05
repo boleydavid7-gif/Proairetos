@@ -16,7 +16,6 @@ import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } f
 import { readStore } from '../../app/family/read';
 import type { Recipe } from '../../soma/core/recipes';
 import type { TheoriaBook } from '../../theoria/core/books';
-import type { Bill } from '../../oikonomia/core/bills';
 import { lock } from '../../app/lock/lock';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -28,6 +27,7 @@ import { inSearchScope, search, type Searchable, type SearchScope } from '../../
 import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
 import { pursuits } from '../../app/pursuits';
+import { providerSearch } from '../../app/providers/search';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
 
@@ -47,8 +47,8 @@ function subscribeAll(listener: () => void) {
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
-async function gather(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
-  const [items, reflections, decisions, statements, values, recipes, books, bills, runLog] = await Promise.all([
+export async function gather(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
+  const [items, reflections, decisions, statements, values, recipes, books, runLog] = await Promise.all([
     lifeService.list(),
     reflectionService.all(),
     decisionService.list(),
@@ -56,7 +56,6 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     compassService.values(),
     readStore<Recipe>('somaRecipes'),
     readStore<TheoriaBook>('theoriaBooks'),
-    readStore<Bill>('oikonomiaBills'),
     readStore<AskesisEntry>('askesisWorkouts'),
   ]);
   const labels = new Map<string, string>();
@@ -163,10 +162,10 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
       at: book.updatedAt,
     });
   }
-  for (const bill of isAdded('oikonomia') ? bills : []) {
-    labels.set(bill.id, 'Bill in Oikonomia');
-    things.push({ id: bill.id, kind: 'app', href: '/oikonomia/', title: bill.name, fields: [{ name: 'Notes', text: bill.notes }], at: bill.createdAt });
-  }
+  // Oikonomia and Hydros come through the providers, which hold them to the fields the manifest allows.
+  const provided = await providerSearch();
+  for (const [id, label] of provided.labels) labels.set(id, label);
+  things.push(...provided.things);
   for (const person of isAdded('philia') ? people.list() : []) {
     labels.set(person.id, 'Person in Philia');
     things.push({

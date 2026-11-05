@@ -91,3 +91,11 @@ These existed before Phase 2 and are unchanged by it.
   `/opt/codex/...`, port 4192); it ran only through overrides.
 - **Together check:** 20 pass, 13 fail, the same before and after every wave (steps written before the Store and the
   Nov 5 changes).
+
+## Providers (Phase 3, Slice 1)
+
+`provides` lists the capabilities an app has a provider for (today `search` for Oikonomia and Hydros). `search` lists
+the fields universal search may hold (`indexes`), the fields it never holds (`excludes`), an optional rolling
+`windowDays` and `defaultOn: false` for an app that is off until the person turns it on. The validator ties `provides`
+to a classified `search` entry; `src/tests/providers/` ties it to the registered provider modules and to what syncs.
+See `docs/PROVIDER_CONTRACT.md`.
