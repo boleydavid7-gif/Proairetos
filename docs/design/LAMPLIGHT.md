@@ -268,3 +268,15 @@ differ only in strength, so each token is one `light-dark()`. The ladder: rest (
 (`--ll-sheen-edge`, `--ll-sheen-wash`), lit (`--ll-lit-*`), focus (`--ll-focus`), lamp (`--ll-lamp-light`); depth for
 menus and sheets is `--ll-light-1..3`. Timings: `--ll-glow-time` (follows `--ll-dim`, so it is zero with reduced motion)
 and `--ll-settle-time`. An app's own floating surfaces use `--ll-light-1..3`, not their own shadows.
+
+## Editorial standards (Nov 5)
+
+From Reflect, the first screen refined toward less container and more type and space. Two shared classes in
+`layout.css` and one token, so other screens use the same treatment instead of copying it:
+- **`.ll-plain`**: a list set directly on the page: a hairline above, below and between rows, no surface, no radius, no
+  sheen, rows start at the page's edge (`.settings-row` loses its side padding). On a `.settings-list`, `.rows` or a
+  plain list. The rules carry three `:root` so the shared surface rules lose to them.
+- **`.ll-steady`**: a screen's one main action in `--ll-radius-action` (12 px, the `sm` radius) with no glow, in place of the
+  lamp's pill. Used with `.button-accent` or `.button-main`.
+- **Where it applies:** Proairetos's own screens, one stage at a time (Reflect first). The family apps keep the pill and the
+  filled list until they are chosen. The dock, the top bar and customizations are unchanged by these classes.

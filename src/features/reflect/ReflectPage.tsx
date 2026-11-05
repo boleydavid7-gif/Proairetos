@@ -182,13 +182,13 @@ export default function ReflectPage() {
     <div className="page reflect-home">
       <PageHeader title="Reflect" settings />
 
-      <button type="button" className="button-accent reflect-write-button" onClick={() => navigate('journal')}>
+      <button type="button" className="button-accent ll-steady reflect-write-button" onClick={() => navigate('journal')}>
         <PenIcon size={18} />
         Write a reflection
       </button>
 
       <section className="reflect-tools-section" aria-label="Reflect tools">
-        <div className="settings-list reflect-tools">
+        <div className="settings-list ll-plain reflect-tools">
           <DailyCheckIn entries={all ?? []} onSaved={() => reflectionService.refresh()} />
           <MoreRow
             icon={<CompassIcon size={22} />}

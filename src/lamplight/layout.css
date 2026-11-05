@@ -150,3 +150,35 @@ body {
   --ll-outer: var(--ll-radius-lg);
   --ll-inset: 16px;
 }
+
+/* ---------- Editorial standards (Nov 5, from Reflect): less container, more type and space ---------- */
+/* (`:root` three times: the shared surface and action rules must lose to these.)
+   `.ll-plain`: a list set directly on the page, rows between hairlines, no surface of its own. Put it on the list
+   (a `.settings-list`, `.rows`, a plain `ul`); its rows keep their own content and touch targets. */
+:root:root:root .ll-plain {
+  border: 0;
+  border-block: 1px solid var(--color-border);
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+
+:root:root:root .ll-plain > * {
+  background-image: none;
+}
+
+:root:root:root .ll-plain > * + * {
+  border-top: 1px solid var(--color-border);
+}
+
+:root:root:root .ll-plain .settings-row {
+  padding-inline: 0;
+  background-image: none;
+}
+
+/* `.ll-steady`: a screen's one main action in a restrained corner with no glow, in place of the lamp's pill. */
+:root:root:root .ll-steady:not(:disabled) {
+  border-radius: var(--ll-radius-action);
+  box-shadow: none;
+}
