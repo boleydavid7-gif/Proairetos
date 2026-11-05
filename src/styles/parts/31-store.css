@@ -43,17 +43,6 @@
   gap: 14px;
 }
 
-.store__app {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  overflow: hidden;
-}
-
 .store__banner {
   display: flex;
   flex-direction: column;
@@ -90,27 +79,6 @@
   color: color-mix(in srgb, var(--ink) 72%, transparent);
 }
 
-.store__head {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.store__line,
-.store__about {
-  margin: 0;
-  color: var(--color-text-muted);
-}
-
-.store__line {
-  color: var(--color-text);
-}
-
-.store__about {
-  font-size: var(--text-md);
-}
-
 .store__price {
   flex: none;
   padding: 4px 10px;
@@ -118,12 +86,6 @@
   border: 1px solid var(--color-border);
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-}
-
-.store__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
 }
 
 .store__button {
@@ -135,6 +97,31 @@
   text-decoration: none;
 }
 
+.store__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-surface) 88%, transparent); }
+.store__row-open { display: flex; flex: 1; min-width: 0; align-items: center; gap: 12px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.store__row-icon { flex: none; border-radius: 12px; }
+.store__row-text { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.store__row-text small { color: var(--color-text-muted); font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.store__row-act { flex: none; display: flex; align-items: center; }
+.store__button--compact { flex: none; min-height: 36px; padding-inline: 16px; }
+.store-app { display: flex; flex-direction: column; gap: var(--ll-gap, 16px); }
+.store-app__banner { margin: 0; border-radius: var(--radius-md); }
+.store-app__buy { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.store-app__buy .store__button { flex: 1; }
+.store-app__shots { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 4px; }
+.store-app__shots img { flex: none; height: 22rem; width: auto; border-radius: var(--radius-md); scroll-snap-align: start; }
+.store-app__section { display: flex; flex-direction: column; gap: var(--ll-label-gap, 8px); }
+.store-app__section h3 { margin: 0; font-size: var(--text-lg); }
+.store-app__section p { margin: 0; color: var(--color-text-muted); }
+.store-app__does { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 6px; color: var(--color-text-muted); }
+.store__list { grid-template-columns: minmax(0, 1fr); }
+.store__list > li { min-width: 0; }
+.store-app__connects { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.store-app__link { display: flex; align-items: flex-start; gap: 12px; }
+.store-app__link-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.store-app__link-detail { color: var(--color-text-muted); font-size: var(--text-sm); }
+.store-app__mini { flex: none; border-radius: 9px; }
+.store-app__state { margin-left: 8px; color: var(--color-text-muted); font-size: var(--text-xs); font-weight: 400; }
 .apps-grid {
   margin: 8px 0 0;
   padding: 0;
@@ -180,6 +167,7 @@
   .store__list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  .store-app { max-width: 40rem; }
 }
 
 /* Passkeys on the account page. */
@@ -301,3 +289,5 @@
 .about-noesis img { border-radius: 10px; }
 .about-noesis span { display: grid; flex: 1; }
 .about-noesis small { color: var(--color-text-muted); font-size: var(--text-sm); }
+
+.store__row-note { flex-basis: 100%; margin: 0; }

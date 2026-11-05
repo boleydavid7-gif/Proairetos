@@ -25,6 +25,15 @@ function setup() {
 }
 
 describe('schedule service', () => {
+  it('notes the person’s own edits, not a refresh from sync', async () => {
+    const service = setup();
+    expect(service.lastOwnEdit()).toBe(0);
+    service.refresh();
+    expect(service.lastOwnEdit()).toBe(0);
+    await service.createPattern(input);
+    expect(service.lastOwnEdit()).toBeGreaterThan(0);
+  });
+
   it('creates, updates, and removes patterns', async () => {
     const service = setup();
     const created = await service.createPattern(input);

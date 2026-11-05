@@ -1,10 +1,13 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useState } from 'react';
 import { myReferral, type MyReferral } from '../../app/family/referral';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { addApp, NOT_OFFERED, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
 import { buy, CORE_APPS, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase, type PurchaseItem } from '../../app/family/purchases';
 import { Waiting } from '../../lamplight/Waiting';
+import { Sym } from '../../lamplight/icons';
+import { useBackHandler } from '../../app/back/backStack';
+import StoreAppPage from './StoreAppPage';
 import { apiUrl } from '../../app/apiBase';
 import { supabase } from '../../data/sync/supabase';
 
@@ -21,6 +24,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<{ app: string; text: string; signIn?: boolean } | null>(null);
   const [finishing, setFinishing] = useState<string | null>(null);
+  const [openApp, setOpenApp] = useState<AddOn | null>(null);
 
   useEffect(() => {
     void refreshStore();
@@ -57,6 +61,58 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     }
   };
 
+  const stateOf = (id: AddOn) => {
+    const isAdded = added.includes(id);
+    const yours = owner || tester || Boolean(trialUntil) || owned.includes('core');
+    const label = isAdded ? 'Added' : yours ? (tester ? 'Beta' : trialUntil && !owned.includes('core') ? 'Trial' : 'Available') : 'Locked';
+    return { isAdded, yours, label };
+  };
+
+  /** The add, open or buy control for an app; compact in the list, full width on the app's own page. */
+  const actionsFor = (id: AddOn, compact = false) => {
+    const app = familyApps.find((each) => each.id === id)!;
+    const { isAdded, yours } = stateOf(id);
+    const size = compact ? 'store__button store__button--compact' : 'store__button';
+    return (
+      <>
+        {isAdded ? (
+          <>
+            <a className={`button-accent ${size}`} href={app.href}>Open</a>
+            {!compact && (
+              <button
+                type="button"
+                className="text-link"
+                onClick={() => {
+                  removeApp(id);
+                  offerUndo(`${app.name} removed from Proairetos`, async () => addApp(id));
+                }}
+              >
+                Remove
+              </button>
+            )}
+          </>
+        ) : yours ? (
+          <button
+            type="button"
+            className={`button-accent ${size}`}
+            onClick={() => {
+              addApp(id);
+              offerUndo(`${app.name} added`, async () => removeApp(id));
+            }}
+          >
+            Add
+          </button>
+        ) : (
+          <button type="button" className={`button-accent ${size}`} disabled={busy !== null || finishing === id} onClick={() => void purchase('core', 'Proairetos Core')}>
+            {finishing === id ? <Waiting>Finishing…</Waiting> : busy === id ? <Waiting>Opening…</Waiting> : compact ? 'Buy' : `Buy · ${priceText()}`}
+          </button>
+        )}
+      </>
+    );
+  };
+
+  useBackHandler(openApp !== null, () => setOpenApp(null));
+
   // Plans and apps belong to an account: signed out, the Store says so and leads to signing in.
   if (!account && !owner && !tester) {
     return (
@@ -78,6 +134,25 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     );
   }
 
+  if (openApp) {
+    return (
+      <section className="store" aria-label="App Store">
+        <StoreAppPage
+          id={openApp}
+          label={stateOf(openApp).label}
+          added={added}
+          actions={
+            <>
+              {actionsFor(openApp)}
+              {note?.app === openApp ? <p className="store__note" role="status">{note.text}</p> : null}
+            </>
+          }
+          onBack={() => setOpenApp(null)}
+        />
+      </section>
+    );
+  }
+
   return (
     <section className="store" aria-label="App Store">
       <div className="store__paywall">
@@ -95,84 +170,27 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
         {tester && !owner ? <p className="store__fine">Seven-day beta access includes the apps. Proairetos cloud is not included; use local storage or your own cloud.</p> : null}
         {owner ? <p className="store__fine">Owner access is enabled for this account.</p> : null}
       </div>
-      {(owner || tester || trialUntil || owned.length > 0) && <ul className="store__list">
-        {apps.map((app) => {
-          const id = app.id as AddOn;
-          const isAdded = added.includes(id);
-          const coreAccess = owner || tester || Boolean(trialUntil) || owned.includes('core');
-          const yours = coreAccess;
-          const label = isAdded ? 'Added' : yours ? tester ? 'Beta' : trialUntil && !owned.includes('core') ? 'Trial' : 'Available' : 'Locked';
-          return (
-            <li key={app.id} className="store__app">
-              <div
-                className="store__banner"
-                style={app.tint ? ({ '--ground': app.tint.ground, '--accent-app': app.tint.accent, '--ink': app.tint.ink } as CSSProperties) : undefined}
-              >
-                <img className="store__logo" src={app.icon} alt="" width={64} height={64} />
-                <h2 className="store__name">{app.name}</h2>
-                <p className="store__by">by Proairetos</p>
-              </div>
-              <div className="store__head">
-                <p className="store__line">{app.line}</p>
-                <span className="store__price">{label}</span>
-              </div>
-              {app.about && <p className="store__about">{app.about}</p>}
-              <div className="store__actions">
-                {isAdded ? (
-                  <>
-                    <a className="button-accent store__button" href={app.href}>
-                      Open
-                    </a>
-                    <button
-                      type="button"
-                      className="text-link"
-                      onClick={() => {
-                        removeApp(id);
-                        offerUndo(`${app.name} removed from Proairetos`, async () => addApp(id));
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </>
-                ) : yours ? (
-                  <button
-                    type="button"
-                    className="button-accent store__button"
-                    onClick={() => {
-                      addApp(id);
-                      offerUndo(`${app.name} added`, async () => removeApp(id));
-                    }}
-                  >
-                    Add
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="button-accent store__button"
-                    disabled={busy !== null || finishing === id}
-                    onClick={() => void purchase('core', 'Proairetos Core')}
-                  >
-                    {finishing === id ? <Waiting>Finishing…</Waiting> : busy === id ? <Waiting>Opening…</Waiting> : `Buy · ${priceText()}`}
-                  </button>
-                )}
-              </div>
-              {note?.app === app.id ? (
-                <p className="store__note" role="status">
-                  {note.text}
-                  {note.signIn ? (
-                    <>
-                      {' '}
-                      <a className="text-link" href="/?open=account">
-                        Sign in
-                      </a>
-                    </>
-                  ) : null}
-                </p>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>}
+      {(owner || tester || trialUntil || owned.length > 0) && (
+        <ul className="store__list">
+          {apps.map((app) => {
+            const id = app.id as AddOn;
+            return (
+              <li key={app.id} className="store__row">
+                <button type="button" className="store__row-open" onClick={() => setOpenApp(id)}>
+                  <img className="store__row-icon" src={app.icon} alt="" width={52} height={52} />
+                  <span className="store__row-text">
+                    <strong>{app.name}</strong>
+                    <small>{app.line}</small>
+                  </span>
+                  <Sym name="chevron" size={18} />
+                </button>
+                <div className="store__row-act">{actionsFor(id, true)}</div>
+                {note?.app === app.id ? <p className="store__note store__row-note" role="status">{note.text}</p> : null}
+              </li>
+            );
+          })}
+        </ul>
+      )}
       {!tester && !owner ? <p className="store__fine">Plans renew each month or year.</p> : null}
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/#install">
