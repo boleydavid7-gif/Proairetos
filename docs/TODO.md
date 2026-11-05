@@ -72,7 +72,6 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       public.waitlist where letters order by letters_at;`
 - [ ] First-week emails: run `20261102000000_first_week_emails.sql`, verify proairetos.com in Resend, add secrets
       `RESEND_API_KEY` and `EMAIL_SIGNING_SECRET` (steps in SERVER_SETUP.md "First-week emails").
-- [ ] Noesis premium ($6.99/month, plan `noesis`): Noesis must read the `purchases` row `noesis` (or Proairetos must tell it) before it gates anything; it also has its own Noesis Plus ($5.99, `/api/plus`) that now overlaps. Decide which stays.
 - [ ] The Store's subscriptions (Core $12.99/month, Soma and Phyton $3.99/month each, bundle $6.99/month, cloud
       $2.99/month; Proairetos free): run `20261025000000_purchases.sql`, `20261029000000_beta_access.sql` and
       `20261030000000_recurring_purchases.sql`, set up Stripe

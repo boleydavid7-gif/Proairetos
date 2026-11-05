@@ -17,7 +17,7 @@ const OWNED_KEY = 'proairetosOwned';
 
 type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: number; currency: string };
 
-export type PurchaseItem = 'core' | 'cloud' | 'noesis';
+export type PurchaseItem = 'core' | 'cloud';
 // Praxis is retained as a compatibility route into Theoria's Pomodoro, but is no longer a purchasable or addable app.
 export const CORE_APPS = ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'] as const;
 
@@ -48,7 +48,7 @@ export const storePaid = (): boolean => readJson<StoreInfo>(STORE_KEY)?.paid ===
 /** A plan price in the person's own way of writing money. */
 export function priceText(item: PurchaseItem | string = 'core'): string {
   const info = readJson<StoreInfo>(STORE_KEY);
-  const cents = info?.prices?.[item] ?? ({ core: 1299, cloud: 299, noesis: 699 }[item] ?? info?.price ?? 1299);
+  const cents = info?.prices?.[item] ?? ({ core: 1299, cloud: 299 }[item] ?? info?.price ?? 1299);
   try {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: (info?.currency ?? 'usd').toUpperCase() }).format(cents / 100);
   } catch {
@@ -188,7 +188,7 @@ export function takeBought(): string | null {
 /** Waits for the purchase to be recorded (Stripe tells the server a moment after the person returns). */
 export async function waitForPurchase(app: string, tries = 8, gap = 1500): Promise<boolean> {
   for (let attempt = 0; attempt < tries; attempt += 1) {
-    if ((await refreshOwned()).includes(app) || (app === 'bundle' && ownedApps().includes('soma') && ownedApps().includes('phyton')) || (app === 'core' && CORE_APPS.every((each) => ownedApps().includes(each))) || (app === 'cloud' && mayUseCloud()) || (app === 'noesis' && ownedApps().includes('noesis')) || isTester() || isOwner()) return true;
+    if ((await refreshOwned()).includes(app) || (app === 'bundle' && ownedApps().includes('soma') && ownedApps().includes('phyton')) || (app === 'core' && CORE_APPS.every((each) => ownedApps().includes(each))) || (app === 'cloud' && mayUseCloud()) || isTester() || isOwner()) return true;
     await new Promise((done) => setTimeout(done, gap));
   }
   return false;

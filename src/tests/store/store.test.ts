@@ -40,7 +40,7 @@ async function signedBody(payload: string, secret: string, time: number) {
 describe('the Store on the Worker', () => {
   it('stays free until every secret is set', async () => {
     const free = await handleStoreRequest(new Request('https://proairetos.com/api/store'), {});
-    expect(await free.json()).toEqual({ paid: false, prices: { core: 1299, cloud: 299, noesis: 699 }, price: 1299, currency: 'usd' });
+    expect(await free.json()).toEqual({ paid: false, prices: { core: 1299, cloud: 299 }, price: 1299, currency: 'usd' });
     const paid = await handleStoreRequest(new Request('https://proairetos.com/api/store'), env);
     expect(((await paid.json()) as { paid: boolean }).paid).toBe(true);
     expect((await startCheckout(checkout({ app: 'soma' }), {}, fake().fetcher)).status).toBe(503);
@@ -58,16 +58,6 @@ describe('the Store on the Worker', () => {
     expect(form.get('metadata[user]')).toBe('user-1');
     expect(form.get('success_url')).toBe('https://proairetos.com/?open=settings:store#bought=core');
     expect(await (await startCheckout(checkout({ app: 'core' }), env, fake({ owned: true }).fetcher)).json()).toEqual({ owned: true });
-  });
-
-  it('opens Noesis checkout at $6.99 as its own plan', async () => {
-    const { fetcher, calls } = fake();
-    const response = await startCheckout(checkout({ app: 'noesis' }), env, fetcher);
-    expect(await response.json()).toEqual({ url: 'https://checkout.stripe.com/c/1' });
-    const form = new URLSearchParams(String(calls.at(-1)!.init!.body));
-    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('699');
-    expect(form.get('metadata[app]')).toBe('noesis');
-    expect(form.get('metadata[apps]')).toBe('noesis');
   });
 
   it('turns away unknown apps and people not signed in', async () => {

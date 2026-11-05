@@ -27,7 +27,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     // Back from Stripe: wait for the purchase to be recorded, then add the app.
     const bought = takeBought();
     if (!bought) return;
-    const name = bought === 'core' ? 'Proairetos Core' : bought === 'cloud' ? 'Proairetos cloud' : bought === 'noesis' ? 'Noesis' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
+    const name = bought === 'core' ? 'Proairetos Core' : bought === 'cloud' ? 'Proairetos cloud' : familyApps.find((app) => app.id === bought)?.name ?? 'The app';
     setFinishing(bought);
     void waitForPurchase(bought).then((done) => {
       setFinishing(null);
@@ -82,11 +82,10 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
       <div className="store__paywall">
         <h2>App Store</h2>
         <p>Proairetos is free.</p>
-        {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud and Noesis are not included.</p> : null}
+        {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
         <div className="store__plans">
           <PlanCard plan="core" title="Proairetos Core" detail="The other apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
-          <NoesisCard price={priceText('noesis')} owned={owner || owned.includes('noesis')} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
         </div>
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
@@ -183,37 +182,11 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
 
 function addPlan(plan: string): void {
   if (plan === 'core') CORE_APPS.forEach((app) => addApp(app));
-  else if (plan !== 'cloud' && plan !== 'noesis') addApp(plan as AddOn);
+  else if (plan !== 'cloud') addApp(plan as AddOn);
 }
 
 function PlanCard({ plan, title, detail, price, owned, busy, finishing, onBuy }: { plan: PurchaseItem; title: string; detail: string; price: string; owned: boolean; busy: string | null; finishing: string | null; onBuy: (plan: PurchaseItem, name: string) => Promise<void> }) {
   return <article className="store__plan"><div><h3>{title}</h3><p>{detail}</p></div><strong>{owned ? 'Included' : `${price}/mo`}</strong>{owned ? <span className="store__plan-state">Available</span> : <button type="button" className="button-accent" disabled={busy !== null || finishing === plan} onClick={() => void onBuy(plan, title)}>{finishing === plan ? <Waiting>Finishing…</Waiting> : busy === plan ? <Waiting>Opening…</Waiting> : 'Subscribe'}</button>}</article>;
-}
-
-/** Noesis is a premium app of its own: it opens at its own address, so there is nothing to add to Proairetos. */
-function NoesisCard({ price, owned, busy, finishing, onBuy }: { price: string; owned: boolean; busy: string | null; finishing: string | null; onBuy: (plan: PurchaseItem, name: string) => Promise<void> }) {
-  return (
-    <article className="store__plan store__premium">
-      <div className="store__premium-head">
-        <img src="/partners/noesis.png" alt="" width={44} height={44} />
-        <div>
-          <h3>Noesis</h3>
-          <p>Read, highlight and follow your questions</p>
-        </div>
-      </div>
-      <strong>{owned ? 'Included' : `${price}/mo`}</strong>
-      <div className="store__premium-actions">
-        <a className="text-link" href="/welcome/noesis/">More info</a>
-        {owned ? (
-          <a className="button-accent" href="https://noesis.proairetos.com/" target="_blank" rel="noopener">Open</a>
-        ) : (
-          <button type="button" className="button-accent" disabled={busy !== null || finishing === 'noesis'} onClick={() => void onBuy('noesis', 'Noesis')}>
-            {finishing === 'noesis' ? <Waiting>Finishing…</Waiting> : busy === 'noesis' ? <Waiting>Opening…</Waiting> : 'Subscribe'}
-          </button>
-        )}
-      </div>
-    </article>
-  );
 }
 
 type BetaEntry = { email: string; expires_at: string };

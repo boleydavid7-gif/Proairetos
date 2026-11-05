@@ -1275,6 +1275,16 @@ export default function SettingsPage() {
             </p>
           </section>
         )}
+        {view === 'about' && (
+          <a className="about-noesis" href="https://noesis.proairetos.com/" target="_blank" rel="noopener">
+            <img src="/partners/noesis.png" alt="" width={40} height={40} />
+            <span>
+              <strong>Noesis</strong>
+              <small>Reading and notes</small>
+            </span>
+            <ChevronRightIcon size={18} />
+          </a>
+        )}
         {view === 'about' && <SourcesSection />}
         {view === 'store' && <StoreSection onOpenAccount={() => setView('account')} />}
         {view === 'news' && (

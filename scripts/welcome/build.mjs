@@ -184,22 +184,6 @@ const apps = [
   },
 ];
 
-// A premium app: its own subscription in the Store, opened at its own address. It has a front page but is not one of
-// the add-ons the Store lists or the apps the other pages count.
-const premium = {
-  id: 'noesis', name: 'Noesis', href: 'https://noesis.proairetos.com/', icon: '/partners/noesis.png', category: 'EducationalApplication', premium: true,
-  ground: '#0b1018', accent: '#d9b56a', ink: '#e9ecf1',
-  line: 'Read your books. Keep what stays with you',
-  about: 'A reading app for the books you own and borrow. It opens EPUB and PDF files in your browser, keeps your highlights and notes in one place you can search, and starts you on rabbit holes from any question.',
-  points: [
-    ['Read what you own', 'EPUB and PDF books in a reader with your choice of type, spacing and theme, and a read-aloud voice.'],
-    ['Keep what you read', 'Highlight a passage and add a thought. Everything lands in one place you can search, and Kindle highlights come in.'],
-    ['Rabbit holes', 'Start from a question. Each one brings books, articles and videos, and you go deeper one question at a time.'],
-    ['Ask Noema', 'Ask about a passage, a chapter, a book or your whole library. Answers point back to your own pages.'],
-    ['Your books, everywhere', 'Keep books in your own Google Drive, OneDrive or Dropbox and open them on every device.'],
-    ['Library loans', 'See whether your library has a book on the shelf, and keep due dates with a link to renew.'],
-  ],
-};
 const addOns = apps.filter((app) => app.id !== 'proairetos');
 const hrefOf = (app) => app.href ?? `/${app.id}/`;
 const pageOf = (app) => (app.id === 'proairetos' ? '/welcome/' : `/welcome/${app.id}/`);
@@ -539,7 +523,6 @@ ${featured.map(appCard).join('\n')}
           <div class="price"><b>Core apps</b><strong>${dollars('core')}/mo</strong><span>All the apps except Soma and Phyton.</span></div>
           <div class="price"><b>Soma</b><strong>${dollars('soma')}/mo</strong><span>Recipes, meal plans and grocery lists.</span></div>
           <div class="price"><b>Phyton</b><strong>${dollars('phyton')}/mo</strong><span>Plant care, with identification from a photo. Get both for ${dollars('bundle')}/mo.</span></div>
-          <div class="price"><b>Noesis</b><strong>${dollars('noesis')}/mo</strong><span>A reading app for your books, highlights and questions. Not part of the free trial.</span></div>
           <div class="price"><b>Proairetos cloud</b><strong>${dollars('cloud')}/mo</strong><span>Encrypted sync and backup. Or sync for free with your own Google Drive, Dropbox or OneDrive.</span></div>
         </div>
       </section>
@@ -601,9 +584,8 @@ function appPage(app) {
     operatingSystem: 'Any (installable web app)',
     image: `${site}${app.icon}`,
     isPartOf: { '@type': 'WebApplication', name: 'Proairetos', url: `${site}/` },
-    ...(app.premium ? { offers: { '@type': 'Offer', price: (cents('noesis') / 100).toFixed(2), priceCurrency: 'USD' } } : {}),
   };
-  const others13 = [...addOns, premium].filter((each) => each.id !== app.id);
+  const others13 = addOns.filter((each) => each.id !== app.id);
   return `${head({ title, description: app.about, path: pageOf(app), icon: app.icon, jsonLd })}
     <style>
       :root {
@@ -643,7 +625,7 @@ function appPage(app) {
           <h1>${esc(app.line)}</h1>
           <p class="lead">${esc(app.about)}</p>
           <div class="actions">
-            ${app.premium ? `<a class="button button--main" href="/?open=settings:store">Subscribe · ${dollars('noesis')}/mo</a>` : `<a class="button button--main" href="${TRIAL}">Start your free trial</a>`}
+            <a class="button button--main" href="${TRIAL}">Start your free trial</a>
             <a class="button" href="${hrefOf(app)}">Open ${app.name}</a>
           </div>
         </div>${first ? `\n        <img class="phone" src="${first.src}" alt="${app.name} on a phone" width="300" height="650" />` : ''}
@@ -669,11 +651,9 @@ ${others.map((shot) => `          <img src="${shot.src}" alt="${app.name}${shot.
 
       <section class="wrap" aria-labelledby="install-title">
         <h2 id="install-title">Works on every device</h2>
-        <p class="lead">${app.premium
-          ? `${app.name} is a premium app, ${dollars('noesis')} a month, billed through your Proairetos account and separate from the free trial. It works without an account for reading; sign in to sync. It opens in any browser, and installs to your Home Screen on iPhone, Android or a computer.`
-          : `${app.name} opens from Proairetos on iPhone, Android or a computer, and its day shows on Proairetos's Today. Add Proairetos to your Home Screen; nothing else to download. <a href="/welcome/#install">How to add it</a>`}</p>
+        <p class="lead">${app.name} opens from Proairetos on iPhone, Android or a computer, and its day shows on Proairetos's Today. Add Proairetos to your Home Screen; nothing else to download. <a href="/welcome/#install">How to add it</a></p>
       </section>
-${app.premium ? '' : waitlist({ source: app.id, picked: [app.id], choose: false })}
+${waitlist({ source: app.id, picked: [app.id], choose: false })}
 ${privacyNotes}
 
       <section class="wrap" aria-labelledby="family">
@@ -724,7 +704,7 @@ const write = (path, text) => {
 
 write('welcome/index.html', frontPage());
 write('welcome/apps/index.html', allAppsPage());
-for (const app of [...addOns, premium]) write(`welcome/${app.id}/index.html`, appPage(app));
+for (const app of addOns) write(`welcome/${app.id}/index.html`, appPage(app));
 write(
   'welcome/thanks/index.html',
   plainPage({ path: '/welcome/thanks/', title: 'You’re signed up', heading: 'You’re signed up', text: 'The next newsletter comes to your inbox. Every app is free to try for 7 days.' }),
@@ -743,7 +723,7 @@ ${[
   '/',
   '/welcome/',
   '/welcome/apps/',
-  ...[...addOns, premium].map((app) => `/welcome/${app.id}/`),
+  ...addOns.map((app) => `/welcome/${app.id}/`),
   '/lamplight/',
   '/privacy.html',
 ].map((path) => `  <url><loc>${site}${path}</loc><lastmod>${built}</lastmod></url>`).join('\n')}
