@@ -66,6 +66,11 @@ export type AppManifest = {
    * and nothing new is indexed for it.
    */
   search?: { privacy: PrivacyClass; windowDays?: number; defaultOn?: boolean; indexes: readonly string[]; excludes: readonly string[] };
+  /**
+   * What the app's lines on Today may state (`shows`) and never do (`excludes`). A line is a summary and a way into the app,
+   * not the record. Present for an app that provides `home`.
+   */
+  home?: { shows: readonly string[]; excludes: readonly string[] };
   /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
   provides?: readonly Capability[];
   declares?: { reads: readonly string[]; writes: readonly string[] };

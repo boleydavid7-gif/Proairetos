@@ -19,8 +19,25 @@ import { studyBetween, useStudy } from '../../app/praxis/study';
 import { meleteSessions, meleteSubjects, useMeleteSubjects } from '../../app/calendars/meleteCalendar';
 import { daysBetween } from '../../core/scheduling/dates';
 import { ChevronRightIcon, GearIcon } from '../../components/icons/Icons';
+import { HOME_APPS, useHomeRows } from '../../app/providers/home';
+import type { HomeRow } from '../../core/providers';
+import { AttentionLine, PracticeLine } from './HomeRows';
 
 type DayRange = { start: Date; end: Date };
+
+/** The apps whose lines on Today come from their providers (the manifest's `provides`); the rest are still read here. */
+const PROVIDED = new Set<string>(HOME_APPS);
+/** These apps' groups are drawn even with no lines, as they always were (the page hides an empty one). */
+const ALWAYS_DRAWN = new Set(['oikonomia', 'philia', 'poreia']);
+
+function ProvidedGroup({ app, rows, today }: { app: AttentionApp; rows: HomeRow[]; today: string }) {
+  if (!rows.length && !ALWAYS_DRAWN.has(app)) return null;
+  return (
+    <AppGroup app={app} compact>
+      {rows.map((row) => <AttentionLine key={`${row.ref.kind}:${row.ref.id}:${row.swipe?.id ?? ''}`} row={row} today={today} />)}
+    </AppGroup>
+  );
+}
 
 function PracticeLink({ href, detail, progress, progressLabel }: { href: string; detail: string; progress?: number; progressLabel?: string }) {
   return (
@@ -50,6 +67,7 @@ function PracticeLink({ href, detail, progress, progressLabel }: { href: string;
 export function DailyPractices({ today, range }: { today: string; range: DayRange }) {
   const added = useAddedApps();
   const hidden = useTodayAppsVisibility();
+  const practiceRows = useHomeRows('practice', { today, start: range.start, end: range.end });
 
   const drinks = useHydrosDrinks() ?? [];
   const hydrosSettings = useHydrosSettings();
@@ -153,12 +171,12 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
       <div className="today-app-overview__card">
         {visible.map((app) => (
           <AppGroup key={app} app={app} compact>
-            <PracticeLink
+            {PROVIDED.has(app) ? practiceRows.filter((row) => row.ref.app === app).map((row) => <PracticeLine key={row.ref.id} row={row} />) : <PracticeLink
               href={links[app]}
               detail={detail[app]}
               progress={app === 'hydros' && goal ? Math.max(0, Math.min(1, hydration / goal)) : undefined}
               progressLabel={app === 'hydros' && goal ? `${formatVolume(hydration, unit)} of ${formatVolume(goal, unit)} ${unit}` : undefined}
-            />
+            />}
           </AppGroup>
         ))}
       </div>
@@ -167,8 +185,10 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
 }
 
 /** Relevant, actionable signals from the other apps. Empty apps take no space. */
-export function WorthYourAttention({ today, now }: { today: string; now: Date }) {
+export function WorthYourAttention({ today, now, range }: { today: string; now: Date; range: DayRange }) {
   const added = useAddedApps();
+  const homeRows = useHomeRows('attention', { today, start: range.start, end: range.end });
+  const homeFor = (app: string) => homeRows.filter((row) => row.ref.app === app);
   const hidden = useTodayAppsVisibility();
   const rows = useFromYourAppsRows(today);
   const visible = (app: AttentionApp) => added.includes(app) && !hidden.has(app);
@@ -182,14 +202,14 @@ export function WorthYourAttention({ today, now }: { today: string; now: Date })
       </div>
       <div className="today-app-overview__card">
         <SwipeDay.Provider value={today}>
-          {visible('ergon') && <FromAppsGroup app="ergon" rows={rowsFor('ergon')} today={today} compact />}
-          {visible('ktema') && <FromAppsGroup app="ktema" rows={rowsFor('ktema')} today={today} compact />}
-          {visible('oikonomia') && <AppGroup app="oikonomia" compact><TodayFamily today={today} /></AppGroup>}
-          {visible('philia') && <AppGroup app="philia" compact><TodayBirthdays today={today} /></AppGroup>}
-          {visible('phyton') && <FromAppsGroup app="phyton" rows={rowsFor('phyton')} today={today} compact />}
-          {visible('poreia') && <AppGroup app="poreia" compact><TodayTrip now={now} today={today} /></AppGroup>}
-          {visible('soma') && <FromAppsGroup app="soma" rows={rowsFor('soma')} today={today} compact />}
-          {visible('therapeia') && <FromAppsGroup app="therapeia" rows={rowsFor('therapeia')} today={today} compact />}
+          {visible('ergon') && (PROVIDED.has('ergon') ? <ProvidedGroup app="ergon" rows={homeFor('ergon')} today={today} /> : <FromAppsGroup app="ergon" rows={rowsFor('ergon')} today={today} compact />)}
+          {visible('ktema') && (PROVIDED.has('ktema') ? <ProvidedGroup app="ktema" rows={homeFor('ktema')} today={today} /> : <FromAppsGroup app="ktema" rows={rowsFor('ktema')} today={today} compact />)}
+          {visible('oikonomia') && (PROVIDED.has('oikonomia') ? <ProvidedGroup app="oikonomia" rows={homeFor('oikonomia')} today={today} /> : <AppGroup app="oikonomia" compact><TodayFamily today={today} /></AppGroup>)}
+          {visible('philia') && (PROVIDED.has('philia') ? <ProvidedGroup app="philia" rows={homeFor('philia')} today={today} /> : <AppGroup app="philia" compact><TodayBirthdays today={today} /></AppGroup>)}
+          {visible('phyton') && (PROVIDED.has('phyton') ? <ProvidedGroup app="phyton" rows={homeFor('phyton')} today={today} /> : <FromAppsGroup app="phyton" rows={rowsFor('phyton')} today={today} compact />)}
+          {visible('poreia') && (PROVIDED.has('poreia') ? <ProvidedGroup app="poreia" rows={homeFor('poreia')} today={today} /> : <AppGroup app="poreia" compact><TodayTrip now={now} today={today} /></AppGroup>)}
+          {visible('soma') && (PROVIDED.has('soma') ? <ProvidedGroup app="soma" rows={homeFor('soma')} today={today} /> : <FromAppsGroup app="soma" rows={rowsFor('soma')} today={today} compact />)}
+          {visible('therapeia') && (PROVIDED.has('therapeia') ? <ProvidedGroup app="therapeia" rows={homeFor('therapeia')} today={today} /> : <FromAppsGroup app="therapeia" rows={rowsFor('therapeia')} today={today} compact />)}
           <AppGroup app="proairetos" name="Compass" compact><TodayPursuit /></AppGroup>
           <div className="today-group today-group--aside"><NotTodayFold /></div>
         </SwipeDay.Provider>

@@ -1,6 +1,6 @@
 import type { AppManifest } from '../apps/manifest';
-import { enforceSearch, mayProvideSearch, type Rejection } from './policy';
-import type { Provider, ProviderContext, SearchProjection } from './types';
+import { enforceHome, enforceSearch, mayProvideHome, mayProvideSearch, type Rejection } from './policy';
+import type { HomeRow, Provider, ProviderContext, SearchProjection } from './types';
 
 /*
  * The one caller of providers. It checks that the app is added and usable, that the person has this capability on,
@@ -42,4 +42,38 @@ export async function searchProjections(providers: readonly Provider<'search'>[]
     rejected.push(...cut.rejected);
   }
   return { results, rejected, timings };
+}
+
+export type HomeOutcome = { rows: HomeRow[]; rejected: Rejection[]; timings: { app: string; ms: number; rows: number }[] };
+
+/**
+ * The lines the apps put on Today. A provider runs only for an app that is added and usable and that the person has
+ * not set aside ("Apps on Today"), and only the lines of a summary survive (`enforceHome`).
+ */
+export async function homeRows(providers: readonly Provider<'home'>[], manifest: readonly AppManifest[], ctx: HostContext): Promise<HomeOutcome> {
+  const rows: HomeRow[] = [];
+  const rejected: Rejection[] = [];
+  const timings: HomeOutcome['timings'] = [];
+  for (const provider of providers) {
+    const app = manifest.find((each) => each.id === provider.app);
+    const refusal = mayProvideHome(app, provider);
+    if (refusal) {
+      rejected.push(refusal);
+      continue;
+    }
+    if (!ctx.isUsable(provider.app) || !ctx.enabled(provider.app, 'home')) continue;
+    const started = performance.now();
+    let output: HomeRow[];
+    try {
+      output = await provider.read(ctx);
+    } catch (error) {
+      rejected.push({ app: provider.app, reason: `its provider could not read: ${error instanceof Error ? error.message : String(error)}` });
+      continue;
+    }
+    const cut = enforceHome(app!, output);
+    timings.push({ app: provider.app, ms: Math.round((performance.now() - started) * 100) / 100, rows: cut.kept.length });
+    rows.push(...cut.kept);
+    rejected.push(...cut.rejected);
+  }
+  return { rows, rejected, timings };
 }
