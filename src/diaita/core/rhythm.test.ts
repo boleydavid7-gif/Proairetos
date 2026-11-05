@@ -205,15 +205,15 @@ describe('what is offered, not assumed', () => {
   });
 });
 
-describe('sleep after a shift', () => {
+describe('the earliest sleep after work', () => {
   const afterNight = (settings: typeof defaultRhythm) => mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings).find((sleep) => sleep.after === 'last-night' || sleep.after === 'night');
 
-  it('starts sleep an hour after the shift ends, not straight from it', () => {
+  it('starts sleep an hour after work ends, not straight from it', () => {
     const sleep = afterNight({ ...defaultRhythm });
     expect(sleep && clock(sleep.start)).toBe('08:00');
   });
 
-  it('follows the person’s own time after a shift', () => {
+  it('follows the person’s own earliest time', () => {
     const none = afterNight({ ...defaultRhythm, afterShiftMinutes: 30 });
     const long = afterNight({ ...defaultRhythm, afterShiftMinutes: 90 });
     expect(none && clock(none.start)).toBe('07:30');
