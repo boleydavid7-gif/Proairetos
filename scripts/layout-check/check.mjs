@@ -66,6 +66,7 @@ for (const theme of ['dark', 'light']) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });
   await ctx.addInitScript(() => {
     if (sessionStorage.getItem('layout-check')) return;
+    localStorage.setItem('proairetosOwned', JSON.stringify({ apps: ['core'], owner: true, account: true }));
     localStorage.setItem('proairetos.apps', JSON.stringify({ added: ['ergon'] }));
     localStorage.setItem('ergon:settings', JSON.stringify({ started: true, me: '', notices: { on: false, at: '09:00', onlyMine: false } }));
     localStorage.setItem('ergon:chore:a', JSON.stringify({ id: 'a', name: 'Dishes', repeat: { kind: 'days', every: 1 }, history: [], start: '2020-01-01', createdAt: '2020-01-01T00:00:00Z' }));
