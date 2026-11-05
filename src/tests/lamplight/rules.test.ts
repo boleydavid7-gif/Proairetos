@@ -91,3 +91,14 @@ describe('Lamplight light is defined once', () => {
     expect(list('paper.css')).toEqual(list('light.css'));
   });
 });
+
+describe('Editorial standards', () => {
+  it('defines .ll-plain and .ll-steady once, in layout.css, on the radius token', () => {
+    const where = (needle: string) => files.filter((name) => code(name).includes(needle));
+    expect(where('.ll-plain {')).toEqual(['layout.css']);
+    expect(where('.ll-steady:not(:disabled) {')).toEqual(['layout.css']);
+    expect(code('layout.css')).toContain('var(--ll-radius-action)');
+    expect(code('tokens.css')).toContain('--ll-radius-action: var(--ll-radius-sm)');
+  });
+});
+

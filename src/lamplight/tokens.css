@@ -36,6 +36,8 @@
   --ll-radius-md: 16px;
   --ll-radius-lg: 22px;
   --ll-radius-pill: 999px;
+  /* The corner of a screen's one main action in the editorial look (`.ll-steady`): squarer than a pill. */
+  --ll-radius-action: var(--ll-radius-sm);
 
   /* Space, on a 4-point grid. */
   --ll-space-1: 4px;
