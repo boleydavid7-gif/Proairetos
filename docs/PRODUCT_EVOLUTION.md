@@ -179,3 +179,19 @@ that says due. Support and accuracy figures below come from blogs and vendor pag
    better on receipts, model size unverified. Behind a feature test, Tesseract stays as the fallback.
 6. Chrome's Prompt API (image input, text out only) to propose fields from a photo, only when the person taps it; not
    on iPhone or Android Chrome yet.
+
+### Update log (fourth round)
+
+- Nov 5: built for everyone on a phone: 1 (the total read by its words, `amountByWords` in `core/ocr/labels.ts`: ranked
+  labels, subtotal, tax, change, cash, tendered, savings, previous and minimum lines skipped, the line after a label, look-alike
+  letters put back as digits `fixDigits`, a due date also on the line after "due", dots read day first); 2 (the test set,
+  `src/tests/ocr/fixtures.ts`, 14 cases, add real bills and receipts as text); 3 in part (`core/ocr/image.ts` and
+  `app/family/ocr.ts`: photo turned upright from its EXIF, made black on white by the light around each pixel, straightened,
+  then up to three reads, auto, one block, single column from plain gray, stopping at the first that gives the form something);
+  4 in part (a PDF's own text, else its first page read as a picture; the camera-only attribute is gone, so the library,
+  screenshots and PDFs can be chosen). Checked in Chromium on a drawn receipt turned 4 degrees with a shadow and a larger
+  cash line: amount 23.47 and date right in 1.8 s.
+- Not built, on purpose: 6 (Chrome desktop only); QR bills (Swiss QR-bill and EPC help only some countries, and need a
+  decoder library); perspective correction (an OpenCV.js download judged against real photos, which the test set lacks);
+  5, PP-OCRv5 (model size and accuracy unverified; try once the set holds real photos' text). Worth revisiting: 5 and
+  perspective correction, measured against the set.
