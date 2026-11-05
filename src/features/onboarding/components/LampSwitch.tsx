@@ -1,4 +1,4 @@
-import { useEffect, useRef, type PointerEvent } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { tap } from '../../../app/feel';
 
 const HOLD_MS = 900;
@@ -14,6 +14,9 @@ export default function LampSwitch({ onLit }: { onLit: () => void }) {
   const frame = useRef(0);
   const started = useRef(0);
   const done = useRef(false);
+  // A press let go too soon: the hint changes for a moment, as a button that wants a longer press does.
+  const [short, setShort] = useState(false);
+  const nudge = useRef(0);
 
   const room = () => button.current?.closest<HTMLElement>('.onboarding-layout') ?? null;
   const show = (hold: number) => {
@@ -49,8 +52,13 @@ export default function LampSwitch({ onLit }: { onLit: () => void }) {
     cancelAnimationFrame(frame.current);
     button.current?.classList.add('is-letting-go');
     show(0);
+    if (performance.now() - started.current < HOLD_MS * 0.6) {
+      setShort(true);
+      window.clearTimeout(nudge.current);
+      nudge.current = window.setTimeout(() => setShort(false), 2200);
+    }
   };
-  useEffect(() => () => cancelAnimationFrame(frame.current), []);
+  useEffect(() => () => { cancelAnimationFrame(frame.current); window.clearTimeout(nudge.current); }, []);
 
   return (
     <div className="lamp-switch">
@@ -71,7 +79,7 @@ export default function LampSwitch({ onLit }: { onLit: () => void }) {
         </svg>
         <span className="lamp-switch__flame" aria-hidden="true" />
       </button>
-      <p className="lamp-switch__hint" aria-hidden="true">Hold to light</p>
+      <p className="lamp-switch__hint" aria-hidden="true">{short ? 'Keep holding' : 'Hold to light'}</p>
     </div>
   );
 }

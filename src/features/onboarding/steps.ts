@@ -17,7 +17,8 @@ export type OnboardingStep = {
 };
 
 /** The owner's words throughout. The welcome happens in the person's own room, lit by its one lamp. Five steps, and a
- *  sixth for the Home Screen while the app is not installed there. */
+ *  sixth for the Home Screen while the app is not installed there. The practical steps (what you can add, then your own
+ *  settings) come before the longer words, which end the welcome (Things, Finch and Apple's own setup get to a personal choice first). */
 export const onboardingSteps: OnboardingStep[] = [
   {
     title: 'προαιρετός',
@@ -28,6 +29,22 @@ export const onboardingSteps: OnboardingStep[] = [
     ],
     action: 'Continue',
     brand: true,
+  },
+  {
+    title: 'The Store',
+    lines: [
+      'There are responsibilities to manage, plans to make, habits to build, people to remember and things you’d like to accomplish.',
+      '**Everything comes together.** Each app you add becomes part of one connected experience. From planning your day and managing your finances to your health, relationships, personal growth, and everything in between, the different parts of your life come together in one place.',
+      'Plan your day. Clear your mind. Give your attention to what matters.',
+    ],
+    action: 'Continue',
+    panel: 'apps',
+  },
+  {
+    title: 'Make it yours',
+    lines: ['You can change any of this in Settings.'],
+    action: 'Continue',
+    form: true,
   },
   {
     title: 'Adjust your sails',
@@ -50,22 +67,6 @@ export const onboardingSteps: OnboardingStep[] = [
     finale: 'Your life. Your choices. Your time.',
     lit: true,
     action: 'Continue',
-  },
-  {
-    title: 'The Store',
-    lines: [
-      'There are responsibilities to manage, plans to make, habits to build, people to remember and things you’d like to accomplish.',
-      '**Everything comes together.** Each app you add becomes part of one connected experience. From planning your day and managing your finances to your health, relationships, personal growth, and everything in between, the different parts of your life come together in one place.',
-      'Plan your day. Clear your mind. Give your attention to what matters.',
-    ],
-    action: 'Continue',
-    panel: 'apps',
-  },
-  {
-    title: 'Make it yours',
-    lines: ['You can change any of this in Settings.'],
-    action: 'Continue',
-    form: true,
   },
   {
     title: 'On your Home Screen',

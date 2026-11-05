@@ -16,6 +16,8 @@ import TodayOnThisDay from '../today/TodayOnThisDay';
 import { DailyPractices, WorthYourAttention } from '../today/TodayAppsOverview';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
+import { useAddedApps } from '../../app/family/added';
+import { openSettingsAt } from '../settings/settingsViews';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, lifeService, scheduleService } from '../../app/services';
 import { goalLines } from '../../core/compass/goals';
@@ -86,6 +88,7 @@ function subscribeCalendars(listener: () => void): () => void {
 export default function NowPage() {
   const clock = useClock();
   const navigate = useNavigate();
+  const addedApps = useAddedApps();
   const { openItem } = useOverlays();
   const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
   const [name] = useState(displayName);
@@ -206,6 +209,18 @@ export default function NowPage() {
             <ChevronRightIcon size={18} className="quiet-row__chevron" />
           </button>
           <NotForMe part="schedule-prompt" />
+        </div>
+      )}
+      {/* After the schedule, and only while nothing from the Store is added: one quiet way to the Store. */}
+      {!message && patterns && !(patterns.length === 0 && shows('schedule-prompt')) && addedApps.length === 0 && shows('apps-prompt') && (
+        <div className="quiet-row-wrap">
+          <button type="button" className="quiet-row" onClick={() => { openSettingsAt('store'); navigate('settings'); }}>
+            <span className="quiet-row__text">
+              <span>Add apps</span>
+            </span>
+            <ChevronRightIcon size={18} className="quiet-row__chevron" />
+          </button>
+          <NotForMe part="apps-prompt" />
         </div>
       )}
       <BackupOffer today={today} recordCount={items.length} />
