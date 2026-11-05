@@ -1,16 +1,14 @@
 import type { Nav } from '../app/App';
 import { ArrowLeftIcon, ChevronIcon } from '../app/icons';
 import Empty from '../../app/family/Empty';
-import { useAppPermissions } from '../../app/household/household';
 import { useBills, useToday } from '../app/state';
 import { PageTop } from '../app/ui';
 import { formatDate, formatMoney, relativeDue, standing } from '../core/bills';
 import { budgetCategories, budgetCategory, type BudgetCategory } from '../core/budget';
 
-/** Every bill kept under one bill type, each opening its page, with a way to edit it from here. */
+/** Every bill kept under one bill type, each opening its page. */
 export default function AreaPage({ nav, id }: { nav: Nav; id: BudgetCategory }) {
   const bills = useBills();
-  const can = useAppPermissions('oikonomia');
   const today = useToday();
   const label = budgetCategories.find((area) => area.id === id)?.label ?? 'Other';
   const inArea = (bills ?? [])
@@ -40,7 +38,6 @@ export default function AreaPage({ nav, id }: { nav: Nav; id: BudgetCategory }) 
                 <span className="oiko-bill-row__amount">{formatMoney(bill.amountCents, bill.currency)}</span>
                 <ChevronIcon size={18} />
               </button>
-              {can.write && <button type="button" className="button-quiet ll-button-inline" aria-label={`Edit ${bill.name}`} onClick={() => nav.go({ name: 'edit', id: bill.id })}>Edit</button>}
             </div>
           ))}
         </section>
