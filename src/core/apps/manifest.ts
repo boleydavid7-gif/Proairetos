@@ -87,6 +87,7 @@ export const APPS: readonly AppManifest[] = [
     urls: { href: '/', scope: '/', entry: 'index.html' },
     data: { backupPrefix: 'proairetos.', syncKnown: false },
     notices: { source: 'proairetos', kinds: [], switches: [], mainWrites: false },
+    search: { privacy: 'own-search', indexes: ['item title', 'notes', 'next step', 'where', 'list', 'up to you', 'not up to you', 'if something gets in the way', 'reflection text', 'decision question', 'chose', 'options', 'why', 'compass statements', 'values and meanings', 'pursuits'], excludes: ['photos and files'] },
     surfaces: { noticeWindow: false, waitlist: true, prefetch: false, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
@@ -241,6 +242,7 @@ export const APPS: readonly AppManifest[] = [
     data: { syncKnown: true },
     notices: { source: 'praxis', kinds: ['study'], switches: [], mainWrites: false },
     today: { parts: ['praxis'] },
+    search: { privacy: 'private', indexes: [], excludes: ['study blocks', 'cards'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: false, layout: false, visual: false, smoke: true, alone: false },
   },
   {
@@ -262,6 +264,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'therapeia', text: 'Medicine reminders can follow when you wake and sleep.' }, { app: 'askesis', text: 'Runs are kept out of your sleep time.' }, { app: 'hydros', text: 'Caffeine after your cutoff time shows next to your sleep.' }, { app: 'melete', text: 'Study sessions are scheduled around your sleep.' }],
       shots: 2,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['sleep and naps', 'check-ins', 'worries'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -399,6 +402,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'poreia', text: 'Plant reminders pause while you’re away on a trip.' }],
       shots: 2,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['plant names', 'plant types', 'places', 'notes', 'photos'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -420,6 +424,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 0,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['note titles', 'note text', 'voice note transcripts', 'ideas'] },
     surfaces: { noticeWindow: false, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
   {
@@ -442,6 +447,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'diaita', text: 'Free time is worked out around your sleep.' }, { app: 'askesis', text: 'A run scheduled for a day shows next to it in the week.' }, { app: 'dynamis', text: 'A strength session scheduled for a day shows next to it in the week.' }],
       shots: 2,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['subject names', 'dates', 'materials', 'if-then lines'] },
     surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
 ];

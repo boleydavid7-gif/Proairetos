@@ -64,7 +64,6 @@ describe('the manifest and the registered providers agree', () => {
     expect(app('poreia').search?.excludes).toContain('confirmation codes');
     expect(app('philia').search?.indexes).toEqual(expect.arrayContaining(['remember lines', 'gift ideas']));
     expect(app('ergon').search?.indexes).toEqual(['chore name', 'room']);
-    for (const each of APPS.filter((one) => one.search)) expect(each.search?.privacy, each.id).toBe('own-search');
   });
 });
 

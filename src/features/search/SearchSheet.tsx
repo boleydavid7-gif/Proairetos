@@ -1,8 +1,3 @@
-import { meleteSubjects } from '../../app/calendars/meleteCalendar';
-import { isAdded } from '../../app/family/added';
-import { allPlants } from '../../phyton/app/state';
-import { notes as mnemeNotes } from '../../mneme/app/state';
-import { speciesBy } from '../../phyton/core/species';
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { lock } from '../../app/lock/lock';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -132,40 +127,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
     });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const plant of isAdded('phyton') ? allPlants() : []) {
-    labels.set(plant.id, 'Plant in Phyton');
-    const type = speciesBy(plant.species);
-    things.push({ id: plant.id, kind: 'app', href: `/phyton/?open=${encodeURIComponent(`plant:${plant.id}`)}`, title: plant.name, fields: [{ name: 'Type', text: [type?.name, plant.latin ?? type?.latin].filter(Boolean).join(' ') }, { name: 'Where', text: plant.place }, { name: 'Note', text: plant.note }], at: plant.createdAt });
-  }
-  for (const subject of isAdded('melete') ? meleteSubjects() : []) {
-    labels.set(subject.id, 'Subject in Meletē');
-    things.push({
-      id: subject.id,
-      kind: 'app',
-      href: `/melete/?open=${encodeURIComponent(`subject:${subject.id}`)}`,
-      title: subject.name,
-      fields: [
-        { name: 'Dates', text: (subject.dates ?? []).map((entry) => entry.title).join('\n') },
-        { name: 'Materials', text: (subject.materials ?? []).map((material) => material.title).join('\n') },
-        { name: 'If-then', text: subject.ifThen },
-      ],
-      at: subject.createdAt,
-    });
-  }
-  for (const note of isAdded('mneme') ? mnemeNotes.list().filter((each) => !each.archived) : []) {
-    labels.set(note.id, 'Note in Mneme');
-    things.push({
-      id: note.id,
-      kind: 'app',
-      href: `/mneme/?open=${encodeURIComponent(`note:${note.id}`)}`,
-      title: note.title || note.body.split('\n')[0].slice(0, 80) || 'Note',
-      fields: [
-        { name: 'Note', text: note.body },
-        { name: 'Heard', text: note.transcript?.segments.map((segment) => segment.text).join(' ') },
-      ],
-      at: note.updatedAt,
-    });
-  }
   return { things, labels };
 }
 

@@ -50,7 +50,10 @@ type Row = { id: string; kind: string; title: string; href?: string; at: string;
 const baseline = JSON.parse(readFileSync('src/tests/providers/fixtures/searchBaseline.json', 'utf8')) as Row[];
 
 /** Rows the owner's rules take out of search altogether (app label -> why). */
-const REMOVED: Record<string, string> = {};
+const REMOVED: Record<string, string> = {
+  'Note in Mneme': 'its fields are not classified, so nothing of it is searchable (manifest search is private)',
+  'Subject in Meletē': 'its fields are not classified, so nothing of it is searchable (manifest search is private)',
+  'Plant in Phyton': 'its fields are not classified, so nothing of it is searchable (manifest search is private)',};
 /** Field texts the owner's rules take out of a row (row label -> texts that no longer appear). */
 const DROPPED_FIELDS: Record<string, string[]> = {
   'Stay in Lisbon': ["ABC123XYZ"],
