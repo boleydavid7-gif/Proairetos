@@ -198,3 +198,5 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       Cloudflare (DNS > Add record > TXT), then Sitemaps > submit `https://proairetos.com/sitemap.xml`.
 - [ ] Bing Webmaster Tools: sign in and choose "Import from Google Search Console" (brings the site and sitemap over).
 - [ ] After a week: Search Console > Pages, check `/welcome/` and the app pages are indexed.
+
+- [ ] Browser assistant (WebMCP): to reach people before it is standard, register Proairetos for the WebMCP origin trial (developer.chrome.com/origintrials, feature 'WebMCP', origin https://proairetos.com) and add the token as `<meta http-equiv="origin-trial" content="TOKEN">` in `index.html` (or an `Origin-Trial` header in `public/_headers`). Until then it only works with `chrome://flags/#enable-webmcp-testing`. Try it with Gemini in Chrome on a real device and tell me what the assistant sees.

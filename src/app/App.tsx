@@ -61,6 +61,10 @@ export default function App() {
   const passwordRecovery = useSyncExternalStore(syncStatus.subscribe, isPasswordRecoveryPending);
   useEffect(() => lock.watchAway(), []);
   useEffect(() => laterPages(), []);
+  useEffect(() => {
+    // The browser's assistant, only where the browser has it and the person turned it on.
+    if (typeof (document as { modelContext?: unknown }).modelContext !== 'undefined') void import('./assistant/webmcp').then((module) => module.startWebMcp());
+  }, []);
   const [route, setRoute] = useState<AppRoute>(() => routeForPath(window.location.pathname));
   const current = useRef(route);
   current.current = route;

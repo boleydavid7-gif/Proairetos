@@ -23,6 +23,7 @@ export type View =
   | 'store'
   | 'about'
   | 'inbox'
+  | 'assistant'
   | 'health'
   | 'together'
   | 'household'
@@ -55,6 +56,7 @@ export function openSettingsAt(view: View): void {
 export const viewTitles: Record<View, string> = {
   lock: 'Privacy and lock',
   notifications: 'Notifications',
+  assistant: 'Browser assistant',
   attention: 'Attention',
   profile: 'Profile',
   day: 'When your day starts',

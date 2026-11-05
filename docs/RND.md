@@ -67,3 +67,4 @@ Several pages were read in part (the longest ones came back partly summarized), 
 ## Built from this
 
 - Nov 5: service worker static routing in `public/sw.js` (test `src/tests/notify/swRouting.test.ts`). Measured in Chromium 153 with a counting copy of the worker: five requests to `/api/`, `/sounds/`, `/ocr/` and `/lamplight/` woke the worker without routing and none with it; the app still opens offline.
+- Nov 5: browser assistant (WebMCP) built opt-in: Settings row only where the API exists, off until chosen, three to-do tools with undo, nothing from Reflect, Journal or health. Tested in Chromium 153 with the flag: absent without the API, no tools before opt-in, three tools after, zero after turning off, a tool call adds a to-do and shows the undo. Needs the origin-trial token (TODO) to reach people. Spike branch `spike/webmcp` is superseded and can be deleted.

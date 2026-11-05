@@ -1,4 +1,6 @@
 import StorageFacts from '../../app/family/StorageFacts';
+import { assistantAvailable, assistantOn } from '../../app/assistant/webmcp';
+import AssistantSection from './AssistantSection';
 import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/packing';
 import StoreSection from './StoreSection';
 import TextSizeSlider from '../../components/ui/TextSize';
@@ -1232,6 +1234,7 @@ export default function SettingsPage() {
           </>
         )}
         {view === 'weather' && <WeatherSection />}
+        {view === 'assistant' && <AssistantSection />}
         {view === 'inbox' && <InboxSection onOpenAccount={() => setView('account')} />}
         {view === 'health' && <HealthSection onOpenAccount={() => setView('account')} onOpenStore={() => setView('store')} />}
         {view === 'together' && <TogetherSection onOpenAccount={() => setView('account')} />}
@@ -1367,6 +1370,7 @@ export default function SettingsPage() {
           words: 'badge count bell dot updates card important highlight light focus distraction',
         },
         { id: 'household', icon: <HeartIcon size={18} />, tone: 'green', title: 'Family', value: household()?.name, onClick: () => setView('household'), words: 'partner family household share together invite groceries chores plants medicines to-do list' },
+        ...(assistantAvailable() ? [{ id: 'assistant' as const, icon: <LampIcon glyph={GLYPHS.target} size={18} />, tone: 'indigo' as const, title: 'Browser assistant', value: assistantOn() ? 'On' : undefined, onClick: () => setView('assistant'), words: 'ai gemini chrome webmcp agent assistant tools' }] : []),
         { id: 'inbox', icon: <CaptureIcon size={18} />, tone: 'teal', title: 'Capture from anywhere', value: inboxHere() ? 'On' : undefined, onClick: () => setView('inbox'), words: 'siri shortcut back tap watch quick add inbox' },
         { id: 'health', icon: <HeartIcon size={18} />, tone: 'pink', title: 'Health data', value: healthOn() ? 'On' : undefined, onClick: () => setView('health'), words: 'apple health connect android hc webhook health auto export workouts sleep water weight blood pressure iphone watch' },
         { id: 'today', icon: <SunIcon size={18} />, tone: 'gold', title: 'What’s included', onClick: () => setView('today'), words: 'parts today switch on off quiet offers not for me' },
