@@ -334,6 +334,7 @@
   position: absolute;
   right: 0.5rem;
   transform: translateY(-50%);
+  white-space: nowrap;
   color: var(--color-text-faint);
   font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;

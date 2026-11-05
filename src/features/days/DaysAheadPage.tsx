@@ -480,7 +480,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 {dayTitle(date, today)}
                 <span className="days-day__date">{formatLocalDay(date, { month: 'short', day: 'numeric' })}</span>
               </h2>
-              <ul className="days-list">
+              <ul className="days-list ll-plain">
                 {allDay.map((entry) => (
                   <li key={entry.key} className="days-allday">
                     <span className="days-allday__text">All day · {entry.event.title}</span>
@@ -837,7 +837,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                   {count > 0 && <span className="month-day__count">{countLabel(count)}</span>}
                 </div>
                 {count === 0 && !hasPlan(start) && billsFor(start).length === 0 && <p className="days-day__empty">Nothing set.</p>}
-                <ul className="days-list">
+                <ul className="days-list ll-plain">
                   {allDay.map((entry) => (
                     <li key={entry.key} className="days-allday">
                       <span className="days-allday__text">All day · {entry.event.title}</span>

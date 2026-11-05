@@ -18,7 +18,7 @@
 
 .days-row__button {
   border-color: transparent;
-  background: var(--color-surface-soft);
+  background: none;
 }
 
 /* The + button sits quietly. */
