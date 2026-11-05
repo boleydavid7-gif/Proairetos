@@ -63,7 +63,7 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <NumberField label="Getting ready" value={current.readyMinutes} min={0} max={180} step={5} unit="min" onChange={(readyMinutes) => change({ readyMinutes })} />
         </div>
         <div className="input-row">
-          <NumberField label="Home to sleep" value={current.settleMinutes} min={0} max={180} step={5} unit="min" onChange={(settleMinutes) => change({ settleMinutes })} />
+          <NumberField label="Unwind after work" value={current.settleMinutes} min={0} max={180} step={5} unit="min" onChange={(settleMinutes) => change({ settleMinutes })} />
         </div>
         <div className="input-row">
           <NumberField label="Last caffeine before sleep" value={current.cutoffHours} min={0} max={12} step={1} unit="h" onChange={(cutoffHours) => change({ cutoffHours })} />

@@ -20,7 +20,7 @@ export type RhythmSettings = {
   cutoffHours: number;
   /** Minutes from leaving work to being home. */
   commuteMinutes: number;
-  /** Minutes from getting home after work to sleep: a meal, a shower, quiet. Sleep never starts sooner than this plus the trip. */
+  /** Minutes to unwind after work: a meal, a shower, quiet. When a shift ends near bedtime or at night, sleep never starts sooner than this plus the trip home. */
   settleMinutes: number;
   /** Minutes before sleep to wind down (0 for none). */
   windDownMinutes: number;
