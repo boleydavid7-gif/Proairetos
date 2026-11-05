@@ -65,3 +65,29 @@ describe('Lamplight rules hold in the stylesheets', () => {
     expect(stray.length).toBeLessThan(40); // measured, then held: tighten as these move to tokens
   });
 });
+
+describe('Lamplight light is defined once', () => {
+  const all = files.map((name) => [name, code(name)] as const);
+  const defs = (token: string) => all.filter(([, text]) => new RegExp(`^\\s*${token}:`, 'm').test(text)).map(([name]) => name);
+
+  it('defines the light ladder only in light.css', () => {
+    for (const token of ['--ll-sheen-edge', '--ll-sheen-wash', '--ll-cast', '--ll-surface-light', '--ll-lit-edge', '--ll-halo',
+      '--ll-lamp-light', '--ll-light-1', '--ll-light-2', '--ll-light-3', '--ll-field-edge', '--ll-field-well', '--ll-glow-time']) {
+      expect(defs(token), token).toEqual(['light.css']);
+    }
+  });
+
+  it('defines focus and the lit halo only in light.css (levels.css may quiet the halo while typing)', () => {
+    expect(defs('--ll-focus')).toEqual(['light.css']);
+    expect(defs('--ll-lit-halo').sort()).toEqual(['levels.css', 'light.css']);
+    expect(defs('--ll-lit-wash').sort()).toEqual(['levels.css', 'light.css']);
+  });
+
+  it('lists the same surfaces for the light and the vellum', () => {
+    const list = (name: string) => {
+      const m = code(name).match(/:root :is\((\.card,[^{]*?)\)\s*\{/);
+      return m![1].replace(/\s+/g, ' ').split(',').map((x) => x.trim()).sort();
+    };
+    expect(list('paper.css')).toEqual(list('light.css'));
+  });
+});

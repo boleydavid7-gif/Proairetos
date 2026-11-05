@@ -259,3 +259,12 @@ Lamplight's own idea is light that means something, in place of borrowed surface
 - **Motion as light**: a page brightens into place from the lamp; a tick lets the light settle, then the row goes into the
   shade with what is done (no line through it).
 - **Your words lit**: the person's words in the serif and in the light; the app's labels in shade.
+
+## Light, in one place (Nov 5)
+
+`src/lamplight/light.css` defines every glow, edge, sheen, halo, focus ring and field well, and the one rule that lights
+a card, grouped list or field row (the same list as the vellum in `paper.css`; a test keeps them equal). Dark and light
+differ only in strength, so each token is one `light-dark()`. The ladder: rest (`--ll-surface-edge`), sheen
+(`--ll-sheen-edge`, `--ll-sheen-wash`), lit (`--ll-lit-*`), focus (`--ll-focus`), lamp (`--ll-lamp-light`); depth for
+menus and sheets is `--ll-light-1..3`. Timings: `--ll-glow-time` (follows `--ll-dim`, so it is zero with reduced motion)
+and `--ll-settle-time`. An app's own floating surfaces use `--ll-light-1..3`, not their own shadows.

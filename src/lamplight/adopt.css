@@ -8,9 +8,7 @@
 
 /* ---------- Surfaces, not outlines: one hairline at most, lit along the top ---------- */
 :root :is(.card, .rows, .settings-card, .family-surface .rows) {
-  border-color: var(--ll-hair);
   border-radius: var(--ll-radius-md);
-  box-shadow: var(--ll-light-1);
 }
 
 /* Text over a photo needs a local edge even when its palette role is readable on a solid surface. The shadow is
@@ -35,13 +33,6 @@
 
 :root .rows li + li {
   border-top-color: var(--ll-hair);
-}
-
-/* A card that is a button lifts a step under the pointer. */
-@media (hover: hover) {
-  :root :is(a.card, button.card, .card--link):hover {
-    box-shadow: var(--ll-light-2);
-  }
 }
 
 /* ---------- The one lit action: the lamp's pill, with its own light ---------- */
@@ -152,26 +143,6 @@
 /* ---------- Fields: a filled well with a clear edge; focus is a ring of the lamp ----------
    A field sits a step into its surface: a fill of its own, a hairline all round so it reads as a box on any card,
    and a soft shade along the inside of its top edge, the side away from the room's light. */
-:root {
-  --ll-field-edge: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.26);
-  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 233, 239, 247), 0.38);
-  --ll-field-well: inset 0 1px 2px rgba(0, 0, 0, 0.28);
-}
-
-:root[data-theme='light'] {
-  --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.28);
-  --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.42);
-  --ll-field-well: inset 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
-}
-
-@media (prefers-color-scheme: light) {
-  :root[data-theme='system'] {
-    --ll-field-edge: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.28);
-    --ll-field-edge-hover: rgba(var(--ll-ink-rgb, 35, 29, 21), 0.42);
-    --ll-field-well: inset 0 1px 2px rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08);
-  }
-}
-
 :root :is(.input, .textarea, .field-input, .row__select) {
   border: 1px solid var(--ll-field-edge);
   border-radius: var(--ll-radius-sm);

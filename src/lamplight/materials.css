@@ -37,12 +37,6 @@
   touch-action: manipulation;
 }
 
-@media (prefers-contrast: more) {
-  :root {
-    --ll-focus: 0 0 0 var(--ll-focus-width, 2px) var(--ll-lamp, currentColor), 0 0 0 5px var(--ll-page, Canvas);
-  }
-}
-
 /* New screens can opt into a tier without borrowing an app's private color names. */
 .ll-material--wall {
   background: var(--ll-material-wall);

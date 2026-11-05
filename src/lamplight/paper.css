@@ -16,7 +16,8 @@
   --ll-vellum: radial-gradient(140% 120% at 100% 0%, rgba(var(--ll-lamp-rgb, 230, 179, 102), calc(var(--ll-day-pool, 1) * 0.07)), transparent 65%), var(--ll-fiber);
 }
 
-:root :is(.card, .rows, .chore-list, .detail-list, .settings-card, .settings-list, .ll-card, .look-ahead, .intention, .today-group, .reflect-places, .hydros-drinks, .hydros-amount) {
+:root :is(.card, .rows, .settings-card, .family-surface .rows, .look-ahead, .intention, .today-group, .reflect-places,
+  .settings-list, .ll-card, .chore-list, .detail-list, .hydros-drinks, .hydros-amount, .add-reflection) {
   background-image: var(--ll-vellum);
 }
 
@@ -37,7 +38,8 @@
 
 /* More contrast, or a printed page: plain fills, no paper. */
 @media (prefers-contrast: more), print {
-  :root :is(.card, .rows, .chore-list, .detail-list, .settings-card, .settings-list, .ll-card, .look-ahead, .intention, .today-group, .reflect-places, .hydros-drinks, .hydros-amount) {
+  :root :is(.card, .rows, .settings-card, .family-surface .rows, .look-ahead, .intention, .today-group, .reflect-places,
+  .settings-list, .ll-card, .chore-list, .detail-list, .hydros-drinks, .hydros-amount, .add-reflection) {
     background-image: none;
   }
 }

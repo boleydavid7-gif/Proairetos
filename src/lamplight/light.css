@@ -1,0 +1,87 @@
+/*
+ * Lamplight's light, in one place (Nov 5 standardization). Every glow, edge, sheen, halo and focus ring the family
+ * draws comes from the tokens below; no other stylesheet defines them. One ladder, lowest to highest:
+ *   rest      --ll-surface-edge    a fine edge (family apps only), nothing lit
+ *   sheen     --ll-sheen-edge/wash light from the upper right on every resting surface
+ *   lit       --ll-lit-*           the one thing that matters now
+ *   focus     --ll-focus           the lamp turned on the control you are on
+ *   lamp      --ll-lamp-light      the main action
+ * Dark and light differ only in strength, so each token is one `light-dark()` (the root's `color-scheme` follows the
+ * theme in materials.css). Depth steps for menus and sheets are --ll-light-1..3. Timings: --ll-glow-time (the light
+ * coming up or fading), --ll-settle-time (a tick's glow).
+ */
+
+:root {
+  --ll-sheen-edge: inset -1px 1px 0 light-dark(rgba(255, 255, 255, 0.9), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1));
+  --ll-sheen-wash: inset -56px 56px 72px -64px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.14), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.11));
+  --ll-cast: -6px 10px 26px -18px light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.2), rgba(0, 0, 0, 0.5));
+  /* Resting and lit surfaces use shadow lists of the same shape (an edge, the sheen's edge and wash, then three outer
+     places that stay empty at rest), so the light can fade between them instead of snapping. */
+  --ll-surface-edge: inset 0 0 0 0 transparent;
+  --ll-no-shadow: 0 0 0 0 transparent;
+  --ll-surface-light: var(--ll-surface-edge), var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-no-shadow),
+    var(--ll-no-shadow), var(--ll-no-shadow);
+
+  --ll-lit-wash: inset -56px 56px 72px -60px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.15), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.12));
+  --ll-lit-edge: inset -1px 1px 0 light-dark(rgba(255, 255, 255, 0.95), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3));
+  --ll-lit-halo: 0 0 20px 0 light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1)),
+    0 10px 28px -14px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16));
+
+  --ll-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.45), 0 0 26px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
+  --ll-focus: 0 0 0 4px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18), 0 0 22px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
+  --ll-lamp-light: 0 6px 22px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
+
+  /* Depth for menus (2) and sheets (3); a card (1) is the sheen above. */
+  --ll-light-1: inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.7), rgba(var(--ll-ink-rgb, 255, 255, 255), 0.05)),
+    0 1px 2px light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08), rgba(0, 0, 0, 0.16));
+  --ll-light-2: inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.8), rgba(var(--ll-ink-rgb, 255, 255, 255), 0.07)),
+    0 10px 28px -14px light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.22), rgba(0, 0, 0, 0.5));
+  --ll-light-3: inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.9), rgba(var(--ll-ink-rgb, 255, 255, 255), 0.08)),
+    0 24px 60px -24px light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.3), rgba(0, 0, 0, 0.6)),
+    0 0 0 1px var(--ll-hair, light-dark(rgba(35, 29, 21, 0.09), rgba(255, 255, 255, 0.07)));
+
+  /* Fields: a well a step into the surface, with a hairline all round and a soft shade along its top inside edge. */
+  --ll-field-edge: light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.28), rgba(var(--ll-ink-rgb, 233, 239, 247), 0.26));
+  --ll-field-edge-hover: light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.42), rgba(var(--ll-ink-rgb, 233, 239, 247), 0.38));
+  --ll-field-well: inset 0 1px 2px light-dark(rgba(var(--ll-ink-rgb, 35, 29, 21), 0.08), rgba(0, 0, 0, 0.28));
+
+  --ll-glow-time: var(--ll-dim, 640ms);
+  --ll-glow-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ll-settle-time: 1100ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --ll-settle-time: 0ms;
+  }
+}
+
+/* More contrast asked for: the plain, solid ring. */
+@media (prefers-contrast: more) {
+  :root {
+    --ll-focus: 0 0 0 var(--ll-focus-width, 2px) var(--ll-lamp, currentColor), 0 0 0 5px var(--ll-page, Canvas);
+  }
+}
+
+/* ---------- Surfaces: one definition of how a card, grouped list or field row is lit ---------- */
+/* Filled tonal surfaces, no outline, lit from the upper right. Keep this list equal to paper.css's (a test does). */
+:root :is(.card, .rows, .settings-card, .family-surface .rows, .look-ahead, .intention, .today-group, .reflect-places,
+  .settings-list, .ll-card, .chore-list, .detail-list, .hydros-drinks, .hydros-amount, .add-reflection) {
+  border-color: transparent;
+  /* Written out, not `var(--ll-surface-light)`: the edge below changes per app, and a custom property resolves where it
+     is defined (the root), so the list has to be read on the surface itself. */
+  box-shadow: var(--ll-surface-edge), var(--ll-sheen-edge), var(--ll-sheen-wash), var(--ll-no-shadow), var(--ll-no-shadow),
+    var(--ll-no-shadow);
+}
+
+/* The family apps' surfaces sit on darker, patterned pages: a fine edge all round lets each stand off the page as
+   clearly as Proairetos's do on its room. Proairetos (pattern none) keeps its own. */
+:root:not([data-ll-pattern='none']) :is(.card, .rows, .chore-list, .detail-list, .settings-card, .ll-card, .hydros-drinks, .hydros-amount) {
+  --ll-surface-edge: inset 0 0 0 1px rgba(var(--ll-ink-rgb, 233, 239, 247), 0.065);
+}
+
+@media (forced-colors: active) {
+  :root :is(.card, .rows, .settings-card, .ll-next > .timeline__entry) {
+    box-shadow: none;
+  }
+}

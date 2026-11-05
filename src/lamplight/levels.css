@@ -7,27 +7,7 @@
  * stays as the scheme made it.
  */
 
-:root {
-  --ll-lit-wash: inset -56px 56px 72px -60px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.12);
-  --ll-lit-edge: inset -1px 1px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
-  --ll-lit-halo: 0 0 20px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.1), 0 10px 28px -14px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16);
-}
-
-/* On a pale page the halo needs more to be seen: a firmer edge and a warmer cast. The wash keeps to the corner nearest
-   the lamp and the glow hugs the surface, so the light falls on the card rather than coming from it. */
-:root[data-theme='light'] {
-  --ll-lit-wash: inset -56px 56px 72px -60px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.15);
-  --ll-lit-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.95);
-  --ll-lit-halo: 0 0 18px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16), 0 10px 26px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2);
-}
-
-@media (prefers-color-scheme: light) {
-  :root[data-theme='system'] {
-    --ll-lit-wash: inset -56px 56px 72px -60px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.15);
-    --ll-lit-edge: inset -1px 1px 0 rgba(255, 255, 255, 0.95);
-  --ll-lit-halo: 0 0 18px 0 rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.16), 0 10px 26px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.2);
-  }
-}
+/* The lit tokens (wash, edge, halo) and the glow timing live in light.css. */
 
 .ll-lit-wrap {
   display: contents;
@@ -51,11 +31,6 @@
 
 /* The light fades: it comes up over a moment when something is lit (on opening a page too) and fades away the same
    way when it moves on (`data-ll-dimming`, set for the length of the fade by behaviors.ts). */
-:root {
-  --ll-glow-time: 650ms;
-  --ll-glow-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
 @keyframes ll-lit-in {
   from {
     box-shadow: var(--ll-surface-edge, inset 0 0 0 0 transparent), var(--ll-sheen-edge, inset 0 0 0 0 transparent),

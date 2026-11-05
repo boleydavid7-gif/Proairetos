@@ -207,7 +207,7 @@
   font-size: 0.82rem;
   white-space: nowrap;
   pointer-events: none;
-  box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+  box-shadow: var(--ll-light-2);
   transition: left 180ms var(--ll-ease-out, ease-out);
   animation: family-chart-fade 160ms ease-out both;
 }

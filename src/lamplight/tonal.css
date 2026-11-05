@@ -13,14 +13,8 @@
 }
 
 /* ---------- Filled surfaces: a tonal step from the page, no outline ---------- */
-:root :is(.card, .rows, .settings-card, .family-surface .rows) {
-  border-color: transparent;
-  box-shadow: none;
-}
-
 @media (hover: hover) {
   :root :is(a.card, button.card, .card--link):hover {
-    box-shadow: none;
     background-image: linear-gradient(var(--ll-state-hover), var(--ll-state-hover));
   }
 }
@@ -60,7 +54,3 @@
   }
 }
 
-/* Proairetos's own surfaces take the same filled, outline-free look. */
-:root :is(.look-ahead, .intention, .today-group, .reflect-places, .add-reflection, .settings-list) {
-  border-color: transparent;
-}
