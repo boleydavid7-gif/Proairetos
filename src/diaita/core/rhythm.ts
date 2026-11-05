@@ -20,8 +20,14 @@ export type RhythmSettings = {
   cutoffHours: number;
   /** Minutes from leaving work to being home. */
   commuteMinutes: number;
-  /** The earliest sleep can start after work ends, in minutes (the trip home, a meal, a shower, quiet). Only reached when work ends near bedtime or at night. */
-  afterShiftMinutes: number;
+  /** Minutes to move every sleep, later (+) or earlier (-). */
+  sleepShift: number;
+  /** Minutes to move every wake time, later (+) or earlier (-). */
+  wakeShift: number;
+  /** The same two, for the sleep that follows a named shift in a rotating schedule (by the shift's name). They replace the two above for that shift. */
+  shiftAdjust?: Record<string, { sleep: number; wake: number }>;
+  /** The same two, for one sleep (by its day: the evening it starts on, else the date it starts). They replace both of the above for that day. */
+  dayAdjust?: Record<string, { sleep: number; wake: number }>;
   /** Minutes before sleep to wind down (0 for none). */
   windDownMinutes: number;
   /** Early-evening time for writing worries down before bed. */
@@ -37,7 +43,8 @@ export const defaultRhythm: RhythmSettings = {
   sleepHours: 7.5,
   cutoffHours: 6,
   commuteMinutes: 30,
-  afterShiftMinutes: 60,
+  sleepShift: 0,
+  wakeShift: 0,
   windDownMinutes: 45,
   worryTime: '18:00',
   readyMinutes: 60,
@@ -96,6 +103,30 @@ const laterOnClock = (date: Date, minutes: number) => {
   return later(plain, plain.getTimezoneOffset() - date.getTimezoneOffset());
 };
 
+/** The least time between work ending and sleep starting: the trip home, a meal, a shower. */
+const AFTER_WORK_MINUTES = 60;
+
+/** The shift a sleep follows: the work block that ended last before it (within 18 hours), by name. */
+function followsShift(start: Date, all: readonly WorkBlock[]): string | undefined {
+  let found: WorkBlock | undefined;
+  for (const block of all) {
+    if (block.end.getTime() <= start.getTime() + HOUR && start.getTime() - block.end.getTime() < 18 * HOUR && (!found || block.end > found.end)) found = block;
+  }
+  return found?.label;
+}
+
+/** The person's own move of a sleep and its wake: for its day when set, else for its shift, else for all. */
+function adjustSleep(sleep: Sleep, all: readonly WorkBlock[], settings: RhythmSettings): Sleep {
+  const label = followsShift(sleep.start, all);
+  const own = settings.dayAdjust?.[sleep.day ?? toLocalDate(sleep.start)] ?? (label ? settings.shiftAdjust?.[label] : undefined);
+  const moveSleep = own ? own.sleep : (settings.sleepShift ?? 0);
+  const moveWake = own ? own.wake : (settings.wakeShift ?? 0);
+  if (!moveSleep && !moveWake) return sleep;
+  const start = later(sleep.start, moveSleep);
+  const end = later(sleep.end, moveWake);
+  return end > start ? { ...sleep, start, end } : { ...sleep, start };
+}
+
 const work = (blocks: readonly WorkBlock[]) =>
   blocks.filter((block) => (block.kind ?? 'COMMITTED') === 'COMMITTED' && block.end > block.start).sort((a, b) => a.start.getTime() - b.start.getTime());
 
@@ -131,7 +162,7 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     const night = all.find((block) => startsOn(block, date) && isNight(block));
     if (night) {
       // The person's own time from the end of the shift to sleep.
-      const start = later(night.end, settings.afterShiftMinutes);
+      const start = later(night.end, AFTER_WORK_MINUTES);
       const nextNight = all.find((block) => block !== night && isNight(block) && block.start > night.end && block.start.getTime() - night.end.getTime() < 24 * HOUR);
       if (nextNight) {
         // Up in time to eat and nap before the next night if it wants one.
@@ -147,8 +178,8 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     if (start.getHours() < 12) start = atTime(addDays(date, 1), settings.bedtime);
     // Finished late: the same time from the end of the shift to sleep.
     for (const block of all) {
-      if (block.end > later(start, -settings.afterShiftMinutes) && block.start < start) {
-        start = new Date(Math.max(start.getTime(), later(block.end, settings.afterShiftMinutes).getTime()));
+      if (block.end > later(start, -AFTER_WORK_MINUTES) && block.start < start) {
+        start = new Date(Math.max(start.getTime(), later(block.end, AFTER_WORK_MINUTES).getTime()));
       }
     }
     // The night before a first night shift: two hours later to bed and up, so the first night comes easier.
@@ -166,7 +197,7 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     }
     if (end > start) sleeps.push({ start, end, after: 'evening', day: date });
   }
-  return sleeps;
+  return sleeps.map((sleep) => adjustSleep(sleep, all, settings));
 }
 
 /** Everything Diaita suggests between two dates, in time order. */

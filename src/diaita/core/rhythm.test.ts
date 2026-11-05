@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { atTime } from '../../core/scheduling/dates';
+import { atTime, toLocalDate } from '../../core/scheduling/dates';
 import { checkInOpen, clock, dayKind, defaultRhythm, entriesOn, isNight, mainSleeps, planBetween, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
 
 const block = (date: string, start: string, endDate: string, end: string, label = 'Work'): WorkBlock => ({ start: atTime(date, start), end: atTime(endDate, end), label });
@@ -205,18 +205,35 @@ describe('what is offered, not assumed', () => {
   });
 });
 
-describe('the earliest sleep after work', () => {
+describe('adjusting sleep and wake time', () => {
   const afterNight = (settings: typeof defaultRhythm) => mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings).find((sleep) => sleep.after === 'last-night' || sleep.after === 'night');
 
-  it('starts sleep an hour after work ends, not straight from it', () => {
+  it('starts sleep an hour after work ends by default', () => {
     const sleep = afterNight({ ...defaultRhythm });
     expect(sleep && clock(sleep.start)).toBe('08:00');
   });
 
-  it('follows the person’s own earliest time', () => {
-    const none = afterNight({ ...defaultRhythm, afterShiftMinutes: 30 });
-    const long = afterNight({ ...defaultRhythm, afterShiftMinutes: 90 });
-    expect(none && clock(none.start)).toBe('07:30');
-    expect(long && clock(long.start)).toBe('08:30');
+  it('moves sleep and wake by the person’s own minutes', () => {
+    const base = afterNight({ ...defaultRhythm })!;
+    const moved = afterNight({ ...defaultRhythm, sleepShift: 30, wakeShift: -15 })!;
+    expect(moved.start.getTime() - base.start.getTime()).toBe(30 * 60_000);
+    expect(moved.end.getTime() - base.end.getTime()).toBe(-15 * 60_000);
+  });
+
+  it('uses a shift’s own adjustment in place of the general one', () => {
+    const label = nights[0].label!;
+    const base = afterNight({ ...defaultRhythm })!;
+    const moved = afterNight({ ...defaultRhythm, sleepShift: 60, shiftAdjust: { [label]: { sleep: 15, wake: 0 } } })!;
+    expect(moved.start.getTime() - base.start.getTime()).toBe(15 * 60_000);
+    expect(moved.end.getTime()).toBe(base.end.getTime());
+  });
+
+  it('uses a day’s own adjustment before a shift’s', () => {
+    const label = nights[0].label!;
+    const base = afterNight({ ...defaultRhythm })!;
+    const day = toLocalDate(base.start);
+    const moved = afterNight({ ...defaultRhythm, shiftAdjust: { [label]: { sleep: 15, wake: 0 } }, dayAdjust: { [day]: { sleep: -30, wake: 20 } } })!;
+    expect(moved.start.getTime() - base.start.getTime()).toBe(-30 * 60_000);
+    expect(moved.end.getTime() - base.end.getTime()).toBe(20 * 60_000);
   });
 });

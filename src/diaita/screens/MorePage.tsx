@@ -6,37 +6,20 @@ import { BookIcon, HistoryIcon, SettingsIcon } from '../../app/family/icons';
 import { Switch } from '../../askesis/app/ui';
 import { notifications } from '../../app/notify/notifications';
 import type { DiaitaNav } from '../app/App';
-import { settings, type DiaitaSettings } from '../app/state';
+import { NumberField } from '../app/ui';
+import { settings, usePlan, type DiaitaSettings } from '../app/state';
+import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { useAddedApps } from '../../app/family/added';
 import MoreDetails from '../../app/family/MoreDetails';
-
-function NumberField({ label, value, min, max, step, unit, onChange }: { label: string; value: number; min: number; max: number; step: number; unit: string; onChange: (value: number) => void }) {
-  return (
-    <label className="field">
-      <span className="field__label">{label}</span>
-      <span className="family-unit">
-        <input
-          className="input"
-          type="number"
-          inputMode="decimal"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(event) => {
-            const next = Number(event.target.value);
-            if (Number.isFinite(next) && next >= min && next <= max) onChange(next);
-          }}
-        />
-        <span>{unit}</span>
-      </span>
-    </label>
-  );
-}
 
 export default function MorePage({ nav }: { nav: DiaitaNav }) {
   const current = settings.use();
   const added = useAddedApps();
+  const today = toLocalDate(new Date());
+  // A rotating schedule: each named shift in the next four weeks gets its own two boxes.
+  const { blocks } = usePlan(today, addDays(today, 28));
+  const names = [...new Set(blocks.filter((block) => block.kind !== 'PROTECTED' && block.label).map((block) => block.label as string))].sort();
+  const rotations = names.length > 1 ? names : [];
   const change = (patch: Partial<DiaitaSettings>) => {
     settings.save({ ...settings.load(), ...patch });
     notifications.refreshSoon();
@@ -63,8 +46,22 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <NumberField label="Getting ready" value={current.readyMinutes} min={0} max={180} step={5} unit="min" onChange={(readyMinutes) => change({ readyMinutes })} />
         </div>
         <div className="input-row">
-          <NumberField label="Adjust sleep time" value={current.afterShiftMinutes} min={0} max={240} step={5} unit="min" onChange={(afterShiftMinutes) => change({ afterShiftMinutes })} />
+          <NumberField label="Adjust sleep time" value={current.sleepShift ?? 0} min={-240} max={240} step={5} unit="min" onChange={(sleepShift) => change({ sleepShift })} />
+          <NumberField label="Adjust wake time" value={current.wakeShift ?? 0} min={-240} max={240} step={5} unit="min" onChange={(wakeShift) => change({ wakeShift })} />
         </div>
+        {rotations.map((name) => {
+          const own = current.shiftAdjust?.[name] ?? { sleep: current.sleepShift ?? 0, wake: current.wakeShift ?? 0 };
+          const set = (patch: Partial<{ sleep: number; wake: number }>) => change({ shiftAdjust: { ...current.shiftAdjust, [name]: { ...own, ...patch } } });
+          return (
+            <div key={name}>
+              <p className="label">{name}</p>
+              <div className="input-row">
+                <NumberField label="Adjust sleep time" value={own.sleep} min={-240} max={240} step={5} unit="min" onChange={(sleep) => set({ sleep })} />
+                <NumberField label="Adjust wake time" value={own.wake} min={-240} max={240} step={5} unit="min" onChange={(wake) => set({ wake })} />
+              </div>
+            </div>
+          );
+        })}
         <div className="input-row">
           <NumberField label="Last caffeine before sleep" value={current.cutoffHours} min={0} max={12} step={1} unit="h" onChange={(cutoffHours) => change({ cutoffHours })} />
           <NumberField label="Wind-down" value={current.windDownMinutes} min={0} max={120} step={15} unit="min" onChange={(windDownMinutes) => change({ windDownMinutes })} />
