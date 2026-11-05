@@ -128,3 +128,24 @@ Proposals 2 and 3 rejected by the owner. Proposal 1 approved and built (see the 
   within the first second as before. Left alone on purpose: tab pages (Days ahead, Compass), which a view transition
   needs in hand, and the quick-sort and add-event sheets, which their pages import by name.
 - Nov 5: visual pass (`src/lamplight/modern.css`): folds animate, scroll padding clears the bars, sideways rows snap and fade at the side with more, Journal and Mneme fields grow (`field-sizing`), grouped lists rise in on a page change. Rejected after measuring: `content-visibility: auto` on long lists (a 600-row scroll cost 15 s of work against 3.5 s without it at 4x CPU). Skipped as no change: `@starting-style` on sheets (they already animate in and out). Search fields everywhere now say Search.
+
+## Third round (Nov 5): modern browser features
+
+Proposed, waiting for the owner's choice. Support checked from secondary sources (blogs, compatibility tables), not
+MDN or WebKit's own pages; check those before building.
+
+1. `contrast-color()` for text on the lamp's fill and on pictures. Reported in Chrome 147, Firefox 146, Safari 26. Keep
+   the scheme's 7:1 and 4.5:1 tests as the check and the current color as the fallback. Small.
+2. Popover API plus anchor positioning for the long-press menu, floating panels and row menus (popover: every browser
+   since 2025; anchor positioning: Safari 26, Firefox 147). Less JS positioning; keep the current menu as fallback. Medium.
+3. `scheduler.yield()` in sync, search and list builds (INP). Safari support not confirmed; fall back to a timeout. Small.
+4. WebGPU for Mneme's Whisper (reported 3 to 10x over WASM; Safari status disputed). Behind a feature test, WASM stays;
+   needs the pinned transformers 3.8 checked first. Medium to large.
+5. Prerender behind a `document.prerendering` guard (sync and writes wait for activation) for app-to-app switches.
+   Chromium only, so it helps Android and desktop; Safari ignores it. Medium.
+6. Customizable select (`appearance: base-select`): Chrome 135, Safari 27 (disputed), Firefox no. Plain select elsewhere. Small.
+
+Rejected for now: `corner-shape: squircle` (Chromium only, about 65% of people; could be added later as a pure
+enhancement), `interestfor` (Chromium only), `Temporal` (Safari holds out; our `dates.ts` works).
+Not yet checked: Navigation API and `CloseWatcher` for the back stack, Background Fetch for the Whisper model,
+Origin Private File System for book files.
