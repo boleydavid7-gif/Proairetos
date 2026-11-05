@@ -4,7 +4,7 @@ import { FEEDBACK_EMAIL } from '../siteAddress';
 import { feedbackLink } from './feedback';
 
 /** The apps of the family, the same list in every one (the one open is left out). */
-export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'mneme';
+export type FamilyApp = 'proairetos' | 'askesis' | 'soma' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'theoria' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'mneme' | 'melete';
 
 export const familyApps: readonly { id: FamilyApp; name: string; href: string; icon: string; line: string; about?: string; tint?: { ground: string; accent: string; ink: string } }[] = [
   { id: 'proairetos', name: 'Proairetos', href: '/', icon: '/icons/icon.svg', line: 'A calm planner for your days' },
@@ -22,6 +22,7 @@ export const familyApps: readonly { id: FamilyApp; name: string; href: string; i
   { id: 'ktema', name: 'Ktema', href: '/ktema/', icon: '/ktema/icon.svg', line: 'Home, car and belongings', about: 'Warranties, model numbers and manuals in one place, with reminders for home and car maintenance by date or mileage.', tint: { ground: '#12130f', accent: '#c7b37a', ink: '#efece2' } },
   { id: 'phyton', name: 'Phyton', href: '/phyton/', icon: '/phyton/icon.svg', line: 'Plant care and watering', about: 'Phyton reminds you to check each plant when its soil is likely dry, and learns from when you actually water. Look up care for about 170 plant types.', tint: { ground: '#0f1410', accent: '#9fc48a', ink: '#ecf0e6' } },
   { id: 'mneme', name: 'Mneme', href: '/mneme/', icon: '/mneme/icon.svg', line: 'Notes, collections and voice notes', about: 'Notes and collections, and voice notes transcribed on your device.', tint: { ground: '#11151b', accent: '#b7c7e2', ink: '#edf1f7' } },
+  { id: 'melete', name: 'Meletē', href: '/melete/', icon: '/melete/icon.svg', line: 'Study and learning, around your week', about: 'Subjects with their dates, and a week that shows when you are free. You place the sessions; everything comes from your own notes and materials.', tint: { ground: '#14170f', accent: '#b8cf73', ink: '#f1f5e3' } },
 ];
 
 export default function FamilyApps({ current }: { current: FamilyApp }) {

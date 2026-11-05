@@ -75,6 +75,7 @@ export const APP_COLOR_PROFILES: Record<string, { family: SignatureFamilyName; s
   ktema: { family: 'amber', seed: '#7B5236' },
   phyton: { family: 'green', seed: '#3A934B' },
   mneme: { family: 'blue', seed: '#8FAED8' },
+  melete: { family: 'green', seed: '#7C9A2D' },
 };
 
 /** The family label remains useful for documentation, future tone selection, and audit tooling. */

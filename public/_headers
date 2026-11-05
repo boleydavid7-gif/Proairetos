@@ -117,6 +117,15 @@
 /mneme/manifest.webmanifest
   Cache-Control: no-cache
 
+/melete/sw.js
+  Cache-Control: no-cache
+/melete/
+  Cache-Control: no-cache
+/melete/index.html
+  Cache-Control: no-cache
+/melete/manifest.webmanifest
+  Cache-Control: no-cache
+
 /ktema/sw.js
   Cache-Control: no-cache
 /ktema/

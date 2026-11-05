@@ -766,7 +766,7 @@ export async function requestCode(email: string, creatingAccount = false): Promi
 }
 
 /** Where each app shows its account card, so a sign-in with Google or Apple comes back to it. */
-const ACCOUNT_PAGE: Record<string, string> = { proairetos: 'account', askesis: 'more', soma: 'more', oikonomia: 'more', hydros: 'settings', poreia: 'settings', praxis: 'settings', theoria: 'settings', diaita: 'more', philia: 'more', ergon: 'more', therapeia: 'more', dynamis: 'more', ktema: 'more', phyton: 'more', mneme: 'notes' };
+const ACCOUNT_PAGE: Record<string, string> = { proairetos: 'account', askesis: 'more', soma: 'more', oikonomia: 'more', hydros: 'settings', poreia: 'settings', praxis: 'settings', theoria: 'settings', diaita: 'more', philia: 'more', ergon: 'more', therapeia: 'more', dynamis: 'more', ktema: 'more', phyton: 'more', mneme: 'notes', melete: 'more' };
 
 export async function signInWith(provider: SignInProvider): Promise<void> {
   markAccountAuthPending();

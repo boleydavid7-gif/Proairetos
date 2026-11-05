@@ -1,7 +1,7 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
 const CACHE = 'proairetos-v19';
-const APP_PATHS = ['/askesis/','/soma/','/oikonomia/','/hydros/','/praxis/','/theoria/','/diaita/','/philia/','/ergon/','/therapeia/','/dynamis/','/ktema/','/phyton/','/poreia/','/mneme/'];
+const APP_PATHS = ['/askesis/','/soma/','/oikonomia/','/hydros/','/praxis/','/theoria/','/diaita/','/philia/','/ergon/','/therapeia/','/dynamis/','/ktema/','/phyton/','/poreia/','/mneme/','/melete/'];
 const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png', ...APP_PATHS];
 
 // Requests this worker never answers (live API answers, recordings, the OCR and speech files, the Lamplight guide, the

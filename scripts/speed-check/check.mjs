@@ -7,7 +7,7 @@ import { execSync } from 'node:child_process';
 
 const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)(`${execSync('npm root -g').toString().trim()}/playwright`));
 
-const ALL = ['', 'askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'];
+const ALL = ['', 'askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
 // APPS=proairetos,soma narrows a run.
 const APPS = process.env.APPS ? process.env.APPS.split(',').map((app) => (app === 'proairetos' ? '' : app)) : ALL;
 const BASE = process.env.BASE || 'http://localhost:4173';

@@ -197,7 +197,7 @@ function accountDeviceDetails(): { key: string; label: string; platform: string;
     : platform === 'macos' ? 'Mac'
     : platform === 'linux' ? 'Linux device' : 'Web browser';
   const path = location.pathname.split('/').filter(Boolean);
-  const knownApps = ['askesis','soma','oikonomia','hydros','poreia','praxis','theoria','diaita','philia','ergon','therapeia','dynamis','ktema','phyton','mneme'];
+  const knownApps = ['askesis','soma','oikonomia','hydros','poreia','praxis','theoria','diaita','philia','ergon','therapeia','dynamis','ktema','phyton','mneme','melete'];
   const appId = knownApps.includes(path[0] ?? '') ? path[0] : 'proairetos';
   return { key: accountDeviceKey(), label, platform, appId };
 }

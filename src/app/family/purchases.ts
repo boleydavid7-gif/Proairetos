@@ -20,7 +20,7 @@ type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: numbe
 
 export type PurchaseItem = 'core' | 'coreyear' | 'cloud';
 // Praxis is retained as a compatibility route into Theoria's Pomodoro, but is no longer a purchasable or addable app.
-export const CORE_APPS = ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'] as const;
+export const CORE_APPS = ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'] as const;
 
 const listeners = new Set<() => void>();
 const changed = () => listeners.forEach((listener) => listener());

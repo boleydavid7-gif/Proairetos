@@ -224,3 +224,11 @@ materials, sessions, cards, a reflection log). From the field and the research (
   here use five Leitner boxes with two buttons. An FSRS option would need three or four answers; keep "never late".
 - Not here, by the owner's rules: streaks (research is mixed and a streak becomes its own goal), points, leaderboards, a
   made-up curriculum or "what to learn next".
+
+### Built as its own app (Nov 5): Meletē
+
+The shelved study idea became its own app, not part of Theoria (the owner's choice). First build: Subjects (dates, rhythm,
+materials, if-then line), Week (open stretches from the real schedule, sittings set by the person), Today, and a sitting
+timer with a kept line. Left for later: show sittings in Proairetos's Today and Days ahead, notices, cards and reviews
+(move or share Theoria's), syllabus photo and timetable import, a front page, a drawn scene for the home. Name is a working
+name; changing it touches the id `melete`, the icon and the strings in `FamilyApps`.
