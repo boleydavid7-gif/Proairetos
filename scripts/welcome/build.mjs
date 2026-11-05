@@ -26,7 +26,7 @@ const apps = [
   {
     id: 'askesis', name: 'Askesis', icon: '/askesis/icons/icon-192.png', category: 'HealthApplication',
     ground: '#0b0f0e', accent: '#86d9b0', ink: '#e8ece9',
-    line: 'A running plan for every level',
+    line: 'A running plan for any level',
     card: 'A running plan that starts where you are, from your first walk-run to your first marathon.',
     about: 'A running plan that starts where you are and builds toward your goal: a 5K, a marathon, a time or just running regularly.',
     points: [
@@ -65,7 +65,7 @@ const apps = [
   {
     id: 'theoria', name: 'Theoria', icon: '/theoria/icons/icon-192.png', category: 'BookApplication',
     ground: '#0b1020', accent: '#d9b46a', ink: '#ede5d3',
-    line: 'Read books and PDFs, keep your highlights',
+    line: 'Books, PDFs and highlights',
     card: 'Read your books and PDFs and keep your highlights and notes in one place.',
     about: 'Read your own books and PDFs on any device, with your highlights and notes kept alongside them.',
     points: [
@@ -79,7 +79,7 @@ const apps = [
   {
     id: 'diaita', name: 'Diaita', icon: '/diaita/icons/icon-192.png', category: 'HealthApplication',
     ground: '#0e1014', accent: '#e2b26e', ink: '#ece8e1',
-    line: 'Sleep, around your schedule',
+    line: 'Sleep that fits your schedule',
     card: 'When to sleep, nap, get light, stop caffeine and eat, planned around your schedule.',
     about: 'A daily plan for sleep, naps, light, caffeine and meals that follows your real schedule, night shifts included. Every suggestion links to its source.',
     points: [
@@ -105,7 +105,7 @@ const apps = [
   {
     id: 'ergon', name: 'Ergon', icon: '/ergon/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#0e1112', accent: '#8fc1b5', ink: '#e9ece8',
-    line: 'Chores, shared with your household',
+    line: 'Shared household chores',
     card: 'Chores that repeat when they’re due, shared with everyone you live with.',
     about: 'Chores that come back when they’re due, shared with everyone you live with, with turns when you want them.',
     points: [
@@ -144,7 +144,7 @@ const apps = [
   {
     id: 'ktema', name: 'Ktema', icon: '/ktema/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#12130f', accent: '#c7b37a', ink: '#efece2',
-    line: 'Home, car and belongings',
+    line: 'Warranties, manuals and upkeep',
     card: 'Warranties, manuals and upkeep for your home and car in one place.',
     about: 'Warranties, model numbers and manuals in one place, with reminders for home and car maintenance by date or mileage.',
     points: [
@@ -157,7 +157,7 @@ const apps = [
   {
     id: 'phyton', name: 'Phyton', icon: '/phyton/icons/icon-192.png', category: 'LifestyleApplication',
     ground: '#0f1410', accent: '#9fc48a', ink: '#ecf0e6',
-    line: 'Plant care and watering',
+    line: 'Plant care and reminders',
     card: 'Water each plant when it needs it, and look up how to care for it.',
     about: 'Phyton reminds you to check each plant when its soil is likely dry, and learns from when you actually water. Look up care for about 170 plant types.',
     points: [
