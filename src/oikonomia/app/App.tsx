@@ -18,6 +18,8 @@ import PlanPage from '../screens/PlanPage';
 import MilestonesPage from '../screens/MilestonesPage';
 import BillPage from '../screens/BillPage';
 import BudgetPage from '../screens/BudgetPage';
+import AreaPage from '../screens/AreaPage';
+import type { BudgetCategory } from '../core/budget';
 import SpentPage from '../screens/SpentPage';
 import EnvelopesPage from '../screens/EnvelopesPage';
 import PwaStatus from '../../app/pwa/PwaStatus';
@@ -30,6 +32,7 @@ export type Route =
   | { name: 'bill'; id: string }
   | { name: 'edit'; id: string }
   | { name: 'budget' }
+  | { name: 'area'; id: BudgetCategory }
   | { name: 'spent' }
   | { name: 'expense' }
   | { name: 'envelopes' }
@@ -146,6 +149,8 @@ export default function App() {
         return <BillPage nav={nav} id={route.id} />;
       case 'budget':
         return <BudgetPage nav={nav} />;
+      case 'area':
+        return <AreaPage nav={nav} id={route.id} />;
       case 'spent':
         return <SpentPage nav={nav} />;
       case 'expense':
