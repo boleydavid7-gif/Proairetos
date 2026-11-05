@@ -62,3 +62,18 @@ describe('sessions', () => {
     expect(weekOf('2026-11-05')).toHaveLength(7);
   });
 });
+
+describe('finding a time', () => {
+  it('lists the starts of open stretches long enough, in day order', async () => {
+    const { slotsThatFit } = await import('../../melete/core/subjects');
+    const span = (day: string, from: string, to: string) => ({ start: new Date(`${day}T${from}:00`), end: new Date(`${day}T${to}:00`) });
+    const open = new Map([
+      ['2026-11-06', [span('2026-11-06', '09:00', '09:30'), span('2026-11-06', '13:00', '15:00')]],
+      ['2026-11-05', [span('2026-11-05', '18:00', '21:00')]],
+    ]);
+    expect(slotsThatFit(open, 45).map((date) => date.toISOString())).toEqual([new Date('2026-11-05T18:00:00').toISOString(), new Date('2026-11-06T13:00:00').toISOString()]);
+    expect(slotsThatFit(open, 25)).toHaveLength(3);
+    expect(slotsThatFit(open, 25, 2)).toHaveLength(2);
+    expect(slotsThatFit(open, 240)).toEqual([]);
+  });
+});

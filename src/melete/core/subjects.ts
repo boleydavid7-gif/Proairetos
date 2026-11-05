@@ -149,3 +149,18 @@ export const weekOf = (day: string): string[] => {
   const monday = mondayOnOrBefore(day);
   return Array.from({ length: 7 }, (_, index) => addDays(monday, index));
 };
+
+/**
+ * The first times that hold a sitting of `minutes`: the start of each open stretch long enough, in day order, at most
+ * `limit`. A list of facts about the clock; the person taps the one they want.
+ */
+export function slotsThatFit(open: ReadonlyMap<string, readonly Span[]>, minutes: number, limit = 6): Date[] {
+  const slots: Date[] = [];
+  for (const day of [...open.keys()].sort()) {
+    for (const span of open.get(day) ?? []) {
+      if ((span.end.getTime() - span.start.getTime()) / 60_000 >= minutes) slots.push(span.start);
+      if (slots.length >= limit) return slots;
+    }
+  }
+  return slots;
+}
