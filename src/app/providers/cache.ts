@@ -1,14 +1,17 @@
-import type { OutputOf, Provider } from '../../core/providers';
 import type { Capability } from '../../core/apps/manifest';
+import { sourceChanged, type OutputOf, type Provider } from '../../core/providers';
 import { onChangedCollections } from '../sync/syncController';
 
 /*
- * A provider's result, kept in memory only (nothing is stored). It is dropped when a sync changes a collection the
- * provider reads, when its own app changes records here, when the day turns over, or when another window changes things.
+ * A provider's result, kept in memory only (nothing is stored). It is dropped when a sync changes something the provider
+ * reads (`sourceChanged`), when its own app changes records here (`provider.subscribe`), when the day turns over, or when
+ * another window changes things. Each provider keeps its own entry, so one app's change never rebuilds another's.
  */
 const wrapped = new Map<Provider, Provider>();
 
-export function withCache<C extends Capability>(provider: Provider<C>, subscribe: (listener: (collections: readonly string[]) => void) => () => void = onChangedCollections): Provider<C> {
+type Subscribe = (listener: (collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) => void) => () => void;
+
+export function withCache<C extends Capability>(provider: Provider<C>, subscribe: Subscribe = onChangedCollections): Provider<C> {
   const known = wrapped.get(provider as Provider);
   if (known) return known as Provider<C>;
   let value: Awaited<OutputOf<C>> | undefined;
@@ -21,8 +24,8 @@ export function withCache<C extends Capability>(provider: Provider<C>, subscribe
   const start = () => {
     if (started) return;
     started = true;
-    subscribe((collections) => {
-      if (collections.includes('*') || collections.some((name) => provider.sources.includes(name)) || (collections.includes('preferences') && provider.sources.some((source) => source.startsWith('setting:')))) drop();
+    subscribe((collections, ids) => {
+      if (sourceChanged(provider.sources, collections, ids)) drop();
     });
     provider.subscribe?.(drop);
   };

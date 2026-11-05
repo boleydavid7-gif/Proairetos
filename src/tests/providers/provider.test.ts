@@ -161,6 +161,14 @@ describe('the host', () => {
     expect((await searchProjections([counting], APPS, context({}))).results).toHaveLength(1);
     expect(called).toBe(1);
   });
+  it('measures each provider that ran, and times nothing for one that did not', async () => {
+    const ran = await searchProjections([oikonomiaSearch], APPS, context({ oikonomiaBills: [bill()] }));
+    expect(ran.timings).toHaveLength(1);
+    expect(ran.timings[0]).toMatchObject({ app: 'oikonomia', rows: 1 });
+    expect(ran.timings[0].ms).toBeGreaterThanOrEqual(0);
+    const skipped = await searchProjections([oikonomiaSearch], APPS, context({}, { enabled: () => false }));
+    expect(skipped.timings).toEqual([]);
+  });
   it('reports a provider that throws and carries on with the rest', async () => {
     const broken = provider([], { read: () => { throw new Error('boom'); } });
     const out = await searchProjections([broken, provider([row()])], APPS, context({}));

@@ -12,7 +12,7 @@ import type { LogEntry as AskesisEntry } from '../../askesis/core/log';
 import { speciesBy } from '../../phyton/core/species';
 import { bookings as poreiaBookings, plans as poreiaPlans, trips as poreiaTrips } from '../../poreia/app/state';
 import { kindLabel as bookingKindLabel } from '../../poreia/core/model';
-import { useDeferredValue, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
 import type { Recipe } from '../../soma/core/recipes';
 import type { TheoriaBook } from '../../theoria/core/books';
@@ -29,7 +29,8 @@ import { inSearchScope, search, type Searchable, type SearchScope } from '../../
 import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
 import { pursuits } from '../../app/pursuits';
-import { providerSearch } from '../../app/providers/search';
+import { noProvidedSearch, providerSearch } from '../../app/providers/search';
+import { onChangedCollections } from '../../app/sync/syncController';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
 
@@ -43,6 +44,20 @@ const statementLabels: Record<string, string> = {
 /** Where a Compass result opens: its own tab, and a pursuit itself. */
 const compassPlaces = new Map<string, { tab: 'direction' | 'motion' | 'close'; pursuitId?: string }>();
 const tabForStatement = (type: string) => (type === 'GOAL' ? 'motion' : type === 'PERSON' || type === 'REMEMBER' || type === 'PUSHED_ASIDE' ? 'close' : 'direction');
+
+/*
+ * What the apps contribute comes through providers (src/app/providers), which hold each app to the fields the manifest
+ * allows. They run only once something is typed and the scope includes other apps, and a provider whose records did not
+ * change keeps its last result in memory.
+ */
+const subscribeProviders = (listener: () => void) => onChangedCollections(() => listener());
+
+/** Everything search can find, as a test or a measurement wants it: this file's own gathering plus the providers'. */
+export async function gatherAll(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
+  const [own, provided] = await Promise.all([gather(), providerSearch()]);
+  const labels = new Map([...own.labels, ...provided.labels]);
+  return { things: [...own.things, ...provided.things], labels };
+}
 
 function subscribeAll(listener: () => void) {
   const off = [lifeService, reflectionService, decisionService, compassService].map((service) => service.subscribe(listener));
@@ -164,10 +179,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
       at: book.updatedAt,
     });
   }
-  // Oikonomia and Hydros come through the providers, which hold them to the fields the manifest allows.
-  const provided = await providerSearch();
-  for (const [id, label] of provided.labels) labels.set(id, label);
-  things.push(...provided.things);
   for (const person of isAdded('philia') ? people.list() : []) {
     labels.set(person.id, 'Person in Philia');
     things.push({
@@ -295,11 +306,14 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
   const [openEntry, setOpenEntry] = useState<string | null>(null);
   const deferred = useDeferredValue(query);
   const data = useServiceData(subscribeAll, gather);
+  const wantApps = deferred.trim().length > 0 && (scope === 'all' || scope === 'apps');
+  const provided = useServiceData(subscribeProviders, () => (wantApps ? providerSearch() : Promise.resolve(noProvidedSearch)), [wantApps]);
+  const everything = useMemo(() => (data ? (provided?.things.length ? [...data.things, ...provided.things] : data.things) : []), [data, provided]);
   const reflections = useServiceData(reflectionService.subscribe, () => reflectionService.all()) ?? [];
   const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
   // While the lock is on, what was written in Reflect stays out of search.
   const hits = data
-    ? search(deferred, data.things).filter(
+    ? search(deferred, everything).filter(
         (hit) => !(locked && hit.kind === 'reflection') && inSearchScope(hit, scope),
       )
     : [];
@@ -374,7 +388,7 @@ export default function SearchSheet({ onClose }: { onClose: () => void }) {
                   }
                 }}
               >
-                <span className="search-row__label">{data?.labels.get(hit.id)}</span>
+                <span className="search-row__label">{data?.labels.get(hit.id) ?? provided?.labels.get(hit.id)}</span>
                 <span className="search-row__title">{hit.title}</span>
                 {hit.kind === 'reflection' && openEntry === hit.id ? (
                   <span className="search-row__full">{reflections.find((entry) => entry.id === hit.id)?.body}</span>

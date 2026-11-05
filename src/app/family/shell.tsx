@@ -75,6 +75,8 @@ export type Collection<T extends { id: string }> = {
   put: (record: T) => void;
   remove: (id: string) => void;
   use: () => T[];
+  /** Told when a record here changes in this tab or another (not when sync does: `onChangedCollections` says that). */
+  watch: (listener: () => void) => () => void;
 };
 
 /**
@@ -144,6 +146,15 @@ export function collection<T extends { id: string }>(prefix: string): Collection
       changed();
     },
     use: () => useSyncExternalStore(subscribe, read),
+    watch: (listener) => {
+      listeners.add(listener);
+      const onStorage = (event: StorageEvent) => (event.key === null || event.key.startsWith(prefix)) && listener();
+      window.addEventListener('storage', onStorage);
+      return () => {
+        listeners.delete(listener);
+        window.removeEventListener('storage', onStorage);
+      };
+    },
   };
 }
 

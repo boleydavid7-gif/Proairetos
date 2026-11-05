@@ -61,7 +61,9 @@ export function validateManifest(apps: readonly AppManifest[] = APPS): Findings 
     if (app.search) {
       if (!PRIVACY.includes(app.search.privacy)) errors.push(`${at}: unknown search privacy class ${app.search.privacy}`);
       if (!app.search.excludes.length) errors.push(`${at}: a search entry must say what it excludes`);
-      if (!app.search.indexes.length) errors.push(`${at}: a search entry must say what it indexes`);
+      // A private classification indexes nothing, so it may list no fields.
+      if (!app.search.indexes.length && app.search.privacy !== 'private') errors.push(`${at}: a search entry must say what it indexes`);
+      if (app.search.privacy === 'private' && app.search.indexes.length) errors.push(`${at}: a private search entry cannot index fields`);
       for (const field of app.search.indexes) if (app.search.excludes.includes(field)) errors.push(`${at}: search field "${field}" is both indexed and excluded`);
       if (app.search.windowDays !== undefined && !(app.search.windowDays > 0)) errors.push(`${at}: search windowDays must be a positive number`);
     }
