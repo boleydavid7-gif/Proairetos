@@ -77,3 +77,44 @@ All three proposed, waiting for approval.
   `is-scrolled` and `is-over-picture`, and the handoff follows each page's title position. A rewrite would add risk on
   iPhone, where it cannot be checked here, for no measurable gain.
 - Nov 5: review and sweep pass over every app on phone screenshots (dark and light). Fixed: Add buttons stranded above titles in Ergon, Philia, Ktema, Therapeia (3 pages) and Oikonomia (2 pages) now sit in the phone top bar; Ergon's empty Today title reads "Today"; open time's Set button uses the main button style. The visual-check harness now seeds Store ownership. Open question for the owner: Today's Daily practices rows ("Start a running plan", "Log last night's sleep") ask for action on a blank day.
+
+## Week of Nov 12, 2026 (early round, Nov 5)
+
+### Research
+
+Mostly secondary sources again; verify before relying on any single claim.
+
+- Runna (owned by Strava, still a separate app) added Adapt for Heat (paces for heat and humidity), upcoming plans
+  scheduled in advance and rebuilt beginner and return-to-running plans (8 to 16 weeks). Strava's Instant Workouts draw
+  on Runna's library. A blog reports Garmin buying TrainingPeaks (unconfirmed).
+- Monarch and Copilot lean on AI: Copilot's categories learn from the person's behavior, Monarch has Goals 3.0 and a
+  $199 a year tier. Not for us: our areas already learn from the person's own moves, on the device, with no AI choosing.
+- Readwise's mobile app was rebuilt (Readwise 2.0) with Quick Lookup and new capture; Reader added word lookup and
+  Markdown uploads. Theoria already looks words up and reads Markdown.
+- Measured, not read: Proairetos's first page is at the edge of the speed budget (first paint about 1.0 s, largest
+  paint 1.37 to 1.42 s against 1.0 and 1.4; the other apps pass).
+
+### Proposals
+
+1. **Proairetos starts under budget again** (first page of Proairetos). Problem: first paint is about 1.0 s and the
+   largest paint 1.37 to 1.42 s at four times slower CPU, the heaviest app and now at the limit. How: find what grew in
+   the first chunks (the shared `apps` chunk is 255 KB) and load what Today does not need at once after first paint, as
+   the daily copy already does. Why: the speed budget is a promise; trim before it slips. Competitive relevance: Things
+   and Reminders open instantly. Complexity: low to medium.
+2. **Ease a hot run in one tap** (Askesis, the run's weather note). Problem: when the forecast is hot the note names the
+   conditions and its source, but easing off means opening the session and choosing Lighter today. How: the note carries
+   a Lighter today button; the person taps it or not, with undo. Why: Runna's Adapt for Heat is the first thing people
+   point to; ours stays the person's choice and sourced, never an automatic change. Complexity: low.
+3. **Daily practices only shows what is set up** (Proairetos Today). Problem: on a new day with the apps added but not
+   set up, the rows read "Start a running plan", "Set up strength training" and "Log last night's sleep", each asking
+   for something. How: an app with nothing chosen yet shows no row; once a plan, goal or log exists the row shows as now.
+   Why: the product rule is that nothing asks for attention unless the person chose it. Complexity: low.
+
+### Watch list
+
+- Garmin and TrainingPeaks (unconfirmed), Strava's strength overhaul and Runna's upcoming plans.
+- Readwise 2.0's capture; ChatGPT Personal Finance (unverified). Neither changes how we keep money or reading private.
+
+### Status
+
+All three proposed, waiting for approval.
