@@ -16,7 +16,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
   const stands = new Map((bills ?? []).map((bill) => [bill.id, standing(bill, today)]));
   const byDate = (a: Bill, b: Bill) => (stands.get(a.id)?.date ?? '').localeCompare(stands.get(b.id)?.date ?? '');
   const ordered = (bills ?? []).filter((bill) => !stands.get(bill.id)?.settled).sort(byDate);
-  // Paid bills step out of the list until their next date comes around.
+  // Paid bills stay in the list, marked, until their next date comes around.
   const settled = (bills ?? []).filter((bill) => stands.get(bill.id)?.settled).sort(byDate);
 
   return (
@@ -34,53 +34,30 @@ export default function BillsPage({ nav }: { nav: Nav }) {
         <Empty icon={<BillsIcon size={28} />} title="No bills yet" />
       ) : (
         <>
-          {ordered.length === 0 ? (
-            <p className="muted">All bills paid.</p>
-          ) : (
-            <section className="oiko-list oiko-list--large" aria-label="All bills">
-              {ordered.map((bill) => {
-                const stand = stands.get(bill.id)!;
-                return (
-                  <SwipeRow key={bill.id} label="Paid" off={!can.write} onSwipe={() => void payBill(bill, stand.date)}>
-                    <button type="button" className="oiko-bill-row" onClick={() => nav.go({ name: 'bill', id: bill.id })}>
-                      <span className="oiko-bill-row__mark" aria-hidden="true" />
-                      <span className="oiko-bill-row__main">
-                        <span className="oiko-bill-row__name">{bill.name}</span>
-                        <span className="oiko-bill-row__detail">{relativeDue(stand.date, today)}{bill.autopay ? ' · autopay' : ''}</span>
-                      </span>
-                      <span className="oiko-bill-row__date">{formatDate(stand.date)}</span>
-                      <span className="oiko-bill-row__amount">{formatMoney(bill.amountCents, bill.currency)}</span>
-                      <ChevronIcon size={18} />
-                    </button>
-                  </SwipeRow>
-                );
-              })}
-            </section>
-          )}
-          {settled.length > 0 && (
-            <details className="oiko-settled">
-              <summary>{settled.some((bill) => bill.endedOn) ? 'Paid, or no more dates' : 'Paid, back when due'} ({settled.length})</summary>
-              <section className="oiko-list" aria-label="Paid bills">
-                {settled.map((bill) => {
-                  const stand = stands.get(bill.id)!;
-                  return (
-                    <button type="button" className="oiko-bill-row" key={bill.id} onClick={() => nav.go({ name: 'bill', id: bill.id })}>
-                      <span className="oiko-bill-row__mark" aria-hidden="true" />
-                      <span className="oiko-bill-row__main">
-                        <span className="oiko-bill-row__name">{bill.name}</span>
-                        <span className="oiko-bill-row__detail">
-                          {stand.complete ? (bill.endedOn ? 'No more dates' : 'One time · paid') : stand.returnsOn ? `Back ${formatDate(stand.returnsOn)}` : 'Paid'}
-                        </span>
-                      </span>
-                      <span className="oiko-bill-row__date">{formatDate(stand.date)}</span>
-                      <span className="oiko-bill-row__amount">{formatMoney(bill.amountCents, bill.currency)}</span>
-                      <ChevronIcon size={18} />
-                    </button>
-                  );
-                })}
-              </section>
-            </details>
-          )}
+          <section className="oiko-list oiko-list--large" aria-label="All bills">
+            {[...ordered, ...settled].map((bill) => {
+              const stand = stands.get(bill.id)!;
+              const row = (
+                <button type="button" className="oiko-bill-row" onClick={() => nav.go({ name: 'bill', id: bill.id })}>
+                  <span className="oiko-bill-row__mark" aria-hidden="true" />
+                  <span className="oiko-bill-row__main">
+                    <span className="oiko-bill-row__name">{bill.name}</span>
+                    <span className="oiko-bill-row__detail">
+                      {stand.settled
+                        ? stand.complete ? (bill.endedOn ? 'No more dates' : 'One time · paid') : stand.returnsOn ? `Paid · back ${formatDate(stand.returnsOn)}` : 'Paid'
+                        : `${relativeDue(stand.date, today)}${bill.autopay ? ' · autopay' : ''}`}
+                    </span>
+                  </span>
+                  <span className="oiko-bill-row__date">{formatDate(stand.date)}</span>
+                  <span className="oiko-bill-row__amount">{formatMoney(bill.amountCents, bill.currency)}</span>
+                  <ChevronIcon size={18} />
+                </button>
+              );
+              return stand.settled ? <div key={bill.id}>{row}</div> : (
+                <SwipeRow key={bill.id} label="Paid" off={!can.write} onSwipe={() => void payBill(bill, stand.date)}>{row}</SwipeRow>
+              );
+            })}
+          </section>
         </>
       )}
     </div>
