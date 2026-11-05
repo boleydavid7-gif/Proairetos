@@ -279,6 +279,13 @@ function ChoreForm({ existing, onDone }: { existing?: Chore; onDone: () => void 
   );
 }
 
+/** A chore as a to-do in Proairetos, on the day it comes round, when the person asks. The undo takes it back off. */
+async function addToDo(chore: Chore, day: string): Promise<void> {
+  const { lifeService } = await import('../../app/services');
+  const item = await lifeService.add(chore.name, 'TODO', { plannedFor: day, ...(chore.room ? { notes: chore.room } : {}) });
+  offerUndo(`“${chore.name}” added to your to-dos`, () => void lifeService.deleteItem(item.id));
+}
+
 function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Chore; onEdit: () => void }) {
   const today = toLocalDate(new Date());
   const daysOff = useDaysOff();
@@ -321,6 +328,7 @@ function ChoreView({ nav, chore: existing, onEdit }: { nav: ErgonNav; chore: Cho
           {plain && day !== plain && <p className="muted">Moved from {parseLocalDate(plain).toLocaleDateString(undefined, { weekday: 'short' })}, a work day.</p>}
           <div className="button-row">
             <button type="button" className="button-main" disabled={!can.write} onClick={() => { done(existing, today); nav.back(); }}>Done</button>
+            <button type="button" className="button-quiet" onClick={() => void addToDo(existing, day ?? today)}>Add to my to-dos</button>
             {day <= today && existing.repeat.kind !== 'once' && (
               <button
                 type="button"

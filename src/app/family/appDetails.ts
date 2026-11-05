@@ -78,7 +78,7 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
     ],
   },
   ergon: {
-    adds: 'Chores that are due show on Today. Your days off come from your schedule.',
+    adds: 'Chores that are due show on Today, and any chore can be added to your to-dos. Your days off come from your schedule.',
     shots: 2,
     connects: [
     ],
