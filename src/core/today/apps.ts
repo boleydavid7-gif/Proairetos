@@ -1,5 +1,5 @@
 /** Companion apps surfaced on Proairetos Today. */
-export const DAILY_PRACTICE_APPS = ['hydros', 'askesis', 'dynamis', 'diaita', 'theoria'] as const;
+export const DAILY_PRACTICE_APPS = ['hydros', 'askesis', 'dynamis', 'diaita', 'theoria', 'melete'] as const;
 export const WORTH_ATTENTION_APPS = ['ergon', 'ktema', 'oikonomia', 'philia', 'phyton', 'poreia', 'soma', 'therapeia'] as const;
 
 export type DailyPracticeApp = (typeof DAILY_PRACTICE_APPS)[number];

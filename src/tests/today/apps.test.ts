@@ -3,7 +3,7 @@ import { readHiddenTodayApps, DAILY_PRACTICE_APPS, WORTH_ATTENTION_APPS } from '
 
 describe('Today app summaries', () => {
   it('starts with the intended two app groups', () => {
-    expect(DAILY_PRACTICE_APPS).toEqual(['hydros', 'askesis', 'dynamis', 'diaita', 'theoria']);
+    expect(DAILY_PRACTICE_APPS).toEqual(['hydros', 'askesis', 'dynamis', 'diaita', 'theoria', 'melete']);
     expect(WORTH_ATTENTION_APPS).toEqual(['ergon', 'ktema', 'oikonomia', 'philia', 'phyton', 'poreia', 'soma', 'therapeia']);
   });
 

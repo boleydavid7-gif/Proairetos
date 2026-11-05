@@ -1,3 +1,4 @@
+import { meleteSubjects } from '../../app/calendars/meleteCalendar';
 import { people } from '../../philia/app/state';
 import { isAdded } from '../../app/family/added';
 import { allChores } from '../../ergon/app/state';
@@ -202,6 +203,21 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     labels.set(plant.id, 'Plant in Phyton');
     const type = speciesBy(plant.species);
     things.push({ id: plant.id, kind: 'app', href: `/phyton/?open=${encodeURIComponent(`plant:${plant.id}`)}`, title: plant.name, fields: [{ name: 'Type', text: [type?.name, plant.latin ?? type?.latin].filter(Boolean).join(' ') }, { name: 'Where', text: plant.place }, { name: 'Note', text: plant.note }], at: plant.createdAt });
+  }
+  for (const subject of isAdded('melete') ? meleteSubjects() : []) {
+    labels.set(subject.id, 'Subject in Meletē');
+    things.push({
+      id: subject.id,
+      kind: 'app',
+      href: `/melete/?open=${encodeURIComponent(`subject:${subject.id}`)}`,
+      title: subject.name,
+      fields: [
+        { name: 'Dates', text: (subject.dates ?? []).map((entry) => entry.title).join('\n') },
+        { name: 'Materials', text: (subject.materials ?? []).map((material) => material.title).join('\n') },
+        { name: 'If-then', text: subject.ifThen },
+      ],
+      at: subject.createdAt,
+    });
   }
   if (isAdded('poreia')) {
     const tripNames = new Map(poreiaTrips.list().map((trip) => [trip.id, trip.name]));

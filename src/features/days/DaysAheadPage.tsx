@@ -8,6 +8,7 @@ import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { billsOn, birthdaysOn } from '../../app/family/glance';
+import { studyDatesOn, useMeleteSubjects } from '../../app/calendars/meleteCalendar';
 import { people } from '../../philia/app/state';
 import MiniMonth from './MiniMonth';
 import { useStore } from '../../app/family/read';
@@ -164,10 +165,12 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const shows = useTodayParts();
   const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
   const everyone = people.use();
+  const studySubjects = useMeleteSubjects(shows('study-dates'));
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
   const billsFor = (date: string): FamilyLine[] => [
     ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
     ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
+    ...(shows('study-dates') ? studyDatesOn(studySubjects, date).map((line) => ({ ...line, color: 'sage' })) : []),
   ];
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);

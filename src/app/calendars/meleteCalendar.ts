@@ -1,3 +1,4 @@
+import { useMemo, useSyncExternalStore } from 'react';
 import { isAdded, subscribeAdded } from '../family/added';
 import { onRemoteChanges } from '../sync/syncController';
 import type { StudySession, Subject } from '../../melete/core/subjects';
@@ -25,6 +26,34 @@ function records<T>(prefix: string): T[] {
     // Storage blocked: nothing to show.
   }
   return out;
+}
+
+/** What Meletē holds, read only from storage (the app's own code stays out of Proairetos's first load). */
+export const meleteSubjects = () => records<Subject>('melete:subject:');
+export const meleteSessions = () => records<StudySession>('melete:session:');
+
+const DATE_WORDS: Record<string, string> = { exam: 'Exam', due: 'Due', other: 'Date' };
+
+/** Subjects' dates (an exam, something due) that fall on one day, each opening the subject in Meletē. */
+export function studyDatesOn(subjects: readonly Subject[], date: string): { id: string; name: string; href: string }[] {
+  const out: { id: string; name: string; href: string }[] = [];
+  for (const subject of subjects) {
+    for (const entry of subject.dates ?? []) {
+      if (entry.date !== date) continue;
+      out.push({ id: `${subject.id}:${entry.id}`, name: `${subject.name}: ${entry.title?.trim() || (DATE_WORDS[entry.kind] ?? 'Date')}`, href: `/melete/?open=subject:${encodeURIComponent(subject.id)}` });
+    }
+  }
+  return out;
+}
+
+/** The subjects as they are now; changes (this tab, another tab, sync, adding or removing the app) re-read them. */
+export function useMeleteSubjects(enabled: boolean): Subject[] {
+  const raw = useSyncExternalStore(meleteCalendar.subscribe, () => (enabled ? subjectsSnapshot() : ''), () => '');
+  return useMemo(() => (raw ? (JSON.parse(raw) as Subject[]) : []), [raw]);
+}
+
+function subjectsSnapshot(): string {
+  return JSON.stringify(meleteSubjects().sort((a, b) => a.id.localeCompare(b.id)));
 }
 
 export const meleteCalendar = {
