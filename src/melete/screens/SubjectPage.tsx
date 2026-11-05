@@ -1,4 +1,4 @@
-import { DurationWheel } from '../../app/family/TimeWheel';
+import { DurationWheel, TimeWheel } from '../../app/family/TimeWheel';
 import { useEffect, useState, type FormEvent } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import MoreDetails from '../../app/family/MoreDetails';
@@ -27,6 +27,9 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
   const [lengthMin, setLengthMin] = useState(subject?.rhythm?.minutes ?? 45);
   const sitKind: SessionKind = 'read';
   const [slots, setSlots] = useState<Date[]>();
+  // A time the person picks themselves: a day and a start, when the suggestions do not fit.
+  const [pickDay, setPickDay] = useState(today);
+  const [pickStart, setPickStart] = useState(() => Math.min(23 * 60, (new Date().getHours() + 1) * 60));
 
   const put = (change: Partial<Subject>) => {
     if (subject) subjects.put({ ...subject, ...change });
@@ -142,7 +145,27 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
               ))}
             </ul>
           )}
-          <button type="button" className="button-quiet" onClick={() => setFinding(false)}>Cancel</button>
+          <div className="input-row">
+            <label className="field"><span className="field__label">Day</span><input className="input" type="date" value={pickDay} onChange={(event) => setPickDay(event.target.value)} /></label>
+            <TimeWheel label="Starts" minutes={pickStart} step={5} onChange={setPickStart} />
+          </div>
+          <div className="button-row">
+            <button
+              type="button"
+              className="button-main"
+              disabled={!pickDay}
+              onClick={() => {
+                const at = new Date(`${pickDay}T${String(Math.floor(pickStart / 60)).padStart(2, '0')}:${String(pickStart % 60).padStart(2, '0')}`);
+                const record = { id: newId('session'), subjectId: subject.id, kind: sitKind, start: at.toISOString(), minutes: lengthMin };
+                sessionStore.put(record);
+                setFinding(false);
+                offerUndo('Study session set', () => sessionStore.remove(record.id));
+              }}
+            >
+              Set
+            </button>
+            <button type="button" className="button-quiet" onClick={() => setFinding(false)}>Cancel</button>
+          </div>
         </div>
       )}
       {weekMinutes > 0 && <p className="muted">{formatMinutes(weekMinutes)} this week</p>}
