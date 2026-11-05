@@ -94,7 +94,7 @@ These existed before Phase 2 and are unchanged by it.
 
 ## Providers (Phase 3, Slice 1)
 
-`provides` lists the capabilities an app has a provider for (today `search` for Oikonomia and Hydros). `search` lists
+`provides` lists the capabilities an app has a provider for (today `search` for eleven apps: Askesis, Soma, Oikonomia, Hydros, Poreia, Theoria, Philia, Ergon, Therapeia, Dynamis, Ktema). Every app, retired ones included, has a `search` entry; `private` means nothing is searched. `search` lists
 the fields universal search may hold (`indexes`), the fields it never holds (`excludes`), an optional rolling
 `windowDays` and `defaultOn: false` for an app that is off until the person turns it on. The validator ties `provides`
 to a classified `search` entry; `src/tests/providers/` ties it to the registered provider modules and to what syncs.

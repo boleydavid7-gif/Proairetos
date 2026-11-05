@@ -1,7 +1,8 @@
 # Provider contract (design only)
 
-Status: approved design (docs/PHASE3_PLAN.md). Slice 1 is built: the provider types, host and policy, and search
-providers for Oikonomia and Hydros. No other provider exists yet. Section 4 below was revised by the owner's decision D1. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
+Status: approved design (docs/PHASE3_PLAN.md). Slices 1 and 2 are built: the provider types, host and policy, and search
+providers for Soma, Theoria, Philia, Ergon, Therapeia, Ktema, Poreia, Askesis, Dynamis, Oikonomia and Hydros. Home,
+calendar, notices and library providers do not exist yet. Section 4 below was revised by the owner's decision D1. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
 existing read-only `LifeRecordAdapter` (`docs/LIFE_RECORD_INTEGRATION.md`).
 
 The core rule stays: the system records life; it does not interpret life. A provider shows what an app already
@@ -74,10 +75,15 @@ Search rules as built:
   statement lines, notes or transaction details. A result opens that bill. Notes were indexed before Slice 1 and no longer are.
 - **Hydros** (`own-search`, off until turned on): named drinks and day summaries inside a rolling 30-day window.
   No individual drinks, times, caffeine, sugar, electrolytes or daily amount.
-- **Other apps** have their fields classified in the manifest (D4). Universal search still indexes a few fields those
-  rules exclude (Therapeia dose and notes, Ktema serial numbers, Poreia confirmation codes, Ergon chore notes), and
-  Phyton, Meletē and Mneme are indexed without a classification. Slice 2 closes each as it moves that app to a
-  provider; `src/tests/providers/knownGaps.test.ts` lists them.
+- **Other apps** (D4, Slice 2):
+  - Therapeia: medicine name, visit contact, visit place. Not doses, medicine or visit notes, questions, the health card or readings.
+  - Philia: name, who they are, remember lines, gift ideas, times together. Not phone, email or dates.
+  - Ergon: chore name and room. Not the note, who it is given to, or its steps.
+  - Ktema: names, make and model, place, the person's notes. Not serial numbers, prices or warranty details.
+  - Poreia: trip, booking and plan names, places, providers, addresses, notes. Not confirmation codes, travel documents, spending or loyalty numbers.
+  - Soma: recipe title, ingredients, notes, tags. Askesis: title, notes, what went well, next time, intention. Dynamis: session title and note. Theoria: title, author, highlights, reading notes.
+  - Phyton, Meletē, Mneme, Diaita and the retired Praxis are `private`: nothing of theirs is searched until the owner classifies fields.
+  - A field that is not in the manifest's `indexes` is rejected, so an app that is not classified is not searched at all.
 
 ## 5. Compatibility
 
