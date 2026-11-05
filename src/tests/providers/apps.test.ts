@@ -35,3 +35,13 @@ describe('Soma', () => {
     expect(text(rows)).not.toContain('CANARY');
   });
 });
+
+describe('Theoria', () => {
+  it('holds a book’s title, author, highlights and notes, never its text', async () => {
+    const { theoriaSearch } = await import('../../theoria/providers/search');
+    const rows = await run(theoriaSearch, { theoriaBooks: [{ id: 'bk1', title: 'Meditations', author: 'Marcus Aurelius', highlights: [{ id: 'h', text: 'Power over your mind' }], notes: [{ id: 'n', body: 'Re-read book two' }], contentPreview: 'CANARY-TEXT', updatedAt: day }] });
+    expect(rows[0].ref).toEqual({ app: 'theoria', kind: 'book', id: 'bk1' });
+    expect(text(rows)).toMatch(/Marcus Aurelius.*Power over your mind.*Re-read book two/s);
+    expect(text(rows)).not.toContain('CANARY');
+  });
+});

@@ -10,5 +10,6 @@ type Module = { providers: readonly Provider[] };
 export const providerModules: Partial<Record<AppId, () => Promise<Module>>> = {
   oikonomia: () => import('../../oikonomia/providers'),
   hydros: () => import('../../hydros/providers'),
+  theoria: () => import('../../theoria/providers'),
   soma: () => import('../../soma/providers'),
 };
