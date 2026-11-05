@@ -16,7 +16,7 @@ import { myName, settings, useHome, usePlants, type PhytonSettings } from '../ap
 import { rainPlace, refreshRain, setRainPlace } from '../app/rain';
 import { namesIn } from '../core/plants';
 import { CARE_SOURCE } from '../core/species';
-import { IDENTIFY_SOURCE } from '../app/identify';
+import { IDENTIFY_ON, IDENTIFY_SOURCE } from '../app/identify';
 
 function RainPlace() {
   const [place, setPlace] = useState(rainPlace);
@@ -202,7 +202,7 @@ export default function MorePage({ nav }: { nav: PhytonNav }) {
       <section className="card">
         <h2 className="card__title card__title--small">Sources</h2>
         <p className="fine">{CARE_SOURCE}</p>
-        <p className="fine">{IDENTIFY_SOURCE}</p>
+        {IDENTIFY_ON && <p className="fine">{IDENTIFY_SOURCE}</p>}
         <p className="fine">Watering days stretch half as long again in winter and a quarter in the months either side, as plants grow less in short days (RHS).</p>
       </section>
 

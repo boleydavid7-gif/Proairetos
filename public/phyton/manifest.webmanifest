@@ -2,7 +2,7 @@
   "id": "/phyton/",
   "name": "Phyton by Proairetos",
   "short_name": "Phyton",
-  "description": "Plants, watering that follows each one, and identifying a plant from a photo.",
+  "description": "Plants, watering that follows each one, and care for about 125 plant types.",
   "start_url": "/phyton/",
   "scope": "/phyton/",
   "display": "standalone",
@@ -64,9 +64,9 @@
       ]
     },
     {
-      "name": "Identify a plant",
-      "short_name": "Identify",
-      "url": "/phyton/?open=identify",
+      "name": "Look up a plant",
+      "short_name": "Look up",
+      "url": "/phyton/?open=lookup",
       "icons": [
         {
           "src": "/phyton/icon.svg",

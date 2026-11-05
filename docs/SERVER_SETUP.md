@@ -505,25 +505,13 @@ Check with https://proairetos.com/api/travel: each one set up reads `true`.
 
 Keep the keys only in Cloudflare; never in the repository or a plain variable.
 
-## Soma recipe ideas (optional)
+## Soma recipe ideas
 
-Soma's Ideas search can combine TheMealDB with two optional providers. Their keys are read only by the Worker and are
-never sent to the browser. Add them under Cloudflare Workers & Pages → **proairetos** → Settings → Variables and Secrets,
-or run the matching command locally:
-
-1. **Spoonacular — `SPOONACULAR_API_KEY`.** Create an account at spoonacular.com/food-api and copy the API key from the
-   dashboard. Soma uses `complexSearch` for recipe titles, images, and source links. Provider quotas apply.
-2. **Tasty — `TASTY_API_KEY`.** Create a RapidAPI account, subscribe to the Tasty API, and copy the
-   `X-RapidAPI-Key`. Soma uses the recipe list endpoint and keeps the source link for review. `TASTY_RAPIDAPI_KEY` is
-   also accepted if that is the name already used in your Worker environment.
-
-```bash
-npx wrangler secret put SPOONACULAR_API_KEY
-npx wrangler secret put TASTY_API_KEY
-```
-
-Without either secret, TheMealDB and the community Cookbook remain available. A provider is included in results only when
-its key is configured and its request succeeds; failures from one source do not hide results from the others.
+Soma's Ideas search combines TheMealDB (direct from the browser) with the community Cookbook on Wikibooks (through the
+Worker's `/api/recipe-ideas`). Neither needs a key. Spoonacular and Tasty were removed on Nov 5 (their free plans are
+small and their terms limit caching), so `SPOONACULAR_API_KEY`, `TASTY_API_KEY` and `TASTY_RAPIDAPI_KEY` are no longer
+read: delete them from Cloudflare if you set them. Recipes come in through Import (link, pasted text, photo, files from
+other recipe apps).
 
 ## Oikonomia online receipt reader (reserved)
 
