@@ -5,8 +5,10 @@ import { onChangedCollections } from '../sync/syncController';
 /*
  * A provider's result, kept in memory only (nothing is stored). It is dropped when a sync changes something the provider
  * reads (`sourceChanged`), when its own app changes records here (`provider.subscribe`), when the day turns over, or when
- * another window changes things. Each provider keeps its own entry, so one app's change never rebuilds another's.
+ * another window changes things. Each provider keeps its own entry, so one app's change never rebuilds another's. A result
+ * is also rebuilt after five minutes, a bound on staleness for a change no event reached this tab.
  */
+export const MAX_AGE_MS = 5 * 60_000;
 const wrapped = new Map<Provider, Provider>();
 
 type Subscribe = (listener: (collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) => void) => () => void;
@@ -18,6 +20,7 @@ export function withCache<C extends Capability>(provider: Provider<C>, subscribe
   let day = '';
   let stale = true;
   let started = false;
+  let at = 0;
   const drop = () => {
     stale = true;
   };
@@ -33,9 +36,10 @@ export function withCache<C extends Capability>(provider: Provider<C>, subscribe
     ...provider,
     async read(ctx) {
       start();
-      if (stale || value === undefined || day !== ctx.today) {
+      if (stale || value === undefined || day !== ctx.today || ctx.now.getTime() - at > MAX_AGE_MS) {
         stale = false;
         day = ctx.today;
+        at = ctx.now.getTime();
         value = (await provider.read(ctx)) as Awaited<OutputOf<C>>;
       }
       return value;

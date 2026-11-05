@@ -77,3 +77,29 @@ describe('the sync engine says which records a pull changed', () => {
     expect(b.seen).toHaveLength(1);
   }, 30_000);
 });
+
+describe('same-tab record changes', () => {
+  it('reach a watcher of that prefix and no other', async () => {
+    const { announceLocal, watchLocal } = await import('../../app/family/localChanges');
+    const seen: string[] = [];
+    const offA = watchLocal('ergon:chore:', () => seen.push('ergon'));
+    const offB = watchLocal('philia:person:', () => seen.push('philia'));
+    announceLocal('ergon:chore:');
+    expect(seen).toEqual(['ergon']);
+    offA();
+    announceLocal('ergon:chore:');
+    expect(seen).toEqual(['ergon']);
+    offB();
+  });
+  it('a cached result older than five minutes is rebuilt', async () => {
+    let reads = 0;
+    const base = { ...oikonomiaSearch, read: () => { reads += 1; return []; } };
+    const cached = withCache(base, () => () => undefined);
+    const at = (minutes: number) => ({ today: '2026-11-05', now: new Date(Date.UTC(2026, 10, 5, 12, minutes)), records: async () => [], setting: () => null, isUsable: () => true, enabled: () => true }) as never;
+    await cached.read(at(0));
+    await cached.read(at(4));
+    expect(reads).toBe(1);
+    await cached.read(at(6));
+    expect(reads).toBe(2);
+  });
+});
