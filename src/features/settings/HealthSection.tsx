@@ -34,10 +34,10 @@ function Copy({ label, value }: { label: string; value: string }) {
 
 function SetupInstructions({ phone, setPhone }: { phone: 'iphone' | 'android'; setPhone: (phone: 'iphone' | 'android') => void }) {
   return (
-      <section className="settings-group" aria-label="Set up your phone">
-        <h2 className="settings-group__label">Set up your phone</h2>
+      <section className="settings-group" aria-label="Set up your device">
+        <h2 className="settings-group__label">Set up your device</h2>
         <div className="settings-card">
-          <div className="chip-row" role="group" aria-label="Your phone">
+          <div className="chip-row" role="group" aria-label="Your device">
             <button type="button" className="chip" aria-pressed={phone === 'iphone'} onClick={() => setPhone('iphone')}>iPhone</button>
             <button type="button" className="chip" aria-pressed={phone === 'android'} onClick={() => setPhone('android')}>Android</button>
           </div>

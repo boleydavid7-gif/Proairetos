@@ -61,7 +61,7 @@ const waysToTry: Readonly<Record<string, string>> = {
   'Associate with those who will make a better person of you.':
     'Reach out to one person who brings out your best: a message is enough.',
   'A well-ordered mind can stop just where it is and pass some time in its own company.':
-    'Spend two minutes doing nothing at all: no phone, no task. Just sit.',
+    'Spend two minutes doing nothing at all: no device, no task. Just sit.',
   'The impediment to action advances action. What stands in the way becomes the way.':
     'Take today’s biggest obstacle and ask what it lets you practice: patience, skill, or courage.',
   'Such as are your habitual thoughts, such also will be the character of your mind.':

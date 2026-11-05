@@ -53,7 +53,7 @@ const presetPractices: Readonly<Record<string, string>> = {
   Honesty: 'Saying "I don’t know" when you don’t.',
   Kindness: 'Including yourself in the kindness you give others.',
   Patience: 'Letting someone finish, or letting a slow thing be slow.',
-  Presence: 'Doing one thing at a time, with your phone away.',
+  Presence: 'Doing one thing at a time, with your devices away.',
   Service: 'Doing one useful thing nobody asked for.',
 };
 

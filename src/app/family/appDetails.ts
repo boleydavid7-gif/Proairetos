@@ -89,7 +89,7 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
     does: [
       'Opens your own books and PDFs on any device',
       'Keeps highlights, notes and bookmarks with the book',
-      'Reads a folder in OneDrive, Google Drive or Dropbox, or one on your computer',
+      'Reads a folder in OneDrive, Google Drive or Dropbox, or one on this device',
       'Brings in highlights from a Kindle or Readwise, and has a reading timer',
     ],
     connects: [

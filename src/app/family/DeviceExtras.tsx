@@ -70,7 +70,7 @@ export function WriteTag({ path, className = 'button-quiet' }: { path: string; c
           );
         }}
       >
-        {state === 'waiting' ? 'Hold a tag to the phone…' : 'Write to an NFC tag'}
+        {state === 'waiting' ? 'Hold a tag to your device…' : 'Write to an NFC tag'}
       </button>
       {state === 'done' && <p className="read-photo__note" role="status">Written.</p>}
       {state === 'retry' && <p className="read-photo__note" role="alert">Couldn’t write the tag. Try again.</p>}

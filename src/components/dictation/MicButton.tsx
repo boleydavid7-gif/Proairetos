@@ -39,7 +39,7 @@ function Notice({ onAccept, onClose }: { onAccept: () => void; onClose: () => vo
         </button>
         <p className="sheet__title sheet__title--static">Before you dictate</p>
         <p className="section-description">
-          Your phone’s speech service (Apple or Google) turns speech into text, as your keyboard’s microphone does.
+          Your device’s speech service (Apple or Google) turns speech into text, as your keyboard’s microphone does.
           Proairetos only gets the text.
         </p>
         <p className="section-description">To keep it all on this device, type instead.</p>

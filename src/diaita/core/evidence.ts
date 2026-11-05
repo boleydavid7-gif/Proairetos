@@ -93,7 +93,7 @@ export function suggestionFor(records: readonly SleepRecord[], chosenHours: numb
     return {
       id: 'room',
       title: 'Make the room sleep-friendly',
-      body: 'A cool room, around 60–67 °F, dark, quiet, and your phone away can make sleep easier.',
+      body: 'A cool room, around 60–67 °F, dark, quiet, and your devices away can make sleep easier.',
       source: 'Shriane AE et al. Sleep hygiene in shift workers: a systematic literature review. Sleep Med Rev 2020;53:101336.',
     };
   }
