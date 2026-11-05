@@ -4,8 +4,21 @@ const CACHE = 'proairetos-v19';
 const APP_PATHS = ['/askesis/','/soma/','/oikonomia/','/hydros/','/praxis/','/theoria/','/diaita/','/philia/','/ergon/','/therapeia/','/dynamis/','/ktema/','/phyton/','/poreia/','/mneme/'];
 const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png', ...APP_PATHS];
 
+// Requests this worker never answers (live API answers, recordings, the OCR and speech files, the Lamplight guide, the
+// worker itself) go straight to the network without waking it: service worker static routing, in Chrome and Safari 27.
+// Where it is missing nothing changes; the fetch handler below leaves the same requests to the network.
+const NETWORK_ONLY = ['/api/*', '/sounds/*', '/ocr/*', '/ort/*', '/lamplight/*', '/sw.js'];
+function routeAround(event) {
+  if (typeof event.addRoutes !== 'function') return undefined;
+  try {
+    return Promise.resolve(event.addRoutes([{ condition: { or: NETWORK_ONLY.map((urlPattern) => ({ urlPattern })) }, source: 'network' }])).catch(() => undefined);
+  } catch {
+    return undefined;
+  }
+}
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(SHELL)));
+  event.waitUntil(Promise.all([caches.open(CACHE).then((cache) => cache.addAll(SHELL)), routeAround(event)]));
   self.skipWaiting();
 });
 

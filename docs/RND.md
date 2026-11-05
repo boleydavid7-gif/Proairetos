@@ -63,3 +63,7 @@ site now opens as a web app by default, so our install steps and screenshots may
 Chrome I/O 2026 post, Chrome 158 release notes, WebMCP docs and Built-in AI status table (developer.chrome.com); web.dev
 "New to the web platform" for May, June, August and September 2026; WebKit "Features for Safari" 26.4, 26.5, 27.0, 27.1, 27.2.
 Several pages were read in part (the longest ones came back partly summarized), so treat single claims as leads.
+
+## Built from this
+
+- Nov 5: service worker static routing in `public/sw.js` (test `src/tests/notify/swRouting.test.ts`). Measured in Chromium 153 with a counting copy of the worker: five requests to `/api/`, `/sounds/`, `/ocr/` and `/lamplight/` woke the worker without routing and none with it; the app still opens offline.
