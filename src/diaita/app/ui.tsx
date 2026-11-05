@@ -65,3 +65,27 @@ export function weekdayText(date: string, today: string): string {
   if (date === addDays(today, -1)) return 'Yesterday';
   return parseLocalDate(date).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' });
 }
+
+export function NumberField({ label, value, min, max, step, unit, onChange }: { label: string; value: number; min: number; max: number; step: number; unit: string; onChange: (value: number) => void }) {
+  return (
+    <label className="field">
+      <span className="field__label">{label}</span>
+      <span className="family-unit">
+        <input
+          className="input"
+          type="number"
+          inputMode="decimal"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(event) => {
+            const next = Number(event.target.value);
+            if (Number.isFinite(next) && next >= min && next <= max) onChange(next);
+          }}
+        />
+        <span>{unit}</span>
+      </span>
+    </label>
+  );
+}
