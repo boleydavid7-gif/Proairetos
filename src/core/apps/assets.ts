@@ -42,9 +42,9 @@ export function checkAssets(files: Files, apps: readonly AppManifest[] = APPS): 
     for (const name of ['icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png']) {
       if (!files.exists(png(app, name))) warnings.push(`${at}: ${png(app, name)} is missing`);
     }
-    const shots = files.list(pub(app, 'screenshots')).filter((name) => name.endsWith('.webp')).length;
+    const shots = files.list(pub(app, 'screenshots')).filter((name) => /^narrow-\d+\.webp$/.test(name)).length;
     const wanted = app.details?.shots ?? 0;
-    if (shots !== wanted) warnings.push(`${at}: ${shots} screenshots on disk, ${wanted} in the manifest`);
+    if (app.details && shots !== wanted) warnings.push(`${at}: ${shots} screenshots on disk, ${wanted} in the manifest`);
     if (app.install.addable && !files.exists(`public/welcome/${app.id}/index.html`)) warnings.push(`${at}: no front page (public/welcome/${app.id}/)`);
     if (app.status === 'active') {
       for (const [check, label] of [['speed', 'speed check'], ['layout', 'layout check'], ['visual', 'visual check'], ['alone', 'alone check']] as const) {
