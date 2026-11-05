@@ -31,8 +31,8 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const settings = useSettings();
   const today = useToday();
   const all = bills ?? [];
-  // Every bill due in the next seven days and not yet paid; the amount above them is the sum of these bills alone.
-  const due = dueWithin(all, today, 7);
+  // Every bill due today or tomorrow and not yet paid; the amount above them is the sum of these bills alone.
+  const due = dueWithin(all, today, 1);
 
   return (
     <div className="home oiko-home">
@@ -58,13 +58,13 @@ export default function HomePage({ nav }: { nav: Nav }) {
                 <span>{remainingSummary(due, today).note}</span>
               </p>
             )}
-            <section className="oiko-list" aria-label="Due this week">
+            <section className="oiko-list" aria-label="Due today and tomorrow">
               {due.map((occurrence, index) => (
                 <SwipeRow key={occurrence.bill.id + occurrence.date} label="Paid" off={!can.write} onSwipe={() => void payBill(occurrence.bill, occurrence.date)}>
                   {billRow(occurrence.bill, occurrence.date, nav, today, index === 0 && needsAttention(occurrence.bill, occurrence.date, today))}
                 </SwipeRow>
               ))}
-              {due.length === 0 && <p className="muted">Nothing due this week.</p>}
+              {due.length === 0 && <p className="muted">Nothing due today or tomorrow.</p>}
             </section>
 
             <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
