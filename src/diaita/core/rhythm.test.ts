@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { atTime, toLocalDate } from '../../core/scheduling/dates';
-import { checkInOpen, clock, dayKind, defaultRhythm, entriesOn, isNight, mainSleeps, planBetween, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
+import { checkInOpen, clock, dayKind, defaultRhythm, entriesOn, isNight, baseSleeps, mainSleeps, planBetween, shiftTo, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
 
 const block = (date: string, start: string, endDate: string, end: string, label = 'Work'): WorkBlock => ({ start: atTime(date, start), end: atTime(endDate, end), label });
 
@@ -235,5 +235,21 @@ describe('adjusting sleep and wake time', () => {
     const moved = afterNight({ ...defaultRhythm, shiftAdjust: { [label]: { sleep: 15, wake: 0 } }, dayAdjust: { [day]: { sleep: -30, wake: 20 } } })!;
     expect(moved.start.getTime() - base.start.getTime()).toBe(-30 * 60_000);
     expect(moved.end.getTime() - base.end.getTime()).toBe(20 * 60_000);
+  });
+});
+
+describe('adjusting by clock time', () => {
+  it('works out the move from the planned time the shorter way round', () => {
+    const planned = atTime('2026-10-05', '23:30');
+    expect(shiftTo(planned, 23 * 60 + 45)).toBe(15);
+    expect(shiftTo(planned, 15)).toBe(45);
+    expect(shiftTo(planned, 22 * 60)).toBe(-90);
+  });
+
+  it('keeps the planned sleeps apart from the adjusted ones', () => {
+    const settings = { ...defaultRhythm, sleepShift: 30 };
+    const base = baseSleeps('2026-10-05', '2026-10-06', [nights[0]], settings);
+    const moved = mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings);
+    expect(moved[0].start.getTime() - base[0].start.getTime()).toBe(30 * 60_000);
   });
 });

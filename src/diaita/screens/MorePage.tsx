@@ -6,8 +6,9 @@ import { BookIcon, HistoryIcon, SettingsIcon } from '../../app/family/icons';
 import { Switch } from '../../askesis/app/ui';
 import { notifications } from '../../app/notify/notifications';
 import type { DiaitaNav } from '../app/App';
-import { NumberField } from '../app/ui';
-import { settings, usePlan, type DiaitaSettings } from '../app/state';
+import { AdjustTimes, NumberField } from '../app/ui';
+import { baseSleeps, followsShift } from '../core/rhythm';
+import { settings, sunPlace, usePlan, type DiaitaSettings } from '../app/state';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import { useAddedApps } from '../../app/family/added';
 import MoreDetails from '../../app/family/MoreDetails';
@@ -19,7 +20,17 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
   // A rotating schedule: each named shift in the next four weeks gets its own two boxes.
   const { blocks } = usePlan(today, addDays(today, 28));
   const names = [...new Set(blocks.filter((block) => block.kind !== 'PROTECTED' && block.label).map((block) => block.label as string))].sort();
-  const rotations = names.length > 1 ? names : [];
+  // One pair of boxes, or one for each named shift of a rotating schedule, each starting from the time planned before any adjusting.
+  const planned = baseSleeps(today, addDays(today, 28), blocks, { ...current, place: sunPlace() }).filter((sleep) => sleep.start.getTime() >= Date.now());
+  const adjustable: { name?: string; base: { start: Date; end: Date } }[] =
+    names.length > 1
+      ? names.flatMap((name) => {
+          const base = planned.find((sleep) => followsShift(sleep.start, blocks) === name);
+          return base ? [{ name, base }] : [];
+        })
+      : planned[0]
+        ? [{ base: planned[0] }]
+        : [];
   const change = (patch: Partial<DiaitaSettings>) => {
     settings.save({ ...settings.load(), ...patch });
     notifications.refreshSoon();
@@ -45,20 +56,17 @@ export default function MorePage({ nav }: { nav: DiaitaNav }) {
           <NumberField label="Travel to work" value={current.commuteMinutes} min={0} max={180} step={5} unit="min" onChange={(commuteMinutes) => change({ commuteMinutes })} />
           <NumberField label="Getting ready" value={current.readyMinutes} min={0} max={180} step={5} unit="min" onChange={(readyMinutes) => change({ readyMinutes })} />
         </div>
-        <div className="input-row">
-          <NumberField label="Adjust sleep time" value={current.sleepShift ?? 0} min={-240} max={240} step={5} unit="min" onChange={(sleepShift) => change({ sleepShift })} />
-          <NumberField label="Adjust wake time" value={current.wakeShift ?? 0} min={-240} max={240} step={5} unit="min" onChange={(wakeShift) => change({ wakeShift })} />
-        </div>
-        {rotations.map((name) => {
-          const own = current.shiftAdjust?.[name] ?? { sleep: current.sleepShift ?? 0, wake: current.wakeShift ?? 0 };
-          const set = (patch: Partial<{ sleep: number; wake: number }>) => change({ shiftAdjust: { ...current.shiftAdjust, [name]: { ...own, ...patch } } });
+        {adjustable.map(({ name, base }) => {
+          const general = { sleep: current.sleepShift ?? 0, wake: current.wakeShift ?? 0 };
+          const own = name ? (current.shiftAdjust?.[name] ?? general) : general;
           return (
-            <div key={name}>
-              <p className="label">{name}</p>
-              <div className="input-row">
-                <NumberField label="Adjust sleep time" value={own.sleep} min={-240} max={240} step={5} unit="min" onChange={(sleep) => set({ sleep })} />
-                <NumberField label="Adjust wake time" value={own.wake} min={-240} max={240} step={5} unit="min" onChange={(wake) => set({ wake })} />
-              </div>
+            <div key={name ?? 'all'}>
+              {name && <p className="label">{name}</p>}
+              <AdjustTimes
+                base={base}
+                shift={own}
+                onChange={(next) => change(name ? { shiftAdjust: { ...current.shiftAdjust, [name]: next } } : { sleepShift: next.sleep, wakeShift: next.wake })}
+              />
             </div>
           );
         })}

@@ -1,10 +1,10 @@
 import { BackIcon } from '../../app/family/icons';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import type { DiaitaNav } from '../app/App';
-import { settings, usePlan } from '../app/state';
+import { settings, sunPlace, usePlan } from '../app/state';
 import { notifications } from '../../app/notify/notifications';
-import { NumberField, Timeline, weekdayText } from '../app/ui';
-import { DAY_NAMES, dayKind, entriesOn } from '../core/rhythm';
+import { AdjustTimes, Timeline, weekdayText } from '../app/ui';
+import { baseSleeps, DAY_NAMES, dayKind, entriesOn } from '../core/rhythm';
 
 export default function DayPage({ nav, date }: { nav: DiaitaNav; date: string }) {
   const { entries, blocks, dayAt } = usePlan(addDays(date, -1), addDays(date, 1));
@@ -15,10 +15,10 @@ export default function DayPage({ nav, date }: { nav: DiaitaNav; date: string })
   const sleep = shown.find((entry) => entry.kind === 'sleep' && entry.title === 'Sleep') ?? shown.find((entry) => entry.kind === 'sleep');
   const key = sleep ? (sleep.day ?? toLocalDate(sleep.start)) : undefined;
   const own = key ? current.dayAdjust?.[key] : undefined;
-  const set = (patch: Partial<{ sleep: number; wake: number }>) => {
+  const base = key ? baseSleeps(addDays(date, -2), addDays(date, 2), blocks, { ...current, place: sunPlace() }).find((each) => (each.day ?? toLocalDate(each.start)) === key) : undefined;
+  const set = (next: { sleep: number; wake: number }) => {
     if (!key) return;
-    const base = own ?? { sleep: current.sleepShift ?? 0, wake: current.wakeShift ?? 0 };
-    settings.save({ ...settings.load(), dayAdjust: { ...current.dayAdjust, [key]: { ...base, ...patch } } });
+    settings.save({ ...settings.load(), dayAdjust: { ...current.dayAdjust, [key]: next } });
     notifications.refreshSoon();
   };
   return (
@@ -28,12 +28,7 @@ export default function DayPage({ nav, date }: { nav: DiaitaNav; date: string })
       </div>
       <h1 className="title">{weekdayText(date, today)}</h1>
       <p className="lead">{DAY_NAMES[dayKind(date, blocks)]}</p>
-      {key && (
-        <div className="input-row">
-          <NumberField label="Adjust sleep time" value={own?.sleep ?? current.sleepShift ?? 0} min={-240} max={240} step={5} unit="min" onChange={(value) => set({ sleep: value })} />
-          <NumberField label="Adjust wake time" value={own?.wake ?? current.wakeShift ?? 0} min={-240} max={240} step={5} unit="min" onChange={(value) => set({ wake: value })} />
-        </div>
-      )}
+      {key && base && <AdjustTimes base={base} shift={own ?? { sleep: current.sleepShift ?? 0, wake: current.wakeShift ?? 0 }} onChange={set} />}
       <Timeline entries={shown} now={date === today ? new Date() : undefined} />
     </div>
   );
