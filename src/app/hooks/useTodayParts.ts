@@ -1,29 +1,12 @@
+import { APPS } from '../../core/apps/manifest';
 import { useSyncExternalStore } from 'react';
 import { subscribePreferences, todayHiddenSnapshot, type TodayPart } from '../../data/storage/preferences';
 import { addedSnapshot, subscribeAdded, type AddOn } from '../family/added';
 
 /** The app each family part comes from: a part shows only while its app is added in the Store. */
-export const PART_APP: Partial<Record<TodayPart, AddOn>> = {
-  askesis: 'askesis',
-  soma: 'soma',
-  bills: 'oikonomia',
-  'bill-dates': 'oikonomia',
-  water: 'hydros',
-  praxis: 'praxis',
-  highlight: 'theoria',
-  diaita: 'diaita',
-  birthdays: 'philia',
-  'birthday-dates': 'philia',
-  chores: 'ergon',
-  medicines: 'therapeia',
-  training: 'dynamis',
-  upkeep: 'ktema',
-  plants: 'phyton',
-  trips: 'poreia',
-  mneme: 'mneme',
-  'study-dates': 'melete',
-  'ktema-dates': 'ktema',
-};
+export const PART_APP: Partial<Record<TodayPart, AddOn>> = Object.fromEntries(
+  APPS.flatMap((app) => (app.today?.parts ?? []).map((part) => [part, app.id])),
+) as Partial<Record<TodayPart, AddOn>>;
 
 /** Each app's own parts have no switch of their own (Nov 5): an app shows on Today through "Apps on Today" in What's
  *  included (Daily practices, Worth your attention), so an older choice stored for one of these is no longer read. */

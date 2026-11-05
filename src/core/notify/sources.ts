@@ -1,3 +1,4 @@
+import { APPS } from '../apps/manifest';
 import type { Notice } from './notices';
 
 /**
@@ -9,24 +10,16 @@ import type { Notice } from './notices';
 export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'melete';
 export type FamilyApp = ReminderSource | 'soma' | 'theoria' | 'mneme' | 'melete';
 
-export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'melete'];
+/* Everything below reads the application manifest (src/core/apps/manifest.ts). */
+export const REMINDER_SOURCES: readonly ReminderSource[] = APPS.flatMap((app) => (app.notices.source ? [app.notices.source as ReminderSource] : []));
 
-const APP_NAMES: Record<FamilyApp, string> = {
-  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Theoria', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria', poreia: 'Poreia', mneme: 'Mneme', melete: 'Meletē',
-};
+// A retired app wears the name of the app it lives in now (Praxis's reading blocks are Theoria's).
+const APP_NAMES = Object.fromEntries(APPS.map((app) => [app.id, app.aliasOf ? (APPS.find((a) => a.id === app.aliasOf)?.name ?? app.name) : app.name])) as Record<FamilyApp, string>;
 
 export const appFromOpen = (open: string): FamilyApp => {
-  if (open === 'askesis' || open.startsWith('askesis:')) return 'askesis';
-  if (open === 'oikonomia' || open.startsWith('oikonomia:')) return 'oikonomia';
-  if (open === 'hydros' || open.startsWith('hydros:')) return 'hydros';
-  if (open === 'poreia' || open.startsWith('poreia:')) return 'poreia';
-  if (open === 'praxis' || open.startsWith('praxis:')) return 'praxis';
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'] as const) {
-    if (open === app || open.startsWith(`${app}:`)) return app;
+  for (const app of APPS) {
+    if (app.status !== 'main' && (open === app.id || open.startsWith(`${app.id}:`))) return app.id as FamilyApp;
   }
-  if (open === 'mneme' || open.startsWith('mneme:')) return 'mneme';
-  if (open === 'melete' || open.startsWith('melete:')) return 'melete';
   return 'proairetos';
 };
 
@@ -42,45 +35,16 @@ export function iconForOpen(open: string): string {
   return app === 'proairetos' ? '/icons/icon-192.png' : `/${app}/icons/icon-192.png`;
 }
 
+const KIND_SOURCE = new Map<string, ReminderSource>(APPS.flatMap((app) => app.notices.kinds.map((kind) => [kind, app.notices.source as ReminderSource] as const)));
+
 export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
-  switch (notice.kind) {
-    case 'run':
-      return 'askesis';
-    case 'bill':
-      return 'oikonomia';
-    case 'hydration':
-      return 'hydros';
-    case 'study':
-      return 'praxis';
-    case 'rhythm':
-      return 'diaita';
-    case 'person':
-      return 'philia';
-    case 'chore':
-      return 'ergon';
-    case 'dose':
-    case 'care':
-      return 'therapeia';
-    case 'training':
-      return 'dynamis';
-    case 'upkeep':
-      return 'ktema';
-    case 'plant':
-      return 'phyton';
-    case 'trip':
-      return 'poreia';
-    case 'melete':
-      return 'melete';
-    default:
-      return 'proairetos';
-  }
+  return KIND_SOURCE.get(notice.kind) ?? 'proairetos';
 }
 
 /** Which app this page is, from its address. */
 export function appAt(pathname: string): FamilyApp {
   const first = pathname.split('/').filter(Boolean)[0];
-  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
-  return apps.find((app) => app === first) ?? 'proairetos';
+  return (APPS.find((app) => app.status !== 'main' && app.id === first)?.id as FamilyApp | undefined) ?? 'proairetos';
 }
 
 /**
@@ -93,10 +57,11 @@ export function sourcesToWrite(
   notices: readonly Pick<Notice, 'kind'>[],
   writtenBefore: readonly ReminderSource[] = [],
 ): ReminderSource[] {
-  if (app === 'soma' || app === 'theoria' || app === 'mneme') return [];
-  if (app !== 'proairetos') return [app];
+  // An app with no reminder source of its own writes none.
+  if (app !== 'proairetos' && !APPS.find((a) => a.id === app)?.notices.source) return [];
+  if (app !== 'proairetos') return [app as ReminderSource];
   const present = new Set(notices.map(sourceOf));
-  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
+  const others = APPS.filter((a) => a.notices.mainWrites).map((a) => a.notices.source as ReminderSource).filter((source) => present.has(source) || writtenBefore.includes(source));
   return ['proairetos', ...others];
 }
 

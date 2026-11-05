@@ -1,47 +1,73 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { APPS } from '../../core/apps';
+import { ADD_ONS, NOT_OFFERED } from '../../app/family/added';
+import { CORE_APPS } from '../../app/family/purchases';
+import { REMINDER_SOURCES, appAt, appFromOpen, appNameForOpen, sourceOf, sourcesToWrite } from '../../core/notify/sources';
+import { DAILY_PRACTICE_APPS, WORTH_ATTENTION_APPS } from '../../core/today/apps';
+import { PART_APP } from '../../app/hooks/useTodayParts';
+import { keptInBackup } from '../../data/backup/family';
 
 /*
- * Wave 0: the manifest must agree with every list still written out by hand. As each consumer moves to read the
- * manifest, its test here changes from "equal to the old list" to "derived from the manifest".
+ * Wave 1 moved the plain id lists to read the manifest. These tests hold what they produce to the lists that were
+ * written out by hand before (the frozen literals below), so a change to the manifest that alters behavior shows here.
  */
-const read = (p: string) => readFileSync(p, 'utf8');
-const list = (text: string, pattern: RegExp): string[] => {
-  const m = pattern.exec(text);
-  if (!m) throw new Error(`no match for ${pattern}`);
-  return [...m[1].matchAll(/'([a-z]+)'/g)].map((x) => x[1]);
-};
 const same = (a: readonly string[], b: readonly string[]) => expect([...a].sort()).toEqual([...b].sort());
-const ids = (pick: (a: (typeof APPS)[number]) => boolean) => APPS.filter(pick).map((a) => a.id);
+const ALL = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
 
-describe('manifest parity with the lists written by hand', () => {
-  it('ADD_ONS', () => {
-    same(list(read('src/app/family/added.ts'), /ADD_ONS[^=]*=\s*\[([^\]]*)\]/), ids((a) => a.status !== 'main'));
-  });
-  it('NOT_OFFERED', () => {
-    same(list(read('src/app/family/added.ts'), /NOT_OFFERED[^=]*=\s*new Set<AddOn>\(\[([^\]]*)\]/), ids((a) => a.status === 'retired'));
+describe('what reads the manifest', () => {
+  it('ADD_ONS and NOT_OFFERED', () => {
+    same(ADD_ONS, ALL);
+    same([...NOT_OFFERED], ['praxis']);
   });
   it('CORE_APPS', () => {
-    same(list(read('src/app/family/purchases.ts'), /CORE_APPS\s*=\s*\[([^\]]*)\]/), ids((a) => a.install.coreBundle));
+    same(CORE_APPS, ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete']);
   });
   it('the backup prefixes', () => {
-    const prefixes = [...read('src/data/backup/family.ts').match(/PREFIXES = \[([^\]]*)\]/)![1].matchAll(/'([a-z.]+)[:.]'/g)].map((x) => x[1]);
-    same(prefixes, APPS.filter((a) => a.id === 'proairetos' || a.data.backupPrefix).map((a) => (a.id === 'proairetos' ? 'proairetos' : a.data.backupPrefix!.replace(/[:.]$/, ''))));
+    for (const app of ALL.filter((id) => id !== 'praxis')) expect(keptInBackup(`${app}:x`), app).toBe(true);
+    expect(keptInBackup('proairetos.setting')).toBe(true);
+    expect(keptInBackup('proairetos.auth')).toBe(false);
+    expect(keptInBackup('other:x')).toBe(false);
   });
   it('the apps sync knows by name', () => {
-    same(list(read('src/data/sync/supabase.ts'), /knownApps = \[([^\]]*)\]/), ids((a) => a.status !== 'main'));
+    const text = readFileSync('src/data/sync/supabase.ts', 'utf8');
+    expect(text).toContain("APPS.filter((app) => app.status !== 'main')");
   });
   it('REMINDER_SOURCES', () => {
-    same(list(read('src/core/notify/sources.ts'), /REMINDER_SOURCES[^=]*=\s*\[([^\]]*)\]/), APPS.filter((a) => a.id === 'proairetos' || a.notices.source).map((a) => a.notices.source ?? a.id));
+    same(REMINDER_SOURCES, ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'melete']);
+  });
+  it('notice kinds map to their sources', () => {
+    const expected: Record<string, string> = { run: 'askesis', bill: 'oikonomia', hydration: 'hydros', study: 'praxis', rhythm: 'diaita', person: 'philia', chore: 'ergon', dose: 'therapeia', care: 'therapeia', training: 'dynamis', upkeep: 'ktema', plant: 'phyton', trip: 'poreia', melete: 'melete', other: 'proairetos' };
+    for (const [kind, source] of Object.entries(expected)) expect(sourceOf({ kind } as never), kind).toBe(source);
+  });
+  it('app names, addresses and who writes what', () => {
+    expect(appNameForOpen('praxis:x')).toBe('Theoria');
+    expect(appNameForOpen('melete:subject:1')).toBe('Meletē');
+    expect(appNameForOpen('day:today')).toBe('Proairetos');
+    expect(appFromOpen('therapeia')).toBe('therapeia');
+    expect(appAt('/soma/')).toBe('soma');
+    expect(appAt('/nowhere/')).toBe('proairetos');
+    expect(sourcesToWrite('soma', [])).toEqual([]);
+    expect(sourcesToWrite('theoria', [])).toEqual([]);
+    expect(sourcesToWrite('mneme', [])).toEqual([]);
+    expect(sourcesToWrite('praxis', [])).toEqual(['praxis']);
+    same(sourcesToWrite('proairetos', [], ['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete']), ['proairetos', 'askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete']);
+    expect(sourcesToWrite('proairetos', [], ['praxis'])).toEqual(['proairetos']);
+  });
+  it('Today groups keep their order', () => {
+    expect([...DAILY_PRACTICE_APPS]).toEqual(['hydros', 'askesis', 'dynamis', 'diaita', 'theoria', 'melete']);
+    expect([...WORTH_ATTENTION_APPS]).toEqual(['ergon', 'ktema', 'oikonomia', 'philia', 'phyton', 'poreia', 'soma', 'therapeia']);
+  });
+  it('Today parts', () => {
+    expect(PART_APP).toEqual({
+      askesis: 'askesis', soma: 'soma', bills: 'oikonomia', 'bill-dates': 'oikonomia', water: 'hydros', praxis: 'praxis', highlight: 'theoria', diaita: 'diaita',
+      birthdays: 'philia', 'birthday-dates': 'philia', chores: 'ergon', medicines: 'therapeia', training: 'dynamis', upkeep: 'ktema', plants: 'phyton',
+      trips: 'poreia', mneme: 'mneme', 'study-dates': 'melete', 'ktema-dates': 'ktema',
+    });
   });
   it('the Vite entry points', () => {
-    const text = read('vite.config.ts');
-    const entries = [...text.matchAll(/(\w+): '(?:[\w/]+\/)?index\.html'/g)].map((m) => m[1]);
-    for (const a of APPS) expect(entries, a.id).toContain(a.id === 'proairetos' ? 'main' : a.id);
-  });
-  it('each retired app is still listed where its records and links must keep working', () => {
-    expect(read('src/data/sync/supabase.ts')).toContain("'praxis'");
-    expect(read('src/app/family/added.ts')).toContain("'praxis'");
+    const text = readFileSync('vite.config.ts', 'utf8');
+    expect(text).toContain("app.urls.entry");
+    for (const app of APPS) expect(app.urls.entry, app.id).toMatch(/index\.html$/);
   });
 });

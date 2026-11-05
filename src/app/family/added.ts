@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { APPS } from '../../core/apps/manifest';
 import type { FamilyApp } from './FamilyApps';
 import { mayUse, subscribePurchases } from './purchases';
 
@@ -10,10 +11,10 @@ import { mayUse, subscribePurchases } from './purchases';
 
 export type AddOn = Exclude<FamilyApp, 'proairetos'>;
 
-export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
+export const ADD_ONS: readonly AddOn[] = APPS.filter((app) => app.status !== 'main').map((app) => app.id as AddOn);
 
 /** Praxis is retired into Theoria's Pomodoro; its stored choice and records are kept. */
-export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(['praxis']);
+export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(APPS.filter((app) => app.status === 'retired').map((app) => app.id as AddOn));
 
 const KEY = 'proairetos.apps';
 const PINNED_KEY = 'proairetos.pinnedApps';
