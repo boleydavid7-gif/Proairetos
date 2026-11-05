@@ -14,12 +14,12 @@
   min-height: var(--ll-control-md);
   padding: 0 var(--ll-space-5);
   border: 0;
-  border-radius: var(--ll-radius-pill);
+  border-radius: var(--ll-radius-action);
   background: var(--ll-lamp-fill);
   color: var(--ll-on-lamp);
   font: var(--ll-type-button);
   text-decoration: none;
-  box-shadow: var(--ll-lamp-light);
+  box-shadow: none;
   cursor: pointer;
   transition: var(--ll-state-transition);
 }

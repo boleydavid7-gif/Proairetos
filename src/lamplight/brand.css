@@ -10,11 +10,6 @@
 
 /* Tokens and the surface rule live in light.css. */
 
-/* The lamp's own surfaces (the main action) catch it the same way. */
-:root :is(.button-main, .button-accent):not(:disabled) {
-  box-shadow: inset -1px 1px 0 rgba(255, 255, 255, 0.28), -4px 8px 20px -12px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
-}
-
 /* ---------- One lit thing ---------- */
 /* Keyboard focus is the lamp turned on the control: a warm halo rather than a ring. */
 :root :where(button, a, summary, [role='switch'], [role='checkbox'], [tabindex], .input, .textarea, .field-input, .row__select):focus-visible {
