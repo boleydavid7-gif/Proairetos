@@ -5,7 +5,7 @@ import { BACKUP_ACCEPT, backupText, downloadBackup } from '../../data/backup/pac
 import StoreSection from './StoreSection';
 import TextSizeSlider from '../../components/ui/TextSize';
 import PrivacyGlance from './PrivacyGlance';
-import { shownView, takeRequestedView, viewTitles, type View } from './settingsViews';
+import { onSettingsRequest, shownView, takeRequestedView, viewTitles, type View } from './settingsViews';
 import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps, type AddOn } from '../../app/family/added';
 import { promptText } from '../reflect/prompts';
@@ -1128,13 +1128,33 @@ export default function SettingsPage() {
   const [view, setShown] = useState<View | null>(() => {
     return takeRequestedView();
   });
-  const setView = (next: View | null) => setShown(next && shownView(next));
+  // An app opened inside the App Store is a step of its own: back returns to the Store's list.
+  const [storeApp, setStoreApp] = useState<AddOn | null>(null);
+  const setView = (next: View | null) => {
+    setShown(next && shownView(next));
+    if (next !== 'store') setStoreApp(null);
+  };
   const [parentView, setParentView] = useState<View | null>(null);
+  // Asked to open a page while already open (the Apps sheet's Store, a link): follow it.
+  useEffect(
+    () =>
+      onSettingsRequest(() => {
+        const next = takeRequestedView();
+        if (!next) return;
+        setParentView(null);
+        setView(next);
+      }),
+    [],
+  );
   const openFromAttention = (next: View) => {
     setParentView('attention');
     setView(next);
   };
   const backFromDetail = () => {
+    if (view === 'store' && storeApp) {
+      setStoreApp(null);
+      return;
+    }
     if (parentView) {
       const parent = parentView;
       setParentView(null);
@@ -1159,7 +1179,7 @@ export default function SettingsPage() {
         {!wide && (
           <button type="button" className="back-link" onClick={backFromDetail}>
             <ArrowLeftIcon size={18} />
-            {parentView ? viewTitles[parentView] : 'Settings'}
+            {parentView ? viewTitles[parentView] : view === 'store' && storeApp ? 'App Store' : 'Settings'}
           </button>
         )}
         <PageHeader title={viewTitles[view]} />
@@ -1235,7 +1255,7 @@ export default function SettingsPage() {
           </a>
         )}
         {view === 'about' && <SourcesSection />}
-        {view === 'store' && <StoreSection onOpenAccount={() => setView('account')} />}
+        {view === 'store' && <StoreSection onOpenAccount={() => setView('account')} openApp={storeApp} onOpenApp={setStoreApp} />}
         {view === 'news' && (
           <section className="settings-card" aria-label="What’s new">
             {whatsNew.map((entry) => (

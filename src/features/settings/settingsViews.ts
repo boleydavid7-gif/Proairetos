@@ -48,9 +48,18 @@ export function shownView(view: View): View {
   return FOLDED[view] ?? view;
 }
 
+const requestListeners = new Set<() => void>();
+
+/** Settings already on screen hears a request at once; one not yet open reads it when it opens. */
+export function onSettingsRequest(listener: () => void): () => void {
+  requestListeners.add(listener);
+  return () => requestListeners.delete(listener);
+}
+
 export function openSettingsAt(view: View): void {
   // A link can carry any word; one that names no page opens the list instead of an empty page.
   requestedView = view in viewTitles ? shownView(view) : null;
+  requestListeners.forEach((listener) => listener());
 }
 
 export const viewTitles: Record<View, string> = {
