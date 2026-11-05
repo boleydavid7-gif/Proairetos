@@ -15,10 +15,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   askesis: {
     shots: 2,
     does: [
-      'Starts at your own week one and builds toward a time, a distance or steady running',
-      'Guides each session with bells that sound when the screen is locked',
-      'Logs every run, with distance by GPS if you want it, watch files and your shoes',
-      'Offers an easier version of a session, or an earlier week after time away',
+      'Begins wherever you are, and builds toward a time, a distance or steady running.',
+      'Bells tell you when to walk, run and stop, even with the screen locked.',
+      'Logs every run. Add distance by GPS, bring in watch files, track your shoes.',
+      'Swap in an easier session, or go back a week after time off.',
     ],
     connects: [
       { app: 'proairetos', text: 'Today’s session shows on Today. Run days can send a reminder.' },
@@ -30,24 +30,24 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   hydros: {
     shots: 2,
     does: [
-      'Logs a drink in one tap with your usual glasses',
-      'Counts every drink in full unless you change it, and shows caffeine',
-      'Sets a daily amount only if you pick one, from published reference amounts',
-      'Reminds you at steady times through your day, or through work blocks',
+      'Log a drink in one tap with your usual glasses.',
+      'Every drink counts in full unless you change it. Caffeine is shown on its own.',
+      'Choose a daily amount, or none. Published reference amounts are there if you want one.',
+      'Get reminders through your day, or only during work.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Follows your day as Proairetos keeps it, so a night shift keeps its water.' },
+      { app: 'proairetos', text: 'Your day follows your schedule, so a drink after a night shift lands on the right day.' },
       { app: 'askesis', text: 'Run days can add to the day’s amount.' },
-      { app: 'diaita', text: 'Caffeine after your cutoff is set beside your sleep.' },
+      { app: 'diaita', text: 'Caffeine after your cutoff shows next to your sleep.' },
     ],
   },
   soma: {
     shots: 1,
     does: [
-      'Saves recipes from any website, a photo, pasted text, or Paprika, Mela and Crouton files',
-      'Shows a Nutri-Score and nutrients per serving, and how it got them',
-      'Plans the week and builds a grocery list sorted by aisle',
-      'Keeps a kitchen list with use-by dates, and a cook mode with timers',
+      'Save a recipe from a website, a photo, pasted text, or a Paprika, Mela or Crouton file.',
+      'See a Nutri-Score and nutrients for each serving, and how they were worked out.',
+      'Plan the week, then shop from a list sorted by aisle.',
+      'Track what’s in your kitchen and when it needs using. Cook with timers.',
     ],
     connects: [
       { app: 'proairetos', text: 'Meals planned for today show on Today.' },
@@ -57,79 +57,79 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   oikonomia: {
     shots: 2,
     does: [
-      'Lists every bill and subscription with its due dates',
-      'Records what you actually paid each time',
-      'Keeps a monthly plan by area, and savings envelopes',
-      'Reads a bank or card statement to show where the money went',
+      'List every bill and subscription with its due dates.',
+      'Record what you paid each time.',
+      'Set a monthly budget by category, and save toward goals with envelopes.',
+      'Bring in a bank or card statement to see where the money went.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Bills due today and tomorrow show on Today and in Days ahead. Reminders come as notices.' },
+      { app: 'proairetos', text: 'Bills due today and tomorrow show on Today and in Days ahead, with reminders.' },
       { app: 'poreia', text: 'A trip’s spending goes into the month, and each trip can have an envelope.' },
-      { app: 'ktema', text: 'The cost of upkeep can go into the month.' },
+      { app: 'ktema', text: 'The cost of an upkeep can go into the month.' },
     ],
   },
   poreia: {
     shots: 2,
     does: [
-      'Holds a trip’s places, bookings, days, packing and costs',
-      'Shows maps, places nearby, the weather and the time difference',
-      'Reads bookings from a confirmation email, a screenshot or a PDF',
-      'Tracks your time off, and a travel budget for the year',
+      'Keep a trip’s places, bookings, days, packing and costs together.',
+      'See maps, places nearby, the weather and the time difference.',
+      'Add a booking from a confirmation email, a screenshot or a PDF.',
+      'Track your time off, and a travel budget for the year.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Trips show on Today and timed plans in Days ahead. Time off clears those days from your schedule.' },
+      { app: 'proairetos', text: 'Trips show on Today, and plans with a time in Days ahead. Time off clears those days from your schedule.' },
       { app: 'oikonomia', text: 'Trip spending goes into the month.' },
       { app: 'phyton', text: 'Your dates away pause plant reminders.' },
-      { app: 'therapeia', text: 'The medicines you’ll need go on the packing list.' },
-      { app: 'diaita', text: 'Suggests a sleep shift for the time zone.' },
+      { app: 'therapeia', text: 'The medicines you need go on the packing list.' },
+      { app: 'diaita', text: 'Suggests how to shift your sleep for a new time zone.' },
     ],
   },
   theoria: {
     shots: 1,
     does: [
-      'Opens your own books and PDFs on any device',
-      'Keeps highlights, notes and bookmarks with the book',
-      'Reads a folder in OneDrive, Google Drive or Dropbox, or one on this device',
-      'Brings in highlights from a Kindle or Readwise, and has a reading timer',
+      'Open your own books and PDFs on any device.',
+      'Highlight, take notes and bookmark. They stay with the book.',
+      'Read from a folder in OneDrive, Google Drive or Dropbox, or one on this device.',
+      'Bring in highlights from a Kindle or Readwise. Time your reading.',
     ],
     connects: [
-      { app: 'proairetos', text: 'A reflection after reading can be kept in Reflect.' },
+      { app: 'proairetos', text: 'A reflection after reading can be saved in Reflect.' },
     ],
   },
   diaita: {
     shots: 2,
     does: [
-      'Plans sleep, wake, wind-down and last caffeine around your real schedule',
-      'Handles night shifts, rotations and days that run past midnight',
-      'Lets you move sleep and wake times for a day, or for each shift in a rotation',
-      'Keeps a sleep log, naps and sleep sounds, with the source for each suggestion',
+      'See when to sleep, wake, wind down and stop caffeine, worked out from your schedule.',
+      'Works with night shifts, rotations and days that run past midnight.',
+      'Move sleep and wake times for one day, or for each shift in a rotation.',
+      'Log your sleep, plan naps, play sleep sounds. Every suggestion links to its source.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Your schedule sets the plan. The app’s light follows your waking day.' },
+      { app: 'proairetos', text: 'Your schedule sets the plan, and the app’s light follows your waking day.' },
       { app: 'therapeia', text: 'Doses follow when you wake and sleep.' },
       { app: 'askesis', text: 'Runs stay out of your sleep.' },
-      { app: 'hydros', text: 'Caffeine after the cutoff is set beside your sleep.' },
+      { app: 'hydros', text: 'Caffeine after the cutoff shows next to your sleep.' },
       { app: 'melete', text: 'Study time is found around your sleep.' },
     ],
   },
   philia: {
     shots: 2,
     does: [
-      'Keeps birthdays, anniversaries and other dates, with reminders',
-      'Holds gift ideas, things to remember and times you spent together',
-      'Notes how long it has been since you were in touch, if you ask it to',
+      'Keep birthdays, anniversaries and other dates, with reminders.',
+      'Save gift ideas, things to remember and times you spent together.',
+      'If you ask, see how long it has been since you were in touch.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Birthdays this week show on Today, and dates in Days ahead. You can bring people in from Compass.' },
+      { app: 'proairetos', text: 'Birthdays this week show on Today, and dates in Days ahead. You can bring in people from Compass.' },
     ],
   },
   ergon: {
     shots: 2,
     does: [
-      'Brings a chore back every few days or weeks, on set days, monthly or once',
-      'Shares chores with the people you live with, with turns',
-      'Keeps steps inside a chore, and a reminder at a time you choose',
-      'Moves a chore to your next day off, if you want that',
+      'Set a chore to come back every few days or weeks, on set days, monthly or once.',
+      'Share chores with the people you live with, and take turns.',
+      'Break a chore into steps, and pick a time for its reminder.',
+      'Move a chore to your next day off, if you want.',
     ],
     connects: [
       { app: 'proairetos', text: 'Chores that have come round show on Today. Your days off come from your schedule.' },
@@ -138,10 +138,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   therapeia: {
     shots: 2,
     does: [
-      'Reminds you of each dose, at a set time or after you wake or before you sleep',
-      'Counts down a refill from the doses you mark',
-      'Keeps appointments and the questions you want to ask',
-      'Tracks medicines and readings for someone you look after, and prints a list',
+      'Get a reminder for each dose, at a set time, or after you wake or before you sleep.',
+      'Count down to a refill from the doses you mark.',
+      'Keep appointments and the questions you want to ask.',
+      'Track medicines and readings for someone you look after, and print a list.',
     ],
     connects: [
       { app: 'proairetos', text: 'Doses and visits you haven’t marked show on Today.' },
@@ -152,10 +152,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   dynamis: {
     shots: 2,
     does: [
-      'Builds full-body strength sessions for two to four days a week',
-      'Logs sets, weights and rest as you go, and works out the plates for barbell lifts',
-      'Adds short mobility routines with a guided timer',
-      'Shows the history and heaviest set for each exercise',
+      'Get full-body strength sessions for two to four days a week.',
+      'Log sets, weights and rest as you go. Barbell lifts show which plates to load.',
+      'Add short mobility routines with a guided timer.',
+      'See the history and heaviest set for each exercise.',
     ],
     connects: [
       { app: 'proairetos', text: 'Today’s session shows on Today.' },
@@ -166,22 +166,22 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   ktema: {
     shots: 2,
     does: [
-      'Keeps the warranty, model and serial number, manual, price and photos for each thing',
-      'Reminds you of home and car upkeep by date, or by mileage, whichever comes first',
-      'Prints a list by room with prices, for insurance',
+      'Keep each thing’s warranty, model and serial number, manual, price and photos.',
+      'Get reminders for home and car upkeep by date, or by mileage, whichever comes first.',
+      'Print a list by room with prices, for insurance.',
     ],
     connects: [
       { app: 'proairetos', text: 'Upkeep that has come round shows on Today.' },
-      { app: 'oikonomia', text: 'The cost of upkeep can go into the month.' },
+      { app: 'oikonomia', text: 'The cost of an upkeep can go into the month.' },
     ],
   },
   phyton: {
     shots: 2,
     does: [
-      'Tells you when to check each plant, and learns from when you actually water',
-      'Looks up light, watering and pet safety for about 170 plants',
-      'Warns of frost and heat for plants outside',
-      'Prints a sheet for whoever waters while you’re away, and shares plants with your household',
+      'Find out when to check each plant. It learns from when you actually water.',
+      'Look up light, watering and pet safety for about 170 plants.',
+      'Get a warning for frost or heat when plants are outside.',
+      'Print a sheet for whoever waters while you’re away, or share your plants with your household.',
     ],
     connects: [
       { app: 'proairetos', text: 'Plants to check show on Today.' },
@@ -191,9 +191,9 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   mneme: {
     shots: 0,
     does: [
-      'Saves notes as you type',
-      'Sorts notes into collections',
-      'Records voice notes and transcribes them on your device',
+      'Notes save as you type.',
+      'Sort notes into collections.',
+      'Record a voice note and have it transcribed on your device.',
     ],
     connects: [
       { app: 'proairetos', text: 'Uses the same account, backup and look. Notes aren’t shared with your household.' },
@@ -202,9 +202,9 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   melete: {
     shots: 0,
     does: [
-      'Keeps your subjects with their dates, like an exam or a due date',
-      'Shows when you’re free this week, and lets you set study time there',
-      'Times a sitting and rings at the end',
+      'Keep your subjects with their dates, like an exam or a due date.',
+      'See when you’re free this week, and set study time there.',
+      'Time a sitting, with a bell at the end.',
     ],
     connects: [
       { app: 'proairetos', text: 'Sittings show on Today and in Days ahead, and count as time taken.' },
