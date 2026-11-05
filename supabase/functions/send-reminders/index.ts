@@ -40,7 +40,7 @@ function vapidProblem(): string | null {
 
 const APP_NAMES: Record<string, string> = {
   proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia', melete: 'Meletē',
 };
 
 /** The part an iPhone can show by itself: the app's name, a plain line, and where a tap goes. Nothing personal. */

@@ -5,6 +5,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     lines: [
       'Meletē: subjects with their dates, and a week that shows when you are free. You schedule the study sessions; everything comes from your own materials.',
       'Exam and due dates from Meletē appear on their day in Days ahead, today’s study time shows under Daily practices, and search finds your subjects.',
+      'Meletē can remind you when a study session starts and the morning before an exam or due date. It is off until you turn it on in Notifications.',
       'Search finds your Mneme notes, the words you wrote on Askesis runs and Dynamis sessions.',
       'A chore in Ergon can be added to your Proairetos to-dos from its page, on the day it comes round.',
       'Warranty end dates and upkeep dates from Ktema appear on their day in Days ahead.',

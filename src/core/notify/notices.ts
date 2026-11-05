@@ -12,7 +12,7 @@ import { appNameForOpen } from './sources';
  * follows up: one notice per reminder the person asked for, nothing more.
  * Quiet hours and protected time hold a notice until they end.
  */
-export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep' | 'plant' | 'trip' | 'pursuit';
+export type NoticeKind = 'item' | 'calendar' | 'schedule' | 'check-back' | 'look-back' | 'day' | 'run' | 'bill' | 'study' | 'hydration' | 'bell' | 'rhythm' | 'person' | 'chore' | 'dose' | 'care' | 'training' | 'upkeep' | 'plant' | 'trip' | 'melete' | 'pursuit';
 
 export type Notice = {
   /** Stable for this reminder at this time; also the notification's tag. */
@@ -98,6 +98,8 @@ export type NoticeSettings = {
   plants: boolean;
   /** Bookings, check-in and plans from Poreia, as chosen there. */
   trips: boolean;
+  /** Study sessions, and the day before a subject's exam or due date, from Meletē. Off until chosen. */
+  melete: boolean;
   /** Changes to the person's schedule, on the notifications page and Today. */
   scheduleChanges: boolean;
   /** Milestones from Askesis runs and Dynamis sessions, on the notifications page. */
@@ -130,6 +132,7 @@ export const defaultNoticeSettings: NoticeSettings = {
   upkeep: true,
   plants: true,
   trips: true,
+  melete: false,
   scheduleChanges: true,
   runMilestones: true,
   strengthMilestones: true,
@@ -280,6 +283,7 @@ export function noticesBetween(sources: Sources): Notice[] {
       upkeep: settings.upkeep,
       plant: settings.plants,
       trip: settings.trips,
+      melete: settings.melete,
     };
     if (on[notice.kind]) raw.push(notice);
   }

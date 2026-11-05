@@ -16,6 +16,8 @@ import { trainingNotices } from '../../dynamis/core/notices';
 import { liftDays, trainingTimeOn } from '../family/trainingWeek';
 import { nextSession } from '../../dynamis/core/plan';
 import { isSetup, plan as dynamisPlan, settings as dynamisSettings, workouts as dynamisWorkouts } from '../../dynamis/app/state';
+import { studyNotices } from '../../melete/core/notices';
+import { sessions as meleteSessions, subjects as meleteSubjects } from '../../melete/app/state';
 import { upkeepNotices } from '../../ktema/core/notices';
 import { settings as ktemaSettings, things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { plantNotices } from '../../phyton/core/notices';
@@ -75,6 +77,8 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   const upkeep = ktemaUpkeeps.list();
   const owned = ktemaThings.list();
   if ((upkeep.length || owned.length) && isAdded('ktema')) notices.push(...upkeepNotices(upkeep, owned, ktemaSettings.load().notices, today, horizon, now));
+
+  if (isAdded('melete')) notices.push(...studyNotices(meleteSubjects.list(), meleteSessions.list(), today, horizon, now));
 
   const plants = allPlants();
   if (plants.length && isAdded('phyton')) {

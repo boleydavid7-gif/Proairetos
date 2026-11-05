@@ -6,10 +6,10 @@ import type { Notice } from './notices';
  * Oikonomia the bills, Praxis the block that is running. Each writes what it owns; Proairetos also writes the
  * others' when it holds their data, so they stay current even when that app is seldom opened.
  */
-export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
+export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'melete';
 export type FamilyApp = ReminderSource | 'soma' | 'theoria' | 'mneme' | 'melete';
 
-export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'melete'];
 
 const APP_NAMES: Record<FamilyApp, string> = {
   proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Theoria', diaita: 'Diaita',
@@ -69,6 +69,8 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
       return 'phyton';
     case 'trip':
       return 'poreia';
+    case 'melete':
+      return 'melete';
     default:
       return 'proairetos';
   }
@@ -91,10 +93,10 @@ export function sourcesToWrite(
   notices: readonly Pick<Notice, 'kind'>[],
   writtenBefore: readonly ReminderSource[] = [],
 ): ReminderSource[] {
-  if (app === 'soma' || app === 'theoria' || app === 'mneme' || app === 'melete') return [];
+  if (app === 'soma' || app === 'theoria' || app === 'mneme') return [];
   if (app !== 'proairetos') return [app];
   const present = new Set(notices.map(sourceOf));
-  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
+  const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));
   return ['proairetos', ...others];
 }
 
