@@ -1,6 +1,5 @@
 import { meleteSubjects } from '../../app/calendars/meleteCalendar';
 import { isAdded } from '../../app/family/added';
-import { allChores } from '../../ergon/app/state';
 import { appointments as therapeiaVisits, allMedicines as therapeiaMedicines } from '../../therapeia/app/state';
 import { withWho } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
@@ -144,10 +143,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
     });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const chore of isAdded('ergon') ? allChores() : []) {
-    labels.set(chore.id, 'Chore in Ergon');
-    things.push({ id: chore.id, kind: 'app', href: `/ergon/?open=${encodeURIComponent(`chore:${chore.id}`)}`, title: chore.name, fields: [{ name: 'Room', text: chore.room }, { name: 'Note', text: chore.note }], at: chore.createdAt });
-  }
   for (const medicine of isAdded('therapeia') ? therapeiaMedicines() : []) {
     labels.set(medicine.id, 'Medicine in Therapeia');
     things.push({ id: medicine.id, kind: 'app', href: `/therapeia/?open=${encodeURIComponent(`medicine:${medicine.id}`)}`, title: withWho(medicine, medicine.name), fields: [{ name: 'Dose', text: medicine.dose }, { name: 'Note', text: medicine.note }], at: medicine.createdAt });

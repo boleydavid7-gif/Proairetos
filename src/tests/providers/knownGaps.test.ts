@@ -15,7 +15,6 @@ describe('fields search still indexes that the manifest excludes (closed in Slic
     ['Therapeia visit notes and questions', "{ name: 'To ask'"],
     ['Ktema serial number', "{ name: 'Serial'"],
     ['Poreia confirmation code', "{ name: 'Confirmation'"],
-    ['Ergon chore note', "{ name: 'Note', text: chore.note }"],
   ];
   for (const [label, marker] of gaps) it(label, () => expect(source).toContain(marker));
 

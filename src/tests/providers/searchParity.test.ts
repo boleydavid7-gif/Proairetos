@@ -52,7 +52,8 @@ const baseline = JSON.parse(readFileSync('src/tests/providers/fixtures/searchBas
 /** Rows the owner's rules take out of search altogether (app label -> why). */
 const REMOVED: Record<string, string> = {};
 /** Field texts the owner's rules take out of a row (row label -> texts that no longer appear). */
-const DROPPED_FIELDS: Record<string, string[]> = {};
+const DROPPED_FIELDS: Record<string, string[]> = {
+  'Chore in Ergon': ["Use the green cloth"],};
 /** Rows for apps whose own test covers them (Oikonomia: Slice 1; Hydros did not exist). */
 const COVERED_ELSEWHERE = new Set(['Bill in Oikonomia']);
 
