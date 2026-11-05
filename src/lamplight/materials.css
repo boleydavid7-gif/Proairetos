@@ -1,7 +1,9 @@
 /*
  * Lamplight's material contract. A material describes how a surface belongs to the room; light and shape describe
- * how far it sits above that surface. Solid content never becomes glass. Mica is reserved for navigation chrome, and
- * smoke is reserved for the dim behind a dialog or sheet.
+ * how far it sits above that surface. Solid content never becomes glass. Mica is reserved for navigation chrome and
+ * is OPAQUE: the room's hue a little stronger than the page (the name follows Fluent; nothing here is see-through).
+ * Smoke is the plain room-colored dim behind a dialog or sheet. The one blur in Lamplight is the phone top bar's
+ * glass, in bars.css. tonal.css (Material's structure on these surfaces) comes later in the cascade.
  */
 :root {
   color-scheme: dark;

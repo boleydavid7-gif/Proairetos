@@ -14,12 +14,12 @@
    rows and cards give less. Only `scale` moves, so nothing is laid out or painted again. */
 :where(button, [role='button'], [role='switch'], a.button-main, .button-main, .button-quiet, .chip, .ll-button, .ll-chip):active:not(:disabled):not([aria-disabled='true']) {
   scale: 0.96;
-  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale 90ms var(--ll-ease-out);
+  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale var(--ll-press) var(--ll-ease-out);
 }
 
 :where(.ll-row, .ll-card--interactive, .row, .place-row, .settings-row, a.card, button.card, .card--link):active {
   scale: 0.985;
-  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale 90ms var(--ll-ease-out);
+  transition: var(--ll-state-transition), outline-color var(--ll-calm) var(--ll-ease-out), scale var(--ll-press) var(--ll-ease-out);
 }
 
 /* A chosen chip grows a check at its start (Material's filter chip); the chip widens to take it. */

@@ -11,8 +11,10 @@ uses the same code as the apps.
   and in light.
 - **Readable by construction.** Each color is checked against every surface it sits on and moved in lightness until
   it passes: 7:1 for text, 4.5:1 for everything read, 4.5:1 for words on the lamp. Any seed, any hue.
-- **Light, not shadow.** Surfaces are lit along their top edge and rest on the page. Three steps of depth.
-- **Surfaces, not outlines.** Cards are a step lighter than the page, one hairline at most.
+- **Light, not shadow.** Surfaces are lit from the upper right and rest on the page. Five tonal steps (wall, page, card, inset, raised); only the one lit thing casts a shade, down and to the left.
+- **Surfaces, not outlines.** Cards are filled tonal surfaces with no outline; a hairline separates rows, and a fine edge appears only on the family apps' surfaces and a lit card's lamp side.
+- **Opaque.** The phone top bar's glass is the one blur in Lamplight (`bars.css`, `backdrop-filter`), and a test holds it there. Mica here is an opaque tint of the room (the name follows Fluent); smoke is a plain dim.
+- **One lit thing.** Light is the only hierarchy: the one thing that matters now on a page carries the lamp's wash and halo (`levels.css`).
 - **Motion as light.** A touch turns the light up at once; letting go dims it slowly. Sheets dim the room and leave
   the lamp at the top.
 - **Each app its own place.** Proairetos takes the person's room and lamp. Every other app keeps the place it is
@@ -25,7 +27,11 @@ uses the same code as the apps.
 | --- | --- |
 | `src/lamplight/color.ts` | OKLCH to sRGB (chroma lowered until it fits), hex to OKLCH, WCAG contrast |
 | `src/lamplight/scheme.ts` | Seeds (`ROOM_SEEDS`, `LAMP_SEEDS`, `ROOM_LAMP`, `ownLamp`), `makeScheme(room, lamp, mode)`, `schemeVars` (`--ll-*`) |
-| `src/lamplight/materials.css` | The material contract: wall, page, solid, inset, raised, mica and smoke roles, with reduced-transparency fallbacks |
+| `src/lamplight/materials.css` | The material contract: wall, page, solid, inset, raised, mica (opaque) and smoke roles |
+| `src/lamplight/tonal.css` | 1.4, Material's structure on those surfaces: tonal cards, tonal button, 8 px chips (was `material.css`) |
+| `src/lamplight/layout.css`, `bars.css`, `pull.css`, `undo.css` | Rhythm and the page patterns; the phone top bar, docks and tucking; pull to update; the one undo bar |
+| `src/lamplight/controls.css`, `brand.css`, `levels.css`, `paper.css` | The control contract; the signature (1.6); one lit thing; vellum and the shade (2.0) |
+| `src/lamplight/identity.css`, `charts.css`, `modern.css` | Per-app identity; chart motion; the modern pass (folds, scroll padding, sideways fades, growing fields) |
 | `src/lamplight/apps.ts` | Each app's theme (`appTheme`): a room and Lamplight signature lamp |
 | `src/lamplight/palette.ts` | Canonical neutral foundation, signature families and generated 50–950 tonal scales, app assignments, and status colors |
 | `src/lamplight/family.ts` | The bridge: each app's own color names set from the scheme (`familyVars`); `ALWAYS_DARK` (Praxis, Theoria) |
@@ -83,7 +89,7 @@ runtime roles resolve through the shared semantic variables. They are not a seco
 | `--ll-lamp-soft`, `--ll-glow` | hover; soft tints |
 | `--ll-remove` | removing something (never a failure color) |
 | `--ll-smoke` | the room-colored dim behind a sheet or dialog |
-| `--ll-bar` | translucent bars |
+| `--ll-mica`, `--ll-bar` | bars and docks (opaque) |
 
 Plus `--ll-page-rgb`, `--ll-ink-rgb` and `--ll-lamp-rgb` for `rgba()` tints.
 
@@ -98,7 +104,7 @@ two folds in the same colors fading into the page, with no sun of their own.
 
 ## The signature (1.6)
 
-One lamp, one direction, one lit thing (`src/lamplight/brand.css`, imported after `material.css`):
+One lamp, one direction, one lit thing (`src/lamplight/brand.css`, imported after `tonal.css`):
 - **Direction.** Every surface is lit from the upper right, where the wallpaper's lamp hangs: a warm sheen along its top
   and right edges (`--ll-sheen-edge`, `--ll-sheen-wash`) and its shade falling down and to the left (`--ll-cast`), together
   `--ll-surface-light` on cards, grouped lists and the shared lists; the main action catches it too. Each app's sheen is
@@ -114,9 +120,11 @@ One lamp, one direction, one lit thing (`src/lamplight/brand.css`, imported afte
 - Shape: `--ll-radius-xs` 8, `-sm` 12, `-md` 16, `-lg` 22, `-pill` 999. Smaller nests inside larger.
 - Space: `--ll-space-1` … `-8` (4, 8, 12, 16, 24, 32, 40, 48).
 - Type: `--ll-type-display`, `-headline` (serif), `-title`, `-body`, `-label`, `-caption` (sans), on the
-  family's type scale (`--text-xs` … `--text-4xl`).
+  family's type scale in `premium.css`: `--text-xs` 13 px, `-sm` 15, `-md` 16, `-lg` 1.15 rem, `-xl` 1.35, `-2xl` 1.6, `-3xl` 2, `-4xl` 2.3 rem.
+  No raw font sizes or radii in Lamplight's stylesheets.
 - Light: `--ll-light-1` (a card), `-2` (a menu), `-3` (a sheet), `--ll-lamp-light` (the main action).
-- Motion: `--ll-quick` 120, `--ll-calm` 240, `--ll-slow` 420, `--ll-dim` 640 ms; `--ll-ease-out`,
+- Fixed colors: `--ll-knob` (a switch's knob) and `--ll-on-picture` (words over a picture). A hex elsewhere is only a `var()` fallback.
+- Motion: `--ll-press` 90 (a press), `--ll-quick` 120, `--ll-calm` 240, `--ll-slow` 420, `--ll-dim` 640 ms; `--ll-ease-out`,
   `--ll-ease-in-out`, `--ll-ease-light`. Zero with reduced motion.
 - States: `--ll-state-hover` (quiet ink layer), `--ll-state-pressed` (lamp layer), `--ll-state-selected` (the
   chosen place), `--ll-state-focus` (keyboard ring), `--ll-state-disabled` (quiet resting material), and
@@ -182,7 +190,7 @@ the room's hue a little stronger than the page, `--ll-material-mica-surface` add
 **smoke** (`--ll-material-smoke`), a plain room-colored dim, behind dialogs and sheets. The public classes
 `.ll-material--wall`, `--page`, `--solid`, `--inset`, `--raised`, `--mica`, and `--smoke` let a new screen choose a
 material without reaching into an app's private palette. The phone top bar is the one glass exception: once its title
-has passed underneath, a soft room-tinted blur fades in as a solid bar over the page, with the page edge and a
+has passed underneath, a soft room-tinted blur (16 px, 94% solid) fades in over the page, with the page edge and a
 semi-transparent hairline settling into it. No other surface uses `backdrop-filter`. Content passing under a dock
 fades into it (`--ll-edge-below`, `--ll-edge-above`) rather than meeting a hard line.
 

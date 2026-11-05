@@ -1,9 +1,9 @@
 /*
  * One control contract for the apps that kept controls of their own (Mneme, Praxis, Theoria and the Praxis study room
  * inside Theoria). Their layouts stay theirs; their text fields, buttons and chips take the same material as the shared
- * classes in adopt.css and material.css: a filled well with a hairline and the lamp's halo on focus, the lamp's pill for
+ * classes in adopt.css and tonal.css: a filled well with a hairline and the lamp's halo on focus, the lamp's pill for
  * the one main action, the tonal pill for the rest, and 8 px chips that turn tonal when chosen. Imported after
- * material.css, `:root`-prefixed so it outranks each app's own sheet without !important.
+ * tonal.css, `:root`-prefixed so it outranks each app's own sheet without !important.
  */
 
 /* ---------- Text fields ---------- */

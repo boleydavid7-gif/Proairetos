@@ -101,7 +101,12 @@
   /* The lamp's own light on what it marks: the main action, the place you are. */
   --ll-lamp-light: 0 6px 22px -8px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.55);
 
+  /* Fixed colors that are not part of a room: the knob, and words over a picture. */
+  --ll-knob: #fff;
+  --ll-on-picture: #fbf6ec;
+
   /* Motion. Light turns up fast and down slowly. */
+  --ll-press: 90ms;
   --ll-quick: 120ms;
   --ll-calm: 240ms;
   --ll-slow: 420ms;
@@ -182,6 +187,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   :root {
+    --ll-press: 0ms;
     --ll-quick: 0ms;
     --ll-calm: 0ms;
     --ll-slow: 0ms;

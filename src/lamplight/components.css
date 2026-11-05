@@ -268,7 +268,7 @@
   width: 27px;
   height: 27px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ll-knob);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   transition: transform var(--ll-calm) var(--ll-ease-out);
 }
@@ -475,7 +475,7 @@
 /* A stack of them standing in for what is on its way (Placeholder.tsx): lines of text, list rows or cards. */
 .ll-skeleton-stack { display: grid; gap: 12px; padding: 4px 0; }
 .ll-skeleton-stack--lines { gap: 14px; }
-.ll-skeleton--lines { height: 14px; min-height: 0; border-radius: 7px; }
+.ll-skeleton--lines { height: 14px; min-height: 0; border-radius: calc(var(--ll-radius-xs, 8px) - 1px); }
 .ll-skeleton--rows { min-height: 56px; border-radius: var(--ll-radius-md, 14px); }
 .ll-skeleton--cards { min-height: 120px; border-radius: var(--ll-radius-lg, 18px); }
 
@@ -597,8 +597,8 @@
   min-height: 52px;
   padding: 6px 6px 6px 18px;
   border-radius: var(--ll-radius-pill, 999px);
-  background: var(--ll-surface-container-highest, var(--ll-raised, #26323f));
-  color: var(--ll-on-surface, #eef2f6);
+  background: var(--ll-surface-container-highest, var(--ll-raised, #33434F));
+  color: var(--ll-on-surface, #E9E5DC);
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), var(--ll-light-2, 0 0 0 transparent);
   font-family: var(--ll-sans, inherit);
   font-size: var(--text-md, 1rem);

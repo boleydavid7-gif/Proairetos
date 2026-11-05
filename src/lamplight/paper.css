@@ -5,7 +5,7 @@
  * corner nearest the lamp (upper right) and falling off across it, the lamp following the day where day light is on
  * (`--ll-day-pool`). The lift stays under daylight.ts's VELLUM_LIFT, which its tests check every text role against.
  * Surfaces that draw their own gradient (Praxis, Theoria, Hydros's chart, Today's now card) keep it: those classes are
- * never `.card`, and a hover tint (material.css) is more specific than this.
+ * never `.card`, and a hover tint (tonal.css) is more specific than this.
  *
  * Shade: what is done goes into the shade, its words in the quieter ink, with no line through them. Relief, not a
  * crossing out. The change of color is slow, like a light turned down.
