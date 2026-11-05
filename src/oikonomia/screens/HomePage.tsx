@@ -45,7 +45,7 @@ export default function HomePage({ nav }: { nav: Nav }) {
       <Hero>
         <Brand light />
         <div className="home__words">
-          <h1 className="home__title">Coming up</h1>
+          <h1 className="home__title">Today</h1>
         </div>
       </Hero>
 
