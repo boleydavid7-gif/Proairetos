@@ -1366,3 +1366,39 @@
 @media (min-width: 62rem) {
   .oiko-calendar-day__dots { display: none; }
 }
+
+/* A bill type: its words open the bills under it; its monthly limit stays a field beside them. */
+.oiko-budget-area__open {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.oiko-budget-area__open > span:first-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.oiko-area-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.oiko-area-row .oiko-bill-row {
+  flex: 1;
+  min-width: 0;
+  border-bottom: 0;
+}

@@ -31,9 +31,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
       {!bills ? (
         <Placeholder label="Gathering what you keep here" count={3} />
       ) : ordered.length === 0 && settled.length === 0 ? (
-        <Empty icon={<BillsIcon size={28} />} title="No bills yet">
-          {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}>Add a bill</button>}
-        </Empty>
+        <Empty icon={<BillsIcon size={28} />} title="No bills yet" />
       ) : (
         <>
           {ordered.length === 0 ? (

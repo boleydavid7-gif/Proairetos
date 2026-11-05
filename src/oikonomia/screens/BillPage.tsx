@@ -81,6 +81,7 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
         <div>{bill.category && <p className="label">{bill.category}</p>}<h1 className="title">{bill.name}</h1></div>
         <strong className="oiko-detail__amount">{formatMoney(bill.amountCents, bill.currency)}</strong>
       </div>
+      {can.write && <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit', id: bill.id })}>Edit</button>}
 
       <section className="oiko-detail-card">
         <div className="oiko-detail-line"><CalendarIcon size={20} /><span><strong>{dateLine.title}</strong>{dateLine.small && <small>{dateLine.small}</small>}</span></div>
@@ -95,7 +96,6 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
         </div>
       )}
       {problem && <p className="oiko-error" role="alert">{problem}</p>}
-      {can.write && <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit', id: bill.id })}>Change details</button>}
       {!stand.complete && <button type="button" className="button-quiet" onClick={() => downloadBillCalendar([bill], bill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}><CalendarIcon size={18} /> Add to your calendar</button>}
 
       <section className="oiko-history">

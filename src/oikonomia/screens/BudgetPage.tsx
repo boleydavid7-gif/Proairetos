@@ -1,7 +1,7 @@
 import { RollingNumber } from '../../lamplight/RollingNumber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Nav } from '../app/App';
-import { ArrowLeftIcon, ArrowRightIcon, WalletIcon } from '../app/icons';
+import { ArrowLeftIcon, ArrowRightIcon, ChevronIcon, WalletIcon } from '../app/icons';
 import { offerUndo } from '../app/undo';
 import { newId, useBills, useBudget, useEnvelopes, useSettings, useSomaRecipes } from '../app/state';
 import { formatDate, formatMoney, monthBounds, nextMonth, occurrencesBetween } from '../core/bills';
@@ -225,10 +225,10 @@ export default function BudgetPage({ nav }: { nav: Nav }) {
         <div className="oiko-section-head"><h2>Bill types</h2></div>
         <div className="oiko-budget-areas">
           {billAreaCategories.map(({ id, label }) => (
-            <label className="oiko-budget-area" key={id}>
-              <span><strong>{label}</strong><small>{formatMoney(spent.byCategory[id], planCurrency)} spent · {formatMoney(billPlannedByArea[id], planCurrency)} planned</small><span className="oiko-budget-area__track" aria-hidden="true"><span style={{ width: `${plan.categoryLimits[id] ? Math.min(100, (spent.byCategory[id] / plan.categoryLimits[id]) * 100) : 0}%` }} /></span></span>
+            <div className="oiko-budget-area" key={id}>
+              <button type="button" className="oiko-budget-area__open" aria-label={`${label}: bills in this type`} onClick={() => nav.go({ name: 'area', id })}><span><strong>{label}</strong><small>{formatMoney(spent.byCategory[id], planCurrency)} spent · {formatMoney(billPlannedByArea[id], planCurrency)} planned</small><span className="oiko-budget-area__track" aria-hidden="true"><span style={{ width: `${plan.categoryLimits[id] ? Math.min(100, (spent.byCategory[id] / plan.categoryLimits[id]) * 100) : 0}%` }} /></span></span><ChevronIcon size={18} /></button>
               <input className="input" type="text" inputMode="decimal" aria-label={`${label} monthly limit`} value={categoryText[id] ?? ''} onChange={(event) => { setDirty(true); setCategoryText({ ...categoryText, [id]: event.target.value }); }} onBlur={() => void keep()} />
-            </label>
+            </div>
           ))}
         </div>
       </section>}
