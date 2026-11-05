@@ -7,13 +7,13 @@ import type { Notice } from './notices';
  * others' when it holds their data, so they stay current even when that app is seldom opened.
  */
 export type ReminderSource = 'proairetos' | 'askesis' | 'oikonomia' | 'hydros' | 'poreia' | 'praxis' | 'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton';
-export type FamilyApp = ReminderSource | 'soma' | 'theoria' | 'mneme';
+export type FamilyApp = ReminderSource | 'soma' | 'theoria' | 'mneme' | 'melete';
 
 export const REMINDER_SOURCES: readonly ReminderSource[] = ['proairetos', 'askesis', 'oikonomia', 'hydros', 'poreia', 'praxis', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
 
 const APP_NAMES: Record<FamilyApp, string> = {
   proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Theoria', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria', poreia: 'Poreia', mneme: 'Mneme',
+  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', soma: 'Soma', theoria: 'Theoria', poreia: 'Poreia', mneme: 'Mneme', melete: 'Meletē',
 };
 
 export const appFromOpen = (open: string): FamilyApp => {
@@ -26,6 +26,7 @@ export const appFromOpen = (open: string): FamilyApp => {
     if (open === app || open.startsWith(`${app}:`)) return app;
   }
   if (open === 'mneme' || open.startsWith('mneme:')) return 'mneme';
+  if (open === 'melete' || open.startsWith('melete:')) return 'melete';
   return 'proairetos';
 };
 
@@ -76,7 +77,7 @@ export function sourceOf(notice: Pick<Notice, 'kind'>): ReminderSource {
 /** Which app this page is, from its address. */
 export function appAt(pathname: string): FamilyApp {
   const first = pathname.split('/').filter(Boolean)[0];
-  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'];
+  const apps: FamilyApp[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
   return apps.find((app) => app === first) ?? 'proairetos';
 }
 
@@ -90,7 +91,7 @@ export function sourcesToWrite(
   notices: readonly Pick<Notice, 'kind'>[],
   writtenBefore: readonly ReminderSource[] = [],
 ): ReminderSource[] {
-  if (app === 'soma' || app === 'theoria' || app === 'mneme') return [];
+  if (app === 'soma' || app === 'theoria' || app === 'mneme' || app === 'melete') return [];
   if (app !== 'proairetos') return [app];
   const present = new Set(notices.map(sourceOf));
   const others = (['askesis', 'oikonomia', 'hydros', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'] as const).filter((source) => present.has(source) || writtenBefore.includes(source));

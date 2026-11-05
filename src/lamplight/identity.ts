@@ -45,6 +45,7 @@ export const APP_IDENTITY: Record<string, AppIdentity> = {
   dynamis: { light: 'ember', pattern: 'ladder', tempo: 'crisp', numerals: 'tabular', shape: 'pill', signature: 'The ladder of sets', character: 'Iron and a warm forge' },
   ktema: { light: 'hearth', pattern: 'grain', tempo: 'steady', numerals: 'tabular', shape: 'tile', signature: 'Things room by room', character: 'A barn in late sun' },
   phyton: { light: 'garden', pattern: 'leaf', tempo: 'fluid', numerals: 'plain', shape: 'leaf', signature: 'How dry each plant is', character: 'A glasshouse in green light' },
+  melete: { light: 'desk', pattern: 'paper', tempo: 'steady', numerals: 'tabular', shape: 'page', signature: 'The week and its open hours', character: 'A desk lamp over a plain page' },
   mneme: { light: 'glass', pattern: 'paper', tempo: 'steady', numerals: 'plain', shape: 'page', signature: 'A page with its collections', character: 'Quiet blue ink on paper' },
 };
 

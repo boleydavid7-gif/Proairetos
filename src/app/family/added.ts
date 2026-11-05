@@ -10,7 +10,7 @@ import { mayUse, subscribePurchases } from './purchases';
 
 export type AddOn = Exclude<FamilyApp, 'proairetos'>;
 
-export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'];
+export const ADD_ONS: readonly AddOn[] = ['askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
 
 /** Praxis is retired into Theoria's Pomodoro; its stored choice and records are kept. */
 export const NOT_OFFERED: ReadonlySet<AddOn> = new Set<AddOn>(['praxis']);
@@ -37,6 +37,7 @@ const TRACES: Record<AddOn, (key: string) => boolean> = {
   ktema: (key) => key.startsWith('ktema:'),
   phyton: (key) => key.startsWith('phyton:'),
   mneme: (key) => key.startsWith('mneme:'),
+  melete: (key) => key.startsWith('melete:'),
 };
 
 /** The apps with traces in these storage keys. */

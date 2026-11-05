@@ -1,0 +1,43 @@
+{
+  "id": "/melete/",
+  "name": "Meletē by Proairetos",
+  "short_name": "Meletē",
+  "start_url": "/melete/",
+  "scope": "/melete/",
+  "display": "standalone",
+  "background_color": "#14170f",
+  "theme_color": "#14170f",
+  "icons": [
+    {
+      "src": "/melete/icon.svg",
+      "sizes": "1024x1024",
+      "type": "image/svg+xml"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Week",
+      "short_name": "Week",
+      "url": "/melete/?open=week",
+      "icons": [
+        {
+          "src": "/melete/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Subjects",
+      "short_name": "Subjects",
+      "url": "/melete/?open=subjects",
+      "icons": [
+        {
+          "src": "/melete/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

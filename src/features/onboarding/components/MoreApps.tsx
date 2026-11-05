@@ -20,6 +20,7 @@ const INTERESTS: { label: string; apps: string[] }[] = [
   { label: 'People', apps: ['philia'] },
   { label: 'Travel', apps: ['poreia'] },
   { label: 'Reading and notes', apps: ['theoria', 'mneme'] },
+  { label: 'Study', apps: ['melete'] },
 ];
 
 /** The apps the Store offers (not Proairetos itself). */
