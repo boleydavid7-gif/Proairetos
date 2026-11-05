@@ -14,7 +14,6 @@ import { bookings as poreiaBookings, plans as poreiaPlans, trips as poreiaTrips 
 import { kindLabel as bookingKindLabel } from '../../poreia/core/model';
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { readStore } from '../../app/family/read';
-import type { Recipe } from '../../soma/core/recipes';
 import type { TheoriaBook } from '../../theoria/core/books';
 import { lock } from '../../app/lock/lock';
 import { useServiceData } from '../../app/hooks/useServiceData';
@@ -65,13 +64,12 @@ function subscribeAll(listener: () => void) {
 }
 
 export async function gather(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
-  const [items, reflections, decisions, statements, values, recipes, books, runLog] = await Promise.all([
+  const [items, reflections, decisions, statements, values, books, runLog] = await Promise.all([
     lifeService.list(),
     reflectionService.all(),
     decisionService.list(),
     compassService.statements(),
     compassService.values(),
-    readStore<Recipe>('somaRecipes'),
     readStore<TheoriaBook>('theoriaBooks'),
     readStore<AskesisEntry>('askesisWorkouts'),
   ]);
@@ -149,21 +147,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
     });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const recipe of isAdded('soma') ? recipes : []) {
-    labels.set(recipe.id, 'Recipe in Soma');
-    things.push({
-      id: recipe.id,
-      kind: 'app',
-      href: '/soma/',
-      title: recipe.title,
-      fields: [
-        { name: 'Ingredients', text: recipe.ingredients.join('\n') },
-        { name: 'Notes', text: recipe.notes },
-        { name: 'Tags', text: recipe.tags.join(' ') },
-      ],
-      at: recipe.createdAt ?? '',
-    });
-  }
   for (const book of isAdded('theoria') ? books : []) {
     labels.set(book.id, 'Book in Theoria');
     things.push({
