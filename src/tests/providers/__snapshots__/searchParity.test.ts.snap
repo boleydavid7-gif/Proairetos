@@ -84,7 +84,7 @@ exports[`universal search outside Oikonomia and Hydros > gathers what it gathere
     "id": "e1",
     "kind": "app",
     "label": "Run in Askesis",
-    "title": "Run, <day>",
+    "title": "Run, Oct 20",
   },
   {
     "at": "2026-11-01T09:00:00.000Z",
@@ -321,7 +321,7 @@ carrot",
     "id": "w1",
     "kind": "app",
     "label": "Session in Dynamis",
-    "title": "Strength, <day>",
+    "title": "Strength, Oct 30",
   },
 ]
 `;

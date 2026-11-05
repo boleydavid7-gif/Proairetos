@@ -23,6 +23,8 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService, reflectionService } from '../../app/services';
 import { useSheet } from '../../components/ui/useSheet';
 import { kindLabel, kindOf } from '../../core/life-items/kinds';
+import { dayWords } from '../../core/search/dayWords';
+import { toLocalDate } from '../../core/scheduling/dates';
 import { inSearchScope, search, type Searchable, type SearchScope } from '../../core/search/search';
 import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
@@ -244,7 +246,7 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
       id: entry.id,
       kind: 'app',
       href: `/askesis/?open=${encodeURIComponent(`entry:${entry.id}`)}`,
-      title: entry.workoutTitle || `${entry.activity[0].toUpperCase()}${entry.activity.slice(1)}, ${dayLabel(entry.date)}`,
+      title: entry.workoutTitle || `${entry.activity[0].toUpperCase()}${entry.activity.slice(1)}, ${dayWords(entry.date, toLocalDate(new Date()))}`,
       fields: [
         { name: 'Notes', text: entry.notes },
         { name: 'Went well', text: entry.wentWell },
@@ -257,7 +259,7 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
   for (const workout of isAdded('dynamis') ? dynamisWorkouts.list() : []) {
     if (!workout.note) continue;
     labels.set(workout.id, 'Session in Dynamis');
-    things.push({ id: workout.id, kind: 'app', href: '/dynamis/', title: `Strength, ${dayLabel(workout.date)}`, fields: [{ name: 'Note', text: workout.note }], at: workout.createdAt });
+    things.push({ id: workout.id, kind: 'app', href: '/dynamis/', title: `Strength, ${dayWords(workout.date, toLocalDate(new Date()))}`, fields: [{ name: 'Note', text: workout.note }], at: workout.createdAt });
   }
   if (isAdded('poreia')) {
     const tripNames = new Map(poreiaTrips.list().map((trip) => [trip.id, trip.name]));

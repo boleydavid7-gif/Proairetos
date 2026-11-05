@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import 'fake-indexeddb/auto';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 /*
  * Slice 1 changes only how Oikonomia and Hydros reach universal search. Everything else the search gathers must be what
@@ -43,17 +43,20 @@ async function seed() {
 }
 
 describe('universal search outside Oikonomia and Hydros', () => {
-  beforeAll(seed, 30_000);
+  // The clock is fixed so "Today" and "Yesterday" in a title cannot depend on the day the test runs.
+  beforeAll(async () => {
+    vi.useFakeTimers({ toFake: ['Date'], now: new Date('2026-11-05T12:00:00') });
+    await seed();
+  }, 30_000);
+  afterAll(() => vi.useRealTimers());
   it('gathers what it gathered before', async () => {
     const { gather } = await import('../../features/search/SearchSheet');
     const { things, labels } = await gather();
     const changed = (id: string) => /^(Bill in Oikonomia|Day in Hydros|Drink in Hydros)$/.test(labels.get(id) ?? '');
     const rows = things
       .filter((thing) => !changed(thing.id))
-      .map((thing) => ({ id: thing.id, kind: thing.kind, title: thing.title.replace(/^(Run|Strength), [A-Z][a-z]{2} \d{1,2}$/, '$1, <day>'), href: thing.href, at: thing.at, label: labels.get(thing.id), fields: thing.fields.filter((field) => field.text) }))
+      .map((thing) => ({ id: thing.id, kind: thing.kind, title: thing.title, href: thing.href, at: thing.at, label: labels.get(thing.id), fields: thing.fields.filter((field) => field.text) }))
       .sort((a, b) => a.id.localeCompare(b.id));
-    // A run's and a session's day in the title is written from a date-only value and shifts a day west of UTC; that is how
-    // search already behaved, and it is not what this test is about, so the day is masked.
     expect(rows.length).toBeGreaterThan(10);
     expect(rows).toMatchSnapshot();
   }, 30_000);
