@@ -16,6 +16,7 @@ import { liftDays, useFittedWeek } from '../../app/family/trainingWeek';
 import { settings as diaitaSettings, sleeps as diaitaSleeps } from '../../diaita/app/state';
 import { hoursText, sleptMinutes } from '../../diaita/core/rhythm';
 import { studyBetween, useStudy } from '../../app/praxis/study';
+import { meleteSessions, meleteSubjects, useMeleteSubjects } from '../../app/calendars/meleteCalendar';
 import { ChevronRightIcon, GearIcon } from '../../components/icons/Icons';
 
 type DayRange = { start: Date; end: Date };
@@ -84,7 +85,24 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
         .reduce((total, session) => total + session.minutes, 0)
     : 0;
 
+  // Study sessions in Meletē for the person's day: minutes done, else the next one set, read from its records.
+  const subjectsNow = useMeleteSubjects(added.includes('melete'));
+  const studyText = (() => {
+    if (!added.includes('melete')) return '';
+    const mine = meleteSessions().filter((session) => {
+      const at = new Date(session.start);
+      return at >= range.start && at < range.end;
+    });
+    const done = mine.filter((session) => session.doneAt).reduce((total, session) => total + session.minutes, 0);
+    if (done) return `${done} min studied today`;
+    const next = mine.filter((session) => new Date(session.start) >= new Date()).sort((a, b) => a.start.localeCompare(b.start))[0];
+    if (!next) return subjectsNow.length || meleteSubjects().length ? 'No study sessions today' : 'Add a subject';
+    const name = subjectsNow.find((subject) => subject.id === next.subjectId)?.name ?? 'Study';
+    return `${name} · ${new Date(next.start).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
+  })();
+
   const detail: Record<DailyPracticeApp, string> = {
+    melete: studyText,
     hydros: goal
       ? `${formatVolume(hydration, unit)} of ${formatVolume(goal, unit)} ${unit}`
       : hydration > 0 ? `${formatVolume(hydration, unit)} ${unit} logged` : 'No drinks logged yet',
@@ -110,6 +128,7 @@ export function DailyPractices({ today, range }: { today: string; range: DayRang
     dynamis: '/dynamis/',
     diaita: '/diaita/',
     theoria: '/theoria/',
+    melete: '/melete/',
   };
 
   const visible = DAILY_PRACTICE_APPS.filter((app) => added.includes(app) && !hidden.has(app));

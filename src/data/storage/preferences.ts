@@ -454,6 +454,8 @@ export type TodayPart =
   // Birthdays from Philia: coming up on Today, and on their day in Days ahead.
   | 'birthdays'
   | 'birthday-dates'
+  // Exam and due dates from Meletē, on their day in Days ahead.
+  | 'study-dates'
   // Chores from Ergon whose day has come, on Today.
   | 'chores'
   // Today's doses not yet marked, from Therapeia.
