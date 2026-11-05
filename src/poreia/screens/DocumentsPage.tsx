@@ -284,7 +284,7 @@ function DocPhotos({ doc }: { doc: TravelDoc }) {
           </div>
         </div>
       )}
-      <p className="fine">On this phone only: not synced, backed up or shared.</p>
+      <p className="fine">On this device only: not synced, backed up or shared.</p>
       <input
         ref={input}
         type="file"

@@ -146,7 +146,7 @@ export default function NotificationsSection() {
           Allow notifications
         </button>
       )}
-      {permission === 'denied' && <p className="sheet__hint">Turned off in your phone’s settings.</p>}
+      {permission === 'denied' && <p className="sheet__hint">Turned off in your device’s settings.</p>}
       {permission === 'unsupported' && (
         <p className="sheet__hint">
           {isIos && !isInstalled

@@ -118,7 +118,7 @@ export default function CaptureBar({ kind, onCaptured, variant = 'box', submitLa
       )}
       {offerReminders && !when && (
         <p className="capture-bar__when capture-bar__remind">
-          <span>Reminders need your permission on this phone.</span>
+          <span>Reminders need your permission on this device.</span>
           <button
             type="button"
             className="chip chip--small chip--accent"

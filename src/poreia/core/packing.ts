@@ -40,7 +40,7 @@ export function suggestedPacking(context: PackContext): PackSuggestion[] {
   add('wash', 'Toothbrush and toothpaste', 'Deodorant', 'Shampoo', 'Hairbrush or comb');
   if (context.high !== undefined && context.high >= 20) add('wash', 'Sunscreen');
 
-  add('tech', 'Phone charger', 'Headphones');
+  add('tech', 'Chargers', 'Headphones');
   if (context.abroad) add('tech', 'Plug adapter');
   if (context.nights >= 3) add('tech', 'Power bank');
 

@@ -38,7 +38,7 @@ const GLANCE: { title: string; lines: string[] }[] = [
       'Open Food Facts: a barcode’s number. Free Dictionary API: the one word you look up. TheMealDB: recipe ideas.',
       'Hugging Face: Mneme’s speech model, downloaded once.',
       'Stripe: when you buy a plan. Strava: only if you connect it.',
-      'Your phone’s speech service (Apple or Google), when you dictate.',
+      'Your device’s speech service (Apple or Google), when you dictate.',
     ],
   },
   {

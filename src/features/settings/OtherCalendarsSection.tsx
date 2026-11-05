@@ -16,7 +16,7 @@ const guides: { name: string; steps: string }[] = [
   {
     name: 'Google Calendar',
     steps:
-      'On a computer, open Google Calendar → Settings → choose the calendar under "Settings for my calendars" → Integrate calendar → copy "Secret address in iCal format".',
+      'In Google Calendar on the web, open Settings → choose the calendar under "Settings for my calendars" → Integrate calendar → copy "Secret address in iCal format".',
   },
   {
     name: 'Apple Calendar (iCloud)',

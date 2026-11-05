@@ -124,7 +124,7 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
           <li>
             <button type="button" className="row" disabled={busy} onClick={() => void check()}>
               {icon('M4 5h16v11H4zM2 19h20')}
-              <span className="row__text"><span>{local.name}</span><span className="row__detail">On this computer · {busy ? 'looking…' : 'look for new books now'}</span></span>
+              <span className="row__text"><span>{local.name}</span><span className="row__detail">On this device · {busy ? 'looking…' : 'look for new books now'}</span></span>
             </button>
           </li>
         )}
@@ -140,7 +140,7 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
           <li>
             <button type="button" className="row" onClick={() => void chooseLibraryFolder().then((name) => { if (name) void check(); }).catch(() => undefined)}>
               {icon('M4 5h16v11H4zM2 19h20')}
-              <span className="row__text"><span>A folder on this computer</span></span>
+              <span className="row__text"><span>A folder on this device</span></span>
             </button>
           </li>
         )}
