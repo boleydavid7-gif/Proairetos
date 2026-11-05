@@ -2,7 +2,7 @@ import { Placeholder } from '../../lamplight/Placeholder';
 import { Total } from '../app/Total';
 import type { Nav } from '../app/App';
 import { ChevronIcon } from '../app/icons';
-import { formatDate, formatMoney, needsAttention, relativeDue, monthBounds, occurrencesBetween, remainingSummary, stillToCome, type Bill } from '../core/bills';
+import { addDays, formatDate, formatMoney, needsAttention, relativeDue, monthBounds, occurrencesBetween, remainingSummary, stillToCome, type Bill } from '../core/bills';
 import SwipeRow from '../app/SwipeRow';
 import { useAppPermissions } from '../../app/household/household';
 import { payBill } from '../app/payBill';
@@ -32,18 +32,20 @@ export default function HomePage({ nav }: { nav: Nav }) {
   const settings = useSettings();
   const today = useToday();
   const all = bills ?? [];
+  // What is coming: this month's dates not yet paid, and the next 30 days, across the month's end.
   const bounds = monthBounds(new Date());
-  const thisMonth = all
-    .flatMap((bill) => occurrencesBetween(bill, bounds.from, bounds.until))
+  const until = addDays(today, 30);
+  const window = all
+    .flatMap((bill) => occurrencesBetween(bill, bounds.from, until))
     .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
-  const monthOpen = stillToCome(thisMonth, today);
+  const monthOpen = stillToCome(window, today);
 
   return (
     <div className="home oiko-home">
       <Hero>
         <Brand light />
         <div className="home__words">
-          <h1 className="home__title">This month</h1>
+          <h1 className="home__title">Coming up</h1>
         </div>
       </Hero>
 
@@ -56,20 +58,19 @@ export default function HomePage({ nav }: { nav: Nav }) {
           </section>
         ) : (
           <>
-            {thisMonth.length > 0 && (
+            {window.length > 0 && (
               <p className="oiko-total">
-                <strong><Total summary={remainingSummary(thisMonth, today)} /></strong>
-                <span>{remainingSummary(thisMonth, today).note}</span>
+                <strong><Total summary={remainingSummary(window, today)} /></strong>
+                <span>{remainingSummary(window, today).note}</span>
               </p>
             )}
-            <section className="oiko-list" aria-label="Bills this month">
+            <section className="oiko-list" aria-label="Coming up">
               {monthOpen.slice(0, 8).map((occurrence, index) => (
                 <SwipeRow key={occurrence.bill.id + occurrence.date} label="Paid" off={!can.write} onSwipe={() => void payBill(occurrence.bill, occurrence.date)}>
                   {billRow(occurrence.bill, occurrence.date, nav, today, index === 0 && needsAttention(occurrence.bill, occurrence.date, today))}
                 </SwipeRow>
               ))}
-              {thisMonth.length === 0 && <p className="muted">Nothing is scheduled for this month.</p>}
-              {thisMonth.length > 0 && monthOpen.length === 0 && <p className="muted">Nothing left to pay this month.</p>}
+              {monthOpen.length === 0 && <p className="muted">Nothing coming up.</p>}
             </section>
 
             <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
