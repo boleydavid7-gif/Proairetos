@@ -6,7 +6,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { MeleteNav } from '../app/App';
 import { openByDay, nextDays } from '../app/gaps';
 import { newId, removeSubject, sessions as sessionStore, subjects } from '../app/state';
-import { DATE_KINDS, dateFact, formatMinutes, minutesByDay, newSubject, openHoursBefore, SUBJECT_COLORS, upcomingDates, weekOf, workFact, type DateKind, type Subject } from '../core/subjects';
+import { DATE_KINDS, dateFact, formatMinutes, minutesByDay, newSubject, openHoursBefore, SESSION_KINDS, slotsThatFit, SUBJECT_COLORS, upcomingDates, weekOf, workFact, type DateKind, type SessionKind, type Subject } from '../core/subjects';
 
 /** A subject: its name and color, its dates, the person's own rhythm and if-then line, and its materials. Every part but the name is optional. */
 export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }) {
@@ -22,6 +22,10 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
   const [materialTitle, setMaterialTitle] = useState('');
   const [materialUrl, setMaterialUrl] = useState('');
   const [open, setOpen] = useState<number>();
+  const [finding, setFinding] = useState(false);
+  const [lengthMin, setLengthMin] = useState(subject?.rhythm?.minutes ?? 45);
+  const [sitKind, setSitKind] = useState<SessionKind>('read');
+  const [slots, setSlots] = useState<Date[]>();
 
   const put = (change: Partial<Subject>) => {
     if (subject) subjects.put({ ...subject, ...change });
@@ -42,6 +46,15 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
     }).catch(() => undefined);
     return () => { live = false; };
   }, [estimated?.id, estimated?.date, estimated?.hours]);
+
+  // The times that hold a sitting of the chosen length, from the week's open stretches (read only while the panel is open).
+  useEffect(() => {
+    if (!finding || !subject) return undefined;
+    let live = true;
+    setSlots(undefined);
+    void openByDay(nextDays(today, 7), sessionList).then((byDay) => live && setSlots(slotsThatFit(byDay, lengthMin))).catch(() => live && setSlots([]));
+    return () => { live = false; };
+  }, [finding, lengthMin, sessionList.length]);
 
   if (!subject) {
     return (
@@ -100,7 +113,42 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
           <button key={color} type="button" className="chip" aria-pressed={(subject.color ?? 'sage') === color} aria-label={color} onClick={() => put({ color })}><i className="melete-dot" style={{ background: `var(--tag-${color})` }} aria-hidden="true" /> {color[0].toUpperCase() + color.slice(1)}</button>
         ))}
       </div>
-      <button type="button" className="button-main" onClick={() => nav.go({ name: 'session', subjectId: subject.id })}>Start a sitting</button>
+      <div className="button-row">
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'session', subjectId: subject.id })}>Start a sitting</button>
+        <button type="button" className="button-quiet" aria-expanded={finding} onClick={() => setFinding(!finding)}>Set a time</button>
+      </div>
+      {finding && (
+        <div className="card melete-place">
+          <div className="chip-row" role="group" aria-label="Kind">
+            {SESSION_KINDS.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={sitKind === each.id} onClick={() => setSitKind(each.id)}>{each.label}</button>)}
+          </div>
+          <div className="chip-row" role="group" aria-label="Length">
+            {[15, 25, 30, 45, 60, 90].map((each) => <button key={each} type="button" className="chip" aria-pressed={lengthMin === each} onClick={() => setLengthMin(each)}>{each} min</button>)}
+          </div>
+          {slots === undefined ? <p className="muted">Looking at your week</p> : slots.length === 0 ? <p className="muted">No open stretch that long this week.</p> : (
+            <ul className="chore-list">
+              {slots.map((at) => (
+                <li key={at.toISOString()} className="chore">
+                  <button
+                    type="button"
+                    className="chore__open"
+                    onClick={() => {
+                      const record = { id: newId('session'), subjectId: subject.id, kind: sitKind, start: at.toISOString(), minutes: lengthMin };
+                      sessionStore.put(record);
+                      setFinding(false);
+                      offerUndo('Sitting set', () => sessionStore.remove(record.id));
+                    }}
+                  >
+                    <span>{new Intl.DateTimeFormat(undefined, { weekday: 'long', hour: 'numeric', minute: '2-digit' }).format(at)}</span>
+                    <small>{formatMinutes(lengthMin)}</small>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button type="button" className="button-quiet" onClick={() => setFinding(false)}>Cancel</button>
+        </div>
+      )}
       {weekMinutes > 0 && <p className="muted">{formatMinutes(weekMinutes)} this week</p>}
 
       <section>

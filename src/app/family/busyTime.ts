@@ -6,6 +6,7 @@ import { addDays, atTime } from '../../core/scheduling/dates';
 import type { LifeItem } from '../../core/life-items/types';
 import { loadQuietHours } from '../../data/storage/preferences';
 import { otherCalendars } from '../calendars/otherCalendars';
+import { meleteCalendar } from '../calendars/meleteCalendar';
 import { philiaCalendar } from '../calendars/philiaCalendar';
 import { therapeiaCalendar } from '../calendars/therapeiaCalendar';
 import { scheduleService } from '../services';
@@ -32,7 +33,7 @@ export async function busyOn(date: string, items: readonly LifeItem[], leaveOut?
   const from = atTime(date, '00:00');
   const until = atTime(addDays(date, 1), '00:00');
   const blocks = await scheduleService.occurrencesBetween(new Date(from.getTime() - 2 * 86_400_000), atTime(addDays(date, 2), '00:00'));
-  const events = [...otherCalendars.eventsBetween(from, until), ...(await philiaCalendar.eventsBetween(from, until)), ...(await therapeiaCalendar.eventsBetween(from, until))].filter((event) => !event.allDay);
+  const events = [...otherCalendars.eventsBetween(from, until), ...(await philiaCalendar.eventsBetween(from, until)), ...(await therapeiaCalendar.eventsBetween(from, until)), ...(await meleteCalendar.eventsBetween(from, until))].filter((event) => !event.allDay);
   const timed = items
     .filter((item) => item.id !== leaveOut && item.scheduledAt && item.status !== 'DONE' && !item.repeat)
     .map((item) => itemSpan(item.scheduledAt!, item.endsAt));
