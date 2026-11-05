@@ -68,3 +68,5 @@ All three proposed, waiting for approval.
 - Nov 5: proposal 2 (child limits in screens) approved and built: Oikonomia bills and expenses, Poreia trips, Phyton
   plants, Therapeia medicines and Proairetos's shared to-dos hide or disable what a child's level forbids
   (`useAppPermissions`, `SwipeRow off`). Test `src/tests/household/childControls.test.tsx`.
+- Nov 5: proposal 3 (several to-dos into open time) approved and built: Today's Open time sheet has Several; picks stack in
+  30-minute steps from the chosen time (`stackedStarts`), one Set, one undo. Tests `src/tests/rhythm/stackedStarts.test.ts`.

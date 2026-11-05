@@ -58,3 +58,14 @@ export function itemSpan(scheduledAt: string, endsAt?: string): Span {
   const end = endsAt && new Date(endsAt) > start ? new Date(endsAt) : new Date(start.getTime() + ITEM_MINUTES * 60_000);
   return { start, end };
 }
+
+/**
+ * Where several things would sit one after another from `from`, each holding ITEM_MINUTES: their start times, and how
+ * many of them fit inside the stretch. Only arithmetic on the clock; which things, and in what order, is the person's.
+ */
+export function stackedStarts(stretch: Span, from: Date, count: number): { starts: Date[]; fit: number } {
+  const step = ITEM_MINUTES * 60_000;
+  const starts = Array.from({ length: count }, (_, index) => new Date(from.getTime() + index * step));
+  const fit = starts.filter((start) => start >= stretch.start && start.getTime() + step <= stretch.end.getTime()).length;
+  return { starts, fit };
+}

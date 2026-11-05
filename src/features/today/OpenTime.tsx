@@ -3,7 +3,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { lifeService } from '../../app/services';
 import { useSheet } from '../../components/ui/useSheet';
 import type { LifeItem } from '../../core/life-items/types';
-import type { Span } from '../../core/rhythm/openTime';
+import { stackedStarts, type Span } from '../../core/rhythm/openTime';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { formatTimeOf } from '../schedule/format';
 import EnergyChoice, { useEnergy } from './EnergyChoice';
@@ -28,6 +28,22 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
   const groups = placeableGroups(items, today, energy);
   const at = timeInStretch(time, stretch);
   const fits = at >= stretch.start && at < stretch.end;
+  // Several at once: the picks go one after another from the chosen time, in the order they were picked.
+  const [several, setSeveral] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const all = groups.flatMap((group) => group.items);
+  const chosenItems = picked.map((id) => all.find((item) => item.id === id)).filter((item): item is LifeItem => Boolean(item));
+  const stack = stackedStarts(stretch, at, chosenItems.length);
+  const allFit = chosenItems.length > 0 && stack.fit === chosenItems.length;
+
+  async function placeAll() {
+    const before = chosenItems.map((item) => ({ id: item.id, at: item.scheduledAt }));
+    for (const [index, item] of chosenItems.entries()) await lifeService.schedule(item.id, stack.starts[index].toISOString());
+    offerUndo(`${chosenItems.length} set from ${formatTimeOf(stack.starts[0])}`, async () => {
+      for (const each of before) await lifeService.schedule(each.id, each.at);
+    });
+    close();
+  }
 
   async function place(item: LifeItem) {
     await lifeService.schedule(item.id, at.toISOString());
@@ -62,6 +78,12 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
 
         <EnergyChoice date={today} />
 
+        {all.length > 1 && (
+          <button type="button" className="text-link place-several" aria-pressed={several} onClick={() => { setSeveral(!several); setPicked([]); }}>
+            {several ? 'One at a time' : 'Several'}
+          </button>
+        )}
+
         {groups.length === 0 && <p className="empty-note">Nothing open without a time.</p>}
         {groups.map((group) => (
           <section key={group.id} className="sheet__section" aria-label={group.label}>
@@ -69,14 +91,43 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
             <ul className="place-list">
               {group.items.map((item) => (
                 <li key={item.id}>
-                  <button type="button" className="place-row" disabled={!fits} onClick={() => place(item)}>
-                    {item.title}
-                  </button>
+                  {several ? (
+                    <button
+                      type="button"
+                      role="checkbox"
+                      aria-checked={picked.includes(item.id)}
+                      className="place-row place-row--pick"
+                      onClick={() => setPicked(picked.includes(item.id) ? picked.filter((id) => id !== item.id) : [...picked, item.id])}
+                    >
+                      <span className="place-row__order" aria-hidden="true">{picked.includes(item.id) ? picked.indexOf(item.id) + 1 : ''}</span>
+                      {item.title}
+                    </button>
+                  ) : (
+                    <button type="button" className="place-row" disabled={!fits} onClick={() => place(item)}>
+                      {item.title}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
           </section>
         ))}
+        {several && chosenItems.length > 0 && (
+          <section className="place-plan" aria-label="Where they go">
+            <ul>
+              {chosenItems.map((item, index) => (
+                <li key={item.id}>
+                  <span>{formatTimeOf(stack.starts[index])}</span>
+                  <span>{item.title}</span>
+                </li>
+              ))}
+            </ul>
+            {!allFit && <p className="form-error">{stack.fit === 0 ? 'None fit in this stretch.' : `Only ${stack.fit} fit in this stretch.`}</p>}
+            <button type="button" className="button-main" disabled={!allFit} onClick={() => void placeAll()}>
+              Set {chosenItems.length === 1 ? 'it' : `these ${chosenItems.length}`}
+            </button>
+          </section>
+        )}
       </div>
     </dialog>
   );

@@ -588,3 +588,27 @@
 
 /* A highlight from Theoria on Today: the person's passage, in the reading face. */
 .quiet-row__quote { font-family: var(--font-serif, serif); font-style: italic; line-height: 1.4; }
+
+/* Putting several things in one stretch of open time. */
+.place-several { justify-self: start; margin: var(--space-2) 0; }
+.place-row--pick { display: flex; align-items: center; gap: var(--space-3); }
+.place-row__order {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+.place-row--pick[aria-checked='true'] .place-row__order {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-ink, #1a140d);
+}
+.place-plan { display: grid; gap: var(--space-3); margin-top: var(--space-4); }
+.place-plan ul { display: grid; gap: var(--space-2); list-style: none; margin: 0; padding: 0; }
+.place-plan li { display: flex; gap: var(--space-3); }
+.place-plan li > span:first-child { flex: 0 0 5.5rem; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }

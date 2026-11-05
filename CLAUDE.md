@@ -868,7 +868,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (`features/capture/QuickSortSheet`, plain facts from
   `core/life-items/facts.ts`); Today's "Open time"
   (`core/rhythm/openTime.ts`, gaps after blocks, events, set times, quiet
-  hours; tap to give something a time); overlap notes
+  hours; tap to give something a time, or "Several": pick a few and they go one after another, 30 minutes each from the chosen time (`stackedStarts`), one Set and one undo); overlap notes
   (`core/rhythm/overlaps.ts`, never moves anything itself); the item's
   `light` mark and a per-day energy word (`energyFor`, never guessed) that
   only shows light things first; values beside path picks and "What would

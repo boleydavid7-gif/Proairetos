@@ -1,6 +1,13 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-05',
+    lines: [
+      'Open time: choose Several to put a few to-dos in a stretch one after another, with one undo.',
+      'Family: controls a child can’t use are hidden in every shared screen.',
+    ],
+  },
+  {
     date: '2026-11-04',
     lines: [
       'Ktema: things and upkeep can be shared with your household, with who did each upkeep. Documents, photos and files stay private.',
