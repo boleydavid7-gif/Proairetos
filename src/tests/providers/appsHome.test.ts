@@ -410,3 +410,38 @@ describe('Hydros on Today', () => {
     expect((await lines(hydrosHome, { schedule: async () => night as never }))[0].detail).toBe('16 oz logged');
   });
 });
+
+describe('Askesis on Today', () => {
+  type Mocked = { run?: { title: string }; completed?: { id: string }; plan?: boolean };
+  async function homeWith({ run, completed, plan }: Mocked, refreshed: string[] = []) {
+    vi.resetModules();
+    vi.doMock('../../app/askesis/runs', () => ({
+      readRuns: async () => ({ plan: plan ? {} : undefined, workouts: completed ? [{ id: completed.id, date: '2026-11-05' }] : [], unit: 'km' }),
+      todaysRun: () => run,
+      runLength: () => '30 min',
+      runTitle: () => 'Run · 5.0 km',
+    }));
+    vi.doMock('../../app/family/trainingWeek', () => ({ refreshTrainingWeek: () => refreshed.push('refreshed'), watchTrainingWeek: () => () => undefined }));
+    return (await import('../../askesis/providers/home')).askesisHome;
+  }
+  it('says today’s session with its length', async () => {
+    const home = await homeWith({ run: { title: 'Easy run' }, plan: true });
+    const rows = await lines(home);
+    expect(rows[0]).toMatchObject({ group: 'practice', detail: 'Easy run · 30 min', open: '/askesis/' });
+  });
+  it('says the run done today, no run scheduled, or a plan to start', async () => {
+    expect((await lines(await homeWith({ completed: { id: 'e1' }, plan: true })))[0].detail).toBe('Run · 5.0 km · Done today');
+    expect((await lines(await homeWith({ plan: true })))[0].detail).toBe('No run scheduled today');
+    expect((await lines(await homeWith({})))[0].detail).toBe('Start a running plan');
+  });
+  it('asks for the worked-out week to be current when Today starts (warm), and no other time', async () => {
+    const refreshed: string[] = [];
+    const home = await homeWith({}, refreshed);
+    await lines(home);
+    expect(refreshed).toEqual([]);
+    home.warm?.(ctx());
+    expect(refreshed).toEqual(['refreshed']);
+    vi.doUnmock('../../app/askesis/runs');
+    vi.doUnmock('../../app/family/trainingWeek');
+  });
+});
