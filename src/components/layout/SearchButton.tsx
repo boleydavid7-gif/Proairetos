@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import SearchSheet from '../../features/search/SearchSheet';
+import { SearchSheet } from '../../app/laterPages';
 import { SearchIcon } from '../icons/Icons';
 import { IconButton } from '../../lamplight/icons';
 

@@ -117,4 +117,13 @@ Mostly secondary sources again; verify before relying on any single claim.
 
 ### Status
 
-Proposals 2 and 3 rejected by the owner. Proposal 1 proposed, waiting for approval.
+Proposals 2 and 3 rejected by the owner. Proposal 1 approved and built (see the update log).
+
+### Update log (second round)
+
+- Nov 5: proposal 1 built. The item, decision, search, command palette and shared-text sheets load after first paint
+  (`laterSheet`), with the same idle fetch as the later pages and no visible change. Proairetos's first chunk went from
+  290 KB to 252 KB; the speed check now reads first paint about 1.0 s and largest paint 1.36 to 1.39 s, every app within
+  1400 ms (before: 1.37 to 1.42 s, over). Checked in a browser: search, the command palette and the item sheet open
+  within the first second as before. Left alone on purpose: tab pages (Days ahead, Compass), which a view transition
+  needs in hand, and the quick-sort and add-event sheets, which their pages import by name.

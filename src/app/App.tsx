@@ -1,4 +1,3 @@
-import CommandPalette from './palette/CommandPalette';
 import LockScreen from './lock/LockScreen';
 import { lock, lockedRoutes } from './lock/lock';
 import EdgeSwipe from './back/EdgeSwipe';
@@ -11,11 +10,10 @@ import CapturePage from '../features/capture/CapturePage';
 import ReflectPage from '../features/reflect/ReflectPage';
 import CompassPage from '../features/compass/CompassPage';
 import DaysAheadPage from '../features/days/DaysAheadPage';
-import SharedSheet from '../features/share/SharedSheet';
 import InboxOpener from './capture/InboxOpener';
 import TrainingClash from '../features/training/TrainingClash';
 import { takeShared } from '../features/share/shared';
-import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview, ConnectionsPage } from './laterPages';
+import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview, ConnectionsPage, CommandPalette, SharedSheet } from './laterPages';
 import AppShell from './AppShell';
 import NoticeOpener from './notify/NoticeOpener';
 import { startHousehold } from './household/household';

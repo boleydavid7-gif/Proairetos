@@ -523,7 +523,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `updateReminders` import `app/notify/upcoming` (which reads every app) only when they run. Proairetos's
   pages away from the main tabs (Onboarding, Schedule, Review, Settings, Journal, Insights, Meditate) come
   from `app/laterPages.tsx` (`use()` on a tracked import, fetched in the background 2.5 s after start, so
-  view transitions never show an empty page); other screens ask Settings for a page through
+  view transitions never show an empty page); the sheets opened by a tap (item, decision, search, command palette, shared text) load the same way through `laterSheet` in `app/laterPages.tsx`, with no fallback and the same idle fetch, taking 38 KB off the first chunk; other screens ask Settings for a page through
   `features/settings/settingsViews.ts` (`openSettingsAt`), never by importing `SettingsPage`. The word
   guard bans "lazy", so React's `lazy` is not used.
 
