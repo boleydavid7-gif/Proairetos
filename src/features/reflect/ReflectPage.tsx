@@ -4,7 +4,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { reflectionService } from '../../app/services';
-import { BookIcon, BreatheIcon, ChevronRightIcon, CompassIcon, LotusIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
+import { BookIcon, BreatheIcon, ChartIcon, ChevronRightIcon, CompassIcon, LotusIcon, MoreIcon, PenIcon } from '../../components/icons/Icons';
 import PageHeader from '../../components/layout/PageHeader';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { InnerWeather, Reflection } from '../../core/reflections/types';
@@ -197,7 +197,7 @@ export default function ReflectPage() {
           />
           {shows('insights') && (
             <MoreRow
-              icon={<BreatheIcon size={22} />}
+              icon={<ChartIcon size={22} />}
               title="Insights"
               onClick={() => navigate('insights')}
             />
@@ -219,7 +219,7 @@ export default function ReflectPage() {
         </div>
       </section>
 
-      <section className="reflect-recent" aria-labelledby="reflect-recent-title">
+      {(recent.length > 0 || !all) && <section className="reflect-recent" aria-labelledby="reflect-recent-title">
         <div className="reflect-section-heading reflect-recent__heading">
           <h2 id="reflect-recent-title">Recent reflections</h2>
           <button type="button" className="text-link" onClick={openReflectionsLibrary}>View all</button>
@@ -231,12 +231,9 @@ export default function ReflectPage() {
             ))}
           </ol>
         ) : (
-          <div className="reflect-recent__empty">
-            {!all && <p>Loading reflections…</p>}
-            {all && <button type="button" className="text-link" onClick={openReflectionsLibrary}>Open Library</button>}
-          </div>
+          <div className="reflect-recent__empty"><p>Loading reflections…</p></div>
         )}
-      </section>
+      </section>}
     </div>
   );
 }

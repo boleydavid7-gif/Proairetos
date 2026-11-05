@@ -101,5 +101,18 @@
 
 /* The box that finds a setting by name. */
 .settings-find {
+  position: relative;
+  display: block;
   margin-bottom: var(--space-1);
+}
+.settings-find > svg {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--color-text-faint, var(--text-muted));
+  pointer-events: none;
+}
+.settings-find .field-input {
+  padding-inline-start: 40px;
 }

@@ -228,6 +228,8 @@ export const ListIcon = glyphIcon('list', 24);
 
 export const SearchIcon = glyphIcon('search', 24);
 
+export const ChartIcon = glyphIcon('chart', 24);
+
 export function LotusIcon(props: IconProps) {
   return (
     <Icon {...props}>

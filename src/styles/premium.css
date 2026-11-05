@@ -1282,3 +1282,8 @@ blockquote.daily-line {
 .today-app--compact[data-app='hydros'] .today-practice-progress > span {
   background: #49b9c5;
 }
+
+/* With nothing from the other apps, the section leaves no heading behind. */
+.today-app-overview--attention:not(:has(.today-app > .today-group:not(:empty))):not(:has(.quiet-row)) {
+  display: none;
+}

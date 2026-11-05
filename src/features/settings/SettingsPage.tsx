@@ -55,6 +55,7 @@ import {
   MoonIcon,
   NoteIcon,
   PartlyCloudyIcon,
+  SearchIcon,
   ShieldIcon,
   StarIcon,
   SunIcon,
@@ -1407,13 +1408,17 @@ export default function SettingsPage() {
       </button>
       <PageHeader title="Settings" />
 
-      <input
-        className="field-input settings-find"
-        type="search"
-        aria-label="Find a setting"
-        value={find}
-        onChange={(event) => setFind(event.target.value)}
-      />
+      <label className="settings-find">
+        <SearchIcon size={18} />
+        <input
+          className="field-input"
+          type="search"
+          placeholder="Search"
+          aria-label="Find a setting"
+          value={find}
+          onChange={(event) => setFind(event.target.value)}
+        />
+      </label>
 
       {needle ? (
         <div className="settings-list">

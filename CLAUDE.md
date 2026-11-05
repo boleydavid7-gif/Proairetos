@@ -48,6 +48,7 @@ rule: **the system records life; it does not interpret life.**
   sign-in, passphrase and passcode fields, sources and medical or training safety lines ("not medical advice", the
   doctor line, stop 1-3 reps short), and a status that names what is missing ("No dates on this trip yet.").
 - Text sweep (Nov 4, after Apple's own settings and apps: a label says what a thing is, a footnote only says what it costs or keeps private): removed intro and how-to lines under titles and switches, tagline subtitles (Reflect, Library), empty-state instructions, reassurance ("That is the whole practice", "What comes next is up to you", "No streaks, no scores"), chart footnotes that restate the chart's title, "What's included" row details except where the label is not clear on its own (On this day, Words), and every placeholder except the sign-in, passphrase and passcode names (search fields included; they keep an `aria-label`). Kept: what a destructive action replaces or deletes, privacy and security notes, sources, safety lines, setup steps, status and error lines. Before adding a line of text to a screen, ask what the screen is worse without.
+- Search fields show the word "Search" with a search icon (Apple's), since a blank box names nothing; every other field has no placeholder. Today's Worth your attention, and Reflect's Recent reflections, leave no heading behind when empty.
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 
