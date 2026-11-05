@@ -1,6 +1,5 @@
-import { useMemo, useSyncExternalStore } from 'react';
-import { isAdded, subscribeAdded } from '../family/added';
-import { onRemoteChanges } from '../sync/syncController';
+import { readRecords, subscribeRecords, useStoredRecords } from '../family/storedRecords';
+import { isAdded } from '../family/added';
 import type { StudySession, Subject } from '../../melete/core/subjects';
 import type { CalendarEvent as DisplayCalendarEvent } from './otherCalendars';
 
@@ -10,27 +9,9 @@ import type { CalendarEvent as DisplayCalendarEvent } from './otherCalendars';
  * first load carries none of Meletē's code.
  */
 
-function records<T>(prefix: string): T[] {
-  const out: T[] = [];
-  try {
-    for (let index = 0; index < localStorage.length; index += 1) {
-      const key = localStorage.key(index);
-      if (!key?.startsWith(prefix)) continue;
-      try {
-        out.push(JSON.parse(localStorage.getItem(key) ?? '') as T);
-      } catch {
-        // An unreadable record is passed over.
-      }
-    }
-  } catch {
-    // Storage blocked: nothing to show.
-  }
-  return out;
-}
-
 /** What Meletē holds, read only from storage (the app's own code stays out of Proairetos's first load). */
-export const meleteSubjects = () => records<Subject>('melete:subject:');
-export const meleteSessions = () => records<StudySession>('melete:session:');
+export const meleteSubjects = () => readRecords<Subject>('melete:subject:');
+export const meleteSessions = () => readRecords<StudySession>('melete:session:');
 
 const DATE_WORDS: Record<string, string> = { exam: 'Exam', due: 'Due', other: 'Date' };
 
@@ -47,33 +28,16 @@ export function studyDatesOn(subjects: readonly Subject[], date: string): { id: 
 }
 
 /** The subjects as they are now; changes (this tab, another tab, sync, adding or removing the app) re-read them. */
-export function useMeleteSubjects(enabled: boolean): Subject[] {
-  const raw = useSyncExternalStore(meleteCalendar.subscribe, () => (enabled ? subjectsSnapshot() : ''), () => '');
-  return useMemo(() => (raw ? (JSON.parse(raw) as Subject[]) : []), [raw]);
-}
-
-function subjectsSnapshot(): string {
-  return JSON.stringify(meleteSubjects().sort((a, b) => a.id.localeCompare(b.id)));
-}
+export const useMeleteSubjects = (enabled: boolean): Subject[] => useStoredRecords<Subject>('melete:subject:', enabled);
 
 export const meleteCalendar = {
-  subscribe(listener: () => void): () => void {
-    const onStorage = (event: StorageEvent) => (event.key === null || event.key.startsWith('melete:')) && listener();
-    window.addEventListener('storage', onStorage);
-    const offRemote = onRemoteChanges(listener);
-    const offAdded = subscribeAdded(listener);
-    return () => {
-      window.removeEventListener('storage', onStorage);
-      offRemote();
-      offAdded();
-    };
-  },
+  subscribe: (listener: () => void): (() => void) => subscribeRecords('melete:', listener),
 
   async eventsBetween(from: Date, until: Date): Promise<DisplayCalendarEvent[]> {
     if (!isAdded('melete')) return [];
-    const names = new Map(records<Subject>('melete:subject:').map((subject) => [subject.id, subject.name]));
+    const names = new Map(readRecords<Subject>('melete:subject:').map((subject) => [subject.id, subject.name]));
     const out: DisplayCalendarEvent[] = [];
-    for (const session of records<StudySession>('melete:session:')) {
+    for (const session of readRecords<StudySession>('melete:session:')) {
       const start = new Date(session.start);
       if (Number.isNaN(start.getTime())) continue;
       const end = new Date(start.getTime() + Math.max(1, session.minutes) * 60_000);

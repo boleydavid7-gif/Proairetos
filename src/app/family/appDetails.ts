@@ -100,7 +100,7 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
     ],
   },
   ktema: {
-    adds: 'Upkeep that is due shows on Today.',
+    adds: 'Upkeep that is due shows on Today. Warranty end dates and upkeep dates show on their day in Days ahead.',
     shots: 2,
     connects: [
       { app: 'oikonomia', text: 'You can add the cost of an upkeep task to the month’s spending.' },

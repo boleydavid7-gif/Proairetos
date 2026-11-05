@@ -22,11 +22,12 @@ export const PART_APP: Partial<Record<TodayPart, AddOn>> = {
   trips: 'poreia',
   mneme: 'mneme',
   'study-dates': 'melete',
+  'ktema-dates': 'ktema',
 };
 
 /** Each app's own parts have no switch of their own (Nov 5): an app shows on Today through "Apps on Today" in What's
  *  included (Daily practices, Worth your attention), so an older choice stored for one of these is no longer read. */
-const APP_PARTS: ReadonlySet<TodayPart> = new Set<TodayPart>(['askesis', 'soma', 'praxis', 'birthdays', 'birthday-dates', 'chores', 'medicines', 'upkeep', 'plants', 'trips', 'bills', 'bill-dates', 'study-dates']);
+const APP_PARTS: ReadonlySet<TodayPart> = new Set<TodayPart>(['askesis', 'soma', 'praxis', 'birthdays', 'birthday-dates', 'chores', 'medicines', 'upkeep', 'plants', 'trips', 'bills', 'bill-dates', 'study-dates', 'ktema-dates']);
 
 /** Which parts of Today the person keeps. Read live, so a change or an undo shows at once. */
 export function useTodayParts(): (part: TodayPart) => boolean {
