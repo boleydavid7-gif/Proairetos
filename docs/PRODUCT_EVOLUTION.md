@@ -13,9 +13,9 @@ complexity), then the status lists below.
 
 **Proposed, waiting:** see the latest week.
 **Approved / in progress:** none.
-**Completed:** none yet.
-**Rejected:** none yet.
-**Worth revisiting:** none yet.
+**Completed:** proposals 2 and 3 (Nov 5), energy removal (Nov 5).
+**Rejected:** proposal 1 (top bar on CSS scroll timelines): measured and not worth it (see log). Anything that rates how much a person can do (energy word).
+**Worth revisiting:** CSS scroll timelines for the bar once the title's handoff no longer needs the JavaScript classes (`is-folded`, `is-over-picture`).
 
 ## Week of Nov 5, 2026
 
@@ -71,3 +71,8 @@ All three proposed, waiting for approval.
 - Nov 5: proposal 3 (several to-dos into open time) approved and built: Today's Open time sheet has Several; picks stack in
   30-minute steps from the chosen time (`stackedStarts`), one Set, one undo. Tests `src/tests/rhythm/stackedStarts.test.ts`.
 - Nov 5 (owner's direction, unplanned): the energy word and the "takes little energy" mark are removed everywhere (Open time, item sheet, Today's to-do, Diaita check-in, What's included, Soma's link to it). Rejected for good: anything that rates how much a person can do.
+- Nov 5: proposal 1 measured, not built. Scrolling a settings page 180 frames at 4x CPU slowdown cost 151 ms of script
+  (under 1 ms a frame, including the test's own loop). The handler already reads one rectangle a frame and writes only
+  when a value changes. A CSS scroll timeline could not remove the scroll listener either: it also sets `is-folded`,
+  `is-scrolled` and `is-over-picture`, and the handoff follows each page's title position. A rewrite would add risk on
+  iPhone, where it cannot be checked here, for no measurable gain.
