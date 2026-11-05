@@ -1,0 +1,118 @@
+/*
+ * Lamplight, the modern pass (Nov 5). Newer CSS for how things move and scroll, nothing that adds transparency.
+ * Every rule is behind a feature test or only improves what the browser already does, so where a feature is missing
+ * the page behaves as before. Reduced motion turns the motion off.
+ */
+
+/* ---------- Folds open and close, they do not snap ---------- */
+@supports selector(details::details-content) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  :root details::details-content {
+    block-size: 0;
+    overflow-y: clip;
+    transition:
+      block-size var(--ll-calm, 220ms) var(--ll-spring, ease),
+      content-visibility var(--ll-calm, 220ms) allow-discrete;
+  }
+
+  :root details[open]::details-content {
+    block-size: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root details::details-content {
+    transition: none;
+  }
+}
+
+/* ---------- Scrolling clears the bars ----------
+   Jumping to a field, a section or a focused control no longer leaves it under the top bar or the dock. */
+:root {
+  scroll-padding-top: calc(var(--ll-safe-top, 0px) + 4.75rem);
+  scroll-padding-bottom: 6rem;
+}
+
+/* Rows that scroll sideways settle on an item (the carousels that already snap are left as they are), and every such row
+   fades only on the side where more is hidden. */
+@property --ll-fade-l {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --ll-fade-r {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+:root :is(.poreia-scroll-chips, .theoria-category-row, .theoria-shelf-tabs, .mneme-filters, .search-scope, .hydros-history__items) {
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 0.75rem;
+}
+
+:root :is(.poreia-scroll-chips, .theoria-category-row, .theoria-shelf-tabs, .mneme-filters, .search-scope, .hydros-history__items) > * {
+  scroll-snap-align: start;
+}
+
+@supports (animation-timeline: scroll(self inline)) {
+  @keyframes ll-edge-fade {
+    0% {
+      --ll-fade-l: 0px;
+      --ll-fade-r: 1.25rem;
+    }
+
+    4% {
+      --ll-fade-l: 1.25rem;
+    }
+
+    96% {
+      --ll-fade-r: 1.25rem;
+    }
+
+    100% {
+      --ll-fade-l: 1.25rem;
+      --ll-fade-r: 0px;
+    }
+  }
+
+  :root :is(.recipe-scroll, .poreia-scroll-chips, .poreia-google__photos, .theoria-category-row, .theoria-shelf-tabs, .mneme-filters, .search-scope, .hydros-history__items) {
+    animation: ll-edge-fade linear both;
+    animation-timeline: scroll(self inline);
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 var(--ll-fade-l), #000 calc(100% - var(--ll-fade-r)), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 var(--ll-fade-l), #000 calc(100% - var(--ll-fade-r)), transparent 100%);
+  }
+}
+
+/* ---------- Writing fields grow with the words ---------- */
+@supports (field-sizing: content) {
+  :root :is(.journal__input, .mneme-body-input) {
+    field-sizing: content;
+  }
+
+  :root .mneme-body-input {
+    min-height: 18rem;
+  }
+}
+
+/* ---------- A grouped list rises into place, one row after another ----------
+   Only on a page change (the `data-enter` mark lasts 0.7 s), only the first rows, and never on reduced motion. */
+@supports (width: calc(sibling-index() * 1px)) {
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes ll-row-rise {
+      from {
+        opacity: 0;
+        translate: 0 0.4rem;
+      }
+    }
+
+    :root[data-enter] :is(.rows, .settings-card--rows, .kind-list, .reflect-places, .today-group) > :nth-child(-n + 9) {
+      animation: ll-row-rise 340ms var(--ll-spring, ease) both;
+      animation-delay: calc(60ms + (sibling-index() - 1) * 28ms);
+    }
+  }
+}

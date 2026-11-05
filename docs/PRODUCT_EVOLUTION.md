@@ -127,3 +127,4 @@ Proposals 2 and 3 rejected by the owner. Proposal 1 approved and built (see the 
   1400 ms (before: 1.37 to 1.42 s, over). Checked in a browser: search, the command palette and the item sheet open
   within the first second as before. Left alone on purpose: tab pages (Days ahead, Compass), which a view transition
   needs in hand, and the quick-sort and add-event sheets, which their pages import by name.
+- Nov 5: visual pass (`src/lamplight/modern.css`): folds animate, scroll padding clears the bars, sideways rows snap and fade at the side with more, Journal and Mneme fields grow (`field-sizing`), grouped lists rise in on a page change. Rejected after measuring: `content-visibility: auto` on long lists (a 600-row scroll cost 15 s of work against 3.5 s without it at 4x CPU). Skipped as no change: `@starting-style` on sheets (they already animate in and out). Search fields everywhere now say Search.

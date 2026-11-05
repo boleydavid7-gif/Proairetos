@@ -3,6 +3,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-05',
     lines: [
+      'Folds open and close smoothly, long note fields grow as you write, sideways rows fade where more is hidden, and lists rise in on a new page.',
       'Core is also yearly, $149.99. Share a link and take 20% off Core for a year when someone you share with subscribes.',
     ],
   },

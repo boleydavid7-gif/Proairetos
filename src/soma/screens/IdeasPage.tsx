@@ -69,7 +69,7 @@ export default function IdeasPanel({ nav }: { nav: Nav }) {
         }}
       >
         <SearchIcon size={20} />
-        <input aria-label="Search for ideas" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <input aria-label="Search for ideas" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} />
       </form>
       <div className="chip-row" role="group" aria-label="Kinds">
         {shelves.map((each) => (

@@ -67,7 +67,8 @@ export default function JournalPage() {
   // The page grows with the writing.
   useEffect(() => {
     const el = field.current;
-    if (!el) return;
+    // Browsers with `field-sizing` grow it themselves (modern.css).
+    if (!el || (typeof CSS !== 'undefined' && CSS.supports('field-sizing', 'content'))) return;
     el.style.height = 'auto';
     el.style.height = `${Math.max(el.scrollHeight, 240)}px`;
   }, [body]);

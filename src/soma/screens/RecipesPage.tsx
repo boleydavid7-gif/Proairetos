@@ -73,7 +73,7 @@ export default function RecipesPage({ nav, query: start, find: startFind }: { na
         <>
       <div className="soma-search">
         <SearchIcon size={20} />
-        <input aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <input aria-label="Search your recipes" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} />
       </div>
       {shelves.length > 1 && (
         <div className="chip-row" role="group" aria-label="Shelves">

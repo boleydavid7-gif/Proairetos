@@ -18,7 +18,7 @@ export default function PeoplePage({ nav }: { nav: PhiliaNav }) {
         <h1 className="title">People</h1>
         <span data-header-actions><IconButton className="round-button" label="Add someone" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={22} /></IconButton></span>
       </div>
-      {all.length > 6 && <input className="input" type="search" aria-label="Search people" value={query} onChange={(event) => setQuery(event.target.value)} />}
+      {all.length > 6 && <input className="input" type="search" aria-label="Search people" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} />}
       {all.length === 0 ? (
         <Empty icon={<PeopleIcon size={28} />} title="No one here yet" />
       ) : shown.length === 0 ? (

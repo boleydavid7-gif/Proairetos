@@ -16,6 +16,7 @@
 @import '../lamplight/undo.css';
 @import '../lamplight/charts.css';
 @import '../lamplight/identity.css';
+@import '../lamplight/modern.css';
 
 /* ---------- Type scale ----------
    Eight sizes for every text in the family's shared styles; nothing in between. */

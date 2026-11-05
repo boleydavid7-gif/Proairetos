@@ -357,7 +357,7 @@ export default function LogPage({ nav }: { nav: Nav }) {
               <span className="card__eyebrow">{filteredHistory.length} {filteredHistory.length === 1 ? 'workout' : 'workouts'}</span>
             </div>
             <div className="progress__filters">
-              <input className="input" type="search" value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} aria-label="Search workouts" />
+              <input className="input" type="search" value={historySearch} onChange={(event) => setHistorySearch(event.target.value)} aria-label="Search workouts" placeholder="Search" />
               <select className="input" value={historyActivity} onChange={(event) => setHistoryActivity(event.target.value as HistoryActivity)} aria-label="Filter by activity">
                 <option value="all">All activities</option>
                 {(Object.keys(activities) as Activity[]).map((activity) => <option key={activity} value={activity}>{activities[activity]}</option>)}

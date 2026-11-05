@@ -174,7 +174,7 @@ function PickRecipe({ recipes, title, startMark, onClose, onPick }: { recipes: R
     <div className="sheet-back" onClick={onClose}>
       <div className="sheet" role="dialog" aria-label={`A recipe for ${title}`} onClick={(event) => event.stopPropagation()}>
         <h2 className="sheet__title">{title}</h2>
-        <input className="input" aria-label="Search your recipes" value={query} onChange={(event) => setQuery(event.target.value)} />
+        <input className="input" aria-label="Search your recipes" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} />
         <div className="chip-grid" role="group" aria-label="Your marks">
           {marks.map((each) => (
             <button key={each.id} type="button" className="chip" aria-pressed={mark === each.id} onClick={() => setMark(mark === each.id ? undefined : each.id)}>

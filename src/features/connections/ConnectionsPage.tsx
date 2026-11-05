@@ -600,7 +600,7 @@ export default function ConnectionsPage() {
         <label className="connections-search">
           <Sym name="search" size={19} />
           <span className="sr-only">Search your library</span>
-          <input type="search" aria-label="Search your library" value={search} onChange={(event) => setSearch(event.target.value)} />
+          <input type="search" aria-label="Search your library" placeholder="Search" value={search} onChange={(event) => setSearch(event.target.value)} />
           {search && <button type="button" className="connections-clear" aria-label="Clear search" onClick={() => setSearch('')}><Sym name="close" size={16} /></button>}
         </label>
       </div>
