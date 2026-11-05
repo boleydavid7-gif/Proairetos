@@ -41,13 +41,39 @@ consumer's own list still needs the id (the parity test says which).
    switches in Settings > Notifications, `placeFor`, the worker's waitlist and prefetch lists read the manifest;
    the worker and the reminder function read the generated copies. Snapshot tests hold names, lines, colors,
    icons and Store details to what they were.
-   Preserved on purpose, flagged for the owner: Mneme is not among the windows told apart from Proairetos when a
-   notice is tapped (`surfaces.noticeWindow`); an iPhone push names the retired app "Praxis" while the worker
-   names it "Theoria"; Poreia's push icon is its drawn `icon.svg` (`notices.pushIcon`); a tap on a Hydros notice has
-   no rule of its own in `placeFor` and goes through Proairetos. None of these was changed.
-3. Scripts (speed, layout, visual, alone checks, front pages).
+   The four notification inconsistencies found here are listed under Known issues; none is changed.
+3. Scripts (done): the speed, layout, visual, smoke and alone checks take their apps from `surfaces.<check>`; the
+   alone check takes names from the manifest; `scripts/welcome/build.mjs` takes each page's name, address, icon,
+   colors, line and description from the manifest and keeps only the page's own words (category, card, points). It
+   stops on a page for an app that is not in the manifest or is retired, and lists active apps without a page.
+   The pages it writes are byte-identical to before. Adding an app to the manifest is enough for every check; its
+   front page also needs one entry of its own words in `build.mjs`. Special handling stays where it was
+   (Proairetos at the root in the speed and layout checks, its own page colors, Poreia's page ink, the dock
+   selectors, the seeded settings in the smoke check).
 
 ## Current warnings
 
 Mneme has no PNG icons, screenshots or front page; Meletē has no maskable icon or front page; Hydros has no front
 page; several apps have more screenshots on disk than the manifest counts; most apps have no `declares` yet.
+
+## Known issues for later review
+
+Found while moving the notification lists into the manifest. Each is preserved exactly as it behaved, and none is
+a decision that it should stay. (Wave 2's report said three; there are four.) Review each with the owner before
+anything changes.
+
+1. **Mneme's notice windows.** Mneme is not among the apps whose open windows are told apart from Proairetos when a
+   notice is tapped (`surfaces.noticeWindow` is false). A Mneme window may count as a Proairetos window. Mneme has no
+   reminder source today, so nothing reaches it yet; this matters if it gets one.
+2. **Two names for the retired app.** The service worker names Praxis's notices "Theoria" (their reading blocks
+   live there); an iPhone's own push names the same source "Praxis" (`pushNames`).
+3. **Hydros has no tap rule.** `placeFor` has no case for a Hydros notice, so a tap goes through Proairetos
+   (`/?open=hydros`) instead of opening `/hydros/` directly. The service worker and `core/notify/place.ts` agree.
+4. **Poreia's push icon.** An iPhone's own push for Poreia uses its drawn `/poreia/icon.svg`; every other app uses
+   its `icons/icon-192.png` (`notices.pushIcon`). SVG icons in push notices are not reliably supported.
+
+## Checks that still fail on purpose
+
+`scripts/family-check/together.mjs`: 20 pass and 13 fail. The 13 fail before and after every wave (click-through steps
+written before the Store and the Nov 5 changes to Today and the list pages). They are documented, not hidden, and are
+repaired separately. Its only edit is the Store owner sign it now seeds.

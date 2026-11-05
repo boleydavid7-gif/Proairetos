@@ -8,12 +8,14 @@
 // Motion is reduced and the clock fixed, so two runs of the same build match.
 import { createRequire } from 'node:module';
 import { execSync } from 'node:child_process';
+import { surfaceIds } from '../apps/lib.mjs';
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)(`${execSync('npm root -g').toString().trim()}/playwright`));
 
-const ALL = ['proairetos', 'askesis', 'soma', 'oikonomia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia'];
+// The apps this check covers come from the manifest (`surfaces.visual`).
+const ALL = await surfaceIds('visual');
 const SIZES = { phone: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
 const out = process.argv[2] || '.visual/now';
 const apps = process.env.APPS ? process.env.APPS.split(',') : ALL;

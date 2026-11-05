@@ -34,3 +34,9 @@ export function diskFiles() {
 }
 
 export { pathToFileURL };
+
+/** The ids of the apps a check covers, in manifest order (`surfaces.<flag>` in src/core/apps/manifest.ts). */
+export async function surfaceIds(flag) {
+  const { APPS } = await loadRegistry();
+  return APPS.filter((app) => app.surfaces[flag]).map((app) => app.id);
+}
