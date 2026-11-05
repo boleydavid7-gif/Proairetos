@@ -583,8 +583,6 @@
 .section-head .button-main {
   width: auto;
   flex: none;
-  min-height: 44px;
-  padding-inline: 20px;
 }
 
 /* ---------- A thing's own page: a head with its mark, then its details as label and value ---------- */

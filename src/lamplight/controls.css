@@ -140,3 +140,40 @@
   background: var(--ll-tonal);
   color: var(--ll-on-tonal);
 }
+
+/* ---------- One button size (Nov 5, after Apple's: 50 pt prominent, 44 pt hit area, smaller inline) ----------
+   A button that fills the width is 48 px tall; one that sits beside a title or another button is 40 px,
+   its tap area still 44 px (a pseudo-element reaches 2 px past the edge). Text 15 px. */
+:root :is(.button-main, .button-quiet, .button-danger, .button-accent, .mneme-primary, .mneme-secondary, .theoria-primary-button, .theoria-secondary-button) {
+  min-height: var(--ll-button-h, 48px);
+  padding-block: 0;
+  padding-inline: 20px;
+  font-size: var(--text-sm, 0.9375rem);
+}
+
+:root :is(.section-head, .mneme-heading-row, .page-top) > :is(.button-main, .button-quiet),
+:root :is(.section-head, .mneme-heading-row) :is(.button-row) > :is(.button-main, .button-quiet),
+:root .ll-button-inline {
+  position: relative;
+  width: auto;
+  flex: none;
+  min-height: var(--ll-button-h-inline, 40px);
+  padding-inline: 16px;
+}
+
+:root :is(.section-head, .mneme-heading-row, .page-top) > :is(.button-main, .button-quiet)::after {
+  content: '';
+  position: absolute;
+  inset: -2px 0;
+}
+
+:root .mneme-record-button {
+  min-height: var(--ll-button-h, 48px);
+  padding: 0 20px;
+  font-size: var(--text-sm, 0.9375rem);
+}
+
+:root .mneme-capture-modes button {
+  min-height: var(--ll-button-h-inline, 40px);
+  padding-block: 0;
+}

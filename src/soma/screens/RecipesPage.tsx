@@ -50,8 +50,8 @@ export default function RecipesPage({ nav, query: start, find: startFind }: { na
       <div className="section-head">
         <h1 className="title">Recipes</h1>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <button type="button" className="button-quiet" aria-label="Import a recipe" onClick={() => nav.go({ name: 'import' })}><LinkIcon size={18} /></button>
-          <button type="button" className="button-main" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={18} />Add</button>
+          <button type="button" className="button-quiet ll-button-inline" aria-label="Import a recipe" onClick={() => nav.go({ name: 'import' })}><LinkIcon size={18} /></button>
+          <button type="button" className="button-main ll-button-inline" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={18} />Add</button>
         </div>
       </div>
       <Segmented
