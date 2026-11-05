@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import IconButton from '../../components/ui/IconButton';
 import { ChevronIcon, PeopleIcon, PlusIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import type { PhiliaNav } from '../app/App';
@@ -16,7 +15,7 @@ export default function PeoplePage({ nav }: { nav: PhiliaNav }) {
     <div className="page philia-page">
       <div className="page-top section-head">
         <h1 className="title">People</h1>
-        <span data-header-actions><IconButton className="round-button" label="Add someone" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={22} /></IconButton></span>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={18} />Add</button>
       </div>
       {all.length > 6 && <input className="input" type="search" aria-label="Search people" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} />}
       {all.length === 0 ? (

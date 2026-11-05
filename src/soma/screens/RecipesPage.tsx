@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import { SearchIcon, BookIcon, LinkIcon, PlusIcon } from '../app/icons';
-import IconButton from '../../components/ui/IconButton';
 import IdeasPanel from './IdeasPage';
 import DishImage from '../app/DishImage';
 import { useFoodChoices } from '../data/foodChoices';
@@ -47,16 +46,14 @@ export default function RecipesPage({ nav, query: start, find: startFind }: { na
     <div className="page">
       <div className="page-top">
         <Brand />
-        <span data-header-actions>
-          <IconButton className="round-button" label="Import a recipe" onClick={() => nav.go({ name: 'import' })}>
-            <LinkIcon size={22} />
-          </IconButton>
-          <IconButton className="round-button" label="Add a recipe" onClick={() => nav.go({ name: 'edit' })}>
-            <PlusIcon size={22} />
-          </IconButton>
-        </span>
       </div>
-      <h1 className="title">Recipes</h1>
+      <div className="section-head">
+        <h1 className="title">Recipes</h1>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <button type="button" className="button-quiet" aria-label="Import a recipe" onClick={() => nav.go({ name: 'import' })}><LinkIcon size={18} /></button>
+          <button type="button" className="button-main" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={18} />Add</button>
+        </div>
+      </div>
       <Segmented
         label="Recipes"
         value={part}

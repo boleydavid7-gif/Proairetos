@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
-import { AppMark, PlusIcon, SearchIcon } from '../../app/family/icons';
+import { AppMark } from '../../app/family/icons';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/phyton-stoic-wide.webp';
@@ -80,16 +80,11 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
         {all.length === 0 ? (
           <section className="card first-run">
             <h2 className="card__title">No plants yet</h2>
-            <div className="button-row">
-              <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add a plant</button>
-              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'lookup' })}><SearchIcon size={18} />Look up</button>
-            </div>
           </section>
         ) : (
           <>
             <div className="section-head">
               <h2>Check the soil</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'add' })}>Add</button>
             </div>
             {groups.now.length ? <div className="ll-lit-wrap" data-ll-lit><PlantList plants={groups.now} today={today} onOpen={open} /></div> : <p className="muted">Nothing today.</p>}
             {feeding.length > 0 && (

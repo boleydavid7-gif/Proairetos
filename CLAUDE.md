@@ -1795,3 +1795,4 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
 - Travelers (trip form, More) use `CountStepper` (`components/CountStepper.tsx`, the family `.stepper`: − value +, 1-20); a typed
   number field snapped an emptied value back to 1, so 1 could not be replaced.
 - Links: `?open=trip:ID|add|booking:TRIP|booked:BOOKING|plan:PLAN|join:LIST|documents|shared|explore|time|more`.
+- Add and search live on the list page (the owner's rule, Nov 5): every app's Add is the same `button-main` "+ Add" in the page's title row (`page-top section-head`), never a round button copied into the phone top bar (no `data-header-actions` for Add) and never in the pill; Search sits beside it only on the page that lists the thing (Phyton's Plants). Today (Home) is a quick look: no Add buttons, no Add links, no ideas or setup cards (Ktema's upkeep ideas and Add upkeep are on Things). Empty Today shows only its title.

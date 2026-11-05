@@ -1,5 +1,4 @@
 import { PlusIcon, VisitIcon } from '../../app/family/icons';
-import IconButton from '../../components/ui/IconButton';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
@@ -29,7 +28,7 @@ export default function VisitsPage({ nav }: { nav: TherapeiaNav }) {
     <div className="page therapeia-page">
       <div className="page-top section-head">
         <h1 className="title">Visits</h1>
-        <span data-header-actions><IconButton className="round-button" label="Add a visit" onClick={() => nav.go({ name: 'visit' })}><PlusIcon size={22} /></IconButton></span>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'visit' })}><PlusIcon size={18} />Add</button>
       </div>
       {coming.length ? (
         <ul className="chore-list">{coming.map((visit) => <VisitRow key={visit.id} visit={visit} today={today} onOpen={() => nav.go({ name: 'visit', id: visit.id })} />)}</ul>

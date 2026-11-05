@@ -47,8 +47,7 @@ export default function NotesPage({ nav, initial }: { nav: MnemeNav; initial?: F
   return (
     <FileDropZone label="Drop text files to import" onFiles={(files) => void importFiles(files)}>
     <main className="mneme-page mneme-notes">
-      <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></div>
-      <div className="mneme-heading-row"><h1>Notes</h1></div>
+      <div className="mneme-heading-row"><h1>Notes</h1><button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={18} />Add</button></div>
       <label className="mneme-search"><SearchIcon size={22} /><input aria-label="Search notes" placeholder="Search" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
       <div className="mneme-filters" role="tablist" aria-label="Note filters">
         {FILTERS.map((item) => <button key={item.id} type="button" role="tab" aria-selected={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}</button>)}
