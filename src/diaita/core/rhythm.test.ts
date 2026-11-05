@@ -58,10 +58,10 @@ describe('sleep', () => {
   it('sleeps after each night once home, and briefly after the last', () => {
     const sleeps = mainSleeps('2026-10-05', '2026-10-08', nights, defaultRhythm);
     const afterNights = sleeps.filter((sleep) => sleep.after !== 'evening');
-    expect(afterNights.map((sleep) => clock(sleep.start))).toEqual(['07:30', '07:30', '07:30']);
+    expect(afterNights.map((sleep) => clock(sleep.start))).toEqual(['08:00', '08:00', '08:00']);
     expect(afterNights.map((sleep) => sleep.after)).toEqual(['night', 'night', 'last-night']);
-    expect(clock(afterNights[0].end)).toBe('15:00');
-    expect(clock(afterNights[2].end)).toBe('11:30');
+    expect(clock(afterNights[0].end)).toBe('15:30');
+    expect(clock(afterNights[2].end)).toBe('12:00');
     // A full night follows the short sleep.
     const back = sleeps.find((sleep) => sleep.after === 'evening' && sleep.start.getDate() === 8)!;
     expect(clock(back.start)).toBe('22:30');
@@ -92,7 +92,7 @@ describe('the plan around nights', () => {
 
   it('stops caffeine six hours before each sleep', () => {
     const lastNight = of('caffeine').find((entry) => entry.start.getDate() === 6);
-    expect(lastNight && clock(lastNight.start)).toBe('01:30');
+    expect(lastNight && clock(lastNight.start)).toBe('02:00');
   });
 
   it('cites a source on every suggestion', () => {
@@ -202,5 +202,21 @@ describe('what is offered, not assumed', () => {
     const kinds = new Set(planBetween('2026-10-10', '2026-10-10', [], defaultRhythm).map((entry) => entry.kind));
     expect(kinds.has('light')).toBe(false);
     expect(kinds.has('meal')).toBe(false);
+  });
+});
+
+describe('time to settle after work', () => {
+  const afterNight = (settings: typeof defaultRhythm) => mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings).find((sleep) => sleep.after === 'last-night' || sleep.after === 'night');
+
+  it('starts sleep after the trip and the settling time, not straight from the end of the shift', () => {
+    const sleep = afterNight({ ...defaultRhythm });
+    expect(sleep && clock(sleep.start)).toBe('08:00');
+  });
+
+  it('follows the person’s own settling time', () => {
+    const none = afterNight({ ...defaultRhythm, settleMinutes: 0 });
+    const long = afterNight({ ...defaultRhythm, settleMinutes: 60 });
+    expect(none && clock(none.start)).toBe('07:30');
+    expect(long && clock(long.start)).toBe('08:30');
   });
 });

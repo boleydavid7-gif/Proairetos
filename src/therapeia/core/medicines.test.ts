@@ -47,11 +47,11 @@ describe('times around sleep', () => {
   });
 
   it('moves with the sleep after a night shift', () => {
-    // Between nights: asleep 07:30 to 15:00, so waking is at 15:00 and bedtime the next morning after work.
-    expect(clock(doseAt({ kind: 'wake', after: 30 }, '2026-10-06', anchors))).toBe('15:30');
+    // Between nights: asleep 08:00 (home, then 30 minutes to settle) to 15:30, so waking is at 15:30 and bedtime the next morning after work.
+    expect(clock(doseAt({ kind: 'wake', after: 30 }, '2026-10-06', anchors))).toBe('16:00');
     const bed = doseAt({ kind: 'sleep', before: 0 }, '2026-10-06', anchors);
     expect(bed.getDate()).toBe(7);
-    expect(clock(bed)).toBe('07:30');
+    expect(clock(bed)).toBe('08:00');
   });
 
   it('falls back to 07:00 and 22:30 with no sleep known', () => {

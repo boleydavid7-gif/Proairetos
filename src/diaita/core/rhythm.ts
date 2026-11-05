@@ -20,6 +20,8 @@ export type RhythmSettings = {
   cutoffHours: number;
   /** Minutes from leaving work to being home. */
   commuteMinutes: number;
+  /** Minutes from getting home after work to sleep: a meal, a shower, quiet. Sleep never starts sooner than this plus the trip. */
+  settleMinutes: number;
   /** Minutes before sleep to wind down (0 for none). */
   windDownMinutes: number;
   /** Early-evening time for writing worries down before bed. */
@@ -35,6 +37,7 @@ export const defaultRhythm: RhythmSettings = {
   sleepHours: 7.5,
   cutoffHours: 6,
   commuteMinutes: 30,
+  settleMinutes: 30,
   windDownMinutes: 45,
   worryTime: '18:00',
   readyMinutes: 60,
@@ -127,7 +130,8 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
   for (let date = addDays(from, -1); date <= until; date = addDays(date, 1)) {
     const night = all.find((block) => startsOn(block, date) && isNight(block));
     if (night) {
-      const start = later(night.end, settings.commuteMinutes);
+      // Home, then time to settle, before sleep: never straight from the end of the shift.
+      const start = later(night.end, settings.commuteMinutes + settings.settleMinutes);
       const nextNight = all.find((block) => block !== night && isNight(block) && block.start > night.end && block.start.getTime() - night.end.getTime() < 24 * HOUR);
       if (nextNight) {
         // Up in time to eat and nap before the next night if it wants one.
@@ -141,10 +145,10 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     }
     let start = atTime(date, settings.bedtime);
     if (start.getHours() < 12) start = atTime(addDays(date, 1), settings.bedtime);
-    // Finished late: home, then a short wind-down.
+    // Finished late: home, then time to settle.
     for (const block of all) {
-      if (block.end > later(start, -(settings.commuteMinutes + 30)) && block.start < start) {
-        start = new Date(Math.max(start.getTime(), later(block.end, settings.commuteMinutes + 30).getTime()));
+      if (block.end > later(start, -(settings.commuteMinutes + settings.settleMinutes)) && block.start < start) {
+        start = new Date(Math.max(start.getTime(), later(block.end, settings.commuteMinutes + settings.settleMinutes).getTime()));
       }
     }
     // The night before a first night shift: two hours later to bed and up, so the first night comes easier.
