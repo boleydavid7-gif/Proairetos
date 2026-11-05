@@ -1,6 +1,12 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-05',
+    lines: [
+      'Noesis is in the Store as a premium app: read your books, keep highlights and notes, and follow your questions.',
+    ],
+  },
+  {
     date: '2026-11-04',
     lines: [
       'Ktema: things and upkeep can be shared with your household, with who did each upkeep. Documents, photos and files stay private.',

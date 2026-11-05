@@ -24,13 +24,14 @@ export type StoreEnv = {
   OWNER_EMAILS?: string;
 };
 
-export const PLAN_PRICES = { core: 999, cloud: 299 } as const;
+export const PLAN_PRICES = { core: 1299, cloud: 299, noesis: 699 } as const;
 export const PRICE_CENTS = PLAN_PRICES.core;
 export const CURRENCY = 'usd';
 
 export const STORE_PLANS: Record<string, { name: string; cents: number; apps: string[] }> = {
   core: { name: 'Proairetos Core', cents: PLAN_PRICES.core, apps: ['core'] },
   cloud: { name: 'Proairetos cloud sync', cents: PLAN_PRICES.cloud, apps: ['cloud'] },
+  noesis: { name: 'Noesis', cents: PLAN_PRICES.noesis, apps: ['noesis'] },
 };
 
 type Fetcher = typeof fetch;
@@ -177,12 +178,12 @@ export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fe
   if (!person) return reply(401, { error: 'Sign in to buy an app.' });
   const owner = isOwnerEmail(env, person.email);
   const tester = !owner && (isTester(env, person.email) || Boolean(await temporaryExpiry(env, person.email, fetcher)));
-  if (owner || (tester && app !== 'cloud')) return reply(200, { owned: true, tester });
+  const premium = app === 'cloud' || app === 'noesis';
+  if (owner || (tester && !premium)) return reply(200, { owned: true, tester });
   if (tester && app === 'cloud') return reply(403, { error: 'Beta access includes the apps, but not Proairetos cloud. Choose local or your own cloud storage.' });
-  const existing = await ownsAny(env, fetcher, person.id, ['core', 'soma', 'phyton', 'cloud']);
-  if (app === 'core' && existing.includes('core')) return reply(200, { owned: true });
-  if (app === 'cloud' && existing.includes('cloud')) return reply(200, { owned: true });
-  if (app === 'core' && existing.includes('core')) return reply(200, { owned: true });
+  if (tester && app === 'noesis') return reply(403, { error: 'Beta access includes the apps, but not Noesis.' });
+  const existing = await ownsAny(env, fetcher, person.id, ['core', 'soma', 'phyton', 'cloud', 'noesis']);
+  if (existing.includes(app)) return reply(200, { owned: true });
   const cents = plan.cents;
   const purchaseApps = plan.apps;
   const origin = new URL(request.url).origin;
