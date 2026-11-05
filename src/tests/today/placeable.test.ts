@@ -10,7 +10,7 @@ const item = (id: string, fields: Partial<LifeItem> = {}): LifeItem => ({
 describe('what can go into open time', () => {
   const items = [
     item('a'),
-    item('bb', { light: true }),
+    item('bb'),
     item('ccc', { pickedFor: '2026-10-02' }),
     item('dddd', { plannedFor: '2026-10-02' }),
     item('timed', { scheduledAt: '2026-10-02T15:00:00Z' }),
@@ -19,7 +19,7 @@ describe('what can go into open time', () => {
   ];
 
   it('groups by the person’s own choices and leaves out what already has a time', () => {
-    const groups = placeableGroups(items, '2026-10-02', undefined);
+    const groups = placeableGroups(items, '2026-10-02');
     expect(groups.map((g) => [g.id, g.items.map((i) => i.id)])).toEqual([
       ['path', ['ccc']],
       ['planned', ['dddd']],
@@ -27,9 +27,4 @@ describe('what can go into open time', () => {
     ]);
   });
 
-  it('shows light things first only when the person says energy is low', () => {
-    const groups = placeableGroups(items, '2026-10-02', 'low');
-    expect(groups.map((g) => g.id)).toEqual(['path', 'planned', 'light', 'rest']);
-    expect(groups[2].items.map((i) => i.id)).toEqual(['bb']);
-  });
 });

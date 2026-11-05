@@ -2,14 +2,13 @@ import { useEffect, useState } from 'react';
 import type { CompassStatement } from '../../core/compass/types';
 import { addDays, parseLocalDate } from '../../core/scheduling/dates';
 import { scheduleBetween } from '../../askesis/data/proairetosSchedule';
-import { energyFor, type Energy } from '../../data/storage/preferences';
 import { openDatabase, stores } from '../../data/storage/indexeddb/database';
 import { weatherSettings } from '../../app/weather/weather';
 import type { Block } from '../core/dayShape';
 
 /**
  * What Soma reads from Proairetos on this device (never writes): the
- * person's schedule, the energy word they chose for today, the people who
+ * person's schedule, the people who
  * matter to them (Compass), and the place they gave for the weather.
  */
 export async function blocksAround(today: string): Promise<Block[]> {
@@ -35,14 +34,6 @@ export function useBlocks(today: string): Block[] {
     };
   }, [today]);
   return blocks;
-}
-
-export function energyToday(today: string): Energy | undefined {
-  try {
-    return energyFor(today);
-  } catch {
-    return undefined;
-  }
 }
 
 /** Names of the people in Compass, for "Cooked for". */

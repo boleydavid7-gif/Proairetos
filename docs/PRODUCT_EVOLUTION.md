@@ -70,3 +70,4 @@ All three proposed, waiting for approval.
   (`useAppPermissions`, `SwipeRow off`). Test `src/tests/household/childControls.test.tsx`.
 - Nov 5: proposal 3 (several to-dos into open time) approved and built: Today's Open time sheet has Several; picks stack in
   30-minute steps from the chosen time (`stackedStarts`), one Set, one undo. Tests `src/tests/rhythm/stackedStarts.test.ts`.
+- Nov 5 (owner's direction, unplanned): the energy word and the "takes little energy" mark are removed everywhere (Open time, item sheet, Today's to-do, Diaita check-in, What's included, Soma's link to it). Rejected for good: anything that rates how much a person can do.

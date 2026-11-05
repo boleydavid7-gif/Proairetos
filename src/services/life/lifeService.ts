@@ -27,7 +27,6 @@ import {
   setCarried,
   setCheckBack,
   setImportant,
-  setLight,
   setRemind,
   setGoal,
   setLook,
@@ -348,9 +347,6 @@ export function createLifeService({ userId, context, items, events }: LifeServic
       return apply(id, (item) => setPlannedMinutes(context, item, minutes));
     },
 
-    setLight(id: string, light: boolean) {
-      return apply(id, (item) => setLight(context, item, light));
-    },
 
     setCarried(id: string, carried: boolean) {
       return apply(id, (item) => setCarried(context, item, carried));

@@ -113,9 +113,9 @@ function Picker({ date, items, onClose }: Props & { onClose: () => void }) {
                         />
                         <span className="pick-row__text">
                           <span>{item.title}</span>
-                          {(item.light || linkedValues(item, names).length > 0) && (
+                          {linkedValues(item, names).length > 0 && (
                             <span className="pick-row__detail">
-                              {[item.light ? 'Takes little energy' : '', ...linkedValues(item, names)]
+                              {linkedValues(item, names)
                                 .filter(Boolean)
                                 .join(' · ')}
                             </span>

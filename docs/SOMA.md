@@ -56,7 +56,7 @@ choice: informative, sourced, switchable in More). Served at
 ## A kitchen companion (decide, prepare, nourish)
 
 - **What can I make tonight?** (`TonightPage`, `core/tonight.ts`): time,
-  energy (starts from the Proairetos energy word for today), familiar or new,
+  energy, familiar or new,
   each skippable; three of the person's own recipes at a time, kitchen first,
   plain facts ("30 min · uses spinach · last cooked Sep 20"), "Some others".
 - **Your day, from Proairetos** (`app/proairetos.ts`, `core/dayShape.ts`):

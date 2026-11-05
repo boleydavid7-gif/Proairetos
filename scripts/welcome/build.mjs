@@ -79,7 +79,7 @@ const apps = [
   {
     id: 'diaita', name: 'Diaita', icon: '/diaita/icons/icon-192.png', category: 'HealthApplication',
     ground: '#0e1014', accent: '#e2b26e', ink: '#ece8e1',
-    line: 'Sleep and energy, around your schedule',
+    line: 'Sleep, around your schedule',
     card: 'When to sleep, nap, get light, stop caffeine and eat, planned around your schedule.',
     about: 'A daily plan for sleep, naps, light, caffeine and meals that follows your real schedule, night shifts included. Every suggestion links to its source.',
     points: [

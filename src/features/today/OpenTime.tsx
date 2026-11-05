@@ -6,7 +6,6 @@ import type { LifeItem } from '../../core/life-items/types';
 import { stackedStarts, type Span } from '../../core/rhythm/openTime';
 import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
 import { formatTimeOf } from '../schedule/format';
-import EnergyChoice, { useEnergy } from './EnergyChoice';
 import NotForMe from './NotForMe';
 import { placeableGroups } from './placeable';
 import { formatDuration } from './timeline';
@@ -23,9 +22,8 @@ function timeInStretch(time: string, stretch: Span): Date {
 function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: LifeItem[]; today: string; onClose: () => void }) {
   const { dialog, panel, close } = useSheet();
   const { offerUndo } = useOverlays();
-  const energy = useEnergy(today);
   const [time, setTime] = useState(timeValue(stretch.start));
-  const groups = placeableGroups(items, today, energy);
+  const groups = placeableGroups(items, today);
   const at = timeInStretch(time, stretch);
   const fits = at >= stretch.start && at < stretch.end;
   // Several at once: the picks go one after another from the chosen time, in the order they were picked.
@@ -75,8 +73,6 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
           <input type="time" className="field-input" aria-label="Time" value={time} onChange={(event) => setTime(event.target.value)} />
         </label>
         {!fits && <p className="form-error">That time is outside this stretch.</p>}
-
-        <EnergyChoice date={today} />
 
         {all.length > 1 && (
           <button type="button" className="text-link place-several" aria-pressed={several} onClick={() => { setSeveral(!several); setPicked([]); }}>

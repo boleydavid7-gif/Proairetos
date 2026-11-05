@@ -1,5 +1,4 @@
 import type { LifeItem } from '../../core/life-items/types';
-import type { Energy } from '../../data/storage/preferences';
 
 export type PlaceGroup = { id: string; label: string; items: LifeItem[] };
 
@@ -8,11 +7,10 @@ const unplaced = (item: LifeItem) =>
 
 /**
  * What could go into open time, grouped by the person's own choices: their
- * path, what they planned for today, and, when they say energy is low, what
- * they marked as taking little. Nothing is ranked; the rest keeps the order
+ * path and what they planned for today. Nothing is ranked; the rest keeps the order
  * it arrived in.
  */
-export function placeableGroups(items: readonly LifeItem[], today: string, energy: Energy | undefined): PlaceGroup[] {
+export function placeableGroups(items: readonly LifeItem[], today: string): PlaceGroup[] {
   const open = items.filter(unplaced).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   const used = new Set<string>();
   const take = (test: (item: LifeItem) => boolean) => {
@@ -24,9 +22,6 @@ export function placeableGroups(items: readonly LifeItem[], today: string, energ
     { id: 'path', label: 'On today’s to-do', items: take((item) => item.pickedFor === today) },
     { id: 'planned', label: 'Planned for today', items: take((item) => item.plannedFor === today) },
   ];
-  if (energy === 'low' || energy === 'some') {
-    groups.push({ id: 'light', label: 'Takes little energy', items: take((item) => Boolean(item.light)) });
-  }
   groups.push({ id: 'rest', label: 'Everything else', items: take(() => true) });
   return groups.filter((group) => group.items.length > 0);
 }

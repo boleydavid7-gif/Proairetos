@@ -423,7 +423,6 @@ export type TodayPart =
   // Parts elsewhere in the app, chosen in Settings > What's included.
   | 'brain-dump'
   | 'sort-through'
-  | 'energy'
   | 'goals'
   | 'people'
   | 'words'
@@ -576,22 +575,6 @@ export function lighterToday(day: string): boolean {
 
 export function setLighterToday(on: boolean, day = ''): void {
   writeJson(LIGHTER_KEY, on ? day : null);
-}
-
-// ---------- Energy, as the person says it ----------
-
-const ENERGY_KEY = 'proairetos.energy';
-
-export type Energy = 'full' | 'some' | 'low';
-
-/** Set by the person for one day only; it never carries over, and the app never guesses it. */
-export function energyFor(date: string): Energy | undefined {
-  const stored = readJson<{ date: string; energy: Energy }>(ENERGY_KEY);
-  return stored?.date === date ? stored.energy : undefined;
-}
-
-export function setEnergy(date: string, energy: Energy | undefined): void {
-  writeJson(ENERGY_KEY, energy ? { date, energy } : null);
 }
 
 // ---------- Overlaps the person chose to keep ----------

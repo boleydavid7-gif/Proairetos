@@ -1,8 +1,7 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { AppMark, ChevronIcon } from '../../app/family/icons';
-import { energyFor, setEnergy, subscribePreferences, type Energy } from '../../data/storage/preferences';
 import { addDays, toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/diaita-stoic-wide.webp';
 import type { DiaitaNav } from '../app/App';
@@ -10,12 +9,6 @@ import { sleeps, usePlan } from '../app/state';
 import { useSleepSounds } from '../app/sleepSounds';
 import { Timeline, span } from '../app/ui';
 import { DAY_NAMES, checkInOpen, QUALITY_NAMES, clockText, dayKind, entriesOn, hoursText, plannedSleepInto, sleptMinutes, timeText, type Entry, type SleepQuality } from '../core/rhythm';
-
-const ENERGY: { id: Energy; label: string }[] = [
-  { id: 'full', label: 'Plenty' },
-  { id: 'some', label: 'Some' },
-  { id: 'low', label: 'Low' },
-];
 
 /** "7h 30m": short enough to sit beside bedtime and waking. */
 const shortHours = (minutes: number) => {
@@ -49,20 +42,6 @@ function CheckIn({ date, planned, nav }: { date: string; planned?: { bed: string
   const [up, setUp] = useState(planned?.up ?? '07:00');
   const [how, setHow] = useState<SleepQuality>();
   const [changing, setChanging] = useState(false);
-  const energy = useSyncExternalStore(subscribePreferences, () => energyFor(date));
-
-  const energyRow = (
-    <div className="field">
-      <span className="field__label">Energy</span>
-      <div className="chip-row" role="group" aria-label="Energy">
-        {ENERGY.map((option) => (
-          <button key={option.id} type="button" className="chip" aria-pressed={energy === option.id} onClick={() => setEnergy(date, energy === option.id ? undefined : option.id)}>
-            {option.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
 
   if (kept) {
     return (
@@ -73,12 +52,11 @@ function CheckIn({ date, planned, nav }: { date: string; planned?: { bed: string
           <span className="muted">{clockText(kept.bed)}–{clockText(kept.up)}{kept.how ? ` · ${QUALITY_NAMES[kept.how]}` : ''}</span>
           <ChevronIcon size={18} />
         </button>
-        {energyRow}
       </section>
     );
   }
 
-  // One tap keeps the night with the planned times; the times can be changed first, and energy follows once kept.
+  // One tap keeps the night with the planned times; the times can be changed first.
   const keep = (quality?: SleepQuality) => {
     sleeps.put({ id: date, date, bed, up, how: quality });
     offerUndo('Sleep saved', () => sleeps.remove(date));

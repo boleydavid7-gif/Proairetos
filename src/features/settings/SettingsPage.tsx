@@ -562,7 +562,6 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
           { part: 'brain-dump', label: 'Empty your head' },
           { part: 'sort-through', label: 'Sort through' },
           { part: 'gratitude', label: 'Grateful' },
-          { part: 'energy', label: 'Energy' },
         ],
       },
       {

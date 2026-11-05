@@ -8,7 +8,7 @@ import { useServiceData } from '../../app/hooks/useServiceData';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService } from '../../app/services';
 import Attachments from './attachments/Attachments';
-import { CalendarIcon, FeatherIcon, StarIcon } from '../../components/icons/Icons';
+import { CalendarIcon, StarIcon } from '../../components/icons/Icons';
 import { buildIcs } from '../../core/calendar/ics';
 import type { LifeItem, LifeItemStatus, PlanGroup } from '../../core/life-items/types';
 import type { ChosenValue } from '../../core/values/types';
@@ -563,8 +563,7 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
         item.location ||
         item.color ||
         item.planGroup ||
-        item.important ||
-        item.light,
+        item.important,
       ) ||
       (item.valueIds?.length ?? 0) > 0 ||
       item.status === 'WAITING',
@@ -636,18 +635,6 @@ function SheetBody({ item, onClose }: { item: LifeItem; onClose: () => void }) {
             <StarIcon filled={item.important} size={20} />
             <span>{item.important ? 'Marked important' : 'Mark important'}</span>
           </button>
-
-          {shows('energy') && (
-<button
-            type="button"
-            className="toggle-row"
-            aria-pressed={Boolean(item.light)}
-            onClick={() => lifeService.setLight(item.id, !item.light)}
-          >
-            <FeatherIcon size={20} />
-            <span>{item.light ? 'Takes little energy' : 'Mark as taking little energy'}</span>
-          </button>
-)}
 
           <PlanSection item={item} />
 

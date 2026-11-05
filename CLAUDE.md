@@ -50,6 +50,7 @@ rule: **the system records life; it does not interpret life.**
 - Text sweep (Nov 4, after Apple's own settings and apps: a label says what a thing is, a footnote only says what it costs or keeps private): removed intro and how-to lines under titles and switches, tagline subtitles (Reflect, Library), empty-state instructions, reassurance ("That is the whole practice", "What comes next is up to you", "No streaks, no scores"), chart footnotes that restate the chart's title, "What's included" row details except where the label is not clear on its own (On this day, Words), and every placeholder except the sign-in, passphrase and passcode names (search fields included; they keep an `aria-label`). Kept: what a destructive action replaces or deletes, privacy and security notes, sources, safety lines, setup steps, status and error lines. Before adding a line of text to a screen, ask what the screen is worse without.
 - Search fields show the word "Search" with a search icon (Apple's), since a blank box names nothing; every other field has no placeholder. Today's Worth your attention, and Reflect's Recent reflections, leave no heading behind when empty.
 - Weekly product evolution (the owner's standing request, Nov 5): each week research the field, review the apps, propose a short list (app, update, problem, how, why, competitive relevance, complexity) and wait for approval; then build, test, document and record it in `docs/PRODUCT_EVOLUTION.md` (proposed, approved, completed, rejected, worth revisiting). Keep what works; nothing unrelated; no repeats unless something changed.
+- A to-do list, not a measure of the person (the owner's rule, Nov 5): no energy word, no "takes little energy" mark, nothing that rates how much someone can do in a day. Soma's Tonight keeps its own question about how much cooking to take on.
 - Every sheet/screen must be leavable: Close/Cancel, swipe down, back
   gesture. Deleting anything offers undo.
 
@@ -869,9 +870,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `core/life-items/facts.ts`); Today's "Open time"
   (`core/rhythm/openTime.ts`, gaps after blocks, events, set times, quiet
   hours; tap to give something a time, or "Several": pick a few and they go one after another, 30 minutes each from the chosen time (`stackedStarts`), one Set and one undo); overlap notes
-  (`core/rhythm/overlaps.ts`, never moves anything itself); the item's
-  `light` mark and a per-day energy word (`energyFor`, never guessed) that
-  only shows light things first; values beside path picks and "What would
+  (`core/rhythm/overlaps.ts`, never moves anything itself); values beside path picks and "What would
   X look like today?" on an opened value. Insights adds when things got
   done and this period beside the last (plain counts, no arrows).
 - Inner work, offered never pushed: "Think it through"
@@ -1242,7 +1241,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   `grid`) and the Recipes tab offers the three layouts with the selected
   choice retained on the device and in the family backup.
 - Kitchen companion (`docs/SOMA.md`): Tonight (`core/tonight.ts`), your
-  day from the Proairetos schedule and energy word (`app/proairetos.ts`,
+  day from the Proairetos schedule (`app/proairetos.ts`,
   `core/dayShape.ts`, read only), kitchen list in the groceries store
   (`place: 'kitchen'`), loose week (`Recipe.planned`), marks, cook aids
   (`core/cookAids.ts`), named timers on the audio clock, swaps, seasons,
@@ -1327,8 +1326,7 @@ Google Sans Flex, bundled via @fontsource), real Supabase emails and push delive
   early start, later after a late finish, two hours later the night before a first night (Smith/Eastman); an
   evening's sleep, wind-down, last caffeine and last big meal keep their own day (`Entry.day`) even after midnight; an ordinary night is bedtime plus the hours by the wall clock (`laterOnClock`), so a clock change does not move waking (`clockChange.test.ts`). Timeline rows no longer expand source citations: Last caffeine opens Hydros, Worry time opens Reflect, Last big meal opens Soma, and Wind down opens Meditate; other rows are informational. The Sources page keeps the research references. Settings (More) holds bedtime and sleep
   hours, with travel, getting ready, cutoff, wind-down and worry time folded under Details, and the Light and Meals switches, which are off until the person turns them on (the app gives no light or meal advice by default; `defaultRhythm`). The morning check-in (How did you sleep?) opens from the person's own waking for six hours (the end of the last planned main sleep, so a shift pattern sets it; 4:00 to noon when the plan has no sleep), or shows as the kept night once logged (`checkInOpen`); the Two-week experiment card on Sleep shows once there are nights (or a try is running). Grouped by the person's day
-  (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`)
-  and the shared energy word (`setEnergy`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also
+  (`useDays`). Morning check-in: how you slept (Well/Okay/Poorly, optional), bed/up times (`diaita:sleep:DATE`). Week, Day, Sleep log with plain facts (`sleepFacts`), Sources. Sleep also
   offers a chosen 10–20 minute Wind down (`screens/WindDownPage.tsx`) with Meditate's sounds, bell and spoken cues,
   a dim Can’t sleep screen (`screens/CantSleepPage.tsx`), and weekly amount/regularity facts (`sleepWeekFacts`).
   The Sleep page reads in one order: Your sleep (one card: 2-week average and nights logged, this week against the chosen

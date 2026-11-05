@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Nav } from '../app/App';
 import DishImage from '../app/DishImage';
-import { energyToday, useBlocks } from '../app/proairetos';
+import { useBlocks } from '../app/proairetos';
 import { useGroceries, useRecipes, useSettings, useToday } from '../app/state';
 import { BackLink } from '../app/ui';
 import { dayShape } from '../core/dayShape';
@@ -31,9 +31,8 @@ export default function TonightPage({ nav, time: startTime }: { nav: Nav; time?:
   const today = useToday();
   const blocks = useBlocks(today);
   const shape = settings.fitsYourDay ? dayShape(blocks, today, new Date()) : undefined;
-  const fromProairetos = energyToday(today);
   const [time, setTime] = useState<TimeChoice>(startTime);
-  const [energy, setEnergy] = useState<EnergyChoice>(fromProairetos);
+  const [energy, setEnergy] = useState<EnergyChoice>(undefined);
   const [leaning, setLeaning] = useState<Leaning>();
   const kitchen = kitchenNames(groceries);
   const [useKitchen, setUseKitchen] = useState(true);
