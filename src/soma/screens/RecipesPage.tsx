@@ -93,16 +93,7 @@ export default function RecipesPage({ nav, query: start, find: startFind }: { na
         small
       />
       {recipes && recipes.length === 0 ? (
-        <Empty icon={<BookIcon size={28} />} title="No recipes yet">
-          <div className="button-row">
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'import' })}>
-              Import
-            </button>
-            <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit' })}>
-              Add
-            </button>
-          </div>
-        </Empty>
+        <Empty icon={<BookIcon size={28} />} title="No recipes yet" />
       ) : (
         <>
           {shown.length === 0 && recipes && <p className="muted">Nothing matches that.</p>}
