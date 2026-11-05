@@ -86,11 +86,11 @@ describe('the share code', () => {
 
 describe('yearly Core', () => {
   it('is its own price, billed every year, and a monthly owner already has it', async () => {
-    expect(PLAN_PRICES.coreyear).toBe(14999);
+    expect(PLAN_PRICES.coreyear).toBe(10789);
     const { fetcher, stripe } = world();
     await startCheckout(checkout({ app: 'coreyear' }, 'newcomer'), env, fetcher);
     const form = sessionOf(stripe);
-    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('14999');
+    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('10789');
     expect(form.get('line_items[0][price_data][recurring][interval]')).toBe('year');
     expect(form.get('metadata[apps]')).toBe('core');
     expect(form.get('success_url')).toBe('https://proairetos.com/?open=settings:store#bought=core');

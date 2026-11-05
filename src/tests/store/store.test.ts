@@ -40,19 +40,19 @@ async function signedBody(payload: string, secret: string, time: number) {
 describe('the Store on the Worker', () => {
   it('stays free until every secret is set', async () => {
     const free = await handleStoreRequest(new Request('https://proairetos.com/api/store'), {});
-    expect(await free.json()).toEqual({ paid: false, prices: { core: 1299, coreyear: 14999, cloud: 299 }, price: 1299, currency: 'usd' });
+    expect(await free.json()).toEqual({ paid: false, prices: { core: 999, coreyear: 10789, cloud: 299 }, price: 999, currency: 'usd' });
     const paid = await handleStoreRequest(new Request('https://proairetos.com/api/store'), env);
     expect(((await paid.json()) as { paid: boolean }).paid).toBe(true);
     expect((await startCheckout(checkout({ app: 'soma' }), {}, fake().fetcher)).status).toBe(503);
   });
 
-  it('opens monthly Stripe checkout at $12.99 for the family plan, and says when it is already theirs', async () => {
+  it('opens monthly Stripe checkout at $9.99 for the family plan, and says when it is already theirs', async () => {
     const { fetcher, calls } = fake();
     const response = await startCheckout(checkout({ app: 'soma' }), env, fetcher);
     expect(await response.json()).toEqual({ url: 'https://checkout.stripe.com/c/1' });
     const form = new URLSearchParams(String(calls.at(-1)!.init!.body));
     expect(form.get('mode')).toBe('subscription');
-    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('1299');
+    expect(form.get('line_items[0][price_data][unit_amount]')).toBe('999');
     expect(form.get('line_items[0][price_data][recurring][interval]')).toBe('month');
     expect(form.get('metadata[app]')).toBe('core');
     expect(form.get('metadata[user]')).toBe('user-1');
@@ -148,7 +148,7 @@ describe('the Store on the Worker', () => {
 
   it('records a paid checkout once, and leaves unpaid ones alone', async () => {
     const event = (type: string, status = 'paid') =>
-      JSON.stringify({ type, data: { object: { id: 'cs_1', subscription: 'sub_1', payment_status: status, amount_total: 1299, currency: 'usd', metadata: { app: 'core', apps: 'core', user: 'user-1' } } } });
+      JSON.stringify({ type, data: { object: { id: 'cs_1', subscription: 'sub_1', payment_status: status, amount_total: 999, currency: 'usd', metadata: { app: 'core', apps: 'core', user: 'user-1' } } } });
     const post = async (payload: string) =>
       new Request('https://proairetos.com/api/store/webhook', {
         method: 'POST',
@@ -158,7 +158,7 @@ describe('the Store on the Worker', () => {
     const paid = fake();
     expect((await handleWebhook(await post(event('checkout.session.completed')), env, paid.fetcher)).status).toBe(200);
     const insert = paid.calls.find((call) => call.url.includes('on_conflict'))!;
-    expect(JSON.parse(String(insert.init!.body))).toEqual([{ user_id: 'user-1', app: 'core', session_id: 'cs_1:core', subscription_id: 'sub_1', active: true, current_period_end: null, amount: 1299, currency: 'usd' }]);
+    expect(JSON.parse(String(insert.init!.body))).toEqual([{ user_id: 'user-1', app: 'core', session_id: 'cs_1:core', subscription_id: 'sub_1', active: true, current_period_end: null, amount: 999, currency: 'usd' }]);
     expect(new Headers(insert.init!.headers).get('prefer')).toContain('ignore-duplicates');
 
     const unpaid = fake();

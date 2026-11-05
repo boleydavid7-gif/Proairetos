@@ -5,7 +5,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     lines: [
       'Phyton: look up a plant by name and read its light, watering, feeding and pet safety, for about 125 types.',
       'Folds open and close smoothly, long note fields grow as you write, sideways rows fade where more is hidden, and lists rise in on a new page.',
-      'Core is also yearly, $149.99. Share a link and take 20% off Core for a year when someone you share with subscribes.',
+      'Core is $9.99 a month, or $107.89 a year (10% less). Share a link and take 20% off Core for a year when someone you share with subscribes.',
     ],
   },
   {
