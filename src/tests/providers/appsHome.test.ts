@@ -277,3 +277,35 @@ describe('Therapeia on Today', () => {
     expect(await lines(therapeiaHome)).toEqual([]);
   });
 });
+
+describe('Poreia on Today', () => {
+  const trip = (id: string, name: string, start: string, end: string, extra: Record<string, unknown> = {}) => ({ id, name, place: { label: 'Lisbon' }, start, end, travelers: 1, stage: 'booked', notes: 'CANARY-NOTE', createdAt: day, updatedAt: day, ...extra });
+  it('says a trip starting within three days, with its next thing and what is left to pack, never codes or notes', async () => {
+    const { poreiaHome } = await import('../../poreia/providers/home');
+    put('poreia:trip:tr1', trip('tr1', 'Lisbon', '2026-11-07', '2026-11-12'));
+    put('poreia:plan:pn1', { id: 'pn1', tripId: 'tr1', date: '2026-11-07', time: '09:00', title: 'Tram 28', note: 'CANARY-PLAN', createdAt: day, updatedAt: day });
+    put('poreia:booking:b1', { id: 'b1', tripId: 'tr1', kind: 'stay', title: 'Hotel', confirmation: 'CANARY-CODE', createdAt: day, updatedAt: day });
+    put('poreia:pack:pk1', { id: 'pk1', tripId: 'tr1', name: 'Charger', packed: false, createdAt: day });
+    const rows = await lines(poreiaHome);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ title: 'Lisbon in 2 days', detail: 'Tram 28 · 1 to pack', open: '/poreia/?open=trip%3Atr1', icon: 'suitcase', notForMe: 'trips', swipe: { id: 'trip:tr1' } });
+    expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('says a trip under way by where it stands, and shows nothing for a trip further off', async () => {
+    const { poreiaHome } = await import('../../poreia/providers/home');
+    put('poreia:trip:tr1', trip('tr1', 'Lisbon', '2026-11-03', '2026-11-08'));
+    expect((await lines(poreiaHome))[0].title).toMatch(/^Lisbon · /);
+    localStorage.clear();
+    put('poreia:trip:tr2', trip('tr2', 'Oslo', '2026-12-20', '2026-12-25'));
+    expect(await lines(poreiaHome)).toEqual([]);
+  });
+  it('the next thing follows the clock', async () => {
+    const { poreiaHome } = await import('../../poreia/providers/home');
+    put('poreia:trip:tr1', trip('tr1', 'Lisbon', '2026-11-03', '2026-11-08'));
+    put('poreia:plan:a', { id: 'a', tripId: 'tr1', date: TODAY, time: '09:00', title: 'Breakfast', createdAt: day, updatedAt: day });
+    put('poreia:plan:b', { id: 'b', tripId: 'tr1', date: TODAY, time: '19:00', title: 'Dinner', createdAt: day, updatedAt: day });
+    expect((await lines(poreiaHome, { now: new Date(`${TODAY}T08:00:00`) }))[0].detail).toContain('Breakfast');
+    expect((await lines(poreiaHome, { now: new Date(`${TODAY}T12:00:00`) }))[0].detail).toContain('Dinner');
+    expect(poreiaHome.maxAgeMs).toBe(60_000);
+  });
+});
