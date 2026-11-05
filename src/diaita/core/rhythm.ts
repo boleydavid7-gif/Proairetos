@@ -20,8 +20,8 @@ export type RhythmSettings = {
   cutoffHours: number;
   /** Minutes from leaving work to being home. */
   commuteMinutes: number;
-  /** Minutes to unwind after work: a meal, a shower, quiet. When a shift ends near bedtime or at night, sleep never starts sooner than this plus the trip home. */
-  settleMinutes: number;
+  /** Minutes from the end of a shift to the start of sleep (the trip home, a meal, a shower, quiet), for a shift that ends at night or near bedtime. */
+  afterShiftMinutes: number;
   /** Minutes before sleep to wind down (0 for none). */
   windDownMinutes: number;
   /** Early-evening time for writing worries down before bed. */
@@ -37,7 +37,7 @@ export const defaultRhythm: RhythmSettings = {
   sleepHours: 7.5,
   cutoffHours: 6,
   commuteMinutes: 30,
-  settleMinutes: 30,
+  afterShiftMinutes: 60,
   windDownMinutes: 45,
   worryTime: '18:00',
   readyMinutes: 60,
@@ -130,8 +130,8 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
   for (let date = addDays(from, -1); date <= until; date = addDays(date, 1)) {
     const night = all.find((block) => startsOn(block, date) && isNight(block));
     if (night) {
-      // Home, then time to settle, before sleep: never straight from the end of the shift.
-      const start = later(night.end, settings.commuteMinutes + settings.settleMinutes);
+      // The person's own time from the end of the shift to sleep.
+      const start = later(night.end, settings.afterShiftMinutes);
       const nextNight = all.find((block) => block !== night && isNight(block) && block.start > night.end && block.start.getTime() - night.end.getTime() < 24 * HOUR);
       if (nextNight) {
         // Up in time to eat and nap before the next night if it wants one.
@@ -145,10 +145,10 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     }
     let start = atTime(date, settings.bedtime);
     if (start.getHours() < 12) start = atTime(addDays(date, 1), settings.bedtime);
-    // Finished late: home, then time to settle.
+    // Finished late: the same time from the end of the shift to sleep.
     for (const block of all) {
-      if (block.end > later(start, -(settings.commuteMinutes + settings.settleMinutes)) && block.start < start) {
-        start = new Date(Math.max(start.getTime(), later(block.end, settings.commuteMinutes + settings.settleMinutes).getTime()));
+      if (block.end > later(start, -settings.afterShiftMinutes) && block.start < start) {
+        start = new Date(Math.max(start.getTime(), later(block.end, settings.afterShiftMinutes).getTime()));
       }
     }
     // The night before a first night shift: two hours later to bed and up, so the first night comes easier.
