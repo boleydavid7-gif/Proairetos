@@ -52,7 +52,7 @@ describe('who may put lines on Today', () => {
     expect(ran).toBe(1);
   });
   it('refuses an app the manifest does not list for home, a retired app, and a private or shared class', async () => {
-    const soma = provider('ergon', () => [row('c1')], { app: 'soma' as never });
+    const soma = provider('ergon', () => [row('c1')], { app: 'mneme' as never });
     expect((await homeRows([soma], manifest, ctx())).rejected[0].reason).toMatch(/does not list home/);
     const praxis = provider('ergon', () => [], { app: 'praxis' as never });
     expect((await homeRows([praxis], manifest, ctx())).rejected[0].reason).toMatch(/retired/);

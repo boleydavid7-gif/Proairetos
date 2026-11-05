@@ -162,7 +162,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 1,
     },
     search: { privacy: 'own-search', indexes: ['recipe title', 'ingredients', 'recipe notes', 'tags'], excludes: ['grocery lists', 'nutrition'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['recipe titles planned for today'], excludes: ['ingredients', 'notes', 'nutrition', 'grocery lists', 'tags'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

@@ -146,3 +146,23 @@ describe('Ktema on Today', () => {
     expect(await lines(ktemaHome)).toEqual([]);
   });
 });
+
+describe('Soma on Today', () => {
+  const recipe = (id: string, title: string, extra: Record<string, unknown> = {}) => ({ id, title, ingredients: ['CANARY-INGREDIENT'], notes: 'CANARY-NOTE', tags: ['CANARY-TAG'], createdAt: day, updatedAt: day, ...extra });
+  it('says which meals are planned for today and not cooked, by title, in order', async () => {
+    const { somaHome } = await import('../../soma/providers/home');
+    records.somaRecipes = [recipe('r2', 'Lentil soup', { planned: [TODAY] }), recipe('r1', 'Bread', { planned: [TODAY] }), recipe('r3', 'Done', { planned: [TODAY], cooked: [TODAY] }), recipe('r4', 'Tomorrow', { planned: ['2026-11-06'] }), recipe('r5', 'Never planned')];
+    const rows = await lines(somaHome);
+    expect(rows.map((row) => row.title)).toEqual(['Bread', 'Lentil soup']);
+    expect(rows[0]).toMatchObject({ detail: 'Planned for today', open: '/soma/?open=recipe%3Ar1', swipe: { id: 'meal:r1', word: 'Cooked', marks: true } });
+    expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('a pull marks the meal cooked in Soma, and the undo puts it back', async () => {
+    const { somaHome } = await import('../../soma/providers/home');
+    records.somaRecipes = [recipe('r1', 'Bread', { planned: [TODAY] })];
+    expect(await lines(somaHome)).toHaveLength(1);
+    const undo = somaHome.act!({ app: 'soma', kind: 'meal', id: 'r1' }, TODAY);
+    expect(typeof undo).toBe('function');
+    undo();
+  });
+});
