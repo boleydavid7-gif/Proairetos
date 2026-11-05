@@ -378,3 +378,35 @@ describe('Theoria on Today', () => {
     vi.doUnmock('../../app/services');
   });
 });
+
+describe('Hydros on Today', () => {
+  const drink = (id: string, at: string, extra: Record<string, unknown> = {}) => ({ id, kind: 'water', amountOz: 16, caffeineMg: 31337, sugarG: 4242, loggedAt: at, createdAt: at, ...extra });
+  const settings = (extra: Record<string, unknown> = {}) => { localStorage.setItem('hydros:settings-format', '3'); put('hydros:settings', { unit: 'oz', ...extra }); };
+  it('says the amount drunk today, with no daily amount until one is chosen, never drinks, times or caffeine', async () => {
+    const { hydrosHome } = await import('../../hydros/providers/home');
+    settings();
+    records.hydrosDrinks = [drink('d1', '2026-11-05T09:43:00'), drink('d2', '2026-11-04T09:00:00')];
+    const rows = await lines(hydrosHome);
+    expect(rows[0]).toMatchObject({ group: 'practice', detail: '16 oz logged', open: '/hydros/' });
+    expect(rows[0].progress).toBeUndefined();
+    expect(text(rows)).not.toMatch(/31337|4242|09:43/);
+  });
+  it('says the amount against the daily amount the person chose, with a bar', async () => {
+    const { hydrosHome } = await import('../../hydros/providers/home');
+    settings({ goalChosen: true, goalOz: 64 });
+    records.hydrosDrinks = [drink('d1', '2026-11-05T09:00:00')];
+    const rows = await lines(hydrosHome);
+    expect(rows[0].detail).toBe('16 of 64 oz');
+    expect(rows[0].progress).toEqual({ value: 0.25, label: '16 of 64 oz' });
+  });
+  it('says no drinks yet, and counts a night’s drinks on the day the schedule gives them', async () => {
+    const { hydrosHome } = await import('../../hydros/providers/home');
+    settings();
+    records.hydrosDrinks = [];
+    expect((await lines(hydrosHome))[0].detail).toBe('No drinks logged yet');
+    records.hydrosDrinks = [drink('d1', '2026-11-06T01:30:00')];
+    expect((await lines(hydrosHome))[0].detail).toBe('No drinks logged yet');
+    const night = [{ kind: 'COMMITTED', start: new Date('2026-11-05T21:00:00'), end: new Date('2026-11-06T05:00:00'), date: '2026-11-05', label: 'Night', patternName: 'Night', patternId: 'p', id: 'o' }];
+    expect((await lines(hydrosHome, { schedule: async () => night as never }))[0].detail).toBe('16 oz logged');
+  });
+});

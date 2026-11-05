@@ -134,7 +134,8 @@ export const APPS: readonly AppManifest[] = [
     notices: { source: 'hydros', kinds: ['hydration'], switches: [], mainWrites: true },
     today: { group: 'practice', order: 1, parts: ['water'] },
     search: { privacy: 'own-search', windowDays: 30, defaultOn: false, indexes: ['named drink types', 'day summaries'], excludes: ['individual drinks beyond the window', 'drink times', 'caffeine, sugar and electrolytes', 'daily amount'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['the amount drunk today', 'the daily amount, when one was chosen'], excludes: ['individual drinks', 'drink times', 'caffeine, sugar and electrolytes', 'drinks on other days'] },
     details: {
       adds: 'Today shows what you’ve logged for the day.',
       connects: [{ app: 'askesis', text: 'On run days, Hydros can add to your daily amount.' }, { app: 'diaita', text: 'Caffeine after your cutoff time shows next to your sleep.' }],
