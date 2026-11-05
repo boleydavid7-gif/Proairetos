@@ -1,3 +1,4 @@
+import { makeSlicer } from '../../core/yieldToMain';
 import { openRecord, sealRecord } from './keys';
 import {
   laterCollections,
@@ -66,8 +67,10 @@ export function createSyncEngine(deps: {
 
   async function snapshot() {
     const records = new Map<string, { collection: SyncCollection; record: LocalRecord; fp: string }>();
+    const slice = makeSlicer();
     for (const collection of syncCollections) {
       for (const record of await local.list(collection)) {
+        await slice();
         records.set(stateKey(collection, record.id), { collection, record, fp: await fingerprint(record) });
       }
     }
@@ -82,9 +85,11 @@ export function createSyncEngine(deps: {
     const known = await state.fingerprints();
     const current = await snapshot();
 
+    const slice = makeSlicer();
     for (;;) {
       const page = await remote.pull(after, PAGE);
       for (const incoming of page) {
+        await slice();
         const k = stateKey(incoming.collection, incoming.id);
         const here = current.get(k);
         const lastSynced = known.get(k);

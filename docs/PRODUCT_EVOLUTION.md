@@ -149,3 +149,13 @@ Rejected for now: `corner-shape: squircle` (Chromium only, about 65% of people; 
 enhancement), `interestfor` (Chromium only), `Temporal` (Safari holds out; our `dates.ts` works).
 Not yet checked: Navigation API and `CloseWatcher` for the back stack, Background Fetch for the Whisper model,
 Origin Private File System for book files.
+
+### Update log (third round)
+
+- Nov 5: proposal 3 built (`src/core/yieldToMain.ts`: `scheduler.yield()` with a timeout fallback, `makeSlicer` hands the
+  thread back after 24 ms of work). The sync engine's local snapshot and pull loops use it, so a tap is answered during a
+  big sync. Search also keeps each thing's normalized words (`wordsOf`, a WeakMap), so another letter no longer
+  normalizes every record again.
+- Nov 5: proposal 1 looked at and left alone. The scheme already computes a tinted ink for the lamp's fill that
+  reads 4.5:1 or better; `contrast-color()` gives only black or white, a plainer look for no gain, and the person's
+  tag colors draw dots and edges, never text on a fill. Worth revisiting if text ever sits on a chosen color.
