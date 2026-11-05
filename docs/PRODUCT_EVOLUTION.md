@@ -204,3 +204,23 @@ photo or calendar file and reviewed first) and a Week (the real week, free gaps 
 events; the person places sessions, with undo; a session reaches the Proairetos schedule only when asked). Reuses the Praxis
 timer, cards, Theoria's books and the scanner. Facts only: "Exam in 12 days", minutes by day; no scores, streaks, ranking
 or advice. If it grows past a reading app, it could become its own app, working name Melétē (μελέτη: study, practice, care).
+
+### Shelved study idea, research added (Nov 5)
+
+Subjects, not courses: one page for a class, a certification or a self-chosen skill; every part optional (dates, rhythm,
+materials, sessions, cards, a reflection log). From the field and the research (secondary sources, check before building):
+- Spaced practice and practice testing rate highest for learning (Dunlosky et al. 2013); interleaving, self-explanation
+  moderate; rereading, highlighting, summarizing low. Session kinds the person picks: Read, Practice, Recall (cards or a
+  blank page), Explain, Review. The app never picks.
+- Self-regulated learning (Zimmerman): plan, do, reflect, then plan again. The Week is the plan, the timer the doing, the
+  existing one-line reflection (`after-study`) the reflecting; an optional "Next time" line.
+- If-then plans beat plain schedules in the research (about 0.43 against 0.29 effect size): an optional "When I ..., I'll
+  study ..." line in the person's words (Askesis already has `ifThen`).
+- Shovel (study planner): checks the hours tasks need against the time open before the date and warns early. Here only as a
+  plain fact, shown when estimates were given ("about 9 h of work, 6 h open before Fri"), never an alarm or "behind".
+  Syllabus PDF and learning-system calendars (Canvas, Google Classroom, Moodle, Brightspace) come in as files or calendar
+  feeds; the scanner reads a syllabus photo.
+- Anki, RemNote and others moved to FSRS scheduling (reported far more accurate than SM-2, figures unverified); the cards
+  here use five Leitner boxes with two buttons. An FSRS option would need three or four answers; keep "never late".
+- Not here, by the owner's rules: streaks (research is mixed and a streak becomes its own goal), points, leaderboards, a
+  made-up curriculum or "what to learn next".
