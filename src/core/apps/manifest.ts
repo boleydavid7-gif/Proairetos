@@ -234,7 +234,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 1,
     },
     search: { privacy: 'own-search', indexes: ['book title', 'author', 'highlights', 'reading notes'], excludes: ['book text', 'book files'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['minutes read today'], excludes: ['book titles', 'highlights', 'notes', 'book text'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

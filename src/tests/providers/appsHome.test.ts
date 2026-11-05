@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import 'fake-indexeddb/auto';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { APPS } from '../../core/apps';
 import { homeRows, type HomeRow, type HostContext, type Provider } from '../../core/providers';
 
@@ -352,5 +352,29 @@ describe('Diaita on Today', () => {
     const rows = await lines(diaitaHome);
     expect(rows[0]).toMatchObject({ group: 'practice', detail: '7 h 30 min slept', open: '/diaita/' });
     expect(text(rows)).not.toMatch(/CANARY|poorly|snoring/);
+  });
+});
+
+describe('Theoria on Today', () => {
+  const focus = (id: string, itemId: string, at: string, minutes: number) => ({ id, itemId, kind: 'FOCUSED', timestamp: at, metadata: { app: 'praxis', minutes } });
+  async function homeWith(blocks: unknown[], events: unknown[]) {
+    vi.resetModules();
+    vi.doMock('../../app/services', () => ({ lifeService: { listForApp: async () => blocks, historyForAll: async () => events, subscribe: () => () => undefined } }));
+    return (await import('../../theoria/providers/home')).theoriaHome;
+  }
+  it('says the minutes read today from reading blocks, never titles', async () => {
+    const home = await homeWith(
+      [{ id: 'b1', title: 'Read: CANARY-BOOK' }, { id: 'b2', title: 'Write the essay' }],
+      [focus('e1', 'b1', '2026-11-05T08:00:00', 25), focus('e2', 'b1', '2026-11-05T09:00:00', 15), focus('e3', 'b2', '2026-11-05T10:00:00', 40), focus('e4', 'b1', '2026-11-04T09:00:00', 99)],
+    );
+    const rows = await lines(home);
+    expect(rows[0]).toMatchObject({ group: 'practice', detail: '40 min reading today', open: '/theoria/' });
+    expect(text(rows)).not.toMatch(/CANARY|99/);
+  });
+  it('says nothing was read when nothing was, and counts the person’s own day', async () => {
+    const home = await homeWith([{ id: 'b1', title: 'Read: A book' }], [focus('e1', 'b1', '2026-11-06T01:00:00', 20)]);
+    expect((await lines(home))[0].detail).toBe('No reading logged today');
+    expect((await lines(home, { day: { start: new Date('2026-11-05T04:00:00'), end: new Date('2026-11-06T04:00:00') } }))[0].detail).toBe('20 min reading today');
+    vi.doUnmock('../../app/services');
   });
 });
