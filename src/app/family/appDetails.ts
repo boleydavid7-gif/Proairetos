@@ -2,10 +2,12 @@ import type { FamilyApp } from './FamilyApps';
 
 /**
  * What the Store shows when an app is opened: what it does and how it connects to Proairetos and the other apps.
- * Each line says what the feature does, in a full sentence. `connects` names another app only where that app is
+ * `adds` says what the app puts into Proairetos. Each line says what the feature does, in a full sentence. `connects` names another app only where that app is
  * added (the Store marks which are). Screenshots are the app's own. Check a claim against the app before writing it.
  */
 export type AppDetail = {
+  /** What the app adds to Proairetos itself (Today, Days ahead, Reflect, the Library, reminders). */
+  adds: string;
   does: readonly string[];
   connects: readonly { app: FamilyApp; text: string }[];
   shots: number;
@@ -13,6 +15,7 @@ export type AppDetail = {
 
 export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   askesis: {
+    adds: 'Today shows the session planned for the day, and your runs appear in Done today and in Reflect. You can get a reminder on run days.',
     shots: 2,
     does: [
       'Answer a few questions about how much you walk and run now, and get a plan that matches.',
@@ -23,13 +26,13 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Switch to an easier session when you need one, or go back a week after a break.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Today shows the session planned for the day, and you can get a reminder on run days.' },
       { app: 'dynamis', text: 'Runs and strength sessions are scheduled around each other and around your workdays.' },
       { app: 'diaita', text: 'Runs are kept out of your planned sleep time.' },
       { app: 'hydros', text: 'On run days, Hydros can add to your daily water amount.' },
     ],
   },
   hydros: {
+    adds: 'Today shows what you’ve logged for the day.',
     shots: 2,
     does: [
       'Log a drink in one tap with your usual glasses.',
@@ -39,12 +42,12 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Get reminders at regular times through the day, or only during work.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Your day follows your schedule, so a drink after a night shift counts toward the right day.' },
       { app: 'askesis', text: 'On run days, Hydros can add to your daily amount.' },
       { app: 'diaita', text: 'Caffeine after your cutoff time shows next to your sleep.' },
     ],
   },
   soma: {
+    adds: 'Today lists the meals you’ve planned for the day, and meals you cooked appear in Reflect.',
     shots: 1,
     does: [
       'Import recipes from a website, a photo, pasted text, or Paprika, Mela and Crouton files.',
@@ -54,11 +57,11 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Cook from a recipe with built-in timers.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Today lists the meals you’ve planned for the day.' },
       { app: 'diaita', text: 'The last big meal time in Diaita opens Soma.' },
     ],
   },
   oikonomia: {
+    adds: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.',
     shots: 2,
     does: [
       'List every bill and subscription with its due dates.',
@@ -68,12 +71,12 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Import a bank or card statement to see where the money went.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.' },
       { app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' },
       { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' },
     ],
   },
   poreia: {
+    adds: 'Trips show on Today and plans with a time show in Days ahead. Approved time off clears those days from your schedule.',
     shots: 2,
     does: [
       'Add bookings, daily plans, a packing list and costs to each trip.',
@@ -83,7 +86,6 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Set a travel budget for the year.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Trips show on Today and timed plans show in Days ahead. Approved time off clears those days from your schedule.' },
       { app: 'oikonomia', text: 'Trip spending is added to the month’s totals.' },
       { app: 'phyton', text: 'Plant reminders pause while you’re away.' },
       { app: 'therapeia', text: 'The medicines you need can be added to the packing list.' },
@@ -91,6 +93,7 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
     ],
   },
   theoria: {
+    adds: 'Today shows your reading time, and you can save a note from a reading session to Reflect.',
     shots: 1,
     does: [
       'Open books and PDFs on any device.',
@@ -100,10 +103,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Time your reading sessions.',
     ],
     connects: [
-      { app: 'proairetos', text: 'You can save a note from a reading session to Reflect.' },
     ],
   },
   diaita: {
+    adds: 'Today shows your sleep record, and Proairetos adjusts its lighting through the day to match your waking hours.',
     shots: 2,
     does: [
       'See planned sleep and wake times for each day, worked out from your schedule.',
@@ -113,7 +116,6 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Keep a sleep log, time naps and play sleep sounds.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Diaita reads your schedule to plan sleep, and Proairetos adjusts its lighting through the day to match your waking hours.' },
       { app: 'therapeia', text: 'Medicine reminders can follow when you wake and sleep.' },
       { app: 'askesis', text: 'Runs are kept out of your sleep time.' },
       { app: 'hydros', text: 'Caffeine after your cutoff time shows next to your sleep.' },
@@ -121,6 +123,7 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
     ],
   },
   philia: {
+    adds: 'Birthdays in the next week show on Today and dates show in Days ahead. You can import people from Compass.',
     shots: 2,
     does: [
       'Save birthdays, anniversaries and other dates, with reminders.',
@@ -129,10 +132,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Log calls, messages and visits, and see how long it has been since you were in touch.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Birthdays in the next week show on Today, and dates show in Days ahead. You can import people from Compass.' },
     ],
   },
   ergon: {
+    adds: 'Chores that are due show on Today. Your days off come from your schedule.',
     shots: 2,
     does: [
       'Repeat a chore every few days or weeks, on set weekdays, monthly or once.',
@@ -141,10 +144,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Move a chore to your next day off.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Chores that are due show on Today. Your days off come from your schedule.' },
     ],
   },
   therapeia: {
+    adds: 'Doses and visits you haven’t marked show on Today.',
     shots: 2,
     does: [
       'Get a reminder for each dose at a set time, or after you wake or before you sleep.',
@@ -154,12 +157,12 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Print your medicine list.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Doses and visits you haven’t marked show on Today.' },
       { app: 'diaita', text: 'Doses follow when you wake and sleep, including after night shifts.' },
       { app: 'poreia', text: 'Medicines for a trip can be added to its packing list.' },
     ],
   },
   dynamis: {
+    adds: 'Today shows the session planned for the day.',
     shots: 2,
     does: [
       'Get a full-body or upper and lower body plan for two to four days a week.',
@@ -169,12 +172,12 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'View the history and heaviest set for each exercise.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Today shows the session planned for the day.' },
       { app: 'askesis', text: 'Strength sessions and runs are scheduled around each other and around your workdays.' },
       { app: 'diaita', text: 'Sessions are kept out of your sleep time.' },
     ],
   },
   ktema: {
+    adds: 'Upkeep that is due shows on Today.',
     shots: 2,
     does: [
       'Save each item’s warranty, model and serial number, manual, price and photos.',
@@ -182,11 +185,11 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Print a list of your belongings by room with prices, for insurance.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Upkeep that is due shows on Today.' },
       { app: 'oikonomia', text: 'You can add the cost of an upkeep task to the month’s spending.' },
     ],
   },
   phyton: {
+    adds: 'Plants that need checking show on Today.',
     shots: 2,
     does: [
       'Get reminders to check each plant, based on its type, the season and how often you actually water.',
@@ -196,11 +199,11 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Share your plants with your household.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Plants that need checking show on Today.' },
       { app: 'poreia', text: 'Plant reminders pause while you’re away on a trip.' },
     ],
   },
   mneme: {
+    adds: 'Your notes and ideas appear in the Library. Notes aren’t shared with your household.',
     shots: 0,
     does: [
       'Write notes that save as you type.',
@@ -208,10 +211,10 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Record voice notes and transcribe them on your device.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Mneme uses your Proairetos account, backups and appearance settings. Notes aren’t shared with your household.' },
     ],
   },
   melete: {
+    adds: 'Study sessions show on Today and in Days ahead, and count as busy time.',
     shots: 0,
     does: [
       'Add subjects with their exam and due dates.',
@@ -219,7 +222,6 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
       'Time a study session, with a bell at the end.',
     ],
     connects: [
-      { app: 'proairetos', text: 'Study sessions show on Today and in Days ahead, and count as busy time.' },
       { app: 'diaita', text: 'Free time is worked out around your sleep.' },
       { app: 'askesis', text: 'A run scheduled for a day shows next to it in the week.' },
       { app: 'dynamis', text: 'A strength session scheduled for a day shows next to it in the week.' },
