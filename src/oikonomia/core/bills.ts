@@ -310,6 +310,18 @@ export const stillToCome = (occurrences: readonly BillOccurrence[], today = loca
  * What is left to pay, and the whole, for a set of bill dates, as text. `figure` is the main amount as a number when it
  * is in one currency, so a page can roll it to a new value.
  */
+/**
+ * What is due in the next `days` days, to pay: each date with no payment yet and not taken over by the bill's next one
+ * (a "Was due" date stays until then). Each date counts once, so a bill paid this month does not come back as next
+ * month's, and a weekly bill is one date a week. Bills only: the monthly plan and what was spent are not in it.
+ */
+export function dueWithin(bills: readonly Bill[], today = localDate(), days = 7): BillOccurrence[] {
+  const until = addDays(today, days);
+  return bills
+    .flatMap((bill) => stillToCome(occurrencesBetween(bill, addDays(today, -45), until), today))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.bill.name.localeCompare(b.bill.name));
+}
+
 export function remainingSummary(occurrences: readonly BillOccurrence[], today = localDate()): { main: string; note: string; figure?: { currency: string; cents: number } } {
   const open = stillToCome(occurrences, today);
   const whole = formatTotals(occurrences);
