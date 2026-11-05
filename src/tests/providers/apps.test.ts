@@ -70,3 +70,19 @@ describe('Ktema', () => {
     expect(text(rows)).not.toMatch(/CANARY|2030/);
   });
 });
+
+describe('Poreia', () => {
+  it('holds trips, bookings and plans by name, place, provider and notes, never a confirmation code or cost', async () => {
+    const { poreiaSearch } = await import('../../poreia/providers/search');
+    const rows = await run(poreiaSearch, {
+      'local:poreia:trip:': [{ id: 'tr1', name: 'Lisbon', place: { label: 'Lisbon' }, notes: 'Spring trip', createdAt: day }],
+      'local:poreia:booking:': [{ id: 'b1', tripId: 'tr1', kind: 'stay', title: 'Hotel Alfama', provider: 'Booking', confirmation: 'CANARY-CODE', address: 'Rua 1', cost: { amount: 123456, currency: 'EUR' }, notes: 'Late arrival', createdAt: day, updatedAt: day }],
+      'local:poreia:plan:': [{ id: 'pn1', tripId: 'tr1', date: '2026-12-01', title: 'Tram 28', where: 'Alfama', note: 'Go early', createdAt: day, updatedAt: day }],
+    });
+    expect(rows.map((row) => row.ref.kind).sort()).toEqual(['booking', 'plan', 'trip']);
+    expect(rows.find((row) => row.ref.kind === 'booking')?.label).toBe('Stay in Lisbon');
+    expect(rows.find((row) => row.ref.kind === 'plan')?.label).toBe('Plan in Lisbon');
+    expect(text(rows)).toMatch(/Booking.*Rua 1.*Late arrival/s);
+    expect(text(rows)).not.toMatch(/CANARY|123456/);
+  });
+});

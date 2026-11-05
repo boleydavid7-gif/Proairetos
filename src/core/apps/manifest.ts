@@ -200,7 +200,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'oikonomia', text: 'Trip spending is added to the month’s totals.' }, { app: 'phyton', text: 'Plant reminders pause while you’re away.' }, { app: 'therapeia', text: 'The medicines you need can be added to the packing list.' }, { app: 'diaita', text: 'Suggests how to adjust your sleep for a new time zone.' }],
       shots: 2,
     },
-    search: { privacy: 'own-search', indexes: ['trip name', 'place', 'booking name', 'plan title', 'journal text'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
+    search: { privacy: 'own-search', indexes: ['trip name', 'place', 'trip notes', 'booking name', 'booking provider', 'booking place', 'booking notes', 'plan title', 'plan place', 'plan note'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {

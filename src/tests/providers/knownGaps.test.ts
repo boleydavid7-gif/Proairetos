@@ -10,7 +10,6 @@ const source = readFileSync('src/features/search/SearchSheet.tsx', 'utf8');
 
 describe('fields search still indexes that the manifest excludes (closed in Slice 2)', () => {
   const gaps: [string, string][] = [
-    ['Poreia confirmation code', "{ name: 'Confirmation'"],
   ];
   for (const [label, marker] of gaps) it(label, () => expect(source).toContain(marker));
 
