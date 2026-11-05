@@ -205,17 +205,17 @@ describe('what is offered, not assumed', () => {
   });
 });
 
-describe('time to settle after work', () => {
+describe('sleep after a shift', () => {
   const afterNight = (settings: typeof defaultRhythm) => mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings).find((sleep) => sleep.after === 'last-night' || sleep.after === 'night');
 
-  it('starts sleep after the trip and the settling time, not straight from the end of the shift', () => {
+  it('starts sleep an hour after the shift ends, not straight from it', () => {
     const sleep = afterNight({ ...defaultRhythm });
     expect(sleep && clock(sleep.start)).toBe('08:00');
   });
 
-  it('follows the person’s own settling time', () => {
-    const none = afterNight({ ...defaultRhythm, settleMinutes: 0 });
-    const long = afterNight({ ...defaultRhythm, settleMinutes: 60 });
+  it('follows the person’s own time after a shift', () => {
+    const none = afterNight({ ...defaultRhythm, afterShiftMinutes: 30 });
+    const long = afterNight({ ...defaultRhythm, afterShiftMinutes: 90 });
     expect(none && clock(none.start)).toBe('07:30');
     expect(long && clock(long.start)).toBe('08:30');
   });
