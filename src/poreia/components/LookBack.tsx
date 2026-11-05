@@ -20,7 +20,7 @@ export default function LookBack({ list, today, nav }: { list: readonly Trip[]; 
     const { reflectionService } = await import('../../app/services');
     const reflection = await reflectionService.write({ body: `${trip.name}: ${line.trim()}`, kind: 'FREE', promptKey: 'after-trip' });
     done();
-    offerUndo('Kept in Reflect', () => {
+    offerUndo('Saved to Reflect', () => {
       void reflectionService.remove(reflection.id);
       trips.put(trip);
     });
@@ -36,7 +36,7 @@ export default function LookBack({ list, today, nav }: { list: readonly Trip[]; 
           void keep();
         }}
       >
-        <input className="input" aria-label="A line to keep in Reflect" value={line} onChange={(event) => setLine(event.target.value)} />
+        <input className="input" aria-label="Note for Reflect" value={line} onChange={(event) => setLine(event.target.value)} />
         <button type="submit" className="button-quiet" disabled={!line.trim()}>
           Save
         </button>

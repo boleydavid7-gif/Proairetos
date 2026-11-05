@@ -235,7 +235,7 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
   const [looked, setLooked] = useState<string>();
   return (
     <div className="praxis-after">
-      <p className="praxis-eyebrow">{formatMinutes(after.minutes)} kept</p>
+      <p className="praxis-eyebrow">{formatMinutes(after.minutes)} logged</p>
       <h2>{after.title}</h2>
       <div className="praxis-after__part">
         <p>A break?</p>
@@ -243,9 +243,9 @@ function AfterBlock({ after, onRest, onKeepLine, onLookAgain, onClose }: { after
       </div>
       <div className="praxis-after__part">
         <p>What did you take from this?</p>
-        {kept ? <a className="praxis-text-link" href="/?open=reflect">Kept in Reflect, in Proairetos.</a> : (
+        {kept ? <a className="praxis-text-link" href="/?open=reflect">Saved to Reflect in Proairetos.</a> : (
           <form onSubmit={(event) => { event.preventDefault(); if (!line.trim()) return; onKeepLine(line.trim()); setKept(true); }} className="praxis-add__row">
-            <input aria-label="One line to keep" value={line} onChange={(event) => setLine(event.target.value)} />
+            <input aria-label="Note for Reflect" value={line} onChange={(event) => setLine(event.target.value)} />
             <button type="submit" className="praxis-button praxis-button--quiet" disabled={!line.trim()}>Save</button>
           </form>
         )}

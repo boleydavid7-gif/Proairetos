@@ -280,7 +280,7 @@ export default function PraxisApp({ embedded = false, opening = null }: { embedd
   const keepLine = async (line: string) => {
     if (!after) return;
     const reflection = await reflectionService.write({ body: `${after.title}: ${line}`, kind: 'FREE', promptKey: 'after-study' });
-    say('Kept in Reflect', () => void reflectionService.remove(reflection.id));
+    say('Saved to Reflect', () => void reflectionService.remove(reflection.id));
   };
 
   const lookAgain = async (days: number) => {

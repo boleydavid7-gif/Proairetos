@@ -182,7 +182,7 @@ function ThingView({ nav, thing: existing, onEdit }: { nav: KtemaNav; thing: Thi
             const value = Number(reading.replace(/[^\d.]/g, ''));
             if (!(value > 0)) return;
             putThing({ ...existing, readings: [...(existing.readings ?? []).filter((each) => each.date !== today), { date: today, value }] });
-            offerUndo('Reading kept', () => putThing(existing));
+            offerUndo('Reading saved', () => putThing(existing));
             setReading('');
           }}>
             <label className="field">

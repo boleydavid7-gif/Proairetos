@@ -203,7 +203,7 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
           onKeep={(translated) => {
             const before = recipe;
             save(translated);
-            undo('Translation kept', () => void putRecipe({ ...before, updatedAt: new Date().toISOString() }));
+            undo('Translation saved', () => void putRecipe({ ...before, updatedAt: new Date().toISOString() }));
           }}
         />
         <div className="recipe-meta">
@@ -523,10 +523,10 @@ export default function RecipePage({ nav, id }: { nav: Nav; id: string }) {
               onClick={async () => {
                 const reflection = await reflectionService.write({ body: `${recipe.title}: ${afterLine.trim()}`, kind: 'FREE', promptKey: 'after-meal' });
                 setAfterLine(undefined);
-                undo('Kept in Proairetos Reflect', () => void reflectionService.remove(reflection.id));
+                undo('Saved to Reflect', () => void reflectionService.remove(reflection.id));
               }}
             >
-              Keep in Reflect
+              Save to Reflect
             </button>
           </div>
         )}

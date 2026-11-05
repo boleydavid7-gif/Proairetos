@@ -297,7 +297,7 @@ export function SettingsPage({ theme, font, onTheme, onFont, copyNew, onCopyNew,
             </li>
           </ul>
         )}
-        <AccountCard app="Theoria" what="Your shelf, highlights and notes" waiting="Books" />
+        <AccountCard app="Theoria" what="Your library, highlights and notes" waiting="Books" />
         <FamilyBackup />
         <FamilyApps current="theoria" />
       </div>

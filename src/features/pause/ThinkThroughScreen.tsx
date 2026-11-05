@@ -47,7 +47,7 @@ export default function ThinkThroughScreen({ from, onClose, onSupport }: Props) 
         ...(from?.itemId ? { itemId: from.itemId } : {}),
       });
       const item = smallStep && addStep ? await lifeService.capture(smallStep, 'DO') : undefined;
-      offerUndo(item ? 'Kept in Reflect, and the step is on your list' : 'Kept in Reflect', async () => {
+      offerUndo(item ? 'Saved to Reflect, and the step is on your list' : 'Saved to Reflect', async () => {
         await reflectionService.remove(entry.id);
         if (item) await lifeService.deleteItem(item.id);
       });
@@ -80,7 +80,7 @@ export default function ThinkThroughScreen({ from, onClose, onSupport }: Props) 
                   Don’t keep it
                 </button>
                 <button type="button" className="button-accent" onClick={keep}>
-                  Keep it in Reflect
+                  Save to Reflect
                 </button>
               </div>
             ) : (

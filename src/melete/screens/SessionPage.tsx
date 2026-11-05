@@ -81,12 +81,12 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
   if (kept) {
     return (
       <div className="page melete-page">
-        <div className="page-top"><h1 className="title">{formatMinutes(kept.minutes)} kept</h1></div>
+        <div className="page-top"><h1 className="title">{formatMinutes(kept.minutes)} logged</h1></div>
         <p className="muted">{name}</p>
-        {lineKept ? <a className="text-link" href="/?open=reflect">Kept in Reflect, in Proairetos</a> : (
+        {lineKept ? <a className="text-link" href="/?open=reflect">Saved to Reflect in Proairetos</a> : (
           <form className="melete-form" onSubmit={(event) => { event.preventDefault(); void keepLine(); }}>
             <label className="field"><span className="field__label">What did you take from this? (optional)</span><input className="input" value={line} onChange={(event) => setLine(event.target.value)} /></label>
-            <button type="submit" className="button-quiet" disabled={!line.trim()}>Keep this line</button>
+            <button type="submit" className="button-quiet" disabled={!line.trim()}>Save to Reflect</button>
           </form>
         )}
         <button type="button" className="button-main" onClick={() => nav.swap({ name: 'today' })}>Done</button>

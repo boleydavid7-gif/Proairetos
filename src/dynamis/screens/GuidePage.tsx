@@ -50,7 +50,7 @@ export default function GuidePage({ nav, routine: id }: { nav: DynamisNav; routi
     kept.current = true;
     const log = { id: newId(), date: toLocalDate(new Date()), routine: routine.id, minutes: routineMinutes(routine), createdAt: new Date().toISOString() };
     mobility.put(log);
-    offerUndo('Mobility kept', () => mobility.remove(log.id));
+    offerUndo('Mobility saved', () => mobility.remove(log.id));
   }, [at]);
 
   if (!routine) {
