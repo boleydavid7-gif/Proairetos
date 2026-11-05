@@ -165,7 +165,13 @@ body {
 }
 
 :root:root:root .ll-plain > * {
-  background-image: none;
+  padding-inline: 0;
+  background: none;
+}
+
+/* A press tints the row, since there is no surface to lift. */
+:root:root:root .ll-plain > *:active {
+  background-color: var(--ll-state-hover);
 }
 
 :root:root:root .ll-plain > * + * {

@@ -81,7 +81,7 @@ export default function CapturePage() {
         )}
       </section>
 
-      <div className="kind-list">
+      <div className="kind-list ll-plain">
         {captureKinds.map(({ id, label, icon: Icon }) => (
           <button key={id} type="button" className="kind-tile" onClick={() => go(id)}>
             <span className="kind-tile__icon">
