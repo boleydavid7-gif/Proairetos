@@ -11,6 +11,7 @@ export const providerModules: Partial<Record<AppId, () => Promise<Module>>> = {
   oikonomia: () => import('../../oikonomia/providers'),
   hydros: () => import('../../hydros/providers'),
   phyton: () => import('../../phyton/providers'),
+  melete: () => import('../../melete/providers'),
   dynamis: () => import('../../dynamis/providers'),
   askesis: () => import('../../askesis/providers'),
   poreia: () => import('../../poreia/providers'),

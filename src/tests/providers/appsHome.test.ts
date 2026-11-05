@@ -309,3 +309,35 @@ describe('Poreia on Today', () => {
     expect(poreiaHome.maxAgeMs).toBe(60_000);
   });
 });
+
+describe('Meletē on Today', () => {
+  const subject = (id: string, name: string, dates: unknown[] = []) => ({ id, name, dates, materials: [{ id: 'm', title: 'CANARY-MATERIAL' }], ifThen: 'CANARY-IFTHEN', createdAt: day });
+  const session = (id: string, start: string, extra: Record<string, unknown> = {}) => ({ id, subjectId: 's1', kind: 'read', start, minutes: 30, ...extra });
+  it('says the next session set today and the nearest date within a week, never materials or if-then lines', async () => {
+    const { meleteHome } = await import('../../melete/providers/home');
+    put('melete:subject:s1', subject('s1', 'Biology', [{ id: 'd1', title: 'Midterm', date: '2026-11-08', kind: 'exam' }]));
+    put('melete:session:ss1', session('ss1', '2026-11-05T15:00:00'));
+    const rows = await lines(meleteHome);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ group: 'practice', open: '/melete/' });
+    expect(rows[0].title).toBeUndefined();
+    expect(rows[0].detail).toMatch(/^Biology · 3:00 PM · Biology: Midterm in 3 days$/);
+    expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('says minutes studied once a session is done, "No study sessions today", and "Add a subject" with none', async () => {
+    const { meleteHome } = await import('../../melete/providers/home');
+    expect((await lines(meleteHome))[0].detail).toBe('Add a subject');
+    put('melete:subject:s1', subject('s1', 'Biology'));
+    expect((await lines(meleteHome))[0].detail).toBe('No study sessions today');
+    put('melete:session:ss1', session('ss1', '2026-11-05T09:00:00', { doneAt: '2026-11-05T09:30:00' }));
+    expect((await lines(meleteHome))[0].detail).toBe('30 min studied today');
+  });
+  it('counts the person’s day, which a night shift carries past midnight', async () => {
+    const { meleteHome } = await import('../../melete/providers/home');
+    put('melete:subject:s1', subject('s1', 'Biology'));
+    put('melete:session:ss1', session('ss1', '2026-11-06T01:00:00', { doneAt: '2026-11-06T01:30:00' }));
+    expect((await lines(meleteHome))[0].detail).toBe('No study sessions today');
+    const carried = { start: new Date('2026-11-05T04:00:00'), end: new Date('2026-11-06T04:00:00') };
+    expect((await lines(meleteHome, { day: carried }))[0].detail).toBe('30 min studied today');
+  });
+});

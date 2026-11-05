@@ -158,6 +158,8 @@ export function createHomeStore(deps: HomeDeps) {
       day = next;
       if (changed) {
         for (const entry of entries.values()) entry.stale = true;
+        // A new day also asks what a line needs to be current (a worked-out week).
+        if (listeners.size > 0) warm();
         schedule();
       }
     },
