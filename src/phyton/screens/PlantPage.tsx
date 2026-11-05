@@ -254,7 +254,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
   const [words, setWords] = useState('');
   const keepLine = () => {
     if (!writing || (writing === 'note' && !words.trim())) return;
-    mark(journal(plant, today, writing, words, me), writing === 'pest' ? 'Pests noted' : 'Note kept');
+    mark(journal(plant, today, writing, words, me), writing === 'pest' ? 'Pests noted' : 'Note saved');
     setWriting(undefined);
     setWords('');
   };

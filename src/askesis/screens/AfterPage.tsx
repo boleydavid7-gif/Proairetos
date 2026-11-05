@@ -27,7 +27,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
     const title = entry?.workoutTitle ?? 'A run';
     const reflection = await reflectionService.write({ body: `${title}: ${line.trim()}`, kind: 'FREE', promptKey: 'after-run' });
     setKept(true);
-    undo('Kept in Reflect', () => void reflectionService.remove(reflection.id));
+    undo('Saved to Reflect', () => void reflectionService.remove(reflection.id));
   };
 
   return (
@@ -51,9 +51,9 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
           </section>
 
           <section className="card">
-            <h2 className="card__title card__title--small">One line to keep</h2>
+            <h2 className="card__title card__title--small">Add a note to Reflect</h2>
             {kept ? (
-              <a className="muted family-link" href="/?open=reflect">Kept in Reflect, in Proairetos.</a>
+              <a className="muted family-link" href="/?open=reflect">Saved to Reflect in Proairetos.</a>
             ) : (
               <>
                 <label className="field">
@@ -61,7 +61,7 @@ export default function AfterPage({ nav, id }: { nav: Nav; id: string }) {
                   <input className="input" value={line} onChange={(event) => setLine(event.target.value)} />
                 </label>
                 <button type="button" className="button-quiet" disabled={!line.trim()} onClick={() => void keep()}>
-                  Keep it in Reflect
+                  Save to Reflect
                 </button>
               </>
             )}

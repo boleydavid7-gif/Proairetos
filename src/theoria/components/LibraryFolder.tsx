@@ -160,7 +160,7 @@ export function LibraryFolder({ onCheck, returned, booksFromFolder }: { onCheck:
                 setCloud(undefined);
               }
               if (local.name) void forgetLibraryFolder();
-              setSaid('Stopped. The books already in stay on your shelf.');
+              setSaid('Stopped. The books already in stay in your library.');
             }}
           >
             Stop using it

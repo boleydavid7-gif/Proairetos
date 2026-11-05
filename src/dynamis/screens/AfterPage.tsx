@@ -16,7 +16,7 @@ export default function AfterPage({ nav, id }: { nav: DynamisNav; id: string }) 
     if (!line.trim()) return;
     const reflection = await reflectionService.write({ body: `Strength training: ${line.trim()}`, kind: 'FREE', promptKey: 'after-strength' });
     setKept(true);
-    offerUndo('Kept in Reflect', () => void reflectionService.remove(reflection.id));
+    offerUndo('Saved to Reflect', () => void reflectionService.remove(reflection.id));
   };
 
   return (
@@ -25,12 +25,12 @@ export default function AfterPage({ nav, id }: { nav: DynamisNav; id: string }) 
       {workout && <p className="muted">{[workout.exercises.length === 1 ? '1 exercise' : `${workout.exercises.length} exercises`, sets === 1 ? '1 set' : `${sets} sets`, workout.minutes ? `${workout.minutes} min` : undefined].filter(Boolean).join(' · ')}</p>}
 
       <section className="card">
-        <h2 className="card__title card__title--small">A line to keep in Reflect (optional)</h2>
+        <h2 className="card__title card__title--small">Note for Reflect (optional)</h2>
         {kept ? (
-          <p className="muted">Kept.</p>
+          <p className="muted">Saved.</p>
         ) : (
           <form className="add-line" onSubmit={(event) => { event.preventDefault(); void keep(); }}>
-            <input className="input" aria-label="A line to keep" value={line} onChange={(event) => setLine(event.target.value)} />
+            <input className="input" aria-label="Note for Reflect" value={line} onChange={(event) => setLine(event.target.value)} />
             <button type="submit" className="button-quiet" disabled={!line.trim()}>Save</button>
           </form>
         )}
