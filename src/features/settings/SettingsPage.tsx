@@ -1280,7 +1280,7 @@ export default function SettingsPage() {
             <img src="/partners/noesis.png" alt="" width={40} height={40} />
             <span>
               <strong>Noesis</strong>
-              <small>Reading and notes</small>
+              <small>Reading and notes, with Noema, an AI companion</small>
             </span>
             <ChevronRightIcon size={18} />
           </a>
