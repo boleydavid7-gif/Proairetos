@@ -3,7 +3,7 @@ import { BookIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { MeleteNav } from '../app/App';
 import { loadRunning, sessions, subjects } from '../app/state';
-import { dateFact, formatMinutes, minutesByDay, SESSION_KINDS, sessionsOnDay, upcomingDates } from '../core/subjects';
+import { dateFact, formatMinutes, minutesByDay, sessionsOnDay, upcomingDates } from '../core/subjects';
 
 const time = (iso: string) => new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(new Date(iso));
 
@@ -36,7 +36,7 @@ export default function TodayPage({ nav }: { nav: MeleteNav }) {
               <li key={session.id} className="chore">
                 <button type="button" className="chore__open" onClick={() => nav.go({ name: 'session', id: session.id })}>
                   <span>{nameOf(session.subjectId) ?? 'Study'}</span>
-                  <small>{[SESSION_KINDS.find((kind) => kind.id === session.kind)?.label, session.doneAt ? `${formatMinutes(session.minutes)} kept` : `${time(session.start)} · ${formatMinutes(session.minutes)}`].filter(Boolean).join(' · ')}</small>
+                  <small>{[session.doneAt ? `${formatMinutes(session.minutes)} kept` : `${time(session.start)} · ${formatMinutes(session.minutes)}`].filter(Boolean).join(' · ')}</small>
                 </button>
               </li>
             ))}

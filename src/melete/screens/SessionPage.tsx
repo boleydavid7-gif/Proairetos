@@ -3,7 +3,7 @@ import { Waiting } from '../../lamplight/Waiting';
 import { offerUndo, say } from '../../app/family/shell';
 import type { MeleteNav } from '../app/App';
 import { loadRunning, newId, saveRunning, sessions as sessionStore, settings, subjects, type Running } from '../app/state';
-import { formatMinutes, SESSION_KINDS, type SessionKind, type StudySession } from '../core/subjects';
+import { formatMinutes, type SessionKind, type StudySession } from '../core/subjects';
 
 const LENGTHS = [15, 25, 30, 45, 60, 90];
 const clockDown = (ms: number) => {
@@ -17,7 +17,7 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
   const planned = id ? sessionStore.use().find((session) => session.id === id) : undefined;
   const [running, setRunning] = useState<Running | null>(() => loadRunning());
   const [subject, setSubject] = useState<string | undefined>(planned?.subjectId ?? running?.subjectId ?? subjectId ?? list[0]?.id);
-  const [kind, setKind] = useState<SessionKind>(planned?.kind ?? running?.kind ?? 'read');
+  const kind: SessionKind = planned?.kind ?? running?.kind ?? 'read';
   const [minutes, setMinutes] = useState(planned?.minutes ?? running?.minutes ?? settings.load().minutes);
   const [now, setNow] = useState(Date.now());
   const [kept, setKept] = useState<{ minutes: number; id: string }>();
@@ -98,7 +98,7 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
     return (
       <div className="page melete-page melete-timer">
         <div className="page-top"><button type="button" className="back-link" onClick={nav.back}>Back</button></div>
-        <p className="label">{name} · {SESSION_KINDS.find((each) => each.id === running.kind)?.label}</p>
+        <p className="label">{name}</p>
         <p className="melete-clock" role="timer" aria-live="off">{rungOut ? 'Time' : clockDown(left)}</p>
         {!rungOut && <Waiting>{formatMinutes(running.minutes)}</Waiting>}
         <button type="button" className="button-main" onClick={finish}>{rungOut ? 'Keep it' : 'Stop here'}</button>
@@ -117,9 +117,6 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
           {list.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={subject === each.id} onClick={() => { setSubject(each.id); if (each.rhythm) setMinutes(each.rhythm.minutes); }}>{each.name}</button>)}
         </div>
       )}
-      <div className="chip-row" role="group" aria-label="Kind">
-        {SESSION_KINDS.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={kind === each.id} onClick={() => setKind(each.id)}>{each.label}</button>)}
-      </div>
       <div className="chip-row" role="group" aria-label="Length">
         {LENGTHS.map((each) => <button key={each} type="button" className="chip" aria-pressed={minutes === each} onClick={() => setMinutes(each)}>{each} min</button>)}
       </div>

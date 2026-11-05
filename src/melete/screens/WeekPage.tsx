@@ -8,7 +8,7 @@ import type { MeleteNav } from '../app/App';
 import { openByDay } from '../app/gaps';
 import { trainingOnDays, type TrainingDay } from '../../app/family/trainingDays';
 import { newId, sessions as sessionStore, settings, subjects } from '../app/state';
-import { formatMinutes, kindLabel, rhythmLeft, SESSION_KINDS, sessionsOnDay, weekOf, type SessionKind } from '../core/subjects';
+import { formatMinutes, kindLabel, rhythmLeft, sessionsOnDay, weekOf } from '../core/subjects';
 
 const clock = (date: Date) => new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
 const dayName = (day: string) => new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date(`${day}T12:00:00`));
@@ -30,7 +30,6 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
   const [newName, setNewName] = useState('');
   const [picking, setPicking] = useState<{ day: string; span: Span }>();
   const [subjectId, setSubjectId] = useState<string>();
-  const [kind, setKind] = useState<SessionKind>('read');
   const [minutes, setMinutes] = useState(settings.load().minutes);
   const [start, setStart] = useState('');
   const planned = all.filter((session) => !session.doneAt);
@@ -72,7 +71,7 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
     const at = new Date(`${picking.day}T00:00:00`);
     at.setHours(h, m, 0, 0);
     const room = Math.max(15, Math.floor((picking.span.end.getTime() - at.getTime()) / 60_000));
-    const record = { id: newId('session'), subjectId: chosen, kind, start: at.toISOString(), minutes: Math.min(minutes, room) };
+    const record = { id: newId('session'), subjectId: chosen, kind: 'read' as const, start: at.toISOString(), minutes: Math.min(minutes, room) };
     sessionStore.put(record);
     setPicking(undefined);
     offerUndo('Sitting set', () => sessionStore.remove(record.id));
@@ -124,7 +123,7 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
                   <li key={session.id} className="chore">
                     <button type="button" className="chore__open" onClick={() => nav.go({ name: 'session', id: session.id })}>
                       <span className="melete-name"><i className="melete-dot" style={{ background: `var(--tag-${subject?.color ?? 'sage'})` }} aria-hidden="true" />{subject?.name ?? 'Study'}</span>
-                      <small>{[clock(new Date(session.start)), formatMinutes(session.minutes), SESSION_KINDS.find((each) => each.id === session.kind)?.label, session.doneAt ? 'Done' : undefined].filter(Boolean).join(' · ')}</small>
+                      <small>{[clock(new Date(session.start)), formatMinutes(session.minutes), session.doneAt ? 'Done' : undefined].filter(Boolean).join(' · ')}</small>
                     </button>
                   </li>
                 );
@@ -150,9 +149,6 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
                   {list.map((subject) => <button key={subject.id} type="button" className="chip" aria-pressed={subjectId === subject.id} onClick={() => { setSubjectId(subject.id); if (subject.rhythm) setMinutes(subject.rhythm.minutes); }}>{subject.name}</button>)}
                 </div>
                 )}
-                <div className="chip-row" role="group" aria-label="Kind">
-                  {SESSION_KINDS.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={kind === each.id} onClick={() => setKind(each.id)}>{each.label}</button>)}
-                </div>
                 <div className="chip-row" role="group" aria-label="Length">
                   {LENGTHS.map((each) => <button key={each} type="button" className="chip" aria-pressed={minutes === each} onClick={() => setMinutes(each)}>{each} min</button>)}
                 </div>
