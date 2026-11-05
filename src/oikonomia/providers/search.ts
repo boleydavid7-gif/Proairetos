@@ -14,6 +14,9 @@ export const oikonomiaSearch: Provider<'search'> = {
   sources: ['oikonomiaBills'],
   async read(ctx) {
     const bills = await ctx.records<Bill>('oikonomiaBills');
+    // Bills share dates, and formatting one is the slow part, so each date is formatted once.
+    const written = new Map<string, string>();
+    const long = (date: string) => written.get(date) ?? (written.set(date, formatDate(date, 'long')), written.get(date)!);
     return bills.map((bill) => {
       const state = standing(bill, ctx.today || localDate());
       return {
@@ -21,7 +24,7 @@ export const oikonomiaSearch: Provider<'search'> = {
         title: bill.name,
         titleField: 'bill name',
         fields: [
-          { name: 'due date', text: formatDate(state.date, 'long') },
+          { name: 'due date', text: long(state.date) },
           { name: 'paid status', text: state.settled ? 'Paid' : 'Not paid' },
         ],
         at: bill.createdAt,

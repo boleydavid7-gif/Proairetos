@@ -40,7 +40,14 @@ export function withCache<C extends Capability>(provider: Provider<C>, subscribe
         stale = false;
         day = ctx.today;
         at = ctx.now.getTime();
+        const began = performance.now();
         value = (await provider.read(ctx)) as Awaited<OutputOf<C>>;
+        // A named measure per real derivation: how often providers run, and for how long, can be read from the page.
+        try {
+          performance.measure(`provider-derive:${provider.app}`, { start: began, end: performance.now() });
+        } catch {
+          // Measuring is optional.
+        }
       }
       return value;
     },
