@@ -92,3 +92,25 @@ describe('each app', () => {
     expect(year.lists[0].lines[0]).toMatch(/Oil change \(Car\) · \$40$/);
   });
 });
+
+describe('Meletē', () => {
+  it('counts finished study sessions, days and time on each subject', async () => {
+    const { meleteYear } = await import('../../melete/core/year');
+    const subjects = [
+      { id: 'a', name: 'Biology', dates: [], materials: [], createdAt: '2026-01-01' },
+      { id: 'b', name: 'Chemistry', dates: [], materials: [], createdAt: '2026-01-01' },
+    ];
+    const sessions = [
+      { id: '1', subjectId: 'a', kind: 'read' as const, start: '2026-02-01T09:00', minutes: 60, doneAt: '2026-02-01T10:00' },
+      { id: '2', subjectId: 'a', kind: 'read' as const, start: '2026-02-01T15:00', minutes: 30, doneAt: '2026-02-01T15:30' },
+      { id: '3', subjectId: 'b', kind: 'read' as const, start: '2026-02-02T09:00', minutes: 45, doneAt: '2026-02-02T09:45' },
+      { id: '4', subjectId: 'b', kind: 'read' as const, start: '2026-02-03T09:00', minutes: 45 },
+      { id: '5', subjectId: 'b', kind: 'read' as const, start: '2025-02-03T09:00', minutes: 45, doneAt: '2025-02-03T09:45' },
+    ];
+    const year = meleteYear(subjects, sessions, 2026);
+    expect(value(year, 'Time studied')).toBe('2 h 15 min');
+    expect(value(year, 'Days studied')).toBeDefined();
+    expect(year.lists[0].lines).toEqual(['Biology · 1 h 30 min', 'Chemistry · 45 min']);
+    expect(meleteYear(subjects, [], 2026).facts).toEqual([]);
+  });
+});

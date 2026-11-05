@@ -121,7 +121,7 @@ export const appDetails: Partial<Record<FamilyApp, AppDetail>> = {
   },
   melete: {
     adds: 'Study sessions show on Today and in Days ahead, and count as busy time.',
-    shots: 0,
+    shots: 2,
     connects: [
       { app: 'diaita', text: 'Free time is worked out around your sleep.' },
       { app: 'askesis', text: 'A run scheduled for a day shows next to it in the week.' },

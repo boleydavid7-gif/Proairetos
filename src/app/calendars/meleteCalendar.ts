@@ -4,7 +4,7 @@ import type { StudySession, Subject } from '../../melete/core/subjects';
 import type { CalendarEvent as DisplayCalendarEvent } from './otherCalendars';
 
 /*
- * Meletē's sittings, read only, as entries in Today and Days ahead (as long as the person set them), and as time taken
+ * Meletē's study sessions, read only, as entries in Today and Days ahead (as long as the person set them), and as time taken
  * for open time and the training offers. Never in the published calendar. Read straight from storage, so Proairetos's
  * first load carries none of Meletē's code.
  */
@@ -26,8 +26,6 @@ function records<T>(prefix: string): T[] {
   }
   return out;
 }
-
-const KINDS: Record<string, string> = { read: 'Read', practice: 'Practice', recall: 'Recall', explain: 'Explain', review: 'Review' };
 
 export const meleteCalendar = {
   subscribe(listener: () => void): () => void {
@@ -52,7 +50,7 @@ export const meleteCalendar = {
       const end = new Date(start.getTime() + Math.max(1, session.minutes) * 60_000);
       if (end <= from || start >= until) continue;
       const subject = (session.subjectId && names.get(session.subjectId)) || 'Study';
-      out.push({ key: `melete:${session.id}`, title: `${subject} · ${KINDS[session.kind] ?? 'Study'}`, start, end, source: 'Meletē', sourceId: 'melete' });
+      out.push({ key: `melete:${session.id}`, title: `${subject} · Study`, start, end, source: 'Meletē', sourceId: 'melete' });
     }
     return out;
   },

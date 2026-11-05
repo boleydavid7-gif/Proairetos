@@ -3,7 +3,7 @@ import type { StudySession, Subject } from '../core/subjects';
 
 export type MeleteSettings = { started: boolean; minutes: number };
 
-export const settings = stored<MeleteSettings>('melete:settings', () => ({ started: true, minutes: 45 }));
+export const settings = stored<MeleteSettings>('melete:settings', () => ({ started: false, minutes: 45 }));
 export const subjects = collection<Subject>('melete:subject:');
 export const sessions = collection<StudySession>('melete:session:');
 
@@ -20,7 +20,7 @@ export function removeSubject(subject: Subject): () => void {
   };
 }
 
-/** The sitting now under way, on this device only (it is not a record, and not in backups). */
+/** The study session now under way, on this device only (it is not a record, and not in backups). */
 const RUNNING = 'meleteRunning';
 export type Running = { sessionId?: string; subjectId?: string; kind: StudySession['kind']; startedAt: number; minutes: number };
 
