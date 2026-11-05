@@ -14,7 +14,7 @@ complexity), then the status lists below.
 **Proposed, waiting:** see the latest week.
 **Approved / in progress:** none.
 **Completed:** proposals 2 and 3 (Nov 5), energy removal (Nov 5).
-**Rejected:** proposal 1 (top bar on CSS scroll timelines): measured and not worth it (see log). Anything that rates how much a person can do (energy word). Askesis "ease a hot run in one tap" (Nov 5): a run can be indoors, so heat is not a reason to change the session.
+**Rejected:** proposal 1 (top bar on CSS scroll timelines): measured and not worth it (see log). Anything that rates how much a person can do (energy word). Askesis "ease a hot run in one tap" (Nov 5): a run can be indoors, so heat is not a reason to change the session. Hiding Daily practices rows for apps not set up (Nov 5): an app not added never shows, and adding one is the person's choice, so its first row is its way in.
 **Worth revisiting:** CSS scroll timelines for the bar once the title's handoff no longer needs the JavaScript classes (`is-folded`, `is-over-picture`).
 
 ## Week of Nov 5, 2026
@@ -117,4 +117,4 @@ Mostly secondary sources again; verify before relying on any single claim.
 
 ### Status
 
-Proposal 2 rejected by the owner (a run can be indoors). Proposals 1 and 3 proposed, waiting for approval.
+Proposals 2 and 3 rejected by the owner. Proposal 1 proposed, waiting for approval.
