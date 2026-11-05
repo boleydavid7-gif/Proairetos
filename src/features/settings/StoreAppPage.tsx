@@ -15,7 +15,7 @@ export default function StoreAppPage({ id, label, added, actions, onBack }: { id
   const nameOf = (other: FamilyApp) => familyApps.find((each) => each.id === other);
   return (
     <article className="store-app" aria-label={app.name}>
-      <button type="button" className="back-link" onClick={onBack}><Sym name="back" size={18} />App Store</button>
+      <button type="button" className="back-link store-app__back" onClick={onBack}><Sym name="back" size={18} />App Store</button>
       <div
         className="store__banner store-app__banner"
         style={app.tint ? ({ '--ground': app.tint.ground, '--accent-app': app.tint.accent, '--ink': app.tint.ink } as CSSProperties) : undefined}

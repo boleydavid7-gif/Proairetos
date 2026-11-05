@@ -6,7 +6,6 @@ import { familyApps } from '../../app/family/FamilyApps';
 import { buy, CORE_APPS, NeedsSignIn, priceText, refreshOwned, refreshStore, takeBought, usePurchases, waitForPurchase, type PurchaseItem } from '../../app/family/purchases';
 import { Waiting } from '../../lamplight/Waiting';
 import { Sym } from '../../lamplight/icons';
-import { useBackHandler } from '../../app/back/backStack';
 import StoreAppPage from './StoreAppPage';
 import { apiUrl } from '../../app/apiBase';
 import { supabase } from '../../data/sync/supabase';
@@ -16,7 +15,7 @@ import { supabase } from '../../data/sync/supabase';
  * notifications, search) and the app grid; removing one takes it out again, its records kept. Proairetos stays free;
  * access to the family is granted by monthly plans kept with the signed-in account.
  */
-export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => void }) {
+export default function StoreSection({ onOpenAccount, openApp, onOpenApp }: { onOpenAccount?: () => void; openApp: AddOn | null; onOpenApp: (id: AddOn | null) => void }) {
   const added = useAddedApps();
   const { paid, owned, tester, owner, trialUntil, account } = usePurchases();
   const { offerUndo } = useOverlays();
@@ -24,7 +23,6 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
   const [busy, setBusy] = useState<string | null>(null);
   const [note, setNote] = useState<{ app: string; text: string; signIn?: boolean } | null>(null);
   const [finishing, setFinishing] = useState<string | null>(null);
-  const [openApp, setOpenApp] = useState<AddOn | null>(null);
 
   useEffect(() => {
     void refreshStore();
@@ -111,8 +109,6 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
     );
   };
 
-  useBackHandler(openApp !== null, () => setOpenApp(null));
-
   // Plans and apps belong to an account: signed out, the Store says so and leads to signing in.
   if (!account && !owner && !tester) {
     return (
@@ -147,7 +143,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
               {note?.app === openApp ? <p className="store__note" role="status">{note.text}</p> : null}
             </>
           }
-          onBack={() => setOpenApp(null)}
+          onBack={() => onOpenApp(null)}
         />
       </section>
     );
@@ -176,7 +172,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
             const id = app.id as AddOn;
             return (
               <li key={app.id} className="store__row">
-                <button type="button" className="store__row-open" onClick={() => setOpenApp(id)}>
+                <button type="button" className="store__row-open" onClick={() => onOpenApp(id)}>
                   <img className="store__row-icon" src={app.icon} alt="" width={52} height={52} />
                   <span className="store__row-text">
                     <strong>{app.name}</strong>
