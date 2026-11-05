@@ -85,11 +85,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
 export function dateIn(text: string, thisYear = new Date().getFullYear()): string | undefined {
   let match = text.match(/\b(\d{4})-(\d{1,2})-(\d{1,2})\b/);
   if (match) return `${match[1]}-${pad(+match[2])}-${pad(+match[3])}`;
-  match = text.match(/\b(\d{1,2})[/.](\d{1,2})[/.](\d{2,4})\b/);
+  match = text.match(/\b(\d{1,2})([/.])(\d{1,2})[/.](\d{2,4})\b/);
   if (match) {
-    let [a, b] = [+match[1], +match[2]];
-    if (a > 12) [a, b] = [b, a];
-    const year = match[3].length === 2 ? 2000 + +match[3] : +match[3];
+    // Dots are written day first (11.03.2026 is 11 March); slashes month first unless the first number is over 12.
+    let [a, b] = [+match[1], +match[3]];
+    if (a > 12 || match[2] === '.') [a, b] = [b, a];
+    const year = match[4].length === 2 ? 2000 + +match[4] : +match[4];
     if (a >= 1 && a <= 12 && b >= 1 && b <= 31) return `${year}-${pad(a)}-${pad(b)}`;
   }
   match = text.match(/\b([A-Za-z]{3,9})\.?\s+(\d{1,2})(?!\d)(?:st|nd|rd|th)?,?(?:\s+(\d{4}))?/);
@@ -103,38 +104,78 @@ export function dateIn(text: string, thisYear = new Date().getFullYear()): strin
   return undefined;
 }
 
+/** Photos misread digits as look-alike letters; inside a money-looking word they are put back. */
+export function fixDigits(text: string): string {
+  return text.replace(/(?<![A-Za-z])[$£€]?\s?[0-9OoIl|S][0-9OoIl|S,.]{2,}(?![A-Za-z])/g, (token) => {
+    const digits = token.replace(/[^0-9]/g, '').length;
+    if (digits < 2 || !/[.,][0-9OoIl|S]{1,2}$/.test(token)) return token;
+    return token.replace(/[Oo]/g, '0').replace(/[Il|]/g, '1').replace(/S/g, '5');
+  });
+}
+
+/** What each kind of paper calls the sum to pay, most specific first. */
+const BILL_WORDS = [/\b(?:total\s+)?amount\s+due\b/i, /\b(?:total|balance|payment)\s+due\b/i, /\bpay\s+this\s+amount\b/i, /\b(?:please\s+pay|new\s+balance|current\s+charges)\b/i, /\bamount\s+to\s+pay\b/i, /\bbalance\b/i];
+const RECEIPT_WORDS = [/\bgrand\s+total\b/i, /\b(?:total\s+(?:due|sale|amount)|amount\s+due|balance\s+due|order\s+total|sale\s+total)\b/i, /(?<!sub)(?<!sub )\btotal\b/i, /\bamount\s+(?:charged|paid)\b/i, /\bbalance\b/i];
+/** Lines whose money is not the sum to pay. */
+const NOT_THE_SUM = /\b(?:sub\s?-?total|tax|vat|gst|hst|tip|gratuity|change|cash|tender(?:ed)?|savings?|discount|coupon|you\s+saved|points?|items?|previous|prior|last\s+(?:payment|bill)|payment\s+received|minimum|late|credit\s+limit|available)\b/i;
+
+function moneyIn(line: string): number[] {
+  return [...line.matchAll(DECIMAL_MONEY)].map((hit) => money(hit[0])).filter((value): value is number => value !== undefined && value > 0);
+}
+
+/**
+ * The sum to pay, read by its words: the first of a ranked list of labels whose line (or the next one, where the number
+ * wraps) holds money, skipping subtotal, tax, change and cash lines. With no label, the largest amount outside those lines,
+ * then the largest on the page.
+ */
+export function amountByWords(text: string, words: readonly RegExp[]): number | undefined {
+  const all = lines(fixDigits(text));
+  for (const word of words) {
+    for (let i = 0; i < all.length; i += 1) {
+      if (!word.test(all[i])) continue;
+      if (NOT_THE_SUM.test(all[i].replace(word, ''))) continue;
+      const own = moneyIn(all[i]);
+      if (own.length) return own[own.length - 1];
+      const next = all[i + 1];
+      if (next && !NOT_THE_SUM.test(next)) {
+        const after = moneyIn(next);
+        if (after.length) return after[0];
+      }
+    }
+  }
+  const outside = all.filter((line) => !NOT_THE_SUM.test(line)).flatMap(moneyIn).sort((a, b) => b - a)[0];
+  return outside ?? all.flatMap(moneyIn).sort((a, b) => b - a)[0];
+}
+
+const DUE_WORDS = /\b(?:due(?:\s+date)?|pay\s+by|payment\s+date|please\s+pay\s+by|pay\s+on\s+or\s+before)\b/i;
+
 export function billFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
   const all = lines(text);
   const found: Found[] = [];
-  // Bill photos contain whole-number noise too. Only decimal-form money is considered, and the largest value wins.
-  const amounts = all.flatMap((line) => [...line.matchAll(DECIMAL_MONEY)].map((hit) => money(hit[0])).filter((value): value is number => value !== undefined && value > 0));
-  const amount = amounts.sort((a, b) => b - a)[0];
+  const amount = amountByWords(text, BILL_WORDS);
   if (amount !== undefined && amount > 0) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
   // Biller names are not trusted from offline OCR; the form leaves this for manual entry or a validated online reader.
-  const dueLine = all.findIndex((line) => /\b(due|pay by|payment date)\b/i.test(line) && dateIn(line, thisYear));
-  const due = dueLine >= 0 ? dateIn(all[dueLine], thisYear) : undefined;
+  // A due date is on the line that says due, or on the line after it where the date wraps.
+  let due: string | undefined;
+  for (let i = 0; i < all.length && !due; i += 1) {
+    if (!DUE_WORDS.test(all[i]) || /\b(?:statement|invoice|issue|billing)\s+date\b/i.test(all[i])) continue;
+    due = dateIn(all[i], thisYear) ?? (all[i + 1] && !DUE_WORDS.test(all[i + 1]) ? dateIn(all[i + 1], thisYear) : undefined);
+  }
   if (due) found.push({ key: 'due', label: 'Due', value: due });
   return found;
 }
 
 /** Receipt values use the same on-device reader as bills, but a printed date is a transaction date, not a due date. */
 export function receiptFromText(text: string, thisYear = new Date().getFullYear()): Found[] {
-  const lines = text.split(/\r?\n/).map((line) => line.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  const all = lines(text);
   // The offline reader does not validate merchant names. Leave that field blank rather than promoting OCR noise;
   // the optional online reader may supply a validated store name separately.
-  const found = billFromText(text, thisYear).filter((each) => each.key !== 'amount' && each.key !== 'due' && each.key !== 'name');
-  // Receipts contain many whole-number decoys: dates, phone numbers, item counts, ZIP codes, and references.
-  // Only consider money with an explicit decimal separator, including grouped thousands.
-  const moneyValue = (raw: string): number | undefined => {
-    const cleaned = raw.replace(/[$£€¥\s]/g, '');
-    const normalized = /,\d{1,2}$/.test(cleaned) ? cleaned.replace(/\./g, '').replace(',', '.') : cleaned.replace(/,/g, '');
-    const value = Number(normalized);
-    return Number.isFinite(value) ? value : undefined;
-  };
-  const amounts = lines.flatMap((line) => [...line.matchAll(DECIMAL_MONEY)].map((match) => moneyValue(match[0])).filter((value): value is number => value !== undefined && value > 0));
-  const amount = amounts.sort((a, b) => b - a)[0];
+  const found: Found[] = [];
+  // Receipts contain many whole-number decoys: dates, phone numbers, item counts, ZIP codes, and references, and
+  // cash handed over can beat the total. Only money with a decimal separator counts, and the total is read by its words.
+  const amount = amountByWords(text, RECEIPT_WORDS);
   if (amount !== undefined) found.push({ key: 'amount', label: 'Amount', value: amount.toFixed(2) });
-  const date = lines.map((line) => dateIn(line, thisYear)).find(Boolean);
+  const date = all.map((line) => dateIn(line, thisYear)).find(Boolean);
   if (date) found.push({ key: 'date', label: 'Date', value: date });
   return found;
 }

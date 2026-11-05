@@ -32,7 +32,7 @@ describe('reading a rating plate', () => {
 describe('reading a bill', () => {
   it('prefers the amount due and the due date', () => {
     const found = billFromText('City Power\nPrevious balance $80.12\nAmount due $64.30\nDue date: Oct 21, 2026', 2026);
-    expect(value(found, 'amount')).toBe('80.12');
+    expect(value(found, 'amount')).toBe('64.30');
     expect(value(found, 'due')).toBe('2026-10-21');
   });
 

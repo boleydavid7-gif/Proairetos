@@ -32,7 +32,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
     close();
     setPhoto(file);
     setReading(0);
-    void readPhotoText(file, setReading)
+    void readPhotoText(file, setReading, (words) => find(words).length > 0)
       .then((words) => {
         setText(words);
         setFound(find(words).map((each) => ({ ...each, use: true })));
@@ -65,8 +65,7 @@ export function ReadFromPhoto({ find, onUse, label = 'Read from a photo', initia
       <input
         ref={input}
         type="file"
-        accept="image/*"
-        capture="environment"
+        accept="image/*,application/pdf"
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
