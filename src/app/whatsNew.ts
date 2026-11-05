@@ -3,6 +3,12 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-05',
     lines: [
+      'Core is also yearly, $149.99. Share a link and take 20% off Core for six months when someone you share with subscribes.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    lines: [
       'Open time: choose Several to put a few to-dos in a stretch one after another, with one undo.',
       'Family: controls a child can’t use are hidden in every shared screen.',
     ],

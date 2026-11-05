@@ -520,9 +520,7 @@ ${featured.map(appCard).join('\n')}
         <p class="lead" style="margin-top:-0.4rem;margin-bottom:1.4rem">Make an account and every app is free for 7 days. No card needed.</p>
         <div class="prices">
           <div class="price price--free"><b>Proairetos</b><strong>Free</strong><span>To-dos, calendar, journal and values. Free for good.</span></div>
-          <div class="price"><b>Core apps</b><strong>${dollars('core')}/mo</strong><span>All the apps except Soma and Phyton.</span></div>
-          <div class="price"><b>Soma</b><strong>${dollars('soma')}/mo</strong><span>Recipes, meal plans and grocery lists.</span></div>
-          <div class="price"><b>Phyton</b><strong>${dollars('phyton')}/mo</strong><span>Plant care, with identification from a photo. Get both for ${dollars('bundle')}/mo.</span></div>
+          <div class="price"><b>Proairetos Core</b><strong>${dollars('core')}/mo or ${dollars('coreyear')}/yr</strong><span>Every app, as many as you like. Share Proairetos and take 20% off for six months.</span></div>
           <div class="price"><b>Proairetos cloud</b><strong>${dollars('cloud')}/mo</strong><span>Encrypted sync and backup. Or sync for free with your own Google Drive, Dropbox or OneDrive.</span></div>
         </div>
       </section>

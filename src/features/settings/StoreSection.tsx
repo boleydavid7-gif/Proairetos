@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { myReferral, type MyReferral } from '../../app/family/referral';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { addApp, NOT_OFFERED, removeApp, useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
@@ -85,9 +86,10 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
         {trialUntil && !tester && !owner ? <p className="store__trial" role="status">Free trial of every app until {new Date(trialUntil).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}. Proairetos cloud is not included.</p> : null}
         {!account && !owner && !tester ? <p className="store__trial">Every app free for 7 days with an account. No card needed. <a className="text-link" href="/?open=account">Start your free trial</a></p> : null}
         <div className="store__plans">
-          <PlanCard plan="core" title="Proairetos Core" detail="The other apps" price={priceText('core')} owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
+          <CorePlanCard owned={owner || tester || owned.includes('core')} busy={busy} finishing={finishing} onBuy={purchase} />
           {(!tester || owner) && <PlanCard plan="cloud" title="Proairetos cloud" detail="Encrypted backup and sync" price={priceText('cloud')} owned={owner || owned.includes('cloud')} busy={busy} finishing={finishing} onBuy={purchase} />}
         </div>
+        {account && !tester ? <ShareCard /> : null}
         {note ? <p className="store__note" role="status">{note.text}{note.signIn ? <>{' '}<a className="text-link" href="/?open=account">Sign in</a></> : null}</p> : null}
         {!paid && !owner && !tester ? <p className="store__fine">Checkout isn’t open yet.</p> : null}
         {tester && !owner ? <p className="store__fine">Seven-day beta access includes the apps. Proairetos cloud is not included; use local storage or your own cloud.</p> : null}
@@ -171,7 +173,7 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
           );
         })}
       </ul>}
-      {!tester && !owner ? <p className="store__fine">Plans renew monthly.</p> : null}
+      {!tester && !owner ? <p className="store__fine">Plans renew each month or year.</p> : null}
       {owner && <><BetaAccessPanel /><SignedInUsersPanel /></>}
       <a className="text-link" href="/welcome/#install">
         Adding Proairetos to your Home Screen
@@ -181,8 +183,71 @@ export default function StoreSection({ onOpenAccount }: { onOpenAccount?: () => 
 }
 
 function addPlan(plan: string): void {
-  if (plan === 'core') CORE_APPS.forEach((app) => addApp(app));
+  if (plan === 'core' || plan === 'coreyear') CORE_APPS.forEach((app) => addApp(app));
   else if (plan !== 'cloud') addApp(plan as AddOn);
+}
+
+/** Core, paid every month or every year; every app is in it. */
+function CorePlanCard({ owned, busy, finishing, onBuy }: { owned: boolean; busy: string | null; finishing: string | null; onBuy: (plan: PurchaseItem, name: string) => Promise<void> }) {
+  const waiting = (plan: PurchaseItem, label: string) => (finishing === 'core' ? <Waiting>Finishing…</Waiting> : busy === plan ? <Waiting>Opening…</Waiting> : label);
+  return (
+    <article className="store__plan">
+      <div>
+        <h3>Proairetos Core</h3>
+        <p>The other apps</p>
+      </div>
+      <strong>{owned ? 'Included' : `${priceText('core')}/mo`}</strong>
+      {owned ? (
+        <span className="store__plan-state">Available</span>
+      ) : (
+        <div className="store__plan-choices">
+          <button type="button" className="button-accent" disabled={busy !== null || finishing === 'core'} onClick={() => void onBuy('core', 'Proairetos Core')}>
+            {waiting('core', 'Monthly')}
+          </button>
+          <button type="button" className="button-quiet" disabled={busy !== null || finishing === 'core'} onClick={() => void onBuy('coreyear', 'Proairetos Core')}>
+            {waiting('coreyear', `Yearly · ${priceText('coreyear')}`)}
+          </button>
+        </div>
+      )}
+    </article>
+  );
+}
+
+/** Sharing: a link, and the state of the 20% off for six months it can earn. Shown only where the server has sharing set up. */
+function ShareCard() {
+  const [mine, setMine] = useState<MyReferral | undefined>();
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void myReferral().then((value) => live && setMine(value));
+    return () => {
+      live = false;
+    };
+  }, []);
+  if (!mine) return null;
+  const share = async () => {
+    try {
+      if (navigator.share) await navigator.share({ title: 'Proairetos', url: mine.link });
+      else {
+        await navigator.clipboard.writeText(mine.link);
+        setCopied(true);
+        window.setTimeout(() => setCopied(false), 2500);
+      }
+    } catch {
+      // Closed without sharing.
+    }
+  };
+  return (
+    <article className="store__plan store__share">
+      <div>
+        <h3>Share Proairetos</h3>
+        <p>{mine.applied ? '20% off your plan for 6 months' : mine.earned ? '20% off your first payment, for 6 months' : '20% off Core for 6 months when someone you share with subscribes'}</p>
+      </div>
+      <button type="button" className="button-quiet" onClick={() => void share()}>
+        {copied ? 'Link copied' : 'Share a link'}
+      </button>
+    </article>
+  );
 }
 
 function PlanCard({ plan, title, detail, price, owned, busy, finishing, onBuy }: { plan: PurchaseItem; title: string; detail: string; price: string; owned: boolean; busy: string | null; finishing: string | null; onBuy: (plan: PurchaseItem, name: string) => Promise<void> }) {

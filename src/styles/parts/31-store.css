@@ -30,6 +30,9 @@
 .store__plan p { color: var(--color-text-muted); font-size: var(--text-sm); }
 .store__plan strong { white-space: nowrap; font-size: var(--text-sm); }
 .store__plan button { grid-column: 1 / -1; justify-self: start; min-height: 38px; padding-inline: 18px; }
+.store__plan-choices { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.store__plan-choices button { min-height: 38px; padding-inline: 18px; }
+.store__share button { grid-column: 1 / -1; justify-self: start; }
 .store__plan-state { grid-column: 1 / -1; color: var(--color-accent); font-size: var(--text-sm); }
 
 .store__list {

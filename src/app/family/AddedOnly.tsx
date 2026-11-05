@@ -50,7 +50,7 @@ export default function AddedOnly({ app, children }: { app: AddOn; children: Rea
           </>
         ) : toBuy ? (
           <a className="added-only__add" href="/?open=settings:store">
-            Get it · {app === 'soma' ? priceText('soma') : app === 'phyton' ? priceText('phyton') : priceText('core')}/mo
+            Get it · {priceText('core')}/mo
           </a>
         ) : (
           <button type="button" className="added-only__add" onClick={() => addApp(app)}>

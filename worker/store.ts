@@ -12,7 +12,9 @@
  *   GET  /api/store/mine       with the person's sign-in → { tester } (whether this account is on that list)
  */
 
-export type StoreEnv = {
+import { applyCredit, creditOf, ensureCoupon, keepReferral, markApplied, readReferral, REFERRAL_COUPON, referralCode, referralsOn, usable, type ReferralEnv } from './referrals';
+
+export type StoreEnv = ReferralEnv & {
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
@@ -24,12 +26,13 @@ export type StoreEnv = {
   OWNER_EMAILS?: string;
 };
 
-export const PLAN_PRICES = { core: 1299, cloud: 299 } as const;
+export const PLAN_PRICES = { core: 1299, coreyear: 14999, cloud: 299 } as const;
 export const PRICE_CENTS = PLAN_PRICES.core;
 export const CURRENCY = 'usd';
 
 export const STORE_PLANS: Record<string, { name: string; cents: number; apps: string[] }> = {
   core: { name: 'Proairetos Core', cents: PLAN_PRICES.core, apps: ['core'] },
+  coreyear: { name: 'Proairetos Core, yearly', cents: PLAN_PRICES.coreyear, apps: ['core'] },
   cloud: { name: 'Proairetos cloud sync', cents: PLAN_PRICES.cloud, apps: ['cloud'] },
 };
 
@@ -164,10 +167,21 @@ async function ownsAny(env: StoreEnv, fetcher: Fetcher, user: string, apps: stri
   return found;
 }
 
+/** The person's share link, and whether they have earned the discount (put on their plan here if they are subscribed). */
+export async function myReferral(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
+  if (!referralsOn(env) || !env.SUPABASE_URL || !env.SUPABASE_ANON_KEY || !env.SUPABASE_SERVICE_ROLE_KEY) return reply(200, { available: false });
+  const person = await personFrom(request, env, fetcher);
+  if (!person) return reply(401, { error: 'Sign in first.' });
+  const code = await referralCode(env, person.id);
+  let credit = await creditOf(env, fetcher, person.id);
+  if (credit && !credit.applied && (await applyCredit(env, fetcher, person.id))) credit = { ...credit, applied: true };
+  return reply(200, { available: true, code, earned: Boolean(credit), applied: Boolean(credit?.applied) });
+}
+
 /** Starts Stripe Checkout for the family plan or Proairetos cloud. */
 export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fetcher = fetch): Promise<Response> {
   if (!storeReady(env)) return reply(503, { error: 'The Store is not taking payments yet.' });
-  const body = (await request.json().catch(() => ({}))) as { app?: string };
+  const body = (await request.json().catch(() => ({}))) as { app?: string; ref?: string };
   const requested = String(body.app ?? '');
   // Old links for Soma, Phyton and their bundle now lead to the single family plan.
   const app = ['soma', 'phyton', 'bundle'].includes(requested) ? 'core' : requested;
@@ -180,7 +194,7 @@ export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fe
   if (owner || (tester && app !== 'cloud')) return reply(200, { owned: true, tester });
   if (tester && app === 'cloud') return reply(403, { error: 'Beta access includes the apps, but not Proairetos cloud. Choose local or your own cloud storage.' });
   const existing = await ownsAny(env, fetcher, person.id, ['core', 'soma', 'phyton', 'cloud']);
-  if (existing.includes(app)) return reply(200, { owned: true });
+  if (existing.includes(plan.apps[0])) return reply(200, { owned: true });
   const cents = plan.cents;
   const purchaseApps = plan.apps;
   const origin = new URL(request.url).origin;
@@ -189,20 +203,39 @@ export async function startCheckout(request: Request, env: StoreEnv, fetcher: Fe
     'line_items[0][quantity]': '1',
     'line_items[0][price_data][currency]': CURRENCY,
     'line_items[0][price_data][unit_amount]': String(cents),
-    'line_items[0][price_data][recurring][interval]': 'month',
+    'line_items[0][price_data][recurring][interval]': app === 'coreyear' ? 'year' : 'month',
     'line_items[0][price_data][product_data][name]': `${plan.name} by Proairetos`,
     client_reference_id: person.id,
     'metadata[app]': app,
     'metadata[plan]': app,
     'metadata[apps]': purchaseApps.join(','),
     'metadata[user]': person.id,
-    success_url: `${origin}/?open=settings:store#bought=${app}`,
+    success_url: `${origin}/?open=settings:store#bought=${plan.apps[0]}`,
     cancel_url: `${origin}/?open=settings:store`,
   });
   form.set('subscription_data[metadata][app]', app);
   form.set('subscription_data[metadata][apps]', purchaseApps.join(','));
   form.set('subscription_data[metadata][user]', person.id);
   if (person.email) form.set('customer_email', person.email);
+  // Sharing: a code from the person who sent them earns that person a discount (below, once this payment is in), and a
+  // credit this person has earned comes off their own first payment.
+  if (plan.apps[0] === 'core' && referralsOn(env)) {
+    const referrer = await readReferral(env, body.ref);
+    if (referrer && (await usable(env, fetcher, referrer, person.id))) {
+      form.set('metadata[referrer]', referrer);
+      form.set('subscription_data[metadata][referrer]', referrer);
+    }
+    const credit = await creditOf(env, fetcher, person.id);
+    if (credit && !credit.applied) {
+      try {
+        await ensureCoupon(env, fetcher);
+        form.set('discounts[0][coupon]', REFERRAL_COUPON);
+        form.set('metadata[credit]', credit.id);
+      } catch {
+        // The discount waits; the payment page still opens.
+      }
+    }
+  }
   const response = await fetcher('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' },
@@ -234,7 +267,7 @@ type CheckoutSession = {
   currency?: string;
   subscription?: string;
   client_reference_id?: string;
-  metadata?: { app?: string; apps?: string; user?: string };
+  metadata?: { app?: string; apps?: string; user?: string; referrer?: string; credit?: string };
 };
 
 type Subscription = {
@@ -283,6 +316,14 @@ export async function handleWebhook(request: Request, env: StoreEnv, fetcher: Fe
   });
   // A failure here makes Stripe send the event again later.
   if (!response.ok) return reply(500, { error: 'Could not record the purchase.' });
+  // Sharing never makes the webhook fail: what cannot be done now is done when the sharer next opens the Store.
+  try {
+    if (session.metadata?.credit) await markApplied(env, fetcher, session.metadata.credit);
+    const referrer = session.metadata?.referrer;
+    if (referrer && referralsOn(env) && (await keepReferral(env, fetcher, referrer, user, session.id))) await applyCredit(env, fetcher, referrer);
+  } catch {
+    // Left for later.
+  }
   return reply(200, { received: true });
 }
 
@@ -293,6 +334,7 @@ export async function handleStoreRequest(request: Request, env: StoreEnv): Promi
   if (path === '/api/store/mine' && request.method === 'GET') return mine(request, env);
   if (path === '/api/store/beta' && ['GET', 'POST', 'DELETE'].includes(request.method)) return betaAccess(request, env);
   if (path === '/api/store/users' && request.method === 'GET') return signedInUsers(request, env);
+  if (path === '/api/store/referral' && request.method === 'GET') return myReferral(request, env);
   if (path === '/api/store/checkout' && request.method === 'POST') return startCheckout(request, env);
   if (path === '/api/store/webhook' && request.method === 'POST') return handleWebhook(request, env);
   return reply(404, { error: 'Not found.' });

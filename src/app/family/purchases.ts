@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react';
+import { heldReferral } from './referral';
 import type { AddOn } from './added';
 import { apiUrl } from '../apiBase';
 
@@ -17,7 +18,7 @@ const OWNED_KEY = 'proairetosOwned';
 
 type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: number; currency: string };
 
-export type PurchaseItem = 'core' | 'cloud';
+export type PurchaseItem = 'core' | 'coreyear' | 'cloud';
 // Praxis is retained as a compatibility route into Theoria's Pomodoro, but is no longer a purchasable or addable app.
 export const CORE_APPS = ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme'] as const;
 
@@ -48,7 +49,7 @@ export const storePaid = (): boolean => readJson<StoreInfo>(STORE_KEY)?.paid ===
 /** A plan price in the person's own way of writing money. */
 export function priceText(item: PurchaseItem | string = 'core'): string {
   const info = readJson<StoreInfo>(STORE_KEY);
-  const cents = info?.prices?.[item] ?? ({ core: 1299, cloud: 299 }[item] ?? info?.price ?? 1299);
+  const cents = info?.prices?.[item] ?? ({ core: 1299, coreyear: 14999, cloud: 299 }[item] ?? info?.price ?? 1299);
   try {
     return new Intl.NumberFormat(undefined, { style: 'currency', currency: (info?.currency ?? 'usd').toUpperCase() }).format(cents / 100);
   } catch {
@@ -160,7 +161,7 @@ export async function buy(app: PurchaseItem): Promise<'owned' | 'left'> {
   const response = await fetch(apiUrl('/api/store/checkout'), {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
-    body: JSON.stringify({ app }),
+    body: JSON.stringify({ app, ref: app === 'cloud' ? undefined : heldReferral() }),
   });
   const body = (await response.json().catch(() => ({}))) as { url?: string; owned?: boolean; error?: string };
   if (response.status === 401) throw new NeedsSignIn(body.error ?? 'Sign in to buy an app.');

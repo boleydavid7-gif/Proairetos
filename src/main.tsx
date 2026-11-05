@@ -16,9 +16,13 @@ import { startDailyCopies } from './app/family/dailyCopyLater';
 import { startHealthInbox } from './app/health/start';
 import { startLaunchFiles } from './app/family/launchFiles';
 import { keepInvite } from './app/together/together';
+import { keepReferralFromAddress } from './app/family/referral';
 import { readInvite } from './core/together/sharedTodos';
 import { keepHouseholdInvite } from './app/household/household';
 import { readHouseholdInvite } from './core/household/household';
+
+// A link someone shared (`?ref=`): kept on this device and taken out of the address; it goes with a Core checkout.
+keepReferralFromAddress();
 
 // A shared list's invite: the key is after `#`, read here once and taken out of the address; Today offers to join.
 const invite = readInvite(location.search, location.hash);
