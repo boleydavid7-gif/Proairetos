@@ -20,7 +20,7 @@ export type RhythmSettings = {
   cutoffHours: number;
   /** Minutes from leaving work to being home. */
   commuteMinutes: number;
-  /** Minutes from the end of a shift to the start of sleep (the trip home, a meal, a shower, quiet), for a shift that ends at night or near bedtime. */
+  /** The earliest sleep can start after work ends, in minutes (the trip home, a meal, a shower, quiet). Only reached when work ends near bedtime or at night. */
   afterShiftMinutes: number;
   /** Minutes before sleep to wind down (0 for none). */
   windDownMinutes: number;
