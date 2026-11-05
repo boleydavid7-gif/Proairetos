@@ -319,7 +319,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['chore name', 'room'], excludes: ['chore note', 'who it is assigned to', 'steps'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['chore name', 'since when', 'who has it'], excludes: ['notes', 'steps', 'history', 'the rest of the household'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

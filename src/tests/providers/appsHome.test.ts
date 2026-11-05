@@ -166,3 +166,42 @@ describe('Soma on Today', () => {
     undo();
   });
 });
+
+describe('Ergon on Today', () => {
+  const chore = (id: string, name: string, extra: Record<string, unknown> = {}) => ({ id, name, room: 'Kitchen', note: 'CANARY-NOTE', steps: [{ id: 's', text: 'CANARY-STEP', done: false }], repeat: { kind: 'days', every: 3 }, start: '2026-11-02', history: [], createdAt: day, ...extra });
+  it('says which chores have come round, since when and who has them, never the note or steps', async () => {
+    const { ergonHome } = await import('../../ergon/providers/home');
+    put('ergon:chore:c1', chore('c1', 'Wipe counters', { who: 'Sam' }));
+    put('ergon:chore:c2', chore('c2', 'Later', { start: '2026-11-20' }));
+    put('ergon:chore:c3', chore('c3', 'Water the herbs', { start: '2026-11-01', repeat: { kind: 'days', every: 30 } }));
+    const rows = await lines(ergonHome);
+    expect(rows.map((row) => row.title)).toEqual(['Water the herbs', 'Wipe counters']);
+    expect(rows[0].detail).toBe('Since Sun');
+    expect(rows[1]).toMatchObject({ title: 'Wipe counters', detail: 'Sam', open: '/ergon/?open=chore%3Ac1', swipe: { id: 'chore:c1', word: 'Done', marks: true } });
+    expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('a pull marks the chore done in Ergon and the undo brings it back', async () => {
+    const { ergonHome } = await import('../../ergon/providers/home');
+    put('ergon:chore:c1', chore('c1', 'Wipe counters'));
+    const undo = ergonHome.act!({ app: 'ergon', kind: 'chore', id: 'c1' }, TODAY);
+    expect(await lines(ergonHome)).toEqual([]);
+    undo();
+    expect(await lines(ergonHome)).toHaveLength(1);
+  });
+  it('moves a chore that comes round on a work day to the next day off, when the person chose that', async () => {
+    const { ergonHome } = await import('../../ergon/providers/home');
+    put('ergon:settings', { started: true, me: 'Sam', notices: {}, daysOff: true });
+    put('ergon:chore:c1', chore('c1', 'Wipe counters', { start: '2026-11-05' }));
+    const work = [{ kind: 'COMMITTED', start: new Date('2026-11-05T09:00:00'), end: new Date('2026-11-05T17:00:00'), label: 'Work', patternName: 'Work', patternId: 'p', id: 'o1', date: '2026-11-05' }];
+    expect(await lines(ergonHome, { schedule: async () => work as never })).toEqual([]);
+    expect(await lines(ergonHome, { schedule: async () => [] })).toHaveLength(1);
+  });
+  it('follows an edit and a deletion', async () => {
+    const { ergonHome } = await import('../../ergon/providers/home');
+    put('ergon:chore:c1', chore('c1', 'Wipe counters'));
+    put('ergon:chore:c1', chore('c1', 'Wipe the counters'));
+    expect((await lines(ergonHome))[0].title).toBe('Wipe the counters');
+    localStorage.removeItem('ergon:chore:c1');
+    expect(await lines(ergonHome)).toEqual([]);
+  });
+});
