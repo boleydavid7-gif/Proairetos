@@ -205,3 +205,36 @@ describe('Ergon on Today', () => {
     expect(await lines(ergonHome)).toEqual([]);
   });
 });
+
+describe('Phyton on Today', () => {
+  const plant = (id: string, name: string, extra: Record<string, unknown> = {}) => ({ id, name, place: 'CANARY-PLACE', note: 'CANARY-NOTE', every: 7, start: '2026-10-25', log: [], createdAt: day, ...extra });
+  it('says which plants have come round to be checked and since when, never the note or place', async () => {
+    const { phytonHome } = await import('../../phyton/providers/home');
+    put('phyton:plant:p1', plant('p1', 'Fern'));
+    put('phyton:plant:p2', plant('p2', 'Basil', { start: '2026-11-05' }));
+    put('phyton:plant:p3', plant('p3', 'Later', { start: '2026-12-01' }));
+    const rows = await lines(phytonHome);
+    expect(rows.map((row) => row.title)).toEqual(['Fern', 'Basil']);
+    expect(rows[0]).toMatchObject({ detail: 'Check the soil · Since Oct 25', open: '/phyton/?open=plant%3Ap1', swipe: { id: 'plant:p1', word: 'Watered', marks: true } });
+    expect(rows[1].detail).toBe('Check the soil');
+    expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('rain the device kept counts only when the person chose it, and nothing is fetched', async () => {
+    const { phytonHome } = await import('../../phyton/providers/home');
+    const realFetch = globalThis.fetch;
+    let fetched = 0;
+    globalThis.fetch = (() => { fetched += 1; throw new Error('network'); }) as unknown as typeof fetch;
+    put('phyton:plant:p1', plant('p1', 'Fern', { outside: true }));
+    await lines(phytonHome);
+    globalThis.fetch = realFetch;
+    expect(fetched).toBe(0);
+  });
+  it('a pull waters the plant in Phyton and the undo takes it back', async () => {
+    const { phytonHome } = await import('../../phyton/providers/home');
+    put('phyton:plant:p1', plant('p1', 'Fern'));
+    const undo = phytonHome.act!({ app: 'phyton', kind: 'plant', id: 'p1' }, TODAY);
+    expect(await lines(phytonHome)).toEqual([]);
+    undo();
+    expect(await lines(phytonHome)).toHaveLength(1);
+  });
+});
