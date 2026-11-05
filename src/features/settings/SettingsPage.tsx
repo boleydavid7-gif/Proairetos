@@ -555,6 +555,7 @@ const appParts: { app: string; sections: { label?: string; parts: PartRow[] }[] 
           { part: 'open-time', label: 'Open time' },
           { part: 'look-ahead', label: 'Look ahead', rare: true },
           { part: 'schedule-prompt', label: 'Add your schedule', rare: true },
+          { part: 'apps-prompt', label: 'Add apps', rare: true },
           { part: 'a-while-ago', label: 'From a while ago', rare: true },
         ],
       },

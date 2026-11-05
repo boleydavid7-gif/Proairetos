@@ -416,6 +416,7 @@ export type TodayPart =
   | 'intention'
   | 'path'
   | 'schedule-prompt'
+  | 'apps-prompt'
   | 'capture'
   | 'a-while-ago'
   | 'close-day'

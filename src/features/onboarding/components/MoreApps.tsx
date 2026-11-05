@@ -78,7 +78,6 @@ export default function MoreApps({ onStore }: { onStore: () => void }) {
   );
   return (
     <div className="ob-panel more-apps">
-      <Gathering wanted={wanted} />
       <h2 className="ob-panel__ask">What pulls at your attention?</h2>
       <div className="ob-chips" role="group" aria-label="What pulls at your attention?">
         {INTERESTS.map((each) => (
@@ -96,6 +95,7 @@ export default function MoreApps({ onStore }: { onStore: () => void }) {
           </button>
         ))}
       </div>
+      <Gathering wanted={wanted} />
       <ul className="ob-card more-apps__list" data-choosing={chosen.length > 0 || undefined}>
         {apps.map(({ app, match }) => (
           <li key={app.id} className="more-apps__app" data-match={match || undefined}>
