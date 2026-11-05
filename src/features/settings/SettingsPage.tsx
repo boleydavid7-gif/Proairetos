@@ -10,7 +10,7 @@ import { familyApps } from '../../app/family/FamilyApps';
 import { useAddedApps, type AddOn } from '../../app/family/added';
 import { promptText } from '../reflect/prompts';
 import { notifications } from '../../app/notify/notifications';
-import { localDayKey } from '../../data/storage/preferences';
+import { localDayKey, setTodayAppShown } from '../../data/storage/preferences';
 import NotificationsSection from './NotificationsSection';
 import BringInSection from './BringInSection';
 import InboxSection from './InboxSection';
@@ -96,7 +96,8 @@ import type { AppRoute } from '../../app/routes/routeTypes';
 import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 import { Waiting } from '../../lamplight/Waiting';
 import PwaInstallSection from './PwaInstallSection';
-import TodayAppsSettings from './TodayAppsSettings';
+import { useTodayAppsVisibility } from '../../app/hooks/useTodayAppsVisibility';
+import { DAILY_PRACTICE_APPS, WORTH_ATTENTION_APPS, type TodayApp } from '../../core/today/apps';
 
 function download(text: string) {
   return downloadBackup(text, localDayKey(new Date()));
@@ -840,9 +841,12 @@ function AppearanceSection() {
   );
 }
 
+const TODAY_APPS: readonly string[] = [...DAILY_PRACTICE_APPS, ...WORTH_ATTENTION_APPS];
+
 function TodaySection() {
   const shows = useTodayParts();
   const addedNow = useAddedApps();
+  const hidden = useTodayAppsVisibility();
   const row = ({ part, label }: PartRow) => (
     <button
       key={part}
@@ -855,11 +859,33 @@ function TodaySection() {
       <span>{label}</span>
     </button>
   );
+  // Whether an app shows on Today at all (Daily practices or Worth your attention): the first row of its own section.
+  const todayRow = (app: TodayApp) => {
+    const on = !hidden.has(app);
+    return (
+      <button
+        key={`${app}-on-today`}
+        type="button"
+        className="toggle-row"
+        aria-pressed={on}
+        onClick={() => setTodayAppShown(app, !on)}
+      >
+        <span className={`toggle-switch${on ? ' toggle-switch--on' : ''}`} aria-hidden="true" />
+        <span>On Today</span>
+      </button>
+    );
+  };
+  const withParts = new Set(appParts.map(({ app }) => app.toLowerCase()));
+  // Apps that show on Today but have no other switch here (Hydros, Dynamis, Diaita) still get a section of their own.
+  const onlyToday = TODAY_APPS.filter((id) => !withParts.has(id) && addedNow.includes(id as AddOn));
+  const sectionsOf = appParts
+    .filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn))
+    .map(({ app, sections }) => ({ app, id: app.toLowerCase(), sections }));
+  const extra = onlyToday.map((id) => ({ app: familyApps.find((each) => each.id === id)?.name ?? id, id, sections: [{ parts: [] as PartRow[] }] as { label?: string; parts: PartRow[] }[] }));
   return (
     <div className="settings-sections" aria-label="What’s included">
-      <TodayAppsSettings />
-      {appParts.filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn)).flatMap(({ app, sections }) =>
-        sections.map((section) => {
+      {[...sectionsOf, ...extra].flatMap(({ app, id, sections }) =>
+        sections.map((section, at) => {
           const main = section.parts.filter((entry) => !entry.rare);
           const rare = section.parts.filter((entry) => entry.rare);
           const icon = familyApps.find((each) => each.name === app)?.icon;
@@ -870,6 +896,7 @@ function TodaySection() {
                 {section.label ?? app}
               </h2>
               <div className="settings-card settings-card--rows">
+                {at === 0 && TODAY_APPS.includes(id) && todayRow(id as TodayApp)}
                 {main.map(row)}
                 {rare.length > 0 && (
                   <details className="sheet__more">

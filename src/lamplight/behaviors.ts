@@ -177,7 +177,9 @@ function largeTitle(): void {
 
   const gather = (): HTMLElement[] => {
     const own = first(ACTIONS);
-    const page = own ? [...own.querySelectorAll<HTMLElement>('button, a')] : [];
+    // A sheet opened from one of these buttons is drawn inside the same container (Search), so its own Close and
+    // chips must never be copied into the bar.
+    const page = own ? [...own.querySelectorAll<HTMLElement>('button, a')].filter((each) => !each.closest('dialog, [role="dialog"]')) : [];
     // A dock item made for computers only (the All apps launcher) never goes to the phone's bar.
     const places = [...document.querySelectorAll<HTMLElement>(TO_HEADER)].filter((each) => !each.closest(SIDEBAR) && !each.classList.contains('tab-bar__desktop-only'));
     return [...page, ...places];
