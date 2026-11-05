@@ -52,8 +52,16 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
     return { patterns: allPatterns.sort((a, b) => a.createdAt.localeCompare(b.createdAt)), exceptions: allExceptions };
   }
 
+  // The person's own edits, so a change they just made is not announced back to them (the bell, Today's card).
+  let ownEditAt = 0;
+  const own = () => {
+    ownEditAt = Date.now();
+  };
+
   return {
     subscribe: listeners.subscribe,
+    /** When the person last changed the schedule on this device (0 before any). */
+    lastOwnEdit: () => ownEditAt,
     /** Tells screens to reload, e.g. after sync brought changes from another device. */
     refresh: listeners.notify,
 
@@ -76,6 +84,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
         updatedAt: timestamp,
       };
       await patterns.add(pattern);
+      own();
       listeners.notify();
       return pattern;
     },
@@ -86,6 +95,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
       if (!existing) throw new Error('That schedule no longer exists.');
       const pattern: SchedulePattern = { ...existing, ...clean(input), updatedAt: context.now().toISOString() };
       await patterns.put(pattern);
+      own();
       listeners.notify();
       return pattern;
     },
@@ -94,6 +104,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
       const related = (await exceptions.list(userId)).filter((exception) => exception.patternId === id);
       await Promise.all(related.map((exception) => exceptions.remove(exception.id)));
       await patterns.remove(id);
+      own();
       listeners.notify();
     },
 
@@ -108,6 +119,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
         createdAt: context.now().toISOString(),
       };
       await exceptions.put(exception);
+      own();
       listeners.notify();
       return exception;
     },
@@ -118,6 +130,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
 
     async restoreDay(patternId: string, date: string): Promise<void> {
       await exceptions.remove(`${patternId}:${date}`);
+      own();
       listeners.notify();
     },
 
@@ -134,6 +147,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
         createdAt: context.now().toISOString(),
       };
       await exceptions.put(empty);
+      own();
       listeners.notify();
       let undone = false;
       return {
@@ -142,6 +156,7 @@ export function createScheduleService({ userId, context, patterns, exceptions }:
           undone = true;
           if (before) await exceptions.put(before);
           else await exceptions.remove(id);
+          own();
           listeners.notify();
         },
       };

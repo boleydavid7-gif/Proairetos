@@ -153,6 +153,8 @@ async function lookAtSchedule(): Promise<void> {
   const before = read<SeenBlock[] | null>(SEEN, null);
   write(SEEN, blocks);
   if (!before) return;
+  // A change the person just made themselves is theirs, not news: note it as seen without announcing it.
+  if (Date.now() - scheduleService.lastOwnEdit() < 4000) return;
   // Only days both looks cover: days that simply came into view, or passed, are not changes.
   const from = toLocalDate(now);
   const last = addDays(from, AHEAD_DAYS - 1);
