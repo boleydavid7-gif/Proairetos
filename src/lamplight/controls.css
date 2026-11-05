@@ -79,10 +79,10 @@
 /* ---------- The one lit action: the lamp's pill ---------- */
 :root :is(.mneme-primary, .praxis-button--primary, .theoria-primary-button) {
   border: 0;
-  border-radius: var(--ll-radius-pill);
+  border-radius: var(--ll-radius-action);
   background: var(--ll-lamp-fill);
   color: var(--ll-on-lamp);
-  box-shadow: var(--ll-lamp-light);
+  box-shadow: none;
   letter-spacing: 0;
   transform: none;
 }
@@ -103,7 +103,7 @@
 /* ---------- Everything else is tonal ---------- */
 :root :is(.mneme-secondary, .praxis-button--quiet, .theoria-secondary-button) {
   border: 0;
-  border-radius: var(--ll-radius-pill);
+  border-radius: var(--ll-radius-action);
   background: var(--ll-tonal);
   color: var(--ll-on-tonal);
   box-shadow: none;
@@ -117,7 +117,7 @@
 /* Removing is a plain word on a quiet pill. */
 :root .theoria-danger-button {
   border: 1px solid var(--ll-hair);
-  border-radius: var(--ll-radius-pill);
+  border-radius: var(--ll-radius-action);
   background: transparent;
   color: var(--ll-remove);
 }

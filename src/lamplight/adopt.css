@@ -35,10 +35,10 @@
   border-top-color: var(--ll-hair);
 }
 
-/* ---------- The one lit action: the lamp's pill, with its own light ---------- */
+/* ---------- The one lit action: the lamp's fill in a restrained corner (Nov 5; was a glowing pill) ---------- */
 :root :is(.button-main, .button-accent) {
-  border-radius: var(--ll-radius-pill);
-  box-shadow: var(--ll-lamp-light);
+  border-radius: var(--ll-radius-action);
+  box-shadow: none;
   letter-spacing: 0;
 }
 
@@ -68,7 +68,7 @@
 :root .button-quiet {
   border-color: var(--ll-hair);
   background: rgba(var(--ll-ink-rgb, 255, 255, 255), 0.04);
-  border-radius: var(--ll-radius-pill);
+  border-radius: var(--ll-radius-action);
 }
 
 :root :is(.button-main, .button-accent):is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
@@ -92,7 +92,7 @@
   border: 1px solid var(--ll-hair);
   background: transparent;
   color: var(--ll-remove);
-  border-radius: var(--ll-radius-pill);
+  border-radius: var(--ll-radius-action);
 }
 
 /* ---------- Chips: a chosen chip is tonal, so the lamp stays the one light ---------- */

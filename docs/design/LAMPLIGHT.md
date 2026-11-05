@@ -278,5 +278,8 @@ From Reflect, the first screen refined toward less container and more type and s
   plain list. The rules carry three `:root` so the shared surface rules lose to them.
 - **`.ll-steady`**: a screen's one main action in `--ll-radius-action` (12 px, the `sm` radius) with no glow, in place of the
   lamp's pill. Used with `.button-accent` or `.button-main`.
-- **Where it applies:** Proairetos's own screens, one stage at a time (Reflect first). The family apps keep the pill and the
-  filled list until they are chosen. The dock, the top bar and customizations are unchanged by these classes.
+- **Where it applies:** every app. Buttons (`.button-main`, `.button-accent`, `.button-quiet`, `.button-danger`, the `.ll-button`
+  component and Mneme's, Praxis's and Theoria's own primary and secondary buttons) take `--ll-radius-action` with no glow, so
+  `.ll-steady` is now the default for those and remains for any other control. Pills stay for what is round by nature (chips'
+  neighbors the segmented controls, icon buttons, switches, progress). An app's first-run state is a plain line and a button on
+  the page, not a card. The dock, the top bar and customizations are unchanged by these classes.
