@@ -36,22 +36,13 @@ export default function StoreAppPage({ id, label, added, actions, onBack }: { id
         </div>
       )}
       {app.about && (
-        <section className="store-app__section">
-          <h3>What it is</h3>
-          <p>{app.about}</p>
-        </section>
+        <p className="store-app__about">{app.about}</p>
       )}
       {detail && (
         <>
           <section className="store-app__section">
             <h3>What it adds to Proairetos</h3>
             <p>{detail.adds}</p>
-          </section>
-          <section className="store-app__section">
-            <h3>What it does</h3>
-            <ul className="store-app__does">
-              {detail.does.map((line) => <li key={line}>{line}</li>)}
-            </ul>
           </section>
           {detail.connects.length > 0 && (
           <section className="store-app__section">
