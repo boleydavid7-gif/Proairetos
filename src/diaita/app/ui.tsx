@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { BookIcon, CupIcon, GlassesIcon, MoonIcon, PlateIcon, SunIcon, WorkIcon } from '../../app/family/icons';
 import { addDays, parseLocalDate } from '../../core/scheduling/dates';
+import { TimeWheel } from '../../app/family/TimeWheel';
 import { shiftTo, timeText, type Entry, type EntryKind } from '../core/rhythm';
 import { timelineHref } from './timelineLinks';
 
@@ -90,30 +91,16 @@ export function NumberField({ label, value, min, max, step, unit, onChange }: { 
   );
 }
 
-const QUARTERS = Array.from({ length: 96 }, (_, index) => index * 15);
 const clockOf = (date: Date) => date.getHours() * 60 + date.getMinutes();
-const textOf = (minutes: number) => timeText(new Date(2026, 0, 1, Math.floor(minutes / 60), minutes % 60));
 
-function TimeSelect({ label, value, onPick }: { label: string; value: number; onPick: (minutes: number) => void }) {
-  const options = QUARTERS.includes(value) ? QUARTERS : [...QUARTERS, value].sort((a, b) => a - b);
-  return (
-    <label className="field">
-      <span className="field__label">{label}</span>
-      <select className="input" value={value} onChange={(event) => onPick(Number(event.target.value))}>
-        {options.map((minutes) => <option key={minutes} value={minutes}>{textOf(minutes)}</option>)}
-      </select>
-    </label>
-  );
-}
-
-/** Sleep and wake as clock times, starting from the planned ones, a menu in quarter hours; picking one stores the move from the planned time. */
+/** Sleep and wake as clock times, starting from the planned ones, wheels; picking one stores the move from the planned time. */
 export function AdjustTimes({ base, shift, onChange }: { base: { start: Date; end: Date }; shift: { sleep: number; wake: number }; onChange: (next: { sleep: number; wake: number }) => void }) {
   const sleep = (clockOf(base.start) + shift.sleep + 1440 * 2) % 1440;
   const wake = (clockOf(base.end) + shift.wake + 1440 * 2) % 1440;
   return (
     <div className="input-row">
-      <TimeSelect label="Adjust sleep time" value={sleep} onPick={(minutes) => onChange({ ...shift, sleep: shiftTo(base.start, minutes) })} />
-      <TimeSelect label="Adjust wake time" value={wake} onPick={(minutes) => onChange({ ...shift, wake: shiftTo(base.end, minutes) })} />
+      <TimeWheel label="Adjust sleep time" minutes={sleep} step={15} onChange={(minutes) => onChange({ ...shift, sleep: shiftTo(base.start, minutes) })} />
+      <TimeWheel label="Adjust wake time" minutes={wake} step={15} onChange={(minutes) => onChange({ ...shift, wake: shiftTo(base.end, minutes) })} />
     </div>
   );
 }
