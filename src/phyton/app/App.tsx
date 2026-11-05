@@ -12,6 +12,9 @@ import PlantsPage from '../screens/PlantsPage';
 import PlantPage from '../screens/PlantPage';
 import AddPage from '../screens/AddPage';
 import IdentifyPage from '../screens/IdentifyPage';
+import LookupPage from '../screens/LookupPage';
+import CarePage from '../screens/CarePage';
+import { IDENTIFY_ON } from './identify';
 import HomePage, { pendingInvite } from '../screens/HomePage';
 import MorePage from '../screens/MorePage';
 import YearScreen from '../screens/YearScreen';
@@ -24,6 +27,8 @@ export type Route =
   | { name: 'plant'; id?: string; species?: string; latin?: string; given?: string }
   | { name: 'add' }
   | { name: 'identify'; plantId?: string }
+  | { name: 'lookup' }
+  | { name: 'care'; species: string }
   | { name: 'home' }
   | { name: 'year' }
   | { name: 'sitter' };
@@ -37,11 +42,13 @@ const tabs: readonly TabDef<Tab>[] = [
 const tabNames = tabs.map((tab) => tab.id) as string[];
 
 function firstRoute(): Route {
-  // A notice, a shortcut, another app or an invite: `add`, `identify`, `home`, `sitter`, `plant:ID`, or a tab.
+  // A notice, a shortcut, another app or an invite: `add`, `lookup`, `care:KEY`, `home`, `sitter`, `plant:ID`, or a tab.
   const opening = takeOpening();
   if (opening === 'home' || pendingInvite()) return { name: 'home' };
   if (opening === 'add') return { name: 'add' };
-  if (opening === 'identify') return { name: 'identify' };
+  if (opening === 'identify') return IDENTIFY_ON ? { name: 'identify' } : { name: 'lookup' };
+  if (opening === 'lookup') return { name: 'lookup' };
+  if (opening?.startsWith('care:')) return { name: 'care', species: opening.slice(5) };
   if (opening === 'sitter') return { name: 'sitter' };
   if (opening?.startsWith('plant:')) return { name: 'plant', id: opening.slice(6) };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
@@ -76,7 +83,11 @@ export default function App() {
       case 'add':
         return <AddPage nav={nav} />;
       case 'identify':
-        return <IdentifyPage nav={nav} plantId={route.plantId} />;
+        return IDENTIFY_ON ? <IdentifyPage nav={nav} plantId={route.plantId} /> : <LookupPage nav={nav} />;
+      case 'lookup':
+        return <LookupPage nav={nav} />;
+      case 'care':
+        return <CarePage nav={nav} species={route.species} />;
       case 'home':
         return <HomePage nav={nav} />;
       case 'more':

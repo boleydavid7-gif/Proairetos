@@ -5,7 +5,7 @@ import { fromJsonLd } from '../core/importRecipe';
 
 /** A result from one of the sources shown in Soma's Ideas shelf. */
 export type Idea = Found & {
-  sourceId: 'mealdb' | 'wikibooks' | 'spoonacular' | 'tasty';
+  sourceId: 'mealdb' | 'wikibooks';
   sourceLabel: string;
   url?: string;
   importable: boolean;
@@ -27,8 +27,8 @@ export async function searchWikibooks(query: string): Promise<Idea[]> {
       strMeal: page.title,
       strMealThumb: page.image,
       sourceId: page.provider ?? 'wikibooks',
-      sourceLabel: page.provider === 'spoonacular' ? 'Spoonacular' : page.provider === 'tasty' ? 'Tasty' : 'Wikibooks Cookbook',
-      url: page.url ?? (page.provider && page.provider !== 'wikibooks' ? undefined : `https://en.wikibooks.org/wiki/${page.title.replaceAll(' ', '_')}`),
+      sourceLabel: 'Wikibooks Cookbook',
+      url: page.url ?? `https://en.wikibooks.org/wiki/${page.title.replaceAll(' ', '_')}`,
       importable: false,
     }));
 }
@@ -40,22 +40,6 @@ export async function mealIdeas(path: string): Promise<Idea[]> {
 
 export async function openIdea(idea: Idea): Promise<'edit' | 'external'> {
   if (!idea.importable) {
-    if (idea.sourceId === 'spoonacular' || idea.sourceId === 'tasty') {
-      const providerId = idea.idMeal.replace(`${idea.sourceId}-`, '');
-      try {
-        const response = await fetch(apiUrl(`/api/recipe-ideas?provider=${idea.sourceId}&id=${encodeURIComponent(providerId)}`));
-        if (response.ok) {
-          const body = (await response.json()) as { recipe?: { title?: string; source?: string; url?: string; image?: string; servings?: string; totalMinutes?: number; ingredients?: string[]; steps?: string[] } };
-          const recipe = body.recipe;
-          if (recipe?.title && (recipe.ingredients?.length || recipe.steps?.length)) {
-            holdDraft({ title: recipe.title, source: recipe.source, url: recipe.url, image: recipe.image, servings: recipe.servings, totalMinutes: recipe.totalMinutes, ingredients: recipe.ingredients ?? [], steps: recipe.steps ?? [] });
-            return 'edit';
-          }
-        }
-      } catch {
-        // Fall through to the source URL when the provider detail request is unavailable.
-      }
-    }
     if (!idea.url) return 'external';
     try {
       const response = await fetch(apiUrl(`/api/recipe?url=${encodeURIComponent(idea.url)}`));

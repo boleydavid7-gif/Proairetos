@@ -17,8 +17,8 @@ describe('Soma idea sources', () => {
 
   it('surfaces other providers before a large first-source shelf is clipped', () => {
     const mealdb = Array.from({ length: 50 }, (_, index) => idea(`meal-${index}`));
-    const tasty = idea('tasty-1', 'tasty');
-    expect(mergeIdeas(mealdb, [tasty]).slice(0, 4).map((each) => each.sourceId)).toEqual(['mealdb', 'tasty', 'mealdb', 'mealdb']);
+    const book = idea('wikibooks-1', 'wikibooks');
+    expect(mergeIdeas(mealdb, [book]).slice(0, 4).map((each) => each.sourceId)).toEqual(['mealdb', 'wikibooks', 'mealdb', 'mealdb']);
   });
 
   it('turns Wikibooks search results into external, attributed ideas', async () => {
@@ -37,18 +37,5 @@ describe('Soma idea sources', () => {
     const result = await openIdea({ ...idea('wikibooks-9', 'wikibooks'), url: 'https://en.wikibooks.org/wiki/Cookbook:Soup', importable: false });
     expect(result).toBe('edit');
     expect(takeDraft()).toMatchObject({ title: 'Soup', ingredients: ['1 onion'] });
-  });
-
-  it('opens a provider detail in Soma review before saving', async () => {
-    const fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ recipe: { title: 'Toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast it.'] } }), { status: 200 }));
-    vi.stubGlobal('fetch', fetch);
-    const result = await openIdea({ ...idea('tasty-8', 'tasty'), url: undefined, importable: false });
-    expect(result).toBe('edit');
-    expect(takeDraft()).toMatchObject({ title: 'Toast', source: 'Tasty', ingredients: ['2 tomatoes'], steps: ['Toast it.'] });
-  });
-
-  it('does not turn a provider without a source URL into a Wikibooks link', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({ query: { search: [{ pageid: 'tasty-8', title: 'Loaded nachos', provider: 'tasty' }] } }), { status: 200 })));
-    await expect(searchWikibooks('nachos')).resolves.toEqual([expect.objectContaining({ sourceId: 'tasty', url: undefined })]);
   });
 });

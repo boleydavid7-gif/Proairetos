@@ -35,7 +35,6 @@ const GLANCE: { title: string; lines: string[] }[] = [
       'Open-Meteo: weather, with a place rounded to about a kilometer.',
       'OpenStreetMap, OpenFreeMap, Wikivoyage and Wikipedia: places, maps and guides for a trip.',
       'Ticketmaster, LiteAPI, Duffel, AeroDataBox and Google Places: a place, dates and travelers only, through proairetos.com.',
-      'Pl@ntNet: the plant photos you choose, when you tap Identify.',
       'Open Food Facts: a barcode’s number. Free Dictionary API: the one word you look up. TheMealDB: recipe ideas.',
       'Hugging Face: Mneme’s speech model, downloaded once.',
       'Stripe: when you buy a plan. Strava: only if you connect it.',

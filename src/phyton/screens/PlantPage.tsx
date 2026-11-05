@@ -301,7 +301,6 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
         <button type="button" className="chip" onClick={() => mark(journal(plant, today, 'prune', undefined, me), `${plant.name} pruned`)}>Pruned</button>
         <button type="button" className="chip" aria-pressed={writing === 'pest'} onClick={() => setWriting(writing === 'pest' ? undefined : 'pest')}>Pests seen</button>
         <button type="button" className="chip" aria-pressed={writing === 'note'} onClick={() => setWriting(writing === 'note' ? undefined : 'note')}>Note</button>
-        {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={16} />Identify</button>}
       </div>}
 
       {writing && (

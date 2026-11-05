@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DailyLine } from '../../app/family/DailyLine';
 import { Brand, offerUndo } from '../../app/family/shell';
-import { AppMark, CameraIcon, PlusIcon } from '../../app/family/icons';
+import { AppMark, PlusIcon, SearchIcon } from '../../app/family/icons';
 import { Segmented } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/phyton-stoic-wide.webp';
@@ -82,7 +82,7 @@ export default function TodayPage({ nav }: { nav: PhytonNav }) {
             <h2 className="card__title">No plants yet</h2>
             <div className="button-row">
               <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add a plant</button>
-              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'identify' })}><CameraIcon size={18} />Identify</button>
+              <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'lookup' })}><SearchIcon size={18} />Look up</button>
             </div>
           </section>
         ) : (

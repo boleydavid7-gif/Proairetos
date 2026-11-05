@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CameraIcon, LeafIcon, PlusIcon } from '../../app/family/icons';
+import { LeafIcon, PlusIcon, SearchIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { PhytonNav } from '../app/App';
@@ -30,7 +30,7 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
       <div className="page-top section-head">
         <h1 className="title">Plants</h1>
         <div className="button-row">
-          <button type="button" className="button-quiet" aria-label="Identify a plant" onClick={() => nav.go({ name: 'identify' })}><CameraIcon size={18} /></button>
+          <button type="button" className="button-quiet" aria-label="Look up a plant" onClick={() => nav.go({ name: 'lookup' })}><SearchIcon size={18} /></button>
           {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add</button>}
         </div>
       </div>

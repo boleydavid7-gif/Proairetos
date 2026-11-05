@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { CameraIcon, ChevronIcon } from '../../app/family/icons';
+import { ChevronIcon } from '../../app/family/icons';
 import type { PhytonNav } from '../app/App';
 import { findSpecies, SPECIES, type Kind } from '../core/species';
 
 const KINDS: Kind[] = ['Houseplant', 'Succulent or cactus', 'Herb', 'Vegetable or fruit', 'Garden'];
 
-/** Adding a plant: find its type by name, identify it from a photo, or name it yourself. */
+/** Adding a plant: find its type by name, or name it yourself. */
 export default function AddPage({ nav }: { nav: PhytonNav }) {
   const [query, setQuery] = useState('');
   const [kind, setKind] = useState<Kind | undefined>();
@@ -21,14 +21,8 @@ export default function AddPage({ nav }: { nav: PhytonNav }) {
         <span />
       </div>
 
-      <button type="button" className="row identify-row" onClick={() => nav.swap({ name: 'identify' })}>
-        <span className="row__icon"><CameraIcon size={22} /></span>
-        <span className="row__text"><span>Identify from a photo</span><span className="row__detail">By Pl@ntNet</span></span>
-        <ChevronIcon size={18} />
-      </button>
-
       <label className="field">
-        <span className="field__label">Or find its type</span>
+        <span className="field__label">Find its type</span>
         <input ref={field} className="input" type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
       </label>
       {!query.trim() && (

@@ -60,7 +60,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
   Google Flights, Kayak and the rest.
 - [ ] (Optional) Events in Poreia: a free key from developer.ticketmaster.com (Discovery API), added as the Cloudflare Worker
   secret `TICKETMASTER_KEY`. Without it Poreia links to Ticketmaster and SeatGeek searches instead of listing events.
-- [ ] Phyton photo identification: a free key from my.plantnet.org, added as the Cloudflare Worker secret `PLANTNET_KEY`
+- [x] Phyton photo identification is switched off (Nov 5, `IDENTIFY_ON` in `src/phyton/app/identify.ts`); Pl@ntNet's paid step is about 1,000 euros a year. Decide: plant.id pay as you go, an on-device test, or ask Pl@ntNet for a smaller plan. No key is needed while it is off.
       (steps in `docs/SERVER_SETUP.md`). Free plan: 500 a day, non-commercial.
 
 - [x] The waitlist on the front page: run `20261026000000_waitlist.sql` (uses `SUPABASE_URL` and `SUPABASE_ANON_KEY`,
@@ -86,7 +86,7 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
       when the recipient has a ready Proairetos account the encrypted invite also appears on Today and in the bell. A
       recipient without an account key receives a secure join link instead. Join, then tick a chore on each phone and see
       it on the other.
-- [ ] Before selling Phyton: Pl@ntNet's free plan is non-commercial; move to its paid plan.
+- [ ] Spoonacular and Tasty are removed from Soma: delete `SPOONACULAR_API_KEY`, `TASTY_API_KEY` and `TASTY_RAPIDAPI_KEY` from Cloudflare if they were ever set.
 - [ ] Search: add proairetos.com and noesis.proairetos.com to Google Search Console (https://search.google.com/search-console)
       and Bing Webmaster Tools (https://www.bing.com/webmasters, which can import from Google), verify each (a DNS TXT
       record in Cloudflare is easiest), then submit `https://proairetos.com/sitemap.xml` and
@@ -122,7 +122,6 @@ Skip any you have already done. Until a migration is run, the apps keep that dat
 - [ ] Swipe gestures: edge swipe back, pulling a row to mark it.
 - [ ] Moving between apps on the phone (Safari 18.2+): the bars should hold still while the old app eases back and the new one settles in; pages inside an app come in from the side you went.
 - [ ] Fonts, and the sign-in emails.
-- [ ] Phyton: identify a real plant once the key is in (so far tested only with a stand-in answer).
 - [ ] Change passphrase (Account) and "Forgot your passphrase?" with the recovery key, once on your own account.
 - [ ] Passkeys: in Proairetos, Account > Add a passkey; then in another Home Screen app, Sign in with a passkey
       (one Face ID should sign in and open your data).
