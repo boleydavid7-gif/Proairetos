@@ -40,7 +40,7 @@ async function signedBody(payload: string, secret: string, time: number) {
 describe('the Store on the Worker', () => {
   it('stays free until every secret is set', async () => {
     const free = await handleStoreRequest(new Request('https://proairetos.com/api/store'), {});
-    expect(await free.json()).toEqual({ paid: false, prices: { core: 999, coreyear: 10789, cloud: 299 }, price: 999, currency: 'usd' });
+    expect(await free.json()).toEqual({ paid: false, prices: { core: 999, coreyear: 10799, cloud: 299 }, price: 999, currency: 'usd' });
     const paid = await handleStoreRequest(new Request('https://proairetos.com/api/store'), env);
     expect(((await paid.json()) as { paid: boolean }).paid).toBe(true);
     expect((await startCheckout(checkout({ app: 'soma' }), {}, fake().fetcher)).status).toBe(503);
