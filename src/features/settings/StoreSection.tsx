@@ -213,7 +213,7 @@ function CorePlanCard({ owned, busy, finishing, onBuy }: { owned: boolean; busy:
   );
 }
 
-/** Sharing: a link, and the state of the 20% off for six months it can earn. Shown only where the server has sharing set up. */
+/** Sharing: a link, and the state of the 20% off for a year it can earn. Shown only where the server has sharing set up. */
 function ShareCard() {
   const [mine, setMine] = useState<MyReferral | undefined>();
   const [copied, setCopied] = useState(false);
@@ -241,7 +241,7 @@ function ShareCard() {
     <article className="store__plan store__share">
       <div>
         <h3>Share Proairetos</h3>
-        <p>{mine.applied ? '20% off your plan for 6 months' : mine.earned ? '20% off your first payment, for 6 months' : '20% off Core for 6 months when someone you share with subscribes'}</p>
+        <p>{mine.applied ? '20% off your plan for a year' : mine.earned ? '20% off your first payment, for a year' : '20% off Core for a year when someone you share with subscribes'}</p>
       </div>
       <button type="button" className="button-quiet" onClick={() => void share()}>
         {copied ? 'Link copied' : 'Share a link'}

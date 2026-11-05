@@ -97,7 +97,7 @@ describe('yearly Core', () => {
   });
 });
 
-describe('sharing earns the sharer 20% for six months, once', () => {
+describe('sharing earns the sharer 20% for a year, once', () => {
   it('marks a checkout that came through a good code, and ignores a bad, own or repeated one', async () => {
     const code = await referralCode(env, SHARER);
     const good = world();
@@ -128,7 +128,7 @@ describe('sharing earns the sharer 20% for six months, once', () => {
     expect(referrals).toMatchObject([{ id: 'r1', referrer_id: SHARER, referee_id: NEWCOMER, applied: true }]);
     expect(stripe.map((call) => call.url)).toEqual(['https://api.stripe.com/v1/coupons', 'https://api.stripe.com/v1/subscriptions/sub_sharer']);
     expect(stripe[0].form.get('percent_off')).toBe('20');
-    expect(stripe[0].form.get('duration_in_months')).toBe('6');
+    expect(stripe[0].form.get('duration_in_months')).toBe('12');
     expect(stripe[1].form.get('discounts[0][coupon]')).toBe(REFERRAL_COUPON);
   });
 

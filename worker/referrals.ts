@@ -1,9 +1,9 @@
 /*
  * Sharing Proairetos. A subscriber has a personal link (`/?ref=CODE`). When someone who came through it pays for Core
- * (monthly or yearly), the person who shared earns 20% off their own Core plan for six months, once: one referral, no
+ * (monthly or yearly), the person who shared earns 20% off their own Core plan for a year, once: one referral, no
  * stacking. The code is the sharer's id signed with `REFERRAL_SECRET`, so nothing is stored to look it up. The
  * referral itself is the `referrals` row (migration 20261110000000_referrals.sql), written by the Worker from a paid
- * checkout. The discount is a Stripe coupon (20% off, repeating for six months) put on the sharer's subscription, or on
+ * checkout. The discount is a Stripe coupon (20% off, repeating for twelve months) put on the sharer's subscription, or on
  * their own checkout if they have not subscribed yet. A yearly plan's first invoice is the one that takes it.
  */
 export type ReferralEnv = {
@@ -14,7 +14,7 @@ export type ReferralEnv = {
 };
 type Fetcher = typeof fetch;
 
-export const REFERRAL_COUPON = 'proairetos-share-20-6m';
+export const REFERRAL_COUPON = 'proairetos-share-20-12m';
 const b64url = (bytes: ArrayBuffer | Uint8Array) => btoa(String.fromCharCode(...new Uint8Array(bytes as ArrayBuffer))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const fromB64url = (text: string) => Uint8Array.from(atob(text.replace(/-/g, '+').replace(/_/g, '/')), (char) => char.charCodeAt(0));
 const uuidBytes = (id: string) => Uint8Array.from((id.replace(/-/g, '').match(/.{2}/g) ?? []).map((pair) => parseInt(pair, 16)));
@@ -77,7 +77,7 @@ export async function ensureCoupon(env: ReferralEnv, fetcher: Fetcher): Promise<
   const response = await fetcher('https://api.stripe.com/v1/coupons', {
     method: 'POST',
     headers: { authorization: `Bearer ${env.STRIPE_SECRET_KEY}`, 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ id: REFERRAL_COUPON, percent_off: '20', duration: 'repeating', duration_in_months: '6', name: 'Shared Proairetos' }),
+    body: new URLSearchParams({ id: REFERRAL_COUPON, percent_off: '20', duration: 'repeating', duration_in_months: '12', name: 'Shared Proairetos' }),
   });
   if (response.ok) return;
   const body = (await response.json().catch(() => ({}))) as { error?: { code?: string } };
