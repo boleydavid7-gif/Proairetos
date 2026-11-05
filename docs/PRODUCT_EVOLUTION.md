@@ -195,3 +195,12 @@ that says due. Support and accuracy figures below come from blogs and vendor pag
   decoder library); perspective correction (an OpenCV.js download judged against real photos, which the test set lacks);
   5, PP-OCRv5 (model size and accuracy unverified; try once the set holds real photos' text). Worth revisiting: 5 and
   perspective correction, measured against the set.
+
+## Shelved (Nov 5): study time with the schedule
+
+Discussed, not built, set aside by the owner. Worth revisiting. The idea: grow Theoria's Pomodoro place into Study
+(rename; old `?open=pomodoro` links keep working) with Courses (name, color, exam and assignment dates, dates read from a
+photo or calendar file and reviewed first) and a Week (the real week, free gaps from `openStretches` around work, sleep and
+events; the person places sessions, with undo; a session reaches the Proairetos schedule only when asked). Reuses the Praxis
+timer, cards, Theoria's books and the scanner. Facts only: "Exam in 12 days", minutes by day; no scores, streaks, ranking
+or advice. If it grows past a reading app, it could become its own app, working name Melétē (μελέτη: study, practice, care).
