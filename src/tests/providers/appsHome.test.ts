@@ -116,3 +116,33 @@ describe('Oikonomia on Today', () => {
     expect(await lines(oikonomiaHome)).toEqual([]);
   });
 });
+
+describe('Ktema on Today', () => {
+  const thing = (extra: Record<string, unknown> = {}) => ({ id: 't1', name: 'Dishwasher', category: 'Appliance', serial: 'CANARY-SERIAL', price: 'CANARY-PRICE', warrantyUntil: '2030-01-01', note: 'CANARY-THING', createdAt: day, ...extra });
+  const upkeep = (id: string, name: string, start: string, extra: Record<string, unknown> = {}) => ({ id, thingId: 't1', name, note: 'CANARY-UPKEEP', every: { count: 3, unit: 'months' }, start, history: [], createdAt: day, ...extra });
+  it('says which upkeep has come round, with its thing and since when, nothing else', async () => {
+    const { ktemaHome } = await import('../../ktema/providers/home');
+    put('ktema:thing:t1', thing());
+    put('ktema:upkeep:u1', upkeep('u1', 'Clean the filter', '2026-11-01'));
+    put('ktema:upkeep:u2', upkeep('u2', 'Not yet', '2026-12-20'));
+    const rows = await lines(ktemaHome);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ title: 'Clean the filter', detail: 'Dishwasher · Since Sun', open: '/ktema/?open=upkeep%3Au1', swipe: { id: 'upkeep:u1', word: 'Done', marks: true } });
+    expect(text(rows)).not.toMatch(/CANARY|2030/);
+  });
+  it('marks the upkeep done in Ktema on a pull, and the undo takes the mark off', async () => {
+    const { ktemaHome } = await import('../../ktema/providers/home');
+    put('ktema:upkeep:u1', upkeep('u1', 'Clean the filter', '2026-11-01'));
+    expect(await lines(ktemaHome)).toHaveLength(1);
+    const undo = ktemaHome.act!({ app: 'ktema', kind: 'upkeep', id: 'u1' }, TODAY);
+    expect(await lines(ktemaHome)).toEqual([]);
+    undo();
+    expect(await lines(ktemaHome)).toHaveLength(1);
+  });
+  it('follows a deleted upkeep', async () => {
+    const { ktemaHome } = await import('../../ktema/providers/home');
+    put('ktema:upkeep:u1', upkeep('u1', 'Clean the filter', '2026-11-01'));
+    localStorage.removeItem('ktema:upkeep:u1');
+    expect(await lines(ktemaHome)).toEqual([]);
+  });
+});

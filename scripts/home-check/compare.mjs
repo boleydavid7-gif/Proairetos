@@ -21,6 +21,8 @@ const [a, b] = process.argv.slice(2);
 const load = (path) => JSON.parse(readFileSync(path.endsWith('.json') ? path : join(path, 'home.json'), 'utf8'));
 const A = load(a);
 const B = load(b);
+// React numbers the ids it makes (the marks' masks) in render order, so a count that moves is not a difference in Home.
+const ids = (html) => html?.replace(/_r_[0-9a-z]+_/g, '_r_');
 let differences = 0;
 let smoothing = 0;
 for (const run of Object.keys(A.runs)) {
@@ -28,7 +30,7 @@ for (const run of Object.keys(A.runs)) {
     const x = A.runs[run].sections[name];
     const y = B.runs[run]?.sections[name];
     if (JSON.stringify(x?.text) !== JSON.stringify(y?.text)) { differences += 1; console.log(`TEXT   ${run} ${name}\n  before: ${JSON.stringify(x?.text)}\n  after:  ${JSON.stringify(y?.text)}`); }
-    if (x?.html !== y?.html) { differences += 1; console.log(`MARKUP ${run} ${name}`); }
+    if (ids(x?.html) !== ids(y?.html)) { differences += 1; console.log(`MARKUP ${run} ${name}`); }
     const file = `${run}-${name}.png`;
     if (!a.endsWith('.json') && existsSync(join(a, file)) && existsSync(join(b, file)) && !readFileSync(join(a, file)).equals(readFileSync(join(b, file)))) {
       const result = await samePicture(join(a, file), join(b, file));

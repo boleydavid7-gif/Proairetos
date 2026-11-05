@@ -57,7 +57,7 @@ export async function seed(page) {
   }, stamp);
 }
 
-const normalize = (html) => html.replace(/\s(id|for|aria-labelledby|aria-describedby|aria-controls)="[^"]*"/g, '').replace(/data-ll-[a-z-]+="[^"]*"/g, '').replace(/\s+/g, ' ').trim();
+const normalize = (html) => html.replace(/\s(id|for|aria-labelledby|aria-describedby|aria-controls)="[^"]*"/g, '').replace(/data-ll-[a-z-]+="[^"]*"/g, '').replace(/_r_[0-9a-z]+_/g, '_r_').replace(/\s+/g, ' ').trim();
 
 export async function capture(page, label) {
   await page.goto(`${BASE}/`);

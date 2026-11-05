@@ -50,6 +50,9 @@ describe('application manifest', () => {
       data: { ...k.data, backupPrefix: 'newapp:' },
       notices: { source: 'newapp', kinds: ['newapp-kind'], switches: [{ key: 'newapp-switch', label: 'New app' }], page: 99, mainWrites: false },
       today: undefined,
+      provides: undefined,
+      home: undefined,
+      search: undefined,
     } as unknown as AppManifest;
     expect(validateManifest([...APPS, next]).errors).toEqual([]);
   });
