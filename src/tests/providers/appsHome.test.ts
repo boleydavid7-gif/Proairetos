@@ -238,3 +238,42 @@ describe('Phyton on Today', () => {
     expect(await lines(phytonHome)).toHaveLength(1);
   });
 });
+
+describe('Therapeia on Today', () => {
+  const medicine = (id: string, name: string, extra: Record<string, unknown> = {}) => ({ id, name, dose: '50 mg', note: 'CANARY-MEDNOTE', times: [{ kind: 'clock', at: '20:00' }], days: { kind: 'daily' }, start: '2026-10-01', taken: [], createdAt: day, ...extra });
+  const visit = (id: string, at: string, extra: Record<string, unknown> = {}) => ({ id, with: 'Dr Lee', where: 'Clinic', notes: 'CANARY-VISITNOTE', questions: [{ id: 'q', text: 'CANARY-QUESTION' }], at, createdAt: day, ...extra });
+  it('says the doses not yet marked, with the time and the dose on the label, and visits today with time and place', async () => {
+    const { therapeiaHome } = await import('../../therapeia/providers/home');
+    put('therapeia:medicine:m1', medicine('m1', 'Sertraline'));
+    put('therapeia:visit:v1', visit('v1', '2026-11-05T15:00'));
+    put('therapeia:visit:v2', visit('v2', '2026-11-06T15:00'));
+    const rows = await lines(therapeiaHome);
+    expect(rows.map((row) => [row.title, row.detail])).toEqual([['Sertraline', '8:00 PM · 50 mg'], ['Dr Lee', '3:00 PM · Clinic']]);
+    expect(rows[0].swipe).toEqual({ id: 'dose:m1:2026-11-05#0', word: 'Taken', marks: true });
+    expect(rows[1].swipe).toEqual({ id: 'visit:v1', word: 'Done' });
+    expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('says a refill coming up, with the day it is due', async () => {
+    const { therapeiaHome } = await import('../../therapeia/providers/home');
+    put('therapeia:medicine:m1', medicine('m1', 'Sertraline', { supply: { count: 3, countedAt: '2026-11-01T08:00:00', perDose: 1, lead: 7 } }));
+    const rows = await lines(therapeiaHome);
+    expect(rows.some((row) => row.ref.kind === 'refill' && row.detail === 'Refill due today')).toBe(true);
+  });
+  it('a pull marks a dose taken in Therapeia, the line goes, and the undo brings it back', async () => {
+    const { therapeiaHome } = await import('../../therapeia/providers/home');
+    put('therapeia:medicine:m1', medicine('m1', 'Sertraline'));
+    const before = await lines(therapeiaHome);
+    const undo = therapeiaHome.act!(before[0].ref, TODAY);
+    expect((await lines(therapeiaHome)).filter((row) => row.ref.kind === 'dose')).toEqual([]);
+    undo();
+    expect((await lines(therapeiaHome)).filter((row) => row.ref.kind === 'dose')).toHaveLength(1);
+  });
+  it('follows a stopped medicine and a deleted visit', async () => {
+    const { therapeiaHome } = await import('../../therapeia/providers/home');
+    put('therapeia:medicine:m1', medicine('m1', 'Sertraline', { stopped: '2026-11-01' }));
+    put('therapeia:visit:v1', visit('v1', '2026-11-05T15:00'));
+    expect((await lines(therapeiaHome)).map((row) => row.ref.kind)).toEqual(['visit']);
+    localStorage.removeItem('therapeia:visit:v1');
+    expect(await lines(therapeiaHome)).toEqual([]);
+  });
+});
