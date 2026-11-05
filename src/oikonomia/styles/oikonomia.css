@@ -281,13 +281,18 @@
   gap: 10px;
   width: 100%;
   min-height: 68px;
-  padding: 10px 0;
+  padding: 10px 12px;
   border: 0;
   border-bottom: 1px solid var(--line);
   background: none;
   color: var(--text);
   text-align: left;
   font: inherit;
+}
+
+.oiko-bill-row[data-ll-lit] {
+  border-radius: var(--ll-radius-sm);
+  border-bottom-color: transparent;
 }
 
 .oiko-bill-row__mark {
