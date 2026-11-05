@@ -373,7 +373,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['session title', 'session note'], excludes: ['weights and reps', 'heart rate'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['whether strength training is set up', 'today\u2019s session name or that it is done or a rest day'], excludes: ['weights and reps', 'notes', 'heart rate', 'the log'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

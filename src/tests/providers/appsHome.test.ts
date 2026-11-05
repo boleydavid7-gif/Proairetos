@@ -445,3 +445,27 @@ describe('Askesis on Today', () => {
     vi.doUnmock('../../app/family/trainingWeek');
   });
 });
+
+describe('Dynamis on Today', () => {
+  const setup = (days: number[]) => put('dynamis:setup', { aim: 'strength', place: 'gym', isNew: false, days, sets: 3, setsSince: '2026-10-01', unit: 'kg', startedOn: '2026-10-01', steps: {} });
+  const workout = (id: string, date: string, session: string) => ({ id, date, session, exercises: [{ exercise: 'squat', name: 'CANARY-EXERCISE', sets: [{ weight: 98765, reps: 5 }] }], note: 'CANARY-NOTE', createdAt: day });
+  it('says to set up strength training until the person has', async () => {
+    const { dynamisHome } = await import('../../dynamis/providers/home');
+    expect((await lines(dynamisHome))[0]).toMatchObject({ group: 'practice', detail: 'Set up strength training', open: '/dynamis/' });
+  });
+  it('says today’s session on a training day, a rest day otherwise, and the session done today, never weights or notes', async () => {
+    const { dynamisHome } = await import('../../dynamis/providers/home');
+    setup([1, 3, 4]);
+    expect((await lines(dynamisHome))[0].detail).toMatch(/^Strength session · /);
+    setup([1, 3, 5]);
+    expect((await lines(dynamisHome))[0].detail).toBe('Rest day');
+    put('dynamis:workout:w1', workout('w1', TODAY, 'A'));
+    const rows = await lines(dynamisHome);
+    expect(rows[0].detail).toMatch(/ · Done today$/);
+    expect(text(rows)).not.toMatch(/CANARY|98765/);
+  });
+  it('asks for the worked-out week to be current when Today starts (warm)', async () => {
+    const { dynamisHome } = await import('../../dynamis/providers/home');
+    expect(typeof dynamisHome.warm).toBe('function');
+  });
+});
