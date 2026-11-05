@@ -5,6 +5,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     lines: [
       'Meletē: subjects with their dates, and a week that shows when you are free. You schedule the study sessions; everything comes from your own materials.',
       'Exam and due dates from Meletē appear on their day in Days ahead, today’s study time shows under Daily practices, and search finds your subjects.',
+      'Warranty end dates and upkeep dates from Ktema appear on their day in Days ahead.',
       'Phyton: look up a plant by name and read its light, watering, feeding and pet safety, for about 170 types.',
       'Folds open and close smoothly, long note fields grow as you write, sideways rows fade where more is hidden, and lists rise in on a new page.',
       'Core is $9.99 a month, or $107.99 a year (about 10% less). Share a link and take 20% off Core for a year when someone you share with subscribes.',

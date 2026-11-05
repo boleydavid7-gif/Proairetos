@@ -456,6 +456,8 @@ export type TodayPart =
   | 'birthday-dates'
   // Exam and due dates from Meletē, on their day in Days ahead.
   | 'study-dates'
+  // Warranties that end and upkeep that comes round, from Ktema, on their day in Days ahead.
+  | 'ktema-dates'
   // Chores from Ergon whose day has come, on Today.
   | 'chores'
   // Today's doses not yet marked, from Therapeia.
