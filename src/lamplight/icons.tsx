@@ -401,6 +401,14 @@ export const GLYPHS = {
     ),
     lit: <circle cx="12" cy="5" r="1.8" />,
   },
+  barbell: {
+    line: (
+      <>
+        <path d="M3 9.5v5M6 7.5v9M18 7.5v9M21 9.5v5M6 12h12" />
+      </>
+    ),
+    lit: <path d="M6 12h12" />,
+  },
   run: {
     line: (
       <>

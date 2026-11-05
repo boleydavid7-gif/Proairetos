@@ -6,6 +6,7 @@ import IconButton from '../../components/ui/IconButton';
 import { Sym } from '../../lamplight/icons';
 import type { MeleteNav } from '../app/App';
 import { openByDay } from '../app/gaps';
+import { trainingOnDays, type TrainingDay } from '../../app/family/trainingDays';
 import { newId, sessions as sessionStore, settings, subjects } from '../app/state';
 import { formatMinutes, kindLabel, rhythmLeft, SESSION_KINDS, sessionsOnDay, weekOf, type SessionKind } from '../core/subjects';
 
@@ -25,6 +26,8 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
   const [monday, setMonday] = useState(() => mondayOnOrBefore(today));
   const days = useMemo(() => weekOf(monday), [monday]);
   const [open, setOpen] = useState<Map<string, Span[]>>();
+  const [training, setTraining] = useState<Map<string, TrainingDay>>(new Map());
+  const [newName, setNewName] = useState('');
   const [picking, setPicking] = useState<{ day: string; span: Span }>();
   const [subjectId, setSubjectId] = useState<string>();
   const [kind, setKind] = useState<SessionKind>('read');
@@ -38,6 +41,13 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
     return () => { live = false; };
   }, [days, all.length]);
 
+  // Runs and strength sessions set for the week, from Askesis and Dynamis when added; they show beside the day and take nothing.
+  useEffect(() => {
+    let live = true;
+    void trainingOnDays(days).then((result) => live && setTraining(result)).catch(() => undefined);
+    return () => { live = false; };
+  }, [days]);
+
   const loose = list.map((subject) => ({ subject, left: rhythmLeft(subject, all, monday) })).filter((each) => each.left > 0);
 
   const choose = (day: string, span: Span, forSubject?: string) => {
@@ -49,12 +59,20 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
   };
 
   const place = () => {
-    if (!picking || !subjectId) return;
+    if (!picking) return;
+    let chosen = subjectId;
+    if (!chosen) {
+      const name = newName.trim();
+      if (!name) return;
+      chosen = newId();
+      subjects.put({ id: chosen, name, dates: [], materials: [], createdAt: new Date().toISOString() });
+      setNewName('');
+    }
     const [h, m] = start.split(':').map(Number);
     const at = new Date(`${picking.day}T00:00:00`);
     at.setHours(h, m, 0, 0);
     const room = Math.max(15, Math.floor((picking.span.end.getTime() - at.getTime()) / 60_000));
-    const record = { id: newId('session'), subjectId, kind, start: at.toISOString(), minutes: Math.min(minutes, room) };
+    const record = { id: newId('session'), subjectId: chosen, kind, start: at.toISOString(), minutes: Math.min(minutes, room) };
     sessionStore.put(record);
     setPicking(undefined);
     offerUndo('Sitting set', () => sessionStore.remove(record.id));
@@ -89,7 +107,15 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
         const here = picking?.day === day;
         return (
           <section key={day} className="melete-day">
-            <div className="section-head"><h2>{day === today ? `Today · ${dayName(day)}` : dayName(day)}</h2></div>
+            <div className="section-head">
+              <h2>{day === today ? `Today · ${dayName(day)}` : dayName(day)}</h2>
+              {(training.get(day)?.run || training.get(day)?.lift) && (
+                <span className="melete-train">
+                  {training.get(day)?.run && <span role="img" aria-label="Run"><Sym name="run" size={18} /></span>}
+                  {training.get(day)?.lift && <span role="img" aria-label="Strength session"><Sym name="barbell" size={18} /></span>}
+                </span>
+              )}
+            </div>
             {entries.map(({ subject, entry }) => <p key={entry.id} className="melete-date">{`${entry.title.trim() || kindLabel(entry.kind)} · ${subject.name}`}</p>)}
             <ul className="chore-list">
               {sittings.map((session) => {
@@ -105,18 +131,25 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
               })}
               {gaps.map((span) => (
                 <li key={span.start.toISOString()} className="chore melete-gap">
-                  <button type="button" className="chore__open" disabled={list.length === 0} onClick={() => choose(day, span)}>
-                    <span>{clock(span.start)} – {clock(span.end)}</span>
-                    <small>{formatMinutes(Math.round((span.end.getTime() - span.start.getTime()) / 60_000))} open</small>
+                  <button type="button" className="chore__open" onClick={() => choose(day, span)}>
+                    <span className="melete-gap__text">
+                      <span>{clock(span.start)} – {clock(span.end)}</span>
+                      <small>{formatMinutes(Math.round((span.end.getTime() - span.start.getTime()) / 60_000))} open</small>
+                    </span>
+                    <Sym name="plus" size={18} className="melete-gap__add" />
                   </button>
                 </li>
               ))}
             </ul>
             {here && picking && (
               <div className="card melete-place">
+                {list.length === 0 ? (
+                  <label className="field"><span className="field__label">Subject</span><input className="input" value={newName} onChange={(event) => setNewName(event.target.value)} aria-label="Subject name" /></label>
+                ) : (
                 <div className="chip-row" role="group" aria-label="Subject">
                   {list.map((subject) => <button key={subject.id} type="button" className="chip" aria-pressed={subjectId === subject.id} onClick={() => { setSubjectId(subject.id); if (subject.rhythm) setMinutes(subject.rhythm.minutes); }}>{subject.name}</button>)}
                 </div>
+                )}
                 <div className="chip-row" role="group" aria-label="Kind">
                   {SESSION_KINDS.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={kind === each.id} onClick={() => setKind(each.id)}>{each.label}</button>)}
                 </div>
@@ -125,7 +158,7 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
                 </div>
                 <label className="field"><span className="field__label">Starts</span><input className="input" type="time" value={start} onChange={(event) => setStart(event.target.value)} /></label>
                 <div className="button-row">
-                  <button type="button" className="button-main" disabled={!subjectId} onClick={place}>Set it</button>
+                  <button type="button" className="button-main" disabled={!subjectId && !newName.trim()} onClick={place}>Set it</button>
                   <button type="button" className="button-quiet" onClick={() => setPicking(undefined)}>Cancel</button>
                 </div>
               </div>
