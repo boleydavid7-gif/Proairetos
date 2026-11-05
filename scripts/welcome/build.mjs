@@ -159,10 +159,10 @@ const apps = [
     ground: '#0f1410', accent: '#9fc48a', ink: '#ecf0e6',
     line: 'Plant care and watering',
     card: 'Water each plant when it needs it, and look up how to care for it.',
-    about: 'Phyton reminds you to check each plant when its soil is likely dry, and learns from when you actually water. Look up care for about 125 plant types.',
+    about: 'Phyton reminds you to check each plant when its soil is likely dry, and learns from when you actually water. Look up care for about 170 plant types.',
     points: [
       ['Learns your plants', 'Mark watered or still moist, and the timing adjusts to what you do.'],
-      ['Plant care', 'Type a plant’s name to read its light, watering, feeding and pet safety, for about 125 types.'],
+      ['Plant care', 'Type a plant’s name to read its light, watering, feeding and pet safety, for about 170 types.'],
       ['Outdoor plants', 'Rain counts as watering, and you get a heads-up when frost is on the way.'],
       ['Going away', 'A care sheet for whoever waters while you’re gone.'],
     ],
