@@ -12,7 +12,7 @@ type Lines = { stoic: Line[]; buddhist: Line[] };
 const BUDDHARAKKHITA = 'tr. Acharya Buddharakkhita';
 const LONG = 'tr. George Long';
 
-export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'poreia', Lines> = {
+export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'poreia' | 'melete', Lines> = {
   diaita: {
     stoic: [
       { text: 'Indulge the body only so far as is needful for good health.', by: 'Seneca, Letters 8' },
@@ -81,6 +81,19 @@ export const LINES: Record<'diaita' | 'philia' | 'ergon' | 'therapeia' | 'dynami
       { text: 'Though one may conquer a thousand times a thousand men in battle, yet he indeed is the noblest victor who conquers himself.', by: `The Buddha, Dhammapada 103 (${BUDDHARAKKHITA})` },
       { text: 'When its strings were neither too taut nor too slack, the lute was tuned and ready to play.', by: 'After the Buddha’s words to Sona, AN 6.55 (paraphrase)' },
       { text: 'Walk as if you are kissing the Earth with your feet.', by: 'Thich Nhat Hanh, Peace Is Every Step' },
+    ],
+  },
+  melete: {
+    stoic: [
+      { text: 'You must keep learning for as long as you live.', by: 'Seneca, Letters 76 (paraphrase)' },
+      { text: 'A great number of books is a distraction.', by: 'Seneca, Letters 2 (paraphrase)' },
+      { text: 'Nowhere is he who is everywhere.', by: 'Seneca, Letters 2 (paraphrase)' },
+      { text: 'Only the educated are free.', by: 'Epictetus, Discourses 2.1' },
+    ],
+    buddhist: [
+      { text: 'Wisdom springs from meditation; without meditation wisdom wanes.', by: `The Buddha, Dhammapada 282 (${BUDDHARAKKHITA})` },
+      { text: 'Much though he recites the sacred texts, but acts not accordingly, that heedless man is like a cowherd who counts others’ cattle.', by: `The Buddha, Dhammapada 19 (${BUDDHARAKKHITA})` },
+      { text: 'Better than a thousand hollow words is one word that brings peace.', by: `The Buddha, Dhammapada 100 (${BUDDHARAKKHITA})` },
     ],
   },
   ktema: {

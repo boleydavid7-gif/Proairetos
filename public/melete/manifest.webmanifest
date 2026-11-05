@@ -14,6 +14,29 @@
       "type": "image/svg+xml"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/melete/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Meletē"
+    },
+    {
+      "src": "/melete/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Meletē"
+    },
+    {
+      "src": "/melete/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Meletē"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Week",

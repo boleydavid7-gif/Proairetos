@@ -76,7 +76,7 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
     const record = { id: newId('session'), subjectId: chosen, kind: 'read' as const, start: at.toISOString(), minutes: Math.min(minutes, room) };
     sessionStore.put(record);
     setPicking(undefined);
-    offerUndo('Sitting set', () => sessionStore.remove(record.id));
+    offerUndo('Study session set', () => sessionStore.remove(record.id));
   };
 
   const stepWeek = (by: number) => setMonday(addDays(monday, by * 7));

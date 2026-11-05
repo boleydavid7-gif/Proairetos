@@ -115,13 +115,13 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
         ))}
       </div>
       <div className="button-row">
-        <button type="button" className="button-main" onClick={() => nav.go({ name: 'session', subjectId: subject.id })}>Start a sitting</button>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'session', subjectId: subject.id })}>Start a study session</button>
         <button type="button" className="button-quiet" aria-expanded={finding} onClick={() => setFinding(!finding)}>Set a time</button>
       </div>
       {finding && (
         <div className="card melete-place">
           <DurationWheel label="Length" minutes={lengthMin} onChange={setLengthMin} />
-          {slots === undefined ? <p className="muted">Looking at your week</p> : slots.length === 0 ? <p className="muted">No open stretch that long this week.</p> : (
+          {slots === undefined ? <p className="muted">Checking your week</p> : slots.length === 0 ? <p className="muted">No free time that long this week.</p> : (
             <ul className="chore-list">
               {slots.map((at) => (
                 <li key={at.toISOString()} className="chore">
@@ -132,7 +132,7 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
                       const record = { id: newId('session'), subjectId: subject.id, kind: sitKind, start: at.toISOString(), minutes: lengthMin };
                       sessionStore.put(record);
                       setFinding(false);
-                      offerUndo('Sitting set', () => sessionStore.remove(record.id));
+                      offerUndo('Study session set', () => sessionStore.remove(record.id));
                     }}
                   >
                     <span>{new Intl.DateTimeFormat(undefined, { weekday: 'long', hour: 'numeric', minute: '2-digit' }).format(at)}</span>
@@ -201,7 +201,7 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
       <MoreDetails open={Boolean(subject.rhythm || subject.ifThen)}>
         <div className="input-row">
           <label className="field">
-            <span className="field__label">Sittings a week</span>
+            <span className="field__label">Sessions a week</span>
             <select className="input" value={subject.rhythm?.times ?? 0} onChange={(event) => { const times = Number(event.target.value); put({ rhythm: times ? { times, minutes: subject.rhythm?.minutes ?? 45 } : undefined }); }}>
               <option value={0}>None</option>
               {[1, 2, 3, 4, 5, 6, 7].map((count) => <option key={count} value={count}>{count}</option>)}

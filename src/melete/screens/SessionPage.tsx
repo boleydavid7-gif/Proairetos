@@ -101,7 +101,7 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
         <p className="label">{name}</p>
         <p className="melete-clock" role="timer" aria-live="off">{rungOut ? 'Time' : clockDown(left)}</p>
         {!rungOut && <Waiting>{formatMinutes(running.minutes)}</Waiting>}
-        <button type="button" className="button-main" onClick={finish}>{rungOut ? 'Keep it' : 'Stop here'}</button>
+        <button type="button" className="button-main" onClick={finish}>{rungOut ? 'Save' : 'Stop here'}</button>
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
     <div className="page melete-page">
       <div className="page-top section-head">
         <button type="button" className="back-link" onClick={nav.back}>Back</button>
-        <h1 className="title">Sitting</h1>
+        <h1 className="title">Study session</h1>
       </div>
       {list.length > 0 && (
         <div className="chip-row" role="group" aria-label="Subject">

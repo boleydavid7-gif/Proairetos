@@ -9,9 +9,12 @@ import SubjectPage from '../screens/SubjectPage';
 import WeekPage from '../screens/WeekPage';
 import SessionPage from '../screens/SessionPage';
 import MorePage from '../screens/MorePage';
+import WelcomePage from '../screens/WelcomePage';
+import YearScreen from '../screens/YearScreen';
+import { settings } from './state';
 
 export type Tab = 'today' | 'subjects' | 'week' | 'more';
-export type Route = { name: Tab } | { name: 'subject'; id?: string } | { name: 'session'; id?: string; subjectId?: string };
+export type Route = { name: 'welcome' } | { name: 'year' } | { name: Tab } | { name: 'subject'; id?: string } | { name: 'session'; id?: string; subjectId?: string };
 export type MeleteNav = Nav<Route>;
 
 const tabs: readonly TabDef<Tab>[] = [
@@ -31,7 +34,8 @@ function firstRoute(): Route {
   if (opening?.startsWith('subject:')) return { name: 'subject', id: opening.slice(8) };
   if (opening?.startsWith('session:')) return { name: 'session', id: opening.slice(8) };
   if (opening && tabNames.includes(opening)) return { name: opening as Tab };
-  return { name: 'today' };
+  if (opening === 'year') return { name: 'year' };
+  return settings.load().started || opening ? { name: 'today' } : { name: 'welcome' };
 }
 
 export default function App() {
@@ -43,6 +47,10 @@ export default function App() {
 
   const page = (() => {
     switch (route.name) {
+      case 'welcome':
+        return <WelcomePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
       case 'today':
         return <TodayPage nav={nav} />;
       case 'subjects':
@@ -54,7 +62,7 @@ export default function App() {
       case 'session':
         return <SessionPage nav={nav} id={route.id} subjectId={route.subjectId} />;
       case 'more':
-        return <MorePage />;
+        return <MorePage nav={nav} />;
     }
   })();
 

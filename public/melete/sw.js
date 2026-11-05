@@ -1,6 +1,6 @@
 // Meletē's app shell is scoped to /melete/. Records live in browser
 // storage; this worker only makes the interface open without a connection.
-const CACHE = 'melete-v1';
+const CACHE = 'melete-v2';
 const SHELL = ['/melete/', '/melete/index.html', '/melete/manifest.webmanifest', '/melete/icon.svg'];
 
 self.addEventListener('install', (event) => {
