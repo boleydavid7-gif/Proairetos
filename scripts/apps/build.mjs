@@ -1,10 +1,10 @@
 // npm run apps:build — writes the copies of the manifest that code outside TypeScript needs.
 // Source of truth: src/core/apps/manifest.ts. Tests fail while any copy is out of date.
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { loadRegistry, root } from './lib.mjs';
 
-const { runtimeRegistry, registryJson, workerBlock, edgeBlock, withBlock } = await loadRegistry();
+const { runtimeRegistry, registryJson, workerBlock, edgeBlock, withBlock, diagFiles } = await loadRegistry();
 const registry = runtimeRegistry();
 const put = (file, text) => {
   const path = join(root, file);
@@ -20,3 +20,7 @@ const edit = (file, block) => put(file, withBlock(readFileSync(join(root, file),
 put('src/core/apps/registry.generated.json', registryJson(registry));
 edit('public/sw.js', workerBlock(registry));
 edit('supabase/functions/send-reminders/index.ts', edgeBlock(registry));
+for (const [file, text] of Object.entries(diagFiles())) {
+  mkdirSync(dirname(join(root, file)), { recursive: true });
+  put(file, text);
+}

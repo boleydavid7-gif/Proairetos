@@ -77,3 +77,17 @@ anything changes.
 `scripts/family-check/together.mjs`: 20 pass and 13 fail. The 13 fail before and after every wave (click-through steps
 written before the Store and the Nov 5 changes to Today and the list pages). They are documented, not hidden, and are
 repaired separately. Its only edit is the Store owner sign it now seeds.
+
+## Outstanding baseline issues (not changed, not hidden)
+
+These existed before Phase 2 and are unchanged by it.
+
+- **Speed check.** Proairetos's first paint and largest paint measure about 1.5 to 1.8 s on the test machine against
+  a 1.4 s budget. The build from before Phase 2 measures about 1.5 to 1.6 s there, so this is not caused by it. Every
+  other app is within budget.
+- **Smoke check** (`scripts/visual/smoke.mjs`). 56 of 60 viewport checks differ from `scripts/visual/baseline.json`
+  (last updated Nov 3) in title position; no invariant (overflow, clipped title, unnamed button, one root) is
+  broken. The baseline needs a deliberate refresh. The script also has paths for another machine (`/usr/bin/chromium`,
+  `/opt/codex/...`, port 4192); it ran only through overrides.
+- **Together check:** 20 pass, 13 fail, the same before and after every wave (steps written before the Store and the
+  Nov 5 changes).

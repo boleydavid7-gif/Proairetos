@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-diag="melete">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Meletē storage diagnostic</title>
+<link rel="manifest" href="/lab/diag/melete/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/melete/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Meletē diag">
+<link rel="stylesheet" href="/lab/diag/diag.css">
+</head>
+<body>
+<h1>Meletē storage diagnostic</h1>
+<p>Temporary. It writes a few small marks, shows which marks this install can see, and removes them on request.</p>
+<div class="buttons">
+<button id="write" type="button">Write marks</button>
+<button id="read" type="button">Read</button>
+<button id="copy" type="button">Copy results</button>
+<button id="save" type="button">Save file</button>
+<button id="clean" type="button">Remove marks</button>
+</div>
+<p id="note" role="status"></p>
+<table id="table"></table>
+<textarea id="json" aria-label="Results" readonly></textarea>
+<script src="/lab/diag/diag.js"></script>
+</body>
+</html>
