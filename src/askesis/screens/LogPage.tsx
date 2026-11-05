@@ -12,7 +12,6 @@ import { activities, feelings, logCsv, newestFirst, periodComparison, periodRang
 import { formatDistance, formatDuration, formatHours, formatPace, inUnit, paceOf } from '../core/pace';
 import { howItFelt } from '../core/progress';
 import Empty from '../../app/family/Empty';
-import IconButton from '../../components/ui/IconButton';
 import { useShoes } from '../app/shoes';
 import { addHeldHealthWorkouts } from '../../app/health/health';
 
@@ -177,13 +176,11 @@ export default function LogPage({ nav }: { nav: Nav }) {
     <div className="page log-page">
       <div className="page-top">
         <Brand />
-        <span data-header-actions>
-          <IconButton className="round-button" label="Log a workout" onClick={() => nav.go({ name: 'entry' })}>
-            <PlusIcon size={22} />
-          </IconButton>
-        </span>
       </div>
-      <h1 className="title">Progress</h1>
+      <div className="section-head">
+        <h1 className="title">Progress</h1>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'entry' })}><PlusIcon size={18} />Add</button>
+      </div>
       <input ref={file} type="file" accept=".gpx,.tcx,application/gpx+xml,application/vnd.garmin.tcx+xml" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
 
       <div className="progress__views">

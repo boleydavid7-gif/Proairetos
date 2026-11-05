@@ -1,7 +1,6 @@
 import type { Nav } from '../app/App';
 import { BillsIcon, CalendarIcon, ChevronIcon, PlusIcon, WalletIcon } from '../app/icons';
 import { PageTop } from '../app/ui';
-import IconButton from '../../components/ui/IconButton';
 import BudgetCard from './BudgetCard';
 
 /** The money side: the monthly plan, what was spent, savings envelopes and pay. */
@@ -18,7 +17,7 @@ export default function PlanPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Plan</h1>
         </div>
-        <span data-header-actions><IconButton className="round-button" label="Record an expense" onClick={() => nav.go({ name: 'expense' })}><PlusIcon size={22} /></IconButton></span>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'expense' })}><PlusIcon size={18} />Add</button>
       </PageTop>
       <BudgetCard nav={nav} />
       <ul className="rows">

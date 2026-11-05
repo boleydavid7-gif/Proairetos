@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { LeafIcon, PlusIcon } from '../../app/family/icons';
+import { LeafIcon } from '../../app/family/icons';
 import { offerUndo } from '../../app/family/shell';
 import { ideas, migrateLegacyIdeas, newId, type Idea, type IdeaStage } from '../app/state';
 
@@ -41,7 +41,6 @@ export default function IdeasPage() {
   };
 
   return <main className="mneme-page mneme-ideas">
-    <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="Focus idea dump" onClick={() => document.getElementById('mneme-idea-dump')?.focus()}><PlusIcon size={22} /></button></div>
     <div className="mneme-heading-row"><h1>Ideas</h1></div>
     <section className="mneme-idea-composer" aria-labelledby="idea-dump-title">
       <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark"><LeafIcon size={20} /></span><span><strong id="idea-dump-title">Idea dump</strong></span></div>

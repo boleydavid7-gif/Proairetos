@@ -1,16 +1,17 @@
 import { useState } from 'react';
-import IconButton from '../../components/ui/IconButton';
 import { BoxIcon, PlusIcon, PrintIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
-import { things } from '../app/state';
+import { things, upkeeps } from '../app/state';
+import { Ideas } from './TodayPage';
 import { CATEGORIES, search, warrantyText } from '../core/things';
 import { byRoom } from '../core/insurance';
 import { Segmented } from '../../askesis/app/ui';
 
 export default function ThingsPage({ nav }: { nav: KtemaNav }) {
   const all = things.use();
+  const upkeep = upkeeps.use();
   const [text, setText] = useState('');
   const today = toLocalDate(new Date());
   const [by, setBy] = useState<'kind' | 'room'>('kind');
@@ -20,7 +21,7 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
     <div className="page ktema-page">
       <div className="page-top section-head">
         <h1 className="title">Things</h1>
-        <span data-header-actions><IconButton className="round-button" label="Add a thing" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={22} /></IconButton></span>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={18} />Add</button>
       </div>
       {all.length > 5 && <input className="input" type="search" aria-label="Find a thing" placeholder="Search" value={text} onChange={(event) => setText(event.target.value)} />}
       {all.length === 0 && <Empty icon={<BoxIcon size={28} />} title="No things yet" />}
@@ -44,6 +45,13 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
         );
       })}
       {text && !found.length && <p className="muted">Nothing matches.</p>}
+      <section>
+        <div className="section-head">
+          <h2>Upkeep</h2>
+          <button type="button" className="text-link" onClick={() => nav.go({ name: 'upkeep' })}>Add upkeep</button>
+        </div>
+        <Ideas list={upkeep} few={upkeep.length >= 4} />
+      </section>
       {all.length > 0 && (
         <ul className="rows">
           <li>

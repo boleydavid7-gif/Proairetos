@@ -1,6 +1,6 @@
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
-import { AppMark, CheckIcon, ChevronIcon, PlusIcon } from '../../app/family/icons';
+import { AppMark, CheckIcon, ChevronIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import photoWide from '../../assets/images/scenes/philia-stoic-wide.webp';
 import type { PhiliaNav } from '../app/App';
@@ -48,14 +48,11 @@ export default function HomePage({ nav }: { nav: PhiliaNav }) {
         {all.length === 0 ? (
           <section className="card first-run">
             <h2 className="card__title">No one here yet</h2>
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'edit' })}><PlusIcon size={18} />Add someone</button>
-            <button type="button" className="text-link" onClick={() => nav.swap({ name: 'more' })}>Bring in from Compass</button>
           </section>
         ) : (
           <>
             <div className="section-head">
               <h2>Coming up</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'date' })}>Add a date</button>
             </div>
             {soon.length === 0 ? (
               <p className="muted">Nothing in the next 30 days.</p>

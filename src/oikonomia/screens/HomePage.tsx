@@ -53,16 +53,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
         ) : all.length === 0 ? (
           <section className="card oiko-empty first-run">
             <h2 className="card__title">No bills yet</h2>
-            {can.write && (
-              <div className="button-row">
-                <button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}>
-                  Add a bill
-                </button>
-                <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>
-                  Record an expense
-                </button>
-              </div>
-            )}
           </section>
         ) : (
           <>
@@ -85,7 +75,6 @@ export default function HomePage({ nav }: { nav: Nav }) {
             <PayCard nav={nav} bills={all} today={today} currency={settings.currency} />
             <BudgetCard nav={nav} />
 
-            {can.write && <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'expense' })}>Record an expense</button>}
           </>
         )}
       </div>

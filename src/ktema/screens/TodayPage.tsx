@@ -2,7 +2,7 @@ import { Sym } from '../../lamplight/icons';
 import { useState } from 'react';
 import { Brand, offerUndo } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
-import { AppMark, PlusIcon } from '../../app/family/icons';
+import { AppMark } from '../../app/family/icons';
 import photoWide from '../../assets/images/scenes/ktema-stoic-wide.webp';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { KtemaNav } from '../app/App';
@@ -67,15 +67,11 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
         {list.length === 0 && owned.length === 0 ? (
           <section className="card">
             <h2 className="card__title">Nothing kept yet</h2>
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={18} />Add a thing</button>
-            <p className="label">Or start with upkeep</p>
-            <Ideas list={list} />
           </section>
         ) : (
           <>
             <div className="section-head">
               <h2>Now</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'upkeep' })}>Add upkeep</button>
             </div>
             {groups.now.length ? <ul className="chore-list" data-ll-lit>{groups.now.map(row)}</ul> : <p className="muted">Nothing today.</p>}
             {groups.soon.length > 0 && (
@@ -103,12 +99,6 @@ export default function TodayPage({ nav }: { nav: KtemaNav }) {
               <>
                 <div className="section-head"><h2>Later</h2></div>
                 <ul className="chore-list">{groups.later.map(row)}</ul>
-              </>
-            )}
-            {list.length < 4 && (
-              <>
-                <p className="label">Ideas</p>
-                <Ideas list={list} few />
               </>
             )}
           </>

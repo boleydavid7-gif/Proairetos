@@ -23,8 +23,7 @@ export default function CollectionsPage({ nav, id }: { nav: MnemeNav; id?: strin
     setCreating(false);
   };
   return <main className="mneme-page mneme-collections">
-    <div className="mneme-header-actions-source" data-header-actions aria-hidden="true"><button type="button" aria-label="New note" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></button></div>
-    <h1>Collections</h1>
+    <div className="mneme-heading-row"><h1>Collections</h1><button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={18} />Add</button></div>
     <div className="mneme-smart-list">
       <SmartCollection label="Inbox" count={allNotes.filter((note) => !note.collectionId && !note.archived).length} onClick={() => nav.swap({ name: 'notes', filter: 'inbox' })} />
       <SmartCollection label="Pinned" count={allNotes.filter((note) => note.pinned && !note.archived).length} onClick={() => nav.swap({ name: 'notes', filter: 'pinned' })} />

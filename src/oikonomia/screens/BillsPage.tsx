@@ -7,7 +7,6 @@ import { payBill } from '../app/payBill';
 import { useBills, useToday } from '../app/state';
 import { PageTop } from '../app/ui';
 import Empty from '../../app/family/Empty';
-import IconButton from '../../components/ui/IconButton';
 import { useAppPermissions } from '../../app/household/household';
 
 export default function BillsPage({ nav }: { nav: Nav }) {
@@ -26,7 +25,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Bills</h1>
         </div>
-        {can.write && <span data-header-actions><IconButton className="round-button" label="Add a bill" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></IconButton></span>}
+        {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={18} />Add</button>}
       </PageTop>
 
       {!bills ? (

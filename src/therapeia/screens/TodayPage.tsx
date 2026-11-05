@@ -1,6 +1,6 @@
 import { Brand } from '../../app/family/shell';
 import { DailyLine } from '../../app/family/DailyLine';
-import { AppMark, PlusIcon } from '../../app/family/icons';
+import { AppMark } from '../../app/family/icons';
 import { useState } from 'react';
 import { useNow } from '../../hydros/app/day';
 import photoWide from '../../assets/images/scenes/therapeia-stoic-wide.webp';
@@ -50,13 +50,11 @@ export default function TodayPage({ nav }: { nav: TherapeiaNav }) {
         {all.length === 0 ? (
           <section className="card first-run">
             <h2 className="card__title">No medicines yet</h2>
-            <button type="button" className="button-main" onClick={() => nav.go({ name: 'medicine' })}><PlusIcon size={18} />Add a medicine</button>
           </section>
         ) : (
           <>
             <div className="section-head">
               <h2>Today</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'medicine' })}>Add</button>
             </div>
             {people.length > 0 && (
               <div className="chip-row" role="group" aria-label="Whose">
