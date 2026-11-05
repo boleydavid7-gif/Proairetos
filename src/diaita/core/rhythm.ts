@@ -107,7 +107,7 @@ const laterOnClock = (date: Date, minutes: number) => {
 const AFTER_WORK_MINUTES = 60;
 
 /** The shift a sleep follows: the work block that ended last before it (within 18 hours), by name. */
-function followsShift(start: Date, all: readonly WorkBlock[]): string | undefined {
+export function followsShift(start: Date, all: readonly WorkBlock[]): string | undefined {
   let found: WorkBlock | undefined;
   for (const block of all) {
     if (block.end.getTime() <= start.getTime() + HOUR && start.getTime() - block.end.getTime() < 18 * HOUR && (!found || block.end > found.end)) found = block;
@@ -198,6 +198,17 @@ export function mainSleeps(from: string, until: string, blocks: readonly WorkBlo
     if (end > start) sleeps.push({ start, end, after: 'evening', day: date });
   }
   return sleeps.map((sleep) => adjustSleep(sleep, all, settings));
+}
+
+/** The sleeps as worked out before any of the person's own adjusting: the times the boxes start from. */
+export function baseSleeps(from: string, until: string, blocks: readonly WorkBlock[], settings: RhythmSettings): Sleep[] {
+  return mainSleeps(from, until, blocks, { ...settings, sleepShift: 0, wakeShift: 0, shiftAdjust: undefined, dayAdjust: undefined });
+}
+
+/** The minutes to move a time from `from` to the clock time `chosen` (minutes into the day), the shorter way round. */
+export function shiftTo(from: Date, chosen: number): number {
+  const diff = (chosen - (from.getHours() * 60 + from.getMinutes())) % 1440;
+  return diff > 720 ? diff - 1440 : diff <= -720 ? diff + 1440 : diff;
 }
 
 /** Everything Diaita suggests between two dates, in time order. */
