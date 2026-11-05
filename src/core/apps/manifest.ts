@@ -273,6 +273,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['sleep and naps', 'check-ins', 'worries'] },
+    provides: ['home'],
+    home: { shows: ['whether sleep tracking is set up', 'hours slept last night'], excludes: ['how it was', 'notes', 'signs the person recorded', 'bed and wake times'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

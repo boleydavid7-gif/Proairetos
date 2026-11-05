@@ -341,3 +341,16 @@ describe('Meletē on Today', () => {
     expect((await lines(meleteHome, { day: carried }))[0].detail).toBe('30 min studied today');
   });
 });
+
+describe('Diaita on Today', () => {
+  it('says whether sleep is set up and the hours slept last night, never how it was or the notes', async () => {
+    const { diaitaHome } = await import('../../diaita/providers/home');
+    expect((await lines(diaitaHome))[0].detail).toBe('Set up sleep tracking');
+    put('diaita:settings', { started: true });
+    expect((await lines(diaitaHome))[0].detail).toBe('Log last night’s sleep');
+    put('diaita:sleep:2026-11-05', { id: '2026-11-05', date: '2026-11-05', bed: '23:00', up: '06:30', how: 'poorly', note: 'CANARY-NOTE', snoring: true });
+    const rows = await lines(diaitaHome);
+    expect(rows[0]).toMatchObject({ group: 'practice', detail: '7 h 30 min slept', open: '/diaita/' });
+    expect(text(rows)).not.toMatch(/CANARY|poorly|snoring/);
+  });
+});
