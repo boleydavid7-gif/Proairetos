@@ -6,7 +6,7 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { MeleteNav } from '../app/App';
 import { openByDay, nextDays } from '../app/gaps';
 import { newId, removeSubject, sessions as sessionStore, subjects } from '../app/state';
-import { DATE_KINDS, dateFact, formatMinutes, minutesByDay, newSubject, openHoursBefore, SESSION_KINDS, slotsThatFit, SUBJECT_COLORS, upcomingDates, weekOf, workFact, type DateKind, type SessionKind, type Subject } from '../core/subjects';
+import { DATE_KINDS, dateFact, formatMinutes, minutesByDay, newSubject, openHoursBefore, slotsThatFit, SUBJECT_COLORS, upcomingDates, weekOf, workFact, type DateKind, type SessionKind, type Subject } from '../core/subjects';
 
 /** A subject: its name and color, its dates, the person's own rhythm and if-then line, and its materials. Every part but the name is optional. */
 export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }) {
@@ -24,7 +24,7 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
   const [open, setOpen] = useState<number>();
   const [finding, setFinding] = useState(false);
   const [lengthMin, setLengthMin] = useState(subject?.rhythm?.minutes ?? 45);
-  const [sitKind, setSitKind] = useState<SessionKind>('read');
+  const sitKind: SessionKind = 'read';
   const [slots, setSlots] = useState<Date[]>();
 
   const put = (change: Partial<Subject>) => {
@@ -119,9 +119,6 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
       </div>
       {finding && (
         <div className="card melete-place">
-          <div className="chip-row" role="group" aria-label="Kind">
-            {SESSION_KINDS.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={sitKind === each.id} onClick={() => setSitKind(each.id)}>{each.label}</button>)}
-          </div>
           <div className="chip-row" role="group" aria-label="Length">
             {[15, 25, 30, 45, 60, 90].map((each) => <button key={each} type="button" className="chip" aria-pressed={lengthMin === each} onClick={() => setLengthMin(each)}>{each} min</button>)}
           </div>
