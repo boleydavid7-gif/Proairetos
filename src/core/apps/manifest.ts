@@ -374,6 +374,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

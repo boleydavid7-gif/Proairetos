@@ -56,3 +56,17 @@ describe('Philia', () => {
     expect(text(rows)).not.toMatch(/CANARY|canary|03-14/);
   });
 });
+
+describe('Ktema', () => {
+  it('holds a thing’s name, make and model, place and note, never its serial number, price or warranty', async () => {
+    const { ktemaSearch } = await import('../../ktema/providers/search');
+    const rows = await run(ktemaSearch, {
+      'local:ktema:thing:': [{ id: 't1', name: 'Dishwasher', category: 'Appliance', make: 'Bosch', model: 'S100', serial: 'CANARY-SERIAL', price: 'CANARY-PRICE', warrantyUntil: '2030-01-01', place: 'Kitchen', note: 'Under warranty', createdAt: day }],
+      'local:ktema:upkeep:': [{ id: 'u1', name: 'Clean the filter', note: 'Every three months', createdAt: day }],
+    });
+    expect(rows.map((row) => row.ref.kind).sort()).toEqual(['thing', 'upkeep']);
+    expect(text(rows)).toMatch(/Bosch S100.*Kitchen.*Under warranty/s);
+    expect(text(rows)).toContain('Every three months');
+    expect(text(rows)).not.toMatch(/CANARY|2030/);
+  });
+});

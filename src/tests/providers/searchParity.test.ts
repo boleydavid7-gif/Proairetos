@@ -53,6 +53,7 @@ const baseline = JSON.parse(readFileSync('src/tests/providers/fixtures/searchBas
 const REMOVED: Record<string, string> = {};
 /** Field texts the owner's rules take out of a row (row label -> texts that no longer appear). */
 const DROPPED_FIELDS: Record<string, string[]> = {
+  'In Ktema': ["SN-4455-XY"],
   'Visit in Therapeia': ["Blood pressure talk", "Ask about sleep"],
   'Medicine in Therapeia': ["50 mg", "Take with food"],
   'Chore in Ergon': ["Use the green cloth"],};

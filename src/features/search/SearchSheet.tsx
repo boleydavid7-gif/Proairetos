@@ -1,6 +1,5 @@
 import { meleteSubjects } from '../../app/calendars/meleteCalendar';
 import { isAdded } from '../../app/family/added';
-import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { allPlants } from '../../phyton/app/state';
 import { notes as mnemeNotes } from '../../mneme/app/state';
 import { workouts as dynamisWorkouts } from '../../dynamis/app/state';
@@ -141,14 +140,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
     });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const thing of isAdded('ktema') ? ktemaThings.list() : []) {
-    labels.set(thing.id, 'In Ktema');
-    things.push({ id: thing.id, kind: 'app', href: `/ktema/?open=${encodeURIComponent(`thing:${thing.id}`)}`, title: thing.name, fields: [{ name: 'Make', text: [thing.make, thing.model].filter(Boolean).join(' ') }, { name: 'Serial', text: thing.serial }, { name: 'Where', text: thing.place }, { name: 'Note', text: thing.note }], at: thing.createdAt });
-  }
-  for (const upkeep of isAdded('ktema') ? ktemaUpkeeps.list() : []) {
-    labels.set(upkeep.id, 'Upkeep in Ktema');
-    things.push({ id: upkeep.id, kind: 'app', href: `/ktema/?open=${encodeURIComponent(`upkeep:${upkeep.id}`)}`, title: upkeep.name, fields: [{ name: 'Note', text: upkeep.note }], at: upkeep.createdAt });
-  }
   for (const plant of isAdded('phyton') ? allPlants() : []) {
     labels.set(plant.id, 'Plant in Phyton');
     const type = speciesBy(plant.species);
