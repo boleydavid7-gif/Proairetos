@@ -1188,6 +1188,84 @@ blockquote.daily-line {
   align-items: baseline;
 }
 
+/* Settings: independent switches for the compact app summaries. */
+.today-app-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.today-app-settings__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.today-app-settings__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 3.25rem;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--ll-hair, var(--color-border));
+  color: var(--ll-ink, var(--color-text));
+}
+
+.today-app-settings__row:first-child {
+  border-top: 0;
+}
+
+.today-app-settings__name {
+  min-width: 0;
+  flex: 1;
+  font-size: var(--text-md);
+}
+
+.today-app-settings__state {
+  color: var(--ll-ink-2, var(--color-text-muted));
+  font-size: var(--text-sm);
+}
+
+.today-app-settings__switch {
+  position: relative;
+  flex: 0 0 auto;
+  width: 2.65rem;
+  height: 1.55rem;
+  padding: 0;
+  border: 1px solid var(--ll-hair, var(--color-border));
+  border-radius: 999px;
+  background: var(--ll-material-inset, var(--color-surface-raised));
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.today-app-settings__switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: var(--ll-ink-2, var(--color-text-muted));
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.today-app-settings__switch.is-on {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.today-app-settings__switch.is-on::after {
+  transform: translateX(1.1rem);
+  background: var(--ll-material-solid, #fff);
+}
+
+.today-app-settings__switch:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
 @media (max-width: 26rem) {
   .today-app--compact {
     grid-template-columns: minmax(6.5rem, 6.75rem) minmax(0, 1fr);
