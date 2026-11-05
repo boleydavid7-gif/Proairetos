@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import IconButton from '../../components/ui/IconButton';
 import { offerUndo } from '../../app/family/shell';
 import { PlusIcon } from '../../app/family/icons';
 import { LineChart } from '../../app/family/charts';
@@ -59,7 +60,7 @@ export default function ReadingsPage() {
     <div className="page therapeia-page">
       <div className="page-top section-head">
         <h1 className="title">Readings</h1>
-        {!adding && <button type="button" className="button-main" onClick={() => setAdding(true)}><PlusIcon size={18} />Add</button>}
+        {!adding && <span data-header-actions><IconButton className="round-button" label="Add a reading" onClick={() => setAdding(true)}><PlusIcon size={22} /></IconButton></span>}
       </div>
 
       {(adding || groups.length === 0) && <section className="card">

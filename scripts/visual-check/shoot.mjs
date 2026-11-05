@@ -36,6 +36,8 @@ for (const size of sizes) {
       await ctx.addInitScript(([apps, theme]) => {
         if (sessionStorage.getItem('visual-check')) return;
         localStorage.setItem('proairetos.onboarded', 'yes');
+        // The Store opens every app for its owner; without this each add-on shows its trial screen.
+        localStorage.setItem('proairetosOwned', JSON.stringify({ apps: ['core'], owner: true, account: true }));
         localStorage.setItem('proairetos.apps', JSON.stringify({ added: apps.filter((app) => app !== 'proairetos') }));
         for (const app of apps) localStorage.setItem(`${app}:settings`, JSON.stringify({ started: true }));
         localStorage.setItem('proairetos.appearance', JSON.stringify({ theme, textSize: 'default' }));

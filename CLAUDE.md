@@ -341,7 +341,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   auto; types: app }` (premium.css); motion.css names every dock `tab-bar` and the top bar `ll-topbar` so they hold
   still, and under `:active-view-transition-type(app)` the old app eases back (280 ms) while the new one, a live picture
   that fills in as it draws, settles in from 90 ms. Headless Chromium skips many cross-document transitions; check on a phone.
-- `scripts/visual-check/` catches visual drift: `shoot.mjs <dir>` photographs every app's places (each dock, rail or
+- `scripts/visual-check/` catches visual drift: `shoot.mjs <dir>` (seeds the owner's Store access, or every add-on shows its trial screen) photographs every app's places (each dock, rail or
   sidebar item) dark and light, phone (390) and computer (1440), motion reduced and clock fixed; `compare.mjs <before>
   <after>` lists the pictures that changed and writes magenta diffs to `<after>/diff`. Shoot the old build before a change,
   the new one after (runs in `.visual/`, ignored by git; SIZES/THEMES/APPS narrow a run, four runs in parallel take ~2 min).

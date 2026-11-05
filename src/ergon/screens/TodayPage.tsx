@@ -101,7 +101,7 @@ export default function TodayPage({ nav }: { nav: ErgonNav }) {
         <div className="hero__content">
           <Brand name="Ergon" mark={<AppMark app="ergon" size={30} light />} light />
           <div className="home__words">
-            <h1 className="home__title">{totalToday > 0 ? `${totalToday} today` : 'No chores or to-dos for today'}</h1>
+            <h1 className="home__title">{totalToday > 0 ? `${totalToday} today` : 'Today'}</h1>
             <p className="home__sub">{home ? home.name : 'Chores and to-dos'}</p>
           </div>
         </div>

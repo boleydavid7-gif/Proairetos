@@ -76,3 +76,4 @@ All three proposed, waiting for approval.
   when a value changes. A CSS scroll timeline could not remove the scroll listener either: it also sets `is-folded`,
   `is-scrolled` and `is-over-picture`, and the handoff follows each page's title position. A rewrite would add risk on
   iPhone, where it cannot be checked here, for no measurable gain.
+- Nov 5: review and sweep pass over every app on phone screenshots (dark and light). Fixed: Add buttons stranded above titles in Ergon, Philia, Ktema, Therapeia (3 pages) and Oikonomia (2 pages) now sit in the phone top bar; Ergon's empty Today title reads "Today"; open time's Set button uses the main button style. The visual-check harness now seeds Store ownership. Open question for the owner: Today's Daily practices rows ("Start a running plan", "Log last night's sleep") ask for action on a blank day.

@@ -26,7 +26,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Bills</h1>
         </div>
-        {can.write && <IconButton className="round-button" label="Add a bill" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></IconButton>}
+        {can.write && <span data-header-actions><IconButton className="round-button" label="Add a bill" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></IconButton></span>}
       </PageTop>
 
       {!bills ? (

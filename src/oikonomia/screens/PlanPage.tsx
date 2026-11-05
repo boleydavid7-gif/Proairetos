@@ -18,7 +18,7 @@ export default function PlanPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Plan</h1>
         </div>
-        <IconButton className="round-button" label="Record an expense" onClick={() => nav.go({ name: 'expense' })}><PlusIcon size={22} /></IconButton>
+        <span data-header-actions><IconButton className="round-button" label="Record an expense" onClick={() => nav.go({ name: 'expense' })}><PlusIcon size={22} /></IconButton></span>
       </PageTop>
       <BudgetCard nav={nav} />
       <ul className="rows">

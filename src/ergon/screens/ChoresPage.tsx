@@ -1,4 +1,5 @@
 import { BroomIcon, PlusIcon } from '../../app/family/icons';
+import IconButton from '../../components/ui/IconButton';
 import { Empty } from '../../app/family/shell';
 import { useHousehold } from '../../app/household/household';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -31,7 +32,7 @@ export default function ChoresPage({ nav }: { nav: ErgonNav }) {
     <div className="page ergon-page">
       <div className="page-top section-head">
         <h1 className="title">Chores</h1>
-        {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={18} />Add</button>}
+        {can.write && <span data-header-actions><IconButton className="round-button" label="Add a chore" onClick={() => nav.go({ name: 'chore' })}><PlusIcon size={22} /></IconButton></span>}
       </div>
       {active.length === 0 && <Empty icon={<BroomIcon size={28} />} title={all.length === 0 ? 'No chores yet' : 'No active chores'} />}
       {ordered.map(([room, chores]) => (

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import IconButton from '../../components/ui/IconButton';
 import { BoxIcon, PlusIcon, PrintIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
@@ -19,7 +20,7 @@ export default function ThingsPage({ nav }: { nav: KtemaNav }) {
     <div className="page ktema-page">
       <div className="page-top section-head">
         <h1 className="title">Things</h1>
-        <button type="button" className="button-main" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={18} />Add</button>
+        <span data-header-actions><IconButton className="round-button" label="Add a thing" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={22} /></IconButton></span>
       </div>
       {all.length > 5 && <input className="input" type="search" aria-label="Find a thing" value={text} onChange={(event) => setText(event.target.value)} />}
       {all.length === 0 && <Empty icon={<BoxIcon size={28} />} title="No things yet" />}

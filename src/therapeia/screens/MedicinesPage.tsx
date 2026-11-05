@@ -1,4 +1,5 @@
 import { Empty, say } from '../../app/family/shell';
+import IconButton from '../../components/ui/IconButton';
 import { PillIcon, PlusIcon, PrintIcon, ShareIcon } from '../../app/family/icons';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
@@ -57,7 +58,7 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
     <div className="page therapeia-page">
       <div className="page-top section-head">
         <h1 className="title">Medicines</h1>
-        {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'medicine' })}><PlusIcon size={18} />Add</button>}
+        {can.write && <span data-header-actions><IconButton className="round-button" label="Add a medicine" onClick={() => nav.go({ name: 'medicine' })}><PlusIcon size={22} /></IconButton></span>}
       </div>
       {people.length > 0 && (
         <div className="chip-row" role="group" aria-label="Whose">

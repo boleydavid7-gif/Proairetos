@@ -119,7 +119,7 @@ function PlaceSheet({ stretch, items, today, onClose }: { stretch: Span; items: 
               ))}
             </ul>
             {!allFit && <p className="form-error">{stack.fit === 0 ? 'None fit in this stretch.' : `Only ${stack.fit} fit in this stretch.`}</p>}
-            <button type="button" className="button-main" disabled={!allFit} onClick={() => void placeAll()}>
+            <button type="button" className="button-accent" disabled={!allFit} onClick={() => void placeAll()}>
               Set {chosenItems.length === 1 ? 'it' : `these ${chosenItems.length}`}
             </button>
           </section>
