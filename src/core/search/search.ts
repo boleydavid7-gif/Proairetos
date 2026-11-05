@@ -43,13 +43,24 @@ function snippetAround(text: string, word: string, radius = 50): string {
   return `${start > 0 ? '…' : ''}${text.slice(start, end).trim()}${end < text.length ? '…' : ''}`;
 }
 
+const squashed = new WeakMap<Searchable, string>();
+
+/** The thing's words, normalized once; typing another letter reuses it. */
+function wordsOf(thing: Searchable): string {
+  let text = squashed.get(thing);
+  if (text === undefined) {
+    text = normalize([thing.title, ...thing.fields.map((field) => field.text ?? '')].join('\n'));
+    squashed.set(thing, text);
+  }
+  return text;
+}
+
 export function search(query: string, things: readonly Searchable[], limit = 50): SearchHit[] {
   const words = normalize(query).split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
   const hits: SearchHit[] = [];
   for (const thing of things) {
-    const texts = [thing.title, ...thing.fields.map((field) => field.text ?? '')];
-    const all = normalize(texts.join('\n'));
+    const all = wordsOf(thing);
     if (!words.every((word) => all.includes(word))) continue;
     // Show where it matched when that is not the title.
     const inTitle = words.every((word) => normalize(thing.title).includes(word));
