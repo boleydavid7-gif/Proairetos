@@ -6,6 +6,9 @@ import { appointments as therapeiaVisits, allMedicines as therapeiaMedicines } f
 import { withWho } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { allPlants } from '../../phyton/app/state';
+import { notes as mnemeNotes } from '../../mneme/app/state';
+import { workouts as dynamisWorkouts } from '../../dynamis/app/state';
+import type { LogEntry as AskesisEntry } from '../../askesis/core/log';
 import { speciesBy } from '../../phyton/core/species';
 import { bookings as poreiaBookings, plans as poreiaPlans, trips as poreiaTrips } from '../../poreia/app/state';
 import { kindLabel as bookingKindLabel } from '../../poreia/core/model';
@@ -45,7 +48,7 @@ function subscribeAll(listener: () => void) {
 }
 
 async function gather(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
-  const [items, reflections, decisions, statements, values, recipes, books, bills] = await Promise.all([
+  const [items, reflections, decisions, statements, values, recipes, books, bills, runLog] = await Promise.all([
     lifeService.list(),
     reflectionService.all(),
     decisionService.list(),
@@ -54,6 +57,7 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
     readStore<Recipe>('somaRecipes'),
     readStore<TheoriaBook>('theoriaBooks'),
     readStore<Bill>('oikonomiaBills'),
+    readStore<AskesisEntry>('askesisWorkouts'),
   ]);
   const labels = new Map<string, string>();
   const things: Searchable[] = [];
@@ -218,6 +222,43 @@ async function gather(): Promise<{ things: Searchable[]; labels: Map<string, str
       ],
       at: subject.createdAt,
     });
+  }
+  for (const note of isAdded('mneme') ? mnemeNotes.list().filter((each) => !each.archived) : []) {
+    labels.set(note.id, 'Note in Mneme');
+    things.push({
+      id: note.id,
+      kind: 'app',
+      href: `/mneme/?open=${encodeURIComponent(`note:${note.id}`)}`,
+      title: note.title || note.body.split('\n')[0].slice(0, 80) || 'Note',
+      fields: [
+        { name: 'Note', text: note.body },
+        { name: 'Heard', text: note.transcript?.segments.map((segment) => segment.text).join(' ') },
+      ],
+      at: note.updatedAt,
+    });
+  }
+  for (const entry of isAdded('askesis') ? runLog : []) {
+    const words = [entry.notes, entry.wentWell, entry.nextTime, entry.intention].filter(Boolean);
+    if (!words.length) continue;
+    labels.set(entry.id, `${entry.activity === 'other' ? 'Workout' : entry.activity[0].toUpperCase() + entry.activity.slice(1)} in Askesis`);
+    things.push({
+      id: entry.id,
+      kind: 'app',
+      href: `/askesis/?open=${encodeURIComponent(`entry:${entry.id}`)}`,
+      title: entry.workoutTitle || `${entry.activity[0].toUpperCase()}${entry.activity.slice(1)}, ${dayLabel(entry.date)}`,
+      fields: [
+        { name: 'Notes', text: entry.notes },
+        { name: 'Went well', text: entry.wentWell },
+        { name: 'Next time', text: entry.nextTime },
+        { name: 'Intention', text: entry.intention },
+      ],
+      at: `${entry.date}T00:00`,
+    });
+  }
+  for (const workout of isAdded('dynamis') ? dynamisWorkouts.list() : []) {
+    if (!workout.note) continue;
+    labels.set(workout.id, 'Session in Dynamis');
+    things.push({ id: workout.id, kind: 'app', href: '/dynamis/', title: `Strength, ${dayLabel(workout.date)}`, fields: [{ name: 'Note', text: workout.note }], at: workout.createdAt });
   }
   if (isAdded('poreia')) {
     const tripNames = new Map(poreiaTrips.list().map((trip) => [trip.id, trip.name]));
