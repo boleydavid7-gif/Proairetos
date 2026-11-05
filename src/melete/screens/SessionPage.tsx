@@ -1,3 +1,4 @@
+import { DurationWheel } from '../../app/family/TimeWheel';
 import { useEffect, useRef, useState } from 'react';
 import { Waiting } from '../../lamplight/Waiting';
 import { offerUndo, say } from '../../app/family/shell';
@@ -5,7 +6,6 @@ import type { MeleteNav } from '../app/App';
 import { loadRunning, newId, saveRunning, sessions as sessionStore, settings, subjects, type Running } from '../app/state';
 import { formatMinutes, type SessionKind, type StudySession } from '../core/subjects';
 
-const LENGTHS = [15, 25, 30, 45, 60, 90];
 const clockDown = (ms: number) => {
   const total = Math.max(0, Math.ceil(ms / 1000));
   return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
@@ -117,9 +117,7 @@ export default function SessionPage({ nav, id, subjectId }: { nav: MeleteNav; id
           {list.map((each) => <button key={each.id} type="button" className="chip" aria-pressed={subject === each.id} onClick={() => { setSubject(each.id); if (each.rhythm) setMinutes(each.rhythm.minutes); }}>{each.name}</button>)}
         </div>
       )}
-      <div className="chip-row" role="group" aria-label="Length">
-        {LENGTHS.map((each) => <button key={each} type="button" className="chip" aria-pressed={minutes === each} onClick={() => setMinutes(each)}>{each} min</button>)}
-      </div>
+      <DurationWheel label="Length" minutes={minutes} onChange={setMinutes} />
       <button type="button" className="button-main" onClick={() => void start()}>Start</button>
     </div>
   );

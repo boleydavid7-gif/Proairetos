@@ -1,3 +1,4 @@
+import { DurationWheel } from '../../app/family/TimeWheel';
 import { useEffect, useState, type FormEvent } from 'react';
 import { offerUndo } from '../../app/family/shell';
 import MoreDetails from '../../app/family/MoreDetails';
@@ -119,9 +120,7 @@ export default function SubjectPage({ nav, id }: { nav: MeleteNav; id?: string }
       </div>
       {finding && (
         <div className="card melete-place">
-          <div className="chip-row" role="group" aria-label="Length">
-            {[15, 25, 30, 45, 60, 90].map((each) => <button key={each} type="button" className="chip" aria-pressed={lengthMin === each} onClick={() => setLengthMin(each)}>{each} min</button>)}
-          </div>
+          <DurationWheel label="Length" minutes={lengthMin} onChange={setLengthMin} />
           {slots === undefined ? <p className="muted">Looking at your week</p> : slots.length === 0 ? <p className="muted">No open stretch that long this week.</p> : (
             <ul className="chore-list">
               {slots.map((at) => (

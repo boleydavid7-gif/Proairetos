@@ -6,6 +6,7 @@ import IconButton from '../../components/ui/IconButton';
 import { Sym } from '../../lamplight/icons';
 import type { MeleteNav } from '../app/App';
 import { openByDay } from '../app/gaps';
+import { DurationWheel, TimeWheel } from '../../app/family/TimeWheel';
 import { trainingOnDays, type TrainingDay } from '../../app/family/trainingDays';
 import { newId, sessions as sessionStore, settings, subjects } from '../app/state';
 import { formatMinutes, kindLabel, rhythmLeft, sessionsOnDay, weekOf } from '../core/subjects';
@@ -13,7 +14,8 @@ import { formatMinutes, kindLabel, rhythmLeft, sessionsOnDay, weekOf } from '../
 const clock = (date: Date) => new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
 const dayName = (day: string) => new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'short', day: 'numeric' }).format(new Date(`${day}T12:00:00`));
 const hm = (date: Date) => `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-const LENGTHS = [15, 25, 30, 45, 60, 90];
+const two = (value: number) => String(value).padStart(2, '0');
+const toMinutes = (value: string) => { const [h, m] = value.split(':').map(Number); return (h || 0) * 60 + (m || 0); };
 
 /**
  * The real week: work, sleep and events take what they hold, and what is left shows as open stretches. Tap one to set a
@@ -149,10 +151,8 @@ export default function WeekPage({ nav }: { nav: MeleteNav }) {
                   {list.map((subject) => <button key={subject.id} type="button" className="chip" aria-pressed={subjectId === subject.id} onClick={() => { setSubjectId(subject.id); if (subject.rhythm) setMinutes(subject.rhythm.minutes); }}>{subject.name}</button>)}
                 </div>
                 )}
-                <div className="chip-row" role="group" aria-label="Length">
-                  {LENGTHS.map((each) => <button key={each} type="button" className="chip" aria-pressed={minutes === each} onClick={() => setMinutes(each)}>{each} min</button>)}
-                </div>
-                <label className="field"><span className="field__label">Starts</span><input className="input" type="time" value={start} onChange={(event) => setStart(event.target.value)} /></label>
+                <DurationWheel label="Length" minutes={minutes} onChange={setMinutes} />
+                <TimeWheel label="Starts" minutes={toMinutes(start)} step={5} onChange={(value) => setStart(`${two(Math.floor(value / 60))}:${two(value % 60)}`)} />
                 <div className="button-row">
                   <button type="button" className="button-main" disabled={!subjectId && !newName.trim()} onClick={place}>Set it</button>
                   <button type="button" className="button-quiet" onClick={() => setPicking(undefined)}>Cancel</button>
