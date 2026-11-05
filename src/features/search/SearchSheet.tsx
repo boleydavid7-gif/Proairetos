@@ -1,7 +1,5 @@
 import { meleteSubjects } from '../../app/calendars/meleteCalendar';
 import { isAdded } from '../../app/family/added';
-import { appointments as therapeiaVisits, allMedicines as therapeiaMedicines } from '../../therapeia/app/state';
-import { withWho } from '../../therapeia/core/medicines';
 import { things as ktemaThings, upkeeps as ktemaUpkeeps } from '../../ktema/app/state';
 import { allPlants } from '../../phyton/app/state';
 import { notes as mnemeNotes } from '../../mneme/app/state';
@@ -143,14 +141,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
     });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const medicine of isAdded('therapeia') ? therapeiaMedicines() : []) {
-    labels.set(medicine.id, 'Medicine in Therapeia');
-    things.push({ id: medicine.id, kind: 'app', href: `/therapeia/?open=${encodeURIComponent(`medicine:${medicine.id}`)}`, title: withWho(medicine, medicine.name), fields: [{ name: 'Dose', text: medicine.dose }, { name: 'Note', text: medicine.note }], at: medicine.createdAt });
-  }
-  for (const visit of isAdded('therapeia') ? therapeiaVisits.list() : []) {
-    labels.set(visit.id, 'Visit in Therapeia');
-    things.push({ id: visit.id, kind: 'app', href: `/therapeia/?open=${encodeURIComponent(`visit:${visit.id}`)}`, title: withWho(visit, visit.with), fields: [{ name: 'Where', text: visit.where }, { name: 'Notes', text: visit.notes }, { name: 'To ask', text: visit.questions.map((each) => each.text).join('\n') }], at: visit.createdAt });
-  }
   for (const thing of isAdded('ktema') ? ktemaThings.list() : []) {
     labels.set(thing.id, 'In Ktema');
     things.push({ id: thing.id, kind: 'app', href: `/ktema/?open=${encodeURIComponent(`thing:${thing.id}`)}`, title: thing.name, fields: [{ name: 'Make', text: [thing.make, thing.model].filter(Boolean).join(' ') }, { name: 'Serial', text: thing.serial }, { name: 'Where', text: thing.place }, { name: 'Note', text: thing.note }], at: thing.createdAt });

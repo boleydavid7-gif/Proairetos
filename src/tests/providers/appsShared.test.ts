@@ -56,3 +56,27 @@ describe('Ergon', () => {
     expect(search('kitchen', things)).toHaveLength(1);
   });
 });
+
+describe('Therapeia', () => {
+  const seed = () => {
+    put('therapeia:medicine:m1', { id: 'm1', name: 'Sertraline', dose: 'CANARY-DOSE 50 mg', note: 'CANARY-MEDNOTE', createdAt: day });
+    put('therapeia:medicine:m2', { id: 'm2', name: 'Amoxicillin', who: 'Mia', dose: 'CANARY-DOSE2', createdAt: day });
+    put('therapeia:visit:v1', { id: 'v1', with: 'Dr Lee', where: 'Clinic', notes: 'CANARY-VISITNOTE', questions: [{ id: 'q', text: 'CANARY-QUESTION' }], at: '2026-11-10T09:00', createdAt: day });
+  };
+  it('holds a medicine’s name, a visit’s contact and place, never doses, notes or questions', async () => {
+    const { therapeiaSearch } = await import('../../therapeia/providers/search');
+    seed();
+    const rows = await run(therapeiaSearch);
+    expect(rows.map((row) => row.title).sort()).toEqual(['Dr Lee', 'Mia: Amoxicillin', 'Sertraline']);
+    expect(rows.find((row) => row.ref.kind === 'visit')?.fields.map((field) => field.text)).toEqual(['Clinic']);
+    expect(JSON.stringify(rows)).not.toMatch(/CANARY|50 mg/);
+  });
+  it('finds nothing in a dose, a note or a question', async () => {
+    const { therapeiaSearch } = await import('../../therapeia/providers/search');
+    const { search } = await import('../../core/search/search');
+    seed();
+    const things = (await run(therapeiaSearch)).map((row) => ({ id: row.ref.id, kind: 'app' as const, title: row.title, fields: row.fields, at: row.at }));
+    for (const word of ['canary-dose', 'canary-mednote', 'canary-visitnote', 'canary-question']) expect(search(word, things), word).toEqual([]);
+    expect(search('clinic', things)).toHaveLength(1);
+  });
+});

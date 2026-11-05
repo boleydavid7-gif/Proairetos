@@ -10,9 +10,6 @@ const source = readFileSync('src/features/search/SearchSheet.tsx', 'utf8');
 
 describe('fields search still indexes that the manifest excludes (closed in Slice 2)', () => {
   const gaps: [string, string][] = [
-    ['Therapeia medication dose', "{ name: 'Dose'"],
-    ['Therapeia medicine note', "{ name: 'Note', text: medicine.note }"],
-    ['Therapeia visit notes and questions', "{ name: 'To ask'"],
     ['Ktema serial number', "{ name: 'Serial'"],
     ['Poreia confirmation code', "{ name: 'Confirmation'"],
   ];

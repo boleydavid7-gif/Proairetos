@@ -329,6 +329,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['medicine name', 'visit contact', 'visit place'], excludes: ['medication doses', 'medicine notes', 'visit notes', 'questions for the doctor', 'health card', 'readings'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
