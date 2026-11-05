@@ -32,7 +32,7 @@ describe('the manifest and the registered providers agree', () => {
   it('lists search for exactly the apps that have a provider module', () => {
     const declared = APPS.filter((each) => each.provides?.includes('search')).map((each) => each.id).sort();
     expect(Object.keys(providerModules).sort()).toEqual(declared);
-    expect(declared).toEqual(['hydros', 'oikonomia', 'soma', 'theoria']);
+    expect(declared).toEqual(['hydros', 'oikonomia', 'philia', 'soma', 'theoria']);
   });
   it('every provider belongs to its manifest app, has a class the manifest allows and reads only what syncs', async () => {
     for (const [id, load] of Object.entries(providerModules)) {
@@ -42,6 +42,10 @@ describe('the manifest and the registered providers agree', () => {
         expect(provider.privacy).toBe(app(id).search?.privacy);
         for (const source of provider.sources) {
           if (source.startsWith('setting:')) expect(syncedSetting(source.slice(8)), source).toBe(true);
+          // Records kept one per storage key sync as settings, so the prefix must be one that does.
+          else if (source.startsWith('local:')) expect(syncedSetting(`${source.slice(6)}x`), source).toBe(true);
+          // A list shared with a household travels by its own sharing, not the account's sync; only these apps keep one.
+          else if (source.startsWith('shared:')) expect(['ergon', 'therapeia'], source).toContain(source.slice(7));
           else expect(syncCollections as readonly string[], source).toContain(source);
         }
       }

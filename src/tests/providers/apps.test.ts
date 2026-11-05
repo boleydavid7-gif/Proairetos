@@ -45,3 +45,14 @@ describe('Theoria', () => {
     expect(text(rows)).not.toContain('CANARY');
   });
 });
+
+describe('Philia', () => {
+  it('holds a person’s name, who they are, remember lines, gift ideas and times together, never phone, email or dates', async () => {
+    const { philiaSearch } = await import('../../philia/providers/search');
+    const rows = await run(philiaSearch, { 'local:philia:person:': [{ id: 'p1', name: 'Mara', relation: 'Sister', phone: 'CANARY-PHONE', email: 'canary@example.test', birthday: '03-14', dates: [{ title: 'CANARY-DATE' }], notes: [{ id: 'a', text: 'Likes lemon cake' }], gifts: [{ id: 'b', text: 'Linen apron' }], times: [{ id: 'c', text: 'Lake weekend' }], createdAt: day }] });
+    expect(rows[0].ref).toEqual({ app: 'philia', kind: 'person', id: 'p1' });
+    expect(rows[0].open).toBe('/philia/?open=person%3Ap1');
+    expect(text(rows)).toMatch(/Sister.*lemon cake.*Linen apron.*Lake weekend/s);
+    expect(text(rows)).not.toMatch(/CANARY|canary|03-14/);
+  });
+});

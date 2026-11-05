@@ -1,5 +1,4 @@
 import { meleteSubjects } from '../../app/calendars/meleteCalendar';
-import { people } from '../../philia/app/state';
 import { isAdded } from '../../app/family/added';
 import { allChores } from '../../ergon/app/state';
 import { appointments as therapeiaVisits, allMedicines as therapeiaMedicines } from '../../therapeia/app/state';
@@ -145,22 +144,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
     });
   }
   // What the other apps hold, read only, so one search finds it all.
-  for (const person of isAdded('philia') ? people.list() : []) {
-    labels.set(person.id, 'Person in Philia');
-    things.push({
-      id: person.id,
-      kind: 'app',
-      href: `/philia/?open=${encodeURIComponent(`person:${person.id}`)}`,
-      title: person.name,
-      fields: [
-        { name: 'Who', text: person.relation },
-        { name: 'Remember', text: person.notes.map((note) => note.text).join('\n') },
-        { name: 'Gift ideas', text: person.gifts.map((gift) => gift.text).join('\n') },
-        { name: 'Times together', text: person.times.map((time) => time.text).join('\n') },
-      ],
-      at: person.createdAt,
-    });
-  }
   for (const chore of isAdded('ergon') ? allChores() : []) {
     labels.set(chore.id, 'Chore in Ergon');
     things.push({ id: chore.id, kind: 'app', href: `/ergon/?open=${encodeURIComponent(`chore:${chore.id}`)}`, title: chore.name, fields: [{ name: 'Room', text: chore.room }, { name: 'Note', text: chore.note }], at: chore.createdAt });
