@@ -110,6 +110,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['workout title', 'workout notes', 'went well', 'next time', 'intention'], excludes: ['heart rate', 'health data brought in', 'distance by GPS'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

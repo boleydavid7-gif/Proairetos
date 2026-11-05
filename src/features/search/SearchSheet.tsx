@@ -3,10 +3,8 @@ import { isAdded } from '../../app/family/added';
 import { allPlants } from '../../phyton/app/state';
 import { notes as mnemeNotes } from '../../mneme/app/state';
 import { workouts as dynamisWorkouts } from '../../dynamis/app/state';
-import type { LogEntry as AskesisEntry } from '../../askesis/core/log';
 import { speciesBy } from '../../phyton/core/species';
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
-import { readStore } from '../../app/family/read';
 import { lock } from '../../app/lock/lock';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
@@ -56,13 +54,12 @@ function subscribeAll(listener: () => void) {
 }
 
 export async function gather(): Promise<{ things: Searchable[]; labels: Map<string, string> }> {
-  const [items, reflections, decisions, statements, values, runLog] = await Promise.all([
+  const [items, reflections, decisions, statements, values] = await Promise.all([
     lifeService.list(),
     reflectionService.all(),
     decisionService.list(),
     compassService.statements(),
     compassService.values(),
-    readStore<AskesisEntry>('askesisWorkouts'),
   ]);
   const labels = new Map<string, string>();
   const things: Searchable[] = [];
@@ -170,24 +167,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
         { name: 'Heard', text: note.transcript?.segments.map((segment) => segment.text).join(' ') },
       ],
       at: note.updatedAt,
-    });
-  }
-  for (const entry of isAdded('askesis') ? runLog : []) {
-    const words = [entry.notes, entry.wentWell, entry.nextTime, entry.intention].filter(Boolean);
-    if (!words.length) continue;
-    labels.set(entry.id, `${entry.activity === 'other' ? 'Workout' : entry.activity[0].toUpperCase() + entry.activity.slice(1)} in Askesis`);
-    things.push({
-      id: entry.id,
-      kind: 'app',
-      href: `/askesis/?open=${encodeURIComponent(`entry:${entry.id}`)}`,
-      title: entry.workoutTitle || `${entry.activity[0].toUpperCase()}${entry.activity.slice(1)}, ${dayWords(entry.date, toLocalDate(new Date()))}`,
-      fields: [
-        { name: 'Notes', text: entry.notes },
-        { name: 'Went well', text: entry.wentWell },
-        { name: 'Next time', text: entry.nextTime },
-        { name: 'Intention', text: entry.intention },
-      ],
-      at: `${entry.date}T00:00`,
     });
   }
   for (const workout of isAdded('dynamis') ? dynamisWorkouts.list() : []) {

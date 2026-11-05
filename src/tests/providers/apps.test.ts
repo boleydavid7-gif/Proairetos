@@ -86,3 +86,35 @@ describe('Poreia', () => {
     expect(text(rows)).not.toMatch(/CANARY|123456/);
   });
 });
+
+describe('Askesis', () => {
+  const entry = (extra: Record<string, unknown> = {}) => ({ id: 'e1', activity: 'run', date: '2026-10-20', notes: 'Felt easy', wentWell: 'Pacing', nextTime: 'Longer', intention: 'Stay loose', avgHr: 987, meters: 5000, seconds: 1800, createdAt: day, ...extra });
+  it('holds an entry’s title and words, never heart rate or distance, and skips an entry with no words', async () => {
+    const { askesisSearch } = await import('../../askesis/providers/search');
+    const rows = await run(askesisSearch, { askesisWorkouts: [entry(), entry({ id: 'e2', notes: undefined, wentWell: undefined, nextTime: undefined, intention: undefined })] });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].label).toBe('Run in Askesis');
+    expect(rows[0].open).toBe('/askesis/?open=entry%3Ae1');
+    expect(text(rows)).toMatch(/Felt easy.*Pacing.*Longer.*Stay loose/s);
+    expect(text(rows)).not.toMatch(/987|5000|1800/);
+  });
+  it('names a run’s day the same in every time zone', async () => {
+    const { askesisSearch } = await import('../../askesis/providers/search');
+    const original = process.env.TZ;
+    try {
+      for (const zone of ['UTC', 'Pacific/Auckland', 'America/Los_Angeles', 'Pacific/Pago_Pago', 'Pacific/Kiritimati', 'Asia/Kolkata']) {
+        process.env.TZ = zone;
+        const rows = await run(askesisSearch, { askesisWorkouts: [entry()] });
+        expect(rows[0].title, zone).toMatch(/^Run, (Oct\s*20|20\s*Oct)/);
+      }
+    } finally {
+      if (original === undefined) delete process.env.TZ;
+      else process.env.TZ = original;
+    }
+  });
+  it('says Today and Yesterday by the person’s own calendar day', async () => {
+    const { askesisSearch } = await import('../../askesis/providers/search');
+    const rows = await run(askesisSearch, { askesisWorkouts: [entry({ id: 'a', date: TODAY }), entry({ id: 'b', date: '2026-11-04' })] });
+    expect(rows.map((row) => row.title).sort()).toEqual(['Run, Today', 'Run, Yesterday']);
+  });
+});
