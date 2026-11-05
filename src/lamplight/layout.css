@@ -68,7 +68,7 @@ body {
   margin-top: calc(var(--ll-section-gap) - var(--ll-gap));
 }
 
-:root .shell .page > .section-head,
+:root .shell .page > .section-head:not(.page-top),
 :root .shell .page > .ll-section-label {
   margin-bottom: calc(var(--ll-label-gap) - var(--ll-gap));
 }
@@ -191,4 +191,25 @@ body {
 :root:root:root .ll-steady:not(:disabled) {
   border-radius: var(--ll-radius-action);
   box-shadow: none;
+}
+
+/* ---------- One spacing rule (Nov 5) ----------
+   16 px between neighbors, 28 px between sections, 8 px from a label to what it names; the page's title row
+   (with its Add) is a neighbor of what follows, so 16 px, never touching it. Mneme's pages follow the same. */
+:root .mneme-page .mneme-heading-row {
+  margin-bottom: var(--ll-gap);
+}
+
+:root .mneme-page .mneme-heading-row + * {
+  margin-top: 0;
+}
+
+:root .mneme-page .mneme-filters {
+  padding-block: 0 var(--ll-gap);
+}
+
+/* The title row: the title and its Add share one baseline. */
+/* (the title box starts under the bar, so its words sit at the foot of it) */
+:root .shell .page > .page-top.section-head {
+  align-items: flex-end;
 }

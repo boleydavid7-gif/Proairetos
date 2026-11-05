@@ -53,7 +53,7 @@ export default function NotesPage({ nav, initial }: { nav: MnemeNav; initial?: F
         {FILTERS.map((item) => <button key={item.id} type="button" role="tab" aria-selected={filter === item.id} onClick={() => setFilter(item.id)}>{item.label}</button>)}
       </div>
       {visible.length === 0 ? (
-        <section className="mneme-empty"><button type="button" className="mneme-primary" onClick={() => nav.go({ name: 'capture' })}>Write a note</button></section>
+        <section className="mneme-empty" aria-label="No notes yet" />
       ) : <ul className="rows mneme-rows">{visible.map((note) => <NoteRow key={note.id} note={note} collectionName={collectionName(note.collectionId)} onOpen={() => nav.go({ name: 'note', id: note.id })} />)}</ul>}
     </main>
     </FileDropZone>
