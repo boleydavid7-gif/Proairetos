@@ -82,3 +82,37 @@ describe('Philia on Today', () => {
     expect(await lines(philiaHome, { enabled: () => false })).toEqual([]);
   });
 });
+
+describe('Oikonomia on Today', () => {
+  const bill = (id: string, name: string, dueDate: string, extra: Record<string, unknown> = {}) => ({ id, name, amountCents: 98765432, currency: 'USD', dueDate, frequency: 'monthly', category: 'CANARY-AREA', autopay: false, reminderDays: 3, notes: 'CANARY-NOTE', payments: [], createdAt: day, updatedAt: day, ...extra });
+  it('says which bills are due in the next days, by name and first date, never the amount or notes', async () => {
+    const { oikonomiaHome } = await import('../../oikonomia/providers/home');
+    records.oikonomiaBills = [bill('b1', 'Internet', '2026-11-07')];
+    const rows = await lines(oikonomiaHome);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ title: 'Internet', open: '/oikonomia/?open=bill:b1', icon: 'list', notForMe: 'bills' });
+    expect(rows[0].detail).toMatch(/^Due (Nov 7|7 Nov)$/);
+    expect(rows[0].swipe).toEqual({ id: 'bills:b1@2026-11-07', label: 'Internet' });
+    expect(text(rows)).not.toMatch(/CANARY|98765432|USD/);
+  });
+  it('folds several into one line that opens Oikonomia, and leaves out a paid bill and one not yet near', async () => {
+    const { oikonomiaHome } = await import('../../oikonomia/providers/home');
+    records.oikonomiaBills = [
+      bill('b1', 'Internet', '2026-11-06'), bill('b2', 'Rent', '2026-11-07'), bill('b3', 'Phone', '2026-11-08'),
+      bill('b4', 'Water', '2026-11-06', { payments: [{ id: 'p', date: '2026-11-06', amountCents: 1 }] }), bill('b5', 'Far', '2026-12-20'),
+    ];
+    const rows = await lines(oikonomiaHome);
+    expect(rows[0].title).toBe('Internet, Rent +1');
+    expect(rows[0].open).toBe('/oikonomia/');
+    expect(rows[0].swipe?.label).toBe('Internet, Rent');
+  });
+  it('shows nothing when nothing is due, and follows a payment', async () => {
+    const { oikonomiaHome } = await import('../../oikonomia/providers/home');
+    records.oikonomiaBills = [bill('b1', 'Internet', '2026-12-20')];
+    expect(await lines(oikonomiaHome)).toEqual([]);
+    records.oikonomiaBills = [bill('b1', 'Internet', '2026-11-07')];
+    expect(await lines(oikonomiaHome)).toHaveLength(1);
+    records.oikonomiaBills = [bill('b1', 'Internet', '2026-11-07', { payments: [{ id: 'p', date: '2026-11-07', amountCents: 1 }] })];
+    expect(await lines(oikonomiaHome)).toEqual([]);
+  });
+});

@@ -180,7 +180,8 @@ export const APPS: readonly AppManifest[] = [
     notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true },
     today: { group: 'attention', order: 3, parts: ['bills', 'bill-dates'] },
     search: { privacy: 'own-search', indexes: ['bill name', 'due date', 'paid status'], excludes: ['bill amounts', 'amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['bill names', 'the first due date'], excludes: ['bill amounts', 'account numbers', 'balances', 'notes', 'payment history'] },
     details: {
       adds: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.',
       connects: [{ app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' }, { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
