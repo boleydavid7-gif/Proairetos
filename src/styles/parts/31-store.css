@@ -115,7 +115,7 @@
 .store-app__section { display: flex; flex-direction: column; gap: var(--ll-label-gap, 8px); }
 .store-app__section h3 { margin: 0; font-size: var(--text-lg); }
 .store-app__section p { margin: 0; color: var(--color-text-muted); }
-.store-app__does { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 6px; color: var(--color-text-muted); }
+.store-app__about { margin: 0; color: var(--color-text); }
 .store__list { grid-template-columns: minmax(0, 1fr); }
 .store__list > li { min-width: 0; }
 .store-app__connects { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
