@@ -118,3 +118,29 @@ describe('Askesis', () => {
     expect(rows.map((row) => row.title).sort()).toEqual(['Run, Today', 'Run, Yesterday']);
   });
 });
+
+describe('Dynamis', () => {
+  const workout = (extra: Record<string, unknown> = {}) => ({ id: 'w1', date: '2026-10-30', session: 'A', exercises: [{ id: 'squat', sets: [{ weight: 98765, reps: 5 }] }], note: 'Felt strong', createdAt: day, ...extra });
+  it('holds a session’s title and note, never weights or reps, and skips a session with no note', async () => {
+    const { dynamisSearch } = await import('../../dynamis/providers/search');
+    const rows = await run(dynamisSearch, { 'local:dynamis:workout:': [workout(), workout({ id: 'w2', note: undefined })] });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].label).toBe('Session in Dynamis');
+    expect(text(rows)).toContain('Felt strong');
+    expect(text(rows)).not.toContain('98765');
+  });
+  it('names a session’s day the same in every time zone', async () => {
+    const { dynamisSearch } = await import('../../dynamis/providers/search');
+    const original = process.env.TZ;
+    try {
+      for (const zone of ['UTC', 'Pacific/Auckland', 'America/Los_Angeles', 'Pacific/Pago_Pago', 'Pacific/Kiritimati', 'Asia/Kolkata']) {
+        process.env.TZ = zone;
+        const rows = await run(dynamisSearch, { 'local:dynamis:workout:': [workout()] });
+        expect(rows[0].title, zone).toMatch(/^Strength, (Oct\s*30|30\s*Oct)/);
+      }
+    } finally {
+      if (original === undefined) delete process.env.TZ;
+      else process.env.TZ = original;
+    }
+  });
+});

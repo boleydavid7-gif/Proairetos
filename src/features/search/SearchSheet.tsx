@@ -2,7 +2,6 @@ import { meleteSubjects } from '../../app/calendars/meleteCalendar';
 import { isAdded } from '../../app/family/added';
 import { allPlants } from '../../phyton/app/state';
 import { notes as mnemeNotes } from '../../mneme/app/state';
-import { workouts as dynamisWorkouts } from '../../dynamis/app/state';
 import { speciesBy } from '../../phyton/core/species';
 import { useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { lock } from '../../app/lock/lock';
@@ -12,8 +11,6 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { compassService, decisionService, lifeService, reflectionService } from '../../app/services';
 import { useSheet } from '../../components/ui/useSheet';
 import { kindLabel, kindOf } from '../../core/life-items/kinds';
-import { dayWords } from '../../core/search/dayWords';
-import { toLocalDate } from '../../core/scheduling/dates';
 import { inSearchScope, search, type Searchable, type SearchScope } from '../../core/search/search';
 import { dayLabel } from '../reflect/format';
 import { promptText } from '../reflect/prompts';
@@ -168,11 +165,6 @@ export async function gather(): Promise<{ things: Searchable[]; labels: Map<stri
       ],
       at: note.updatedAt,
     });
-  }
-  for (const workout of isAdded('dynamis') ? dynamisWorkouts.list() : []) {
-    if (!workout.note) continue;
-    labels.set(workout.id, 'Session in Dynamis');
-    things.push({ id: workout.id, kind: 'app', href: '/dynamis/', title: `Strength, ${dayWords(workout.date, toLocalDate(new Date()))}`, fields: [{ name: 'Note', text: workout.note }], at: workout.createdAt });
   }
   return { things, labels };
 }

@@ -32,7 +32,7 @@ describe('the manifest and the registered providers agree', () => {
   it('lists search for exactly the apps that have a provider module', () => {
     const declared = APPS.filter((each) => each.provides?.includes('search')).map((each) => each.id).sort();
     expect(Object.keys(providerModules).sort()).toEqual(declared);
-    expect(declared).toEqual(['askesis', 'ergon', 'hydros', 'ktema', 'oikonomia', 'philia', 'poreia', 'soma', 'theoria', 'therapeia']);
+    expect(declared).toEqual(['askesis', 'dynamis', 'ergon', 'hydros', 'ktema', 'oikonomia', 'philia', 'poreia', 'soma', 'theoria', 'therapeia']);
   });
   it('every provider belongs to its manifest app, has a class the manifest allows and reads only what syncs', async () => {
     for (const [id, load] of Object.entries(providerModules)) {

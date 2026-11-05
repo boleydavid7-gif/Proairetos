@@ -353,7 +353,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'askesis', text: 'Strength sessions and runs are scheduled around each other and around your workdays.' }, { app: 'diaita', text: 'Sessions are kept out of your sleep time.' }],
       shots: 2,
     },
-    search: { privacy: 'own-search', indexes: ['session title', 'exercise names', 'session note'], excludes: ['weights and reps', 'heart rate'] },
+    search: { privacy: 'own-search', indexes: ['session title', 'session note'], excludes: ['weights and reps', 'heart rate'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
