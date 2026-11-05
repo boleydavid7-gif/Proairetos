@@ -1,4 +1,5 @@
 import { Fragment, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useAppPermissions } from '../../app/household/household';
 import { offerUndo, say } from '../../app/family/shell';
 import { ChevronIcon, GripIcon, ShareIcon, WeekIcon } from '../../app/family/icons';
 import { buildIcs } from '../../core/calendar/ics';
@@ -202,9 +203,11 @@ export function AddToDay({ tripId, date }: { tripId: string; date: string }) {
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
   const field = useRef<HTMLInputElement>(null);
+  const can = useAppPermissions('poreia');
   useEffect(() => {
     if (open) field.current?.focus();
   }, [open]);
+  if (!can.write) return null;
   if (!open) {
     return (
       <button type="button" className="poreia-add-day__open" onClick={() => setOpen(true)}>

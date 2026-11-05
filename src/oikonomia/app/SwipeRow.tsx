@@ -14,11 +14,14 @@ export default function SwipeRow({
   children,
   label,
   onSwipe,
+  off = false,
 }: {
   children: ReactNode;
   /** What the pull does, in a word: shown under the row. */
   label: string;
   onSwipe: () => void;
+  /** Nothing to do here for this person (a child's limit): the row stays still. */
+  off?: boolean;
 }) {
   const [dx, setDx] = useState(0);
   const [leaving, setLeaving] = useState(false);
@@ -46,6 +49,8 @@ export default function SwipeRow({
       finish(true);
     }
   };
+
+  if (off) return <>{children}</>;
 
   return (
     <div className={`oiko-swipe${leaving ? ' oiko-swipe--leaving' : ''}${armed ? ' oiko-swipe--armed' : ''}`} role="group" aria-label={`${label}: swipe left or press the left arrow`}>

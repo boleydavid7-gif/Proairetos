@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useListPermissions } from '../../app/family/sharedLists';
 import { tap } from '../../app/feel';
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useNavigate } from '../../app/navigationContext';
@@ -62,21 +63,23 @@ function JoinCard({ invite, onDone }: { invite: { id: string; key: string; name:
   );
 }
 
-function Row({ todo, onToggle, onRemove }: { todo: SharedTodo; onToggle: () => void; onRemove: () => void }) {
+function Row({ todo, onToggle, onRemove, can }: { todo: SharedTodo; onToggle: () => void; onRemove: () => void; can: { write: boolean; remove: boolean } }) {
   const done = Boolean(todo.doneAt);
   const who = done ? todo.doneBy : todo.by;
   return (
     <li className={`check-row together__row${done ? ' check-row--done' : ''}`}>
-      <button type="button" role="checkbox" aria-checked={done} aria-label={todo.title} className="check-row__box" data-menu-first onClick={onToggle}>
+      <button type="button" role="checkbox" aria-checked={done} aria-label={todo.title} className="check-row__box" data-menu-first disabled={!can.write} onClick={onToggle}>
         {done && <CheckIcon size={16} />}
       </button>
       <span className="check-row__title">
         <span>{todo.title}</span>
         {who && <span className="check-row__detail">{done ? `Done by ${who}` : who}</span>}
       </span>
-      <button type="button" className="check-row__delete" aria-label={`Remove ${todo.title}`} onClick={onRemove}>
-        <Sym name="close" />
-      </button>
+      {can.remove && (
+        <button type="button" className="check-row__delete" aria-label={`Remove ${todo.title}`} onClick={onRemove}>
+          <Sym name="close" />
+        </button>
+      )}
     </li>
   );
 }
@@ -89,6 +92,7 @@ export default function TodayTogether() {
   const { offerUndo } = useOverlays();
   const navigate = useNavigate();
   const { list, todos } = useTogether();
+  const can = useListPermissions(list?.id);
   const [invite, setInvite] = useState(pendingInvite);
   const [text, setText] = useState('');
   const [showDone, setShowDone] = useState(false);
@@ -130,13 +134,15 @@ export default function TodayTogether() {
       </div>
       {open.length > 0 && (
         <ul className="check-list">
-          {open.map((todo) => <Row key={todo.id} todo={todo} onToggle={() => toggle(todo)} onRemove={() => remove(todo)} />)}
+          {open.map((todo) => <Row key={todo.id} todo={todo} can={can} onToggle={() => toggle(todo)} onRemove={() => remove(todo)} />)}
         </ul>
       )}
-      <form className="together__add" onSubmit={add}>
-        <input className="input" aria-label={`Add to ${list.name}`} value={text} onChange={(event) => setText(event.target.value)} />
-        {text.trim() && <button type="submit" className="button-quiet">Add</button>}
-      </form>
+      {can.write && (
+        <form className="together__add" onSubmit={add}>
+          <input className="input" aria-label={`Add to ${list.name}`} value={text} onChange={(event) => setText(event.target.value)} />
+          {text.trim() && <button type="submit" className="button-quiet">Add</button>}
+        </form>
+      )}
       {done.length > 0 && (
         <>
           <button type="button" className="text-link together__done-toggle" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>
@@ -144,7 +150,7 @@ export default function TodayTogether() {
           </button>
           {showDone && (
             <ul className="check-list">
-              {done.map((todo) => <Row key={todo.id} todo={todo} onToggle={() => toggle(todo)} onRemove={() => remove(todo)} />)}
+              {done.map((todo) => <Row key={todo.id} todo={todo} can={can} onToggle={() => toggle(todo)} onRemove={() => remove(todo)} />)}
             </ul>
           )}
         </>

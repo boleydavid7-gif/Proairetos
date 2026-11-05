@@ -7,7 +7,8 @@ import { offerUndo, say } from '../../app/family/shell';
 import { Switch } from '../../askesis/app/ui';
 import { daysBetween, toLocalDate } from '../../core/scheduling/dates';
 import type { PhytonNav } from '../app/App';
-import { findPlant, myName, newId, putPlant, removePlant, settings, usePlants } from '../app/state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { findPlant, myName, newId, putPlant, removePlant, settings, useHome, usePlants } from '../app/state';
 import { useForecast, useRain } from '../app/rain';
 import { hotDays } from '../core/outdoors';
 import { takeHeldPhoto } from '../app/identify';
@@ -244,6 +245,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
   const learned = learnedEvery(plant, current.hemisphere);
   const fedNext = nextFeed(plant, today, current.hemisphere);
   const me = myName(current) || plant.who;
+  const can = useListPermissions(useHome()?.id);
   const mark = (next: Plant, words: string) => {
     putPlant(next);
     offerUndo(words, () => putPlant(plant));
@@ -262,7 +264,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
       <div className="page-top section-head">
         <button type="button" className="back-link" onClick={nav.back}>Back</button>
         <p className="label">Plant</p>
-        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+        {can.write ? <button type="button" className="text-link" onClick={onEdit}>Edit</button> : <span />}
       </div>
 
       <div className="detail-head">
@@ -277,10 +279,12 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
       <section className="card">
         <span className="card__eyebrow">{day <= today ? `Check the soil · ${dayText(day, today)}` : `Next check · ${dayText(day, today)}`}</span>
         <p className="muted">{wateredText(plant, today, rain)}</p>
-        <div className="button-row">
-          <button type="button" className="button-main" onClick={() => watered(plant, today)}>Watered</button>
-          <button type="button" className="button-quiet" onClick={() => moist(plant, today)}>Still moist</button>
-        </div>
+        {can.write && (
+          <div className="button-row">
+            <button type="button" className="button-main" onClick={() => watered(plant, today)}>Watered</button>
+            <button type="button" className="button-quiet" onClick={() => moist(plant, today)}>Still moist</button>
+          </div>
+        )}
       </section>
 
       <dl className="detail-list">
@@ -291,14 +295,14 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
         {plant.note && <><dt>Note</dt><dd>{plant.note}</dd></>}
       </dl>
 
-      <div className="chip-row">
+      {can.write && <div className="chip-row">
         <button type="button" className="chip" onClick={() => mark(feed(plant, today, me), `${plant.name} fed`)}>Fed</button>
         <button type="button" className="chip" onClick={() => mark(repot(plant, today, me), `${plant.name} repotted`)}>Repotted</button>
         <button type="button" className="chip" onClick={() => mark(journal(plant, today, 'prune', undefined, me), `${plant.name} pruned`)}>Pruned</button>
         <button type="button" className="chip" aria-pressed={writing === 'pest'} onClick={() => setWriting(writing === 'pest' ? undefined : 'pest')}>Pests seen</button>
         <button type="button" className="chip" aria-pressed={writing === 'note'} onClick={() => setWriting(writing === 'note' ? undefined : 'note')}>Note</button>
         {!type && <button type="button" className="chip" onClick={() => nav.go({ name: 'identify', plantId: plant.id })}><CameraIcon size={16} />Identify</button>}
-      </div>
+      </div>}
 
       {writing && (
         <form className="card plant-journal" onSubmit={(event) => { event.preventDefault(); keepLine(); }}>
@@ -346,7 +350,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
       )}
 
       <WriteTag path={`/phyton/?open=plant:${plant.id}`} />
-      <button
+      {can.remove && <button
         type="button"
         className="text-link remove-link"
         onClick={() => {
@@ -360,7 +364,7 @@ function PlantView({ nav, plant, onEdit }: { nav: PhytonNav; plant: Plant; onEdi
         }}
       >
         Remove
-      </button>
+      </button>}
     </div>
   );
 }

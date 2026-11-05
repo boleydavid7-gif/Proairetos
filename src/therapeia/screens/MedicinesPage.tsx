@@ -4,7 +4,8 @@ import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { useState } from 'react';
 import { Switch } from '../../askesis/app/ui';
-import { readings, settings, useMedicines } from '../app/state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { readings, settings, useCircle, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { latestLines } from '../core/readings';
 import { daysLeft, daysText, isCurrent, listText, peopleIn, sameWho, timeText, whoOf, type Medicine } from '../core/medicines';
@@ -24,6 +25,7 @@ function MedicineRow({ medicine, onOpen }: { medicine: Medicine; onOpen: () => v
 }
 
 export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
+  const can = useListPermissions(useCircle()?.id);
   const everyone = useMedicines();
   const people = peopleIn(everyone);
   // With medicines for more than one person: everyone's, or one person's ('' is the person's own).
@@ -55,7 +57,7 @@ export default function MedicinesPage({ nav }: { nav: TherapeiaNav }) {
     <div className="page therapeia-page">
       <div className="page-top section-head">
         <h1 className="title">Medicines</h1>
-        <button type="button" className="button-main" onClick={() => nav.go({ name: 'medicine' })}><PlusIcon size={18} />Add</button>
+        {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'medicine' })}><PlusIcon size={18} />Add</button>}
       </div>
       {people.length > 0 && (
         <div className="chip-row" role="group" aria-label="Whose">

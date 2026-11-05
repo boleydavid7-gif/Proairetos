@@ -62,3 +62,9 @@ notes before relying on any single claim.
 ### Status this week
 
 All three proposed, waiting for approval.
+
+### Update log
+
+- Nov 5: proposal 2 (child limits in screens) approved and built: Oikonomia bills and expenses, Poreia trips, Phyton
+  plants, Therapeia medicines and Proairetos's shared to-dos hide or disable what a child's level forbids
+  (`useAppPermissions`, `SwipeRow off`). Test `src/tests/household/childControls.test.tsx`.

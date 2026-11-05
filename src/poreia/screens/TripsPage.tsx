@@ -1,4 +1,5 @@
 import { Brand } from '../../app/family/shell';
+import { useAppPermissions } from '../../app/household/household';
 import { AppMark, PlusIcon } from '../../app/family/icons';
 import { DailyLine } from '../../app/family/DailyLine';
 import photoWide from '../../assets/images/scenes/poreia-stoic-wide.webp';
@@ -11,6 +12,7 @@ import { phaseOf, sortTrips } from '../core/model';
 import RouteEmpty from '../components/RouteEmpty';
 
 export default function TripsPage({ nav }: { nav: PoreiaNav }) {
+  const can = useAppPermissions('poreia');
   const list = trips.use();
   const day = today();
   const { now, ahead, someday, past } = sortTrips(list, day);
@@ -36,10 +38,12 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
       <div className="page page--under-hero">
         {list.length === 0 ? (
           <RouteEmpty glyph="plane" title="No trips yet">
-              <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
-                <PlusIcon size={18} />
-                Plan a trip
-              </button>
+              {can.write && (
+                <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
+                  <PlusIcon size={18} />
+                  Plan a trip
+                </button>
+              )}
           </RouteEmpty>
         ) : (
           <>
@@ -48,9 +52,11 @@ export default function TripsPage({ nav }: { nav: PoreiaNav }) {
 
             <div className="section-head">
               <h2>Trips</h2>
-              <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form' })}>
-                Plan a trip
-              </button>
+              {can.write && (
+                <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form' })}>
+                  Plan a trip
+                </button>
+              )}
             </div>
             {/* Every trip under way or ahead is listed, the one at the top too, so each can be opened and changed. */}
             {[...now, ...ahead].length > 0 ? (

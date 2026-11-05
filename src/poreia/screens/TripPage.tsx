@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { useAppPermissions } from '../../app/household/household';
 import { Sym, type GlyphName } from '../../lamplight/icons';
 import { offerUndo } from '../../app/family/shell';
 import { BackLink } from '../../askesis/app/ui';
@@ -35,6 +36,7 @@ const VIEWS: { id: TripView; label: string; glyph: GlyphName }[] = [
 const lastView = new Map<string, TripView>();
 
 export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id: string; view?: TripView }) {
+  const can = useAppPermissions('poreia');
   const trip = trips.use().find((each) => each.id === id);
   const [view, setView] = useState<TripView>(() => first ?? lastView.get(id) ?? 'overview');
   useEffect(() => {
@@ -67,9 +69,11 @@ export default function TripPage({ nav, id, view: first }: { nav: PoreiaNav; id:
         <p className="muted">
           {[phase.kind === 'someday' ? undefined : phaseText(phase), nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : undefined, `${trip.travelers} ${trip.travelers === 1 ? 'traveler' : 'travelers'}`, STAGE_TEXT[stageOf(trip, bookings.list().filter((each) => each.tripId === trip.id))]].filter(Boolean).join(' · ')}
         </p>
-        <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
-          Edit
-        </button>
+        {can.write && (
+          <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form', id: trip.id })}>
+            Edit
+          </button>
+        )}
       </div>
 
       <div className="poreia-tabs" role="tablist" aria-label="Trip" style={{ '--at': VIEWS.findIndex((each) => each.id === view), '--count': VIEWS.length } as CSSProperties}>

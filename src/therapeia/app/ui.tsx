@@ -5,7 +5,8 @@ import { CheckIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
 import { skip, take, takeNow, unmark, whoOf, withWho, type Dose, type Medicine } from '../core/medicines';
 import { householdActor } from '../../app/household/household';
-import { putMedicine, restoreMedicine } from './state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { putMedicine, restoreMedicine, useCircle } from './state';
 
 /** Who is marking, only while the medicines are shared with the household. */
 const actor = () => householdActor('therapeia')?.name;
@@ -38,12 +39,14 @@ export function takeOneNow(medicine: Medicine): void {
 
 export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
   const marked = dose.taken;
+  const can = useListPermissions(useCircle()?.id);
   return (
-    <SwipeItem className="chore dose" label="Taken" off={Boolean(marked)} onSwipe={() => markTaken(dose)}>
+    <SwipeItem className="chore dose" label="Taken" off={Boolean(marked) || !can.write} onSwipe={() => markTaken(dose)}>
       <button
         type="button"
         className="tick"
         aria-pressed={Boolean(marked && !marked.skipped)}
+        disabled={!can.write}
         aria-label={marked && !marked.skipped ? `${withWho(dose.medicine, dose.medicine.name)}: taken, undo` : `${withWho(dose.medicine, dose.medicine.name)}: taken`}
         onClick={() => {
           if (marked) {
@@ -60,7 +63,7 @@ export function DoseRow({ dose, onOpen }: { dose: Dose; onOpen: () => void }) {
       </button>
       <span className="chore__when">
         {marked ? `${marked.skipped ? 'Skipped' : `Taken ${at(new Date(marked.at))}`}${marked.by ? ` · ${marked.by}` : ''}` : at(dose.at)}
-        {!marked && (
+        {!marked && can.write && (
           <button type="button" className="text-link dose__skip" onClick={() => markSkipped(dose)}>
             Skip
           </button>

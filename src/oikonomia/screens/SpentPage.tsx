@@ -1,3 +1,4 @@
+import { useAppPermissions } from '../../app/household/household';
 import { actingMember } from '../app/together';
 import { endsWith, useLaunchedFile } from '../../app/family/launchFiles';
 import { ReadFromPhoto } from '../../app/family/ReadFromPhoto';
@@ -44,6 +45,7 @@ function budgetChoice(value: string, items: readonly BudgetItem[], onChange: (ar
 
 /** What went out in a month, from statements, by area: plain totals beside the month's plan, and every line. */
 export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: boolean }) {
+  const can = useAppPermissions('oikonomia');
   const settings = useSettings();
   const [month, setMonth] = useState(() => monthKey());
   const lines = useSpent(month);
@@ -182,10 +184,10 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
 
       {!quick && <>
         <input ref={file} type="file" accept=".csv,text/csv" hidden onChange={(event) => { void bringIn(event.target.files?.[0]); event.target.value = ''; }} />
-        <div className="button-row oiko-spent-actions">
+        {can.write && <div className="button-row oiko-spent-actions">
           <button type="button" className="button-main" onClick={() => file.current?.click()}>Bring in a statement</button>
           <button type="button" className="button-quiet" onClick={() => { setEntryOpen(!entryOpen); setProblem(''); }}>{entryOpen ? 'Cancel' : 'Add expense'}</button>
-        </div>
+        </div>}
       </>}
       {problem && <p className="form-error" role="alert">{problem}</p>}
 
@@ -249,7 +251,7 @@ export default function SpentPage({ nav, quick = false }: { nav: Nav; quick?: bo
                   <ul className="oiko-spent-list">
                     {lines.filter((line) => line.area === area).map((line) => (
                       <li key={line.id} className="oiko-spent-line">
-                        <button type="button" className="oiko-spent-line__text" onClick={() => setEditing(line)}><strong>{line.description}</strong><small>{dayOf(line.date)}</small></button>
+                        <button type="button" className="oiko-spent-line__text" onClick={() => can.write && setEditing(line)}><strong>{line.description}</strong><small>{dayOf(line.date)}</small></button>
                         <strong>{formatMoney(line.amountCents, currency)}</strong>
                       </li>
                     ))}

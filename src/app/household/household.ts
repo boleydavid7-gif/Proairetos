@@ -1,5 +1,5 @@
 import { useEffect, useSyncExternalStore } from 'react';
-import { createSharedLists, setChildLimits, sharingAvailable, type SharedListRef } from '../family/sharedLists';
+import { createSharedLists, setChildLimits, sharingAvailable, useListPermissions, type SharedListRef } from '../family/sharedLists';
 import { HOUSEHOLD_APPS, childLevelOf, memberId, membersOf, partId, partState, partsOf, type ChildLevel, type HouseholdApp, type HouseholdItem, type HouseholdRole, type ListRef, type PartState } from '../../core/household/household';
 import { displayName } from '../../data/storage/preferences';
 import { supabase } from '../../data/sync/supabase';
@@ -62,6 +62,11 @@ export function householdLists(app: HouseholdApp): { name: string; ids: string[]
 }
 export const subscribeHousehold = households.subscribeShared;
 export const householdVersion = households.sharedVersion;
+
+/** What this person may do in an app's household list: everything unless they are a child with a lower level there. */
+export function useAppPermissions(app: HouseholdApp): { read: boolean; write: boolean; remove: boolean } {
+  return useListPermissions(householdLists(app)?.ids[0]);
+}
 
 /** The signed-in member for an app action, only when that app is shared with this household. */
 export function householdActor(app: HouseholdApp): { id?: string; name: string } | undefined {

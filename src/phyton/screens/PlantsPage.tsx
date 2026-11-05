@@ -3,13 +3,15 @@ import { CameraIcon, LeafIcon, PlusIcon } from '../../app/family/icons';
 import { Empty } from '../../app/family/shell';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { PhytonNav } from '../app/App';
-import { settings, usePlants } from '../app/state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { settings, useHome, usePlants } from '../app/state';
 import { useRain } from '../app/rain';
 import { PlantList, wateredAll } from '../app/ui';
 import { nextCheck, type Plant } from '../core/plants';
 
 export default function PlantsPage({ nav }: { nav: PhytonNav }) {
   const all = usePlants();
+  const can = useListPermissions(useHome()?.id);
   const current = settings.use();
   const rain = useRain(current.rain);
   const today = toLocalDate(new Date());
@@ -29,7 +31,7 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
         <h1 className="title">Plants</h1>
         <div className="button-row">
           <button type="button" className="button-quiet" aria-label="Identify a plant" onClick={() => nav.go({ name: 'identify' })}><CameraIcon size={18} /></button>
-          <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add</button>
+          {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'add' })}><PlusIcon size={18} />Add</button>}
         </div>
       </div>
       {all.length === 0 && <Empty icon={<LeafIcon size={28} />} title="No plants yet" />}
@@ -43,7 +45,7 @@ export default function PlantsPage({ nav }: { nav: PhytonNav }) {
         <section key={place} className="chore-group">
           <div className="section-head plant-room">
             <p className="label">{place}</p>
-            {plants.length > 1 && (
+            {can.write && plants.length > 1 && (
               <button type="button" className="text-link" onClick={() => wateredAll(plants, today, place === 'Anywhere' ? 'Plants' : place)}>
                 Watered all
               </button>

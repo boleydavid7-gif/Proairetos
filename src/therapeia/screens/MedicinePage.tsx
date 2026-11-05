@@ -8,7 +8,8 @@ import { Switch } from '../../askesis/app/ui';
 import { toLocalDate } from '../../core/scheduling/dates';
 import type { TherapeiaNav } from '../app/App';
 import { changeText } from '../core/history';
-import { appointments, newId, putMedicine, removeMedicine, restoreMedicine, useMedicines } from '../app/state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { appointments, newId, putMedicine, removeMedicine, restoreMedicine, useCircle, useMedicines } from '../app/state';
 import PillMark from '../app/PillMark';
 import { WhoChoice } from '../app/ui';
 import { PILL_COLORS, PILL_SHAPES, timeText, isCurrent, daysText, type PillLook, WEEKDAYS, daysLeft, durationText, peopleIn, record, refill, supplyLeft, type DoseDays, type DoseTime, type Medicine } from '../core/medicines';
@@ -267,6 +268,7 @@ function MedicineForm({ id, existing, onDone }: { id?: string; existing?: Medici
 
 function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; medicine: Medicine; onEdit: () => void }) {
   const today = toLocalDate(new Date());
+  const can = useListPermissions(useCircle()?.id);
   const [refillCount, setRefillCount] = useState('');
   const history = record(existing, today);
   const left = daysLeft(existing);
@@ -278,7 +280,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
       <div className="page-top section-head">
         <button type="button" className="back-link" onClick={nav.back}>Back</button>
         <p className="label">Medicine</p>
-        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+        {can.write ? <button type="button" className="text-link" onClick={onEdit}>Edit</button> : <span />}
       </div>
 
       <div className="detail-head">
@@ -297,7 +299,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
         {existing.note && <><dt>Note</dt><dd>{existing.note}</dd></>}
       </dl>
 
-      {existing?.supply && (
+      {can.write && existing?.supply && (
         <section className="card">
           <h2 className="card__title card__title--small">Refill</h2>
           <span className="card__eyebrow">{`${supplyLeft(existing)} left${left !== undefined && existing.times.length ? ` · about ${left} days` : ''}`}</span>
@@ -349,7 +351,7 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
         </section>
       )}
 
-      {existing && (
+      {existing && can.write && (
         <div className="button-row">
           {existing.stopped && existing.stopped <= today ? (
             <button type="button" className="button-quiet" onClick={() => {
@@ -363,11 +365,11 @@ function MedicineView({ nav, medicine: existing, onEdit }: { nav: TherapeiaNav; 
               nav.back();
             }}>Stopped taking it</button>
           )}
-          <button type="button" className="text-link remove-link" onClick={() => {
+          {can.remove && <button type="button" className="text-link remove-link" onClick={() => {
             removeMedicine(existing.id);
             offerUndo(`${existing.name} removed`, () => restoreMedicine(existing));
             nav.back();
-          }}>Remove</button>
+          }}>Remove</button>}
         </div>
       )}
     </div>

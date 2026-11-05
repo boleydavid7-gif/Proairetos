@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAppPermissions } from '../../app/household/household';
 import { offerUndo } from '../../app/family/shell';
 import SwipeItem from '../../app/family/SwipeItem';
 import { myName, newId, nowStamp, settings, spends, today } from '../app/state';
@@ -46,7 +47,8 @@ export function SpendForm({ trip, choices }: { trip?: Trip; choices?: readonly T
   const together = people.length > 1;
   const [payer, setPayer] = useState(myName());
   const paidBy = people.includes(payer) ? payer : people[0];
-  if (!chosen) return null;
+  const can = useAppPermissions('poreia');
+  if (!chosen || !can.write) return null;
   const code = amount.currency ?? currency;
 
   return (

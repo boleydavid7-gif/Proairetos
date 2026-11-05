@@ -6,6 +6,7 @@ import { formatDate, formatMoney, paidForOccurrence, paymentHistory, relativeDue
 import { moneyInputCents } from '../core/budget';
 import { downloadBillCalendar } from '../core/calendar';
 import { payBill } from '../app/payBill';
+import { useAppPermissions } from '../../app/household/household';
 import { offerUndo } from '../app/undo';
 import { useBills, useToday } from '../app/state';
 import { deleteBill, putBill } from '../data/store';
@@ -14,6 +15,7 @@ import { formatFrequency, PageTop } from '../app/ui';
 const amountText = (cents: number) => (cents / 100).toFixed(2);
 
 export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
+  const can = useAppPermissions('oikonomia');
   const bills = useBills();
   const today = useToday();
   const found = bills?.find((item) => item.id === id);
@@ -86,14 +88,14 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
         <div className="oiko-detail-line"><BellIcon size={20} /><span><strong>{bill.reminderDays === 0 ? 'Reminder on the day' : `Reminder ${bill.reminderDays} ${bill.reminderDays === 1 ? 'day' : 'days'} before`}</strong><small>Sent by Proairetos, if its notifications are on</small></span></div>
       </section>
 
-      {open && !bill.autopay && !paidForOccurrence(bill, stand.date, today) && (
+      {can.write && open && !bill.autopay && !paidForOccurrence(bill, stand.date, today) && (
         <div className="oiko-pay">
           <label className="field"><span className="field__label">Amount paid</span><input className="input" type="text" inputMode="decimal" value={paidText} onChange={(event) => setPaidText(event.target.value)} /></label>
           <button type="button" className="button-main" onClick={() => void markPaid()}><CheckIcon size={20} /> Mark paid</button>
         </div>
       )}
       {problem && <p className="oiko-error" role="alert">{problem}</p>}
-      <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit', id: bill.id })}>Change details</button>
+      {can.write && <button type="button" className="button-quiet" onClick={() => nav.go({ name: 'edit', id: bill.id })}>Change details</button>}
       {!stand.complete && <button type="button" className="button-quiet" onClick={() => downloadBillCalendar([bill], bill.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'))}><CalendarIcon size={18} /> Add to your calendar</button>}
 
       <section className="oiko-history">
@@ -106,12 +108,12 @@ export default function BillPage({ nav, id }: { nav: Nav; id: string }) {
       {bill.notes && <section className="card"><span className="card__eyebrow">Note</span><p className="oiko-note">{bill.notes}</p></section>}
 
       <div className="oiko-detail__end">
-        {bill.endedOn ? (
+        {can.write && (bill.endedOn ? (
           <button type="button" className="text-link" onClick={() => void startAgain()}>Bring its dates back</button>
         ) : (
           bill.frequency !== 'once' && <button type="button" className="text-link" onClick={() => void stop()}>No more dates (canceled)</button>
-        )}
-        <button type="button" className="text-link" onClick={() => void remove()}>Remove this bill</button>
+        ))}
+        {can.remove && <button type="button" className="text-link" onClick={() => void remove()}>Remove this bill</button>}
       </div>
     </div>
   );

@@ -4,7 +4,8 @@ import { DropIcon, LeafIcon } from '../../app/family/icons';
 import SwipeItem from '../../app/family/SwipeItem';
 import { dayText, nextCheck, stillMoist, water, wateredText, type Plant } from '../core/plants';
 import { useLatestPhoto } from '../data/photos';
-import { myName, putPlant, settings } from './state';
+import { useListPermissions } from '../../app/family/sharedLists';
+import { myName, putPlant, settings, useHome } from './state';
 import { useForecast, useRain } from './rain';
 import { hotDays } from '../core/outdoors';
 
@@ -32,10 +33,11 @@ export function PlantRow({ plant, today, onOpen, place = true }: { plant: Plant;
   const current = settings.use();
   const rain = useRain(current.rain);
   const forecast = useForecast(current.rain);
+  const can = useListPermissions(useHome()?.id);
   const day = nextCheck(plant, today, current.hemisphere, rain, hotDays(forecast));
   return (
-    <SwipeItem className="chore plant-row" label="Watered" onSwipe={() => watered(plant, today)}>
-      <button type="button" className="tick" aria-label={`${plant.name}: watered`} onClick={() => watered(plant, today)}>
+    <SwipeItem className="chore plant-row" label="Watered" off={!can.write} onSwipe={() => watered(plant, today)}>
+      <button type="button" className="tick" aria-label={`${plant.name}: watered`} disabled={!can.write} onClick={() => watered(plant, today)}>
         <DropIcon size={20} />
       </button>
       <button type="button" className="chore__open" onClick={onOpen}>

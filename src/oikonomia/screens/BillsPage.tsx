@@ -8,9 +8,11 @@ import { useBills, useToday } from '../app/state';
 import { PageTop } from '../app/ui';
 import Empty from '../../app/family/Empty';
 import IconButton from '../../components/ui/IconButton';
+import { useAppPermissions } from '../../app/household/household';
 
 export default function BillsPage({ nav }: { nav: Nav }) {
   const bills = useBills();
+  const can = useAppPermissions('oikonomia');
   const today = useToday();
   const stands = new Map((bills ?? []).map((bill) => [bill.id, standing(bill, today)]));
   const byDate = (a: Bill, b: Bill) => (stands.get(a.id)?.date ?? '').localeCompare(stands.get(b.id)?.date ?? '');
@@ -24,14 +26,14 @@ export default function BillsPage({ nav }: { nav: Nav }) {
         <div>
           <h1 className="title">Bills</h1>
         </div>
-        <IconButton className="round-button" label="Add a bill" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></IconButton>
+        {can.write && <IconButton className="round-button" label="Add a bill" onClick={() => nav.go({ name: 'capture' })}><PlusIcon size={22} /></IconButton>}
       </PageTop>
 
       {!bills ? (
         <Placeholder label="Gathering what you keep here" count={3} />
       ) : ordered.length === 0 && settled.length === 0 ? (
         <Empty icon={<BillsIcon size={28} />} title="No bills yet">
-          <button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}>Add a bill</button>
+          {can.write && <button type="button" className="button-main" onClick={() => nav.go({ name: 'capture' })}>Add a bill</button>}
         </Empty>
       ) : (
         <>
@@ -42,7 +44,7 @@ export default function BillsPage({ nav }: { nav: Nav }) {
               {ordered.map((bill) => {
                 const stand = stands.get(bill.id)!;
                 return (
-                  <SwipeRow key={bill.id} label="Paid" onSwipe={() => void payBill(bill, stand.date)}>
+                  <SwipeRow key={bill.id} label="Paid" off={!can.write} onSwipe={() => void payBill(bill, stand.date)}>
                     <button type="button" className="oiko-bill-row" onClick={() => nav.go({ name: 'bill', id: bill.id })}>
                       <span className="oiko-bill-row__mark" aria-hidden="true" />
                       <span className="oiko-bill-row__main">
