@@ -20,40 +20,66 @@ export type WallLamp = { x: number; y: number; strength: number; glow: string; w
 
 /** Small, deterministic marks keep the material treatments repeatable across devices. */
 function paperFibers(w: number, h: number, fiber: string, shadow: string): string {
-  const fibers = Array.from({ length: 30 }, (_, i) => {
-    const x = (i * 431) % w;
-    const y = 120 + ((i * 271) % Math.max(1, h - 180));
-    const length = 18 + ((i * 37) % 46);
-    const bend = (i % 2 ? 1 : -1) * (4 + (i % 5));
-    const color = i % 4 === 0 ? shadow : fiber;
-    return `<path d="M${x} ${y}q${Math.round(length * 0.5)} ${bend} ${length} 0" fill="none" stroke="${color}" stroke-width="${i % 3 === 0 ? 2.4 : 1.4}" stroke-linecap="round" opacity="${i % 4 === 0 ? 0.09 : 0.135}"/>`;
+  // Fine, irregular cotton fibres: deterministic so the material is stable between renders and devices.
+  let seed = 19;
+  const random = () => {
+    seed = (seed * 48271) % 2147483647;
+    return seed / 2147483647;
+  };
+  const fibers = Array.from({ length: 190 }, (_, i) => {
+    const x = Math.round(random() * w);
+    const y = Math.round(random() * h);
+    const length = 5 + random() * 25;
+    const bend = (random() - 0.5) * 5;
+    const color = i % 7 === 0 ? shadow : fiber;
+    const opacity = 0.025 + random() * 0.045;
+    return `<path d="M${x.toFixed(1)} ${y.toFixed(1)}q${(length * 0.48).toFixed(1)} ${bend.toFixed(1)} ${length.toFixed(1)} ${(bend * 0.35).toFixed(1)}" fill="none" stroke="${color}" stroke-width="${(0.45 + random() * 0.65).toFixed(2)}" stroke-linecap="round" opacity="${opacity.toFixed(3)}"/>`;
   }).join('');
-  const flecks = Array.from({ length: 22 }, (_, i) => {
-    const x = (i * 193) % w;
-    const y = 80 + ((i * 149) % Math.max(1, h - 120));
-    return `<circle cx="${x}" cy="${y}" r="${(1.5 + (i % 3) * 0.8).toFixed(1)}" fill="${i % 3 === 0 ? shadow : fiber}" opacity="${i % 3 === 0 ? 0.075 : 0.1}"/>`;
+  const flecks = Array.from({ length: 72 }, (_, i) => {
+    const x = Math.round(random() * w);
+    const y = Math.round(random() * h);
+    const rx = 0.35 + random() * 0.8;
+    const ry = 0.35 + random() * 0.65;
+    return `<ellipse cx="${x}" cy="${y}" rx="${rx.toFixed(2)}" ry="${ry.toFixed(2)}" fill="${i % 6 === 0 ? shadow : fiber}" opacity="${(0.025 + random() * 0.035).toFixed(3)}"/>`;
   }).join('');
   return fibers + flecks;
 }
-
 function woodGrain(w: number, h: number, dark: string, glow: string): string {
-  return Array.from({ length: 15 }, (_, i) => {
-    const y = Math.round(h * (0.12 + i * 0.06));
-    const bend = 18 + (i % 4) * 8;
-    const d = `M-${Math.round(w * 0.08)} ${y} C${Math.round(w * 0.18)} ${y - bend}, ${Math.round(w * 0.32)} ${y + bend}, ${Math.round(w * 0.48)} ${y} S${Math.round(w * 0.8)} ${y - bend}, ${Math.round(w * 1.08)} ${y + Math.round(bend * 0.4)}`;
-    const color = i % 3 === 0 ? dark : glow;
-    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${i % 3 === 0 ? 5 : 3}" stroke-linecap="round" opacity="${i % 3 === 0 ? 0.07 : 0.055}"/>`;
-  }).join('') + `<ellipse cx="${Math.round(w * 0.27)}" cy="${Math.round(h * 0.42)}" rx="${Math.round(w * 0.12)}" ry="${Math.round(h * 0.035)}" fill="none" stroke="${dark}" stroke-width="4" opacity="0.055"/><ellipse cx="${Math.round(w * 0.27)}" cy="${Math.round(h * 0.42)}" rx="${Math.round(w * 0.07)}" ry="${Math.round(h * 0.02)}" fill="none" stroke="${glow}" stroke-width="3" opacity="0.045"/>`;
+  // Long, quiet growth lines. No plank seams or decorative knots: the grain should read as a material, not a picture.
+  let seed = 37;
+  const random = () => {
+    seed = (seed * 48271) % 2147483647;
+    return seed / 2147483647;
+  };
+  const fine = Array.from({ length: 84 }, (_, i) => {
+    const y = random() * h;
+    const a = 3 + random() * 13;
+    const b = 4 + random() * 18;
+    const c = 2 + random() * 12;
+    const d = `M-${Math.round(w * 0.04)} ${y.toFixed(1)} C${Math.round(w * 0.24)} ${(y - a).toFixed(1)}, ${Math.round(w * 0.38)} ${(y + b).toFixed(1)}, ${Math.round(w * 0.57)} ${(y + c).toFixed(1)} S${Math.round(w * 0.86)} ${(y - b * 0.55).toFixed(1)}, ${Math.round(w * 1.04)} ${(y + a * 0.4).toFixed(1)}`;
+    const color = i % 5 === 0 ? dark : glow;
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${(0.55 + random() * 1.25).toFixed(2)}" stroke-linecap="round" opacity="${(0.018 + random() * 0.026).toFixed(3)}"/>`;
+  }).join('');
+  const broad = Array.from({ length: 9 }, (_, i) => {
+    const y = h * (0.08 + i * 0.105) + (random() - 0.5) * 24;
+    const d = `M-${Math.round(w * 0.06)} ${y.toFixed(1)} C${Math.round(w * 0.3)} ${(y - 18).toFixed(1)}, ${Math.round(w * 0.66)} ${(y + 22).toFixed(1)}, ${Math.round(w * 1.06)} ${(y - 4).toFixed(1)}`;
+    return `<path d="${d}" fill="none" stroke="${i % 2 ? glow : dark}" stroke-width="${(2 + random() * 3).toFixed(1)}" opacity="0.018"/>`;
+  }).join('');
+  return broad + fine;
 }
-
 function inkPools(w: number, h: number, light: boolean): string {
-  const ink = light ? '#4a4654' : '#0b101a';
-  const bloom = light ? '#7b7089' : '#53647c';
-  const first = `M${Math.round(w * 0.02)} ${Math.round(h * 0.32)} C${Math.round(w * 0.18)} ${Math.round(h * 0.2)}, ${Math.round(w * 0.34)} ${Math.round(h * 0.4)}, ${Math.round(w * 0.48)} ${Math.round(h * 0.3)} S${Math.round(w * 0.76)} ${Math.round(h * 0.15)}, ${Math.round(w * 1.05)} ${Math.round(h * 0.28)} C${Math.round(w * 0.82)} ${Math.round(h * 0.5)}, ${Math.round(w * 0.5)} ${Math.round(h * 0.42)}, ${Math.round(w * 0.18)} ${Math.round(h * 0.56)}Z`;
-  const second = `M${Math.round(w * 0.3)} ${Math.round(h * 0.72)} C${Math.round(w * 0.48)} ${Math.round(h * 0.58)}, ${Math.round(w * 0.62)} ${Math.round(h * 0.78)}, ${Math.round(w * 0.94)} ${Math.round(h * 0.62)} C${Math.round(w * 1.08)} ${Math.round(h * 0.84)}, ${Math.round(w * 0.76)} ${Math.round(h * 0.98)}, ${Math.round(w * 0.42)} ${Math.round(h * 0.9)}Z`;
-  return `<path d="${first}" fill="${ink}" opacity="${light ? 0.12 : 0.17}" filter="url(#ink-bleed)"/><path d="${second}" fill="${bloom}" opacity="${light ? 0.1 : 0.14}" filter="url(#ink-bleed)"/><circle cx="${Math.round(w * 0.62)}" cy="${Math.round(h * 0.36)}" r="${Math.round(w * 0.11)}" fill="${ink}" opacity="${light ? 0.05 : 0.08}" filter="url(#ink-bleed)"/>`;
+  // Soft sumi-like pigment blooms with feathered edges and low contrast. The negative space stays dominant.
+  const ink = light ? '#454b55' : '#b9c5d2';
+  const wash = light ? '#7d8793' : '#71869c';
+  const forms = [
+    `M${w * 0.04} ${h * 0.25} C${w * 0.16} ${h * 0.16}, ${w * 0.25} ${h * 0.34}, ${w * 0.4} ${h * 0.27} S${w * 0.67} ${h * 0.17}, ${w * 0.83} ${h * 0.25} C${w * 0.7} ${h * 0.39}, ${w * 0.48} ${h * 0.36}, ${w * 0.3} ${h * 0.42} S${w * 0.08} ${h * 0.38}, ${w * 0.04} ${h * 0.25}Z`,
+    `M${w * 0.46} ${h * 0.7} C${w * 0.58} ${h * 0.62}, ${w * 0.7} ${h * 0.72}, ${w * 0.9} ${h * 0.63} C${w * 0.99} ${h * 0.76}, ${w * 0.8} ${h * 0.86}, ${w * 0.64} ${h * 0.84} S${w * 0.47} ${h * 0.8}, ${w * 0.46} ${h * 0.7}Z`,
+    `M${w * 0.12} ${h * 0.88} C${w * 0.23} ${h * 0.81}, ${w * 0.34} ${h * 0.91}, ${w * 0.43} ${h * 0.86}`,
+  ];
+  return forms.map((d, i) =>
+    `<path d="${d}" fill="none" stroke="${i === 1 ? wash : ink}" stroke-width="${i === 2 ? Math.round(w * 0.025) : Math.round(w * 0.09)}" stroke-linecap="round" stroke-linejoin="round" opacity="${light ? (i === 2 ? 0.035 : 0.045) : (i === 2 ? 0.045 : 0.065)}" filter="url(#ink-bleed)"/>`
+  ).join('');
 }
-
 /**
  * Proairetos' quieter wall: a material surface with one pool of light, rather than a scene or a set of folds.
  * The room still supplies the material tint and the person's lamp still supplies the one active colour. Keeping this
@@ -89,9 +115,9 @@ export function wallpaperStyleSvg(art: WallArt, page: string, light: boolean, wi
 <defs>
 <linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
 <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${art.b1}" stop-opacity="${washOpacity}"/><stop offset=".52" stop-color="${art.b2}" stop-opacity="${(washOpacity * 0.55).toFixed(3)}"/><stop offset="1" stop-color="${art.b3}" stop-opacity="${(washOpacity * 0.25).toFixed(3)}"/></linearGradient>
-${style === 'ink' ? '<filter id="ink-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".018 .07" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .7 0"/></filter><filter id="ink-bleed" x="-15%" y="-15%" width="130%" height="130%"><feTurbulence type="fractalNoise" baseFrequency=".012 .024" numOctaves="2" seed="7" result="noise"/><feDisplacementMap in="SourceGraphic" in2="noise" scale="28"/><feGaussianBlur stdDeviation="2.5"/></filter>' : ''}
-${style === 'wood' ? '<filter id="wood-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".025 .22" numOctaves="2" stitchTiles="stitch" result="noise"/><feColorMatrix in="noise" result="grain" values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .5 0"/><feBlend in="SourceGraphic" in2="grain" mode="multiply"/></filter><filter id="wood-soft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="1.5"/></filter>' : ''}
-${style === 'paper' ? '<filter id="paper-soft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="0.35"/></filter>' : ''}
+${style === 'ink' ? '<filter id="ink-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".018 .07" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .7 0"/></filter><filter id="ink-bleed" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".006 .014" numOctaves="3" seed="7" stitchTiles="stitch" result="pigment"/><feDisplacementMap in="SourceGraphic" in2="pigment" scale="42" xChannelSelector="R" yChannelSelector="G" result="edge"/><feGaussianBlur in="edge" stdDeviation="15"/></filter>' : ''}
+${style === 'wood' ? '<filter id="wood-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".008 .16" numOctaves="3" seed="11" stitchTiles="stitch" result="grain"/><feColorMatrix in="grain" type="saturate" values="0" result="mono"/><feComponentTransfer in="mono" result="contrast"><feFuncR type="gamma" amplitude="1.1" exponent="1.35" offset="-.08"/><feFuncG type="gamma" amplitude="1.1" exponent="1.35" offset="-.08"/><feFuncB type="gamma" amplitude="1.1" exponent="1.35" offset="-.08"/></feComponentTransfer><feBlend in="SourceGraphic" in2="contrast" mode="soft-light"/></filter><filter id="wood-soft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="0.7"/></filter>' : ''}
+${style === 'paper' ? '<filter id="paper-soft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="0.18"/></filter>' : ''}
 <radialGradient id="pool" cx="${x}" cy="${y}" r="${Math.round(Math.max(w, h) * 0.68)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.glow}" stop-opacity="${poolOpacity.toFixed(3)}"/><stop offset=".45" stop-color="${art.glow}" stop-opacity="${(poolOpacity * 0.42).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
 <filter id="soft" x="-12%" y="-12%" width="124%" height="124%"><feGaussianBlur stdDeviation="${wide ? 34 : 22}"/></filter>
 <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .75 0"/></filter>
