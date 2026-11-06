@@ -162,3 +162,29 @@ Six apps contribute: Philia, Oikonomia, Ktema, Meletē, Therapeia and Poreia. Ot
   draw. `busyTime.ts` takes only Philia, Therapeia and Meletē entries as busy time, as before.
 - **Parity.** `scripts/calendar-check/` (`npm run calendar:check`) seeds one record of every kind in the six apps on a fixed
   clock and compares Days ahead (list, week, month, year) and Today's timeline against the pre-migration build.
+
+## 8. Notice providers (Slice 5)
+
+Eleven apps provide `notices` (Askesis, Diaita, Dynamis, Ergon, Ktema, Meletē, Oikonomia, Philia, Phyton, Poreia, Therapeia). Each
+provider wraps the app's own pure notice function and returns `NoticeLine`s with the same key, kind, time, words and address the
+function always gave. `noticeLines` (host) asks an app only when it is added and usable and the person's own notice switch (the
+first switch the manifest lists for the app in Settings > Notifications) is on; `enforceNotices` cuts the output to the keys of a
+notice, the app's own kinds, a real time from the start of today to the end of the horizon, an address inside the app and a key
+used once. The result joins the family notices that `noticesBetween` already works on, so the person's switches and quiet hours act
+on it as on every other notice; delivery (cache for the service worker, timer and catch-up, phone shell, sealed server rows,
+notifications page) is downstream of `Notice[]` and unchanged.
+
+- `ProviderContext.blocks` gives a provider the person's committed and protected time as start, end and kind, and a shift's name
+  only from the person's own schedule. Another calendar's event title never reaches a provider.
+- Default: the provider path (since Commit 7 of Slice 5). The apps' own gather (`familyNotices` and the direct Askesis and
+  Oikonomia reads) is still in the code for rollback: set `proairetosNoticeProviders` to `off` on a device, or build with
+  `VITE_NOTICE_PROVIDERS=off`. A later commit removes it.
+- Intended differences from the earlier words, applied to both paths: no bill amount; no Poreia confirmation code, stay address or
+  departure place; a Therapeia visit follows the `names` choice and a dose never states its amount; Meletē's reminders no longer
+  need another family switch on.
+- Notice keys are unchanged. Some contain words the notice does not show (Therapeia's doses, Ktema's and Ergon's names); they are
+  kept on the device, sealed in transit and hashed for the server row. See `docs/PHASE3_SLICE5_PLAN.md`, "Notice keys".
+- Not provider notices: Hydros's water reminders, Praxis's study end, Poreia's flight status, Phyton's frost check, milestones and
+  schedule changes, and Proairetos's own item, calendar, schedule, check-back, look-back, day and bell notices.
+- Checks: `src/tests/notify/` (baselines for UTC and Los Angeles, parity of the old and new ways, canaries, two installs and a
+  stand-in server) and `scripts/notices-check/` (a real page, providers against the old way, details on and private).

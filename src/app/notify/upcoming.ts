@@ -23,9 +23,9 @@ const HORIZON_DAYS = 14;
 export async function upcomingNotices(now = new Date(), settings: NoticeSettings = loadNotify()): Promise<Notice[]> {
   const until = new Date(now.getTime() + HORIZON_DAYS * 86_400_000);
   await fitAhead(now).catch(() => undefined);
-  // Off unless this device is switched on (providers/noticePath.ts): the apps' own functions are the default. On, the apps that
-  // provide notices are asked through the host and left out of `familyNotices`; what they return joins `family`, so the person's
-  // switches and quiet hours act on it exactly as on the rest.
+  // The apps that provide notices are asked through the host and left out of `familyNotices`; what they return joins `family`, so
+  // the person's switches and quiet hours act on it exactly as on the rest. A device or a build can go back to the apps' own
+  // functions (providers/noticePath.ts), which are still here.
   const viaProviders = noticeProvidersOn();
   const skip = viaProviders ? new Set<string>(providedNoticeApps()) : undefined;
   const [items, decisions, own, runs, bills, study, family, provided] = await Promise.all([
@@ -35,7 +35,7 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     settings.runs && isAdded('askesis') && !skip?.has('askesis') ? readRuns() : undefined,
     settings.bills && isAdded('oikonomia') && !skip?.has('oikonomia') ? readStore<Bill>('oikonomiaBills') : [],
     settings.study && isAdded('praxis') ? studyEnd() : undefined,
-    settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants || settings.trips ? familyNotices(now, until, skip).catch(() => []) : [],
+    settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants || settings.trips || settings.melete ? familyNotices(now, until, skip).catch(() => []) : [],
     viaProviders ? import('../providers/notices').then((module) => module.providerNotices(now, until, settings)).catch(() => []) : [],
   ]);
   const today = toLocalDate(now);

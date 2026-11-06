@@ -27,11 +27,11 @@ const FAMILY_OFF = { runs: false, bills: false, rhythm: false, people: false, ch
 
 async function both(settings: NoticeSettings) {
   const { upcomingNotices } = await import('../../app/notify/upcoming');
-  setNoticeProviders(false);
+  setNoticeProviders(false); // back to the apps' own functions
   const legacy = await upcomingNotices(now, settings);
   setNoticeProviders(true);
   const provided = await upcomingNotices(now, settings);
-  setNoticeProviders(false);
+  setNoticeProviders(true);
   return { legacy, provided };
 }
 
@@ -87,13 +87,20 @@ describe('the eleven apps, old way and new way', () => {
     expect(rows(await familyNotices(now, until, new Set(APPS_MOVED)))).toEqual([]);
     expect(rows(await familyNotices(now, until)).length).toBeGreaterThan(0);
   });
-  it('differ in one way, found while writing this: Meletē’s switch alone brings its notices only through providers', async () => {
-    // The old gather runs only when one of the other family switches is on (Meletē's is not in that list), so with
-    // only Meletē’s on it gives nothing; the provider path asks Meletē on its own switch. Reported, not hidden.
+  it('bring Meletē’s notices on its own switch alone, in both ways (the old gather used to need another family switch on)', async () => {
     const { legacy, provided } = await both({ ...defaultNoticeSettings, ...FAMILY_OFF, melete: true });
-    expect(rows(legacy)).toEqual([]);
-    expect(rows(provided).length).toBeGreaterThan(0);
-    expect(new Set(rows(provided).map((row) => row.kind))).toEqual(new Set(['melete']));
+    expect(rows(legacy).length).toBeGreaterThan(0);
+    expect(new Set(rows(legacy).map((row) => row.kind))).toEqual(new Set(['melete']));
+    expect(rows(provided)).toEqual(rows(legacy));
+  });
+  it('lose nothing and repeat nothing: with the providers asked, the old gather has nothing left to add', async () => {
+    const { familyNotices } = await import('../../app/notify/familyNotices');
+    const { providedNoticeApps } = await import('../../app/providers/noticePath');
+    expect(await familyNotices(now, until, new Set(providedNoticeApps()))).toEqual([]);
+    const { provided } = await both({ ...defaultNoticeSettings, melete: true });
+    for (const kind of ['person', 'chore', 'upkeep', 'melete', 'plant', 'trip', 'dose', 'care', 'rhythm', 'training', 'run', 'bill']) expect(provided.some((notice) => notice.kind === kind), kind).toBe(true);
+    const keys = provided.map((notice) => notice.key);
+    expect(new Set(keys).size).toBe(keys.length);
   });
 });
 

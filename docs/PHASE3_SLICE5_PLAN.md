@@ -390,6 +390,13 @@ migration, any per-app `core/notices.ts` (the providers call them), any wording.
 Rollback at any step: revert that commit. After step 7 and before 8, setting the path switch back restores the legacy
 gather with no release.
 
+### Status (Commit 7)
+
+Commits 0 to 6 are done. Commit 7 made the provider path the default; the old gather stays for rollback (a device sets
+`proairetosNoticeProviders` to `off`, a build sets `VITE_NOTICE_PROVIDERS=off`). Meletē's switch now works alone in both ways: the old
+gather's guard listed every other family switch but not Meletē's. Commit 8 removes the old gather; Hydros stays optional. The server
+needs nothing: the rows are written exactly as before.
+
 ## 11. Test plan (only what you authorize is run)
 
 Estimates for time come from earlier runs in this session where I have them; where I do not, I say so.

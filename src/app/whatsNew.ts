@@ -3,6 +3,8 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-06',
     lines: [
+      'Reminders for bills, trips and visits say less on the lock screen: a bill reminder has no amount, a trip reminder no confirmation code, address or place you leave from, a visit only that it is a visit unless you chose names, and a dose never states its amount.',
+      'Meletē reminders now work with only the Meletē switch on.',
       'The calendar file now holds only the categories you switch on in Settings > Calendar. Bills, trips and time off, and bookings and plans with a time are new switches, all off. It never holds bill amounts, confirmation codes, addresses, routes or notes.',
       'Calendar links made before this were ended. Create a new link in Settings > Calendar and remove the old subscription in your calendar app.',
       'Files saved from a trip or a bill no longer hold confirmation codes, notes or amounts.',

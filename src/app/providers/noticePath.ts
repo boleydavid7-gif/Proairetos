@@ -1,27 +1,29 @@
 import { APPS, type AppId, type AppManifest } from '../../core/apps/manifest';
 
 /*
- * Which way notices are gathered. Off unless this device is switched on: the notices come from the apps' own functions
- * (`familyNotices`), as they always have. On, apps that provide notices are asked through the provider host instead.
- * Device only, outside the `proairetos.` prefix, so it is neither synced nor backed up, and it has no screen: it is a
- * rollout switch, not a setting, and nothing asks the person about it.
+ * Which way notices are gathered. Through the provider host unless this device or this build is told to go back: the apps' own
+ * functions (`familyNotices` and the direct Askesis and Oikonomia reads) are still in place for that. Two ways back, neither a
+ * setting the person sees:
+ *   - this device only: `proairetosNoticeProviders` set to `off` (outside the `proairetos.` prefix, so neither synced nor backed up);
+ *   - the whole build: the build variable `VITE_NOTICE_PROVIDERS=off`, for a rollback without a code change.
  */
 const KEY = 'proairetosNoticeProviders';
 
 export function noticeProvidersOn(): boolean {
+  if (import.meta.env.VITE_NOTICE_PROVIDERS === 'off') return false;
   try {
-    return localStorage.getItem(KEY) === 'on';
+    return localStorage.getItem(KEY) !== 'off';
   } catch {
-    return false;
+    return true;
   }
 }
 
 export function setNoticeProviders(on: boolean): void {
   try {
-    if (on) localStorage.setItem(KEY, 'on');
-    else localStorage.removeItem(KEY);
+    if (on) localStorage.removeItem(KEY);
+    else localStorage.setItem(KEY, 'off');
   } catch {
-    // Storage may be blocked; the old way stays.
+    // Storage may be blocked; the default stays.
   }
 }
 

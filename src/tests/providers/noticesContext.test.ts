@@ -36,14 +36,15 @@ describe('the notice adapter', () => {
   const provider = (read: Provider<'notices'>['read']): Provider<'notices'> => ({ app: 'ergon', capability: 'notices', version: 1, privacy: 'own-search', sources: [], read });
   const ctx = (extra: Partial<HostContext> = {}): HostContext => ({ today: '2026-11-05', now: range.from, range, records: async () => [], setting: () => null, isUsable: () => true, enabled: () => true, noticeSwitch: () => true, ...extra });
 
-  it('is off until the device is switched on, and says so safely when storage is blocked', () => {
-    expect(noticeProvidersOn()).toBe(false);
-    setNoticeProviders(true);
+  it('is the way notices are gathered unless this device is told to go back, and survives storage being blocked', () => {
     expect(noticeProvidersOn()).toBe(true);
     setNoticeProviders(false);
     expect(noticeProvidersOn()).toBe(false);
-    localStorage.setItem('proairetosNoticeProviders', 'yes');
-    expect(noticeProvidersOn()).toBe(false);
+    expect(localStorage.getItem('proairetosNoticeProviders')).toBe('off');
+    setNoticeProviders(true);
+    expect(noticeProvidersOn()).toBe(true);
+    localStorage.setItem('proairetosNoticeProviders', 'anything else');
+    expect(noticeProvidersOn()).toBe(true);
   });
   it('asks only the apps the manifest says provide notices, and none when every switch is off', async () => {
     expect(providedNoticeApps().sort()).toEqual(['askesis', 'diaita', 'dynamis', 'ergon', 'ktema', 'melete', 'oikonomia', 'philia', 'phyton', 'poreia', 'therapeia']);
