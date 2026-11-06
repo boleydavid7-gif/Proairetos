@@ -75,6 +75,9 @@ const removeRec = (a: Install, rec: Rec) => (rec.collection ? a.local.remove(rec
 const pref = (key: string, value: Record<string, unknown> & { id: string }): Rec => ({ key, value });
 const home = (load: () => Promise<Record<string, Provider<'home'>>>, name: string) => async () => (await load())[name];
 
+const block = { id: 'b1', userId: 'u1', app: 'praxis', type: null, title: 'Read: CANARY-BOOK', status: 'OPEN', important: false, source: 'MANUAL', carried: false, createdAt: day, updatedAt: day };
+const focus = (minutes: number) => ({ id: 'e1', itemId: 'b1', kind: 'FOCUSED', timestamp: '2026-11-05T08:00:00', metadata: { app: 'praxis', minutes } });
+
 const specs: Spec[] = [
   { app: 'philia', create: [pref('philia:person:p1', { id: 'p1', name: 'Mara', birthday: '11-08', phone: 'CANARY-PHONE', notes: [{ id: 'n', text: 'CANARY-NOTE' }], gifts: [], times: [], createdAt: day })], edit: [pref('philia:person:p1', { id: 'p1', name: 'Mara K', birthday: '11-08', phone: 'CANARY-PHONE', notes: [], gifts: [], times: [], createdAt: day })], view: home(() => import('../../philia/providers/home'), 'philiaHome') },
   { app: 'oikonomia', create: [{ collection: 'oikonomiaBills', value: { id: 'b1', name: 'Internet', amountCents: 98765432, currency: 'USD', dueDate: '2026-11-07', frequency: 'monthly', category: 'CANARY-AREA', autopay: false, reminderDays: 3, notes: 'CANARY-NOTE', payments: [], createdAt: day, updatedAt: day } }], edit: [{ collection: 'oikonomiaBills', value: { id: 'b1', name: 'Fiber', amountCents: 98765432, currency: 'USD', dueDate: '2026-11-07', frequency: 'monthly', category: 'CANARY-AREA', autopay: false, reminderDays: 3, notes: 'CANARY-NOTE', payments: [], createdAt: day, updatedAt: day } }], view: home(() => import('../../oikonomia/providers/home'), 'oikonomiaHome') },
@@ -106,11 +109,12 @@ const specs: Spec[] = [
   },
   {
     app: 'theoria',
-    create: [{ collection: 'lifeItems' as SyncCollection, value: { id: 'b1', title: 'Read: CANARY-BOOK' } }, { collection: 'itemEvents' as SyncCollection, value: { id: 'e1', itemId: 'b1', kind: 'FOCUSED', timestamp: '2026-11-05T08:00:00', metadata: { app: 'praxis', minutes: 25 } } }],
-    edit: [{ collection: 'itemEvents' as SyncCollection, value: { id: 'e1', itemId: 'b1', kind: 'FOCUSED', timestamp: '2026-11-05T08:00:00', metadata: { app: 'praxis', minutes: 45 } } }],
+    // The sync collections are `lifeItems` and `itemEvents` (data/sync/types.ts); shapes are LifeItem and ItemEvent.
+    create: [{ collection: 'lifeItems', value: block }, { collection: 'itemEvents', value: focus(25) }],
+    edit: [{ collection: 'itemEvents', value: focus(45) }],
     async view(b) {
       vi.resetModules();
-      vi.doMock('../../app/services', () => ({ lifeService: { listForApp: async () => b.local.list('lifeItems' as SyncCollection), historyForAll: async () => b.local.list('itemEvents' as SyncCollection), subscribe: () => () => undefined } }));
+      vi.doMock('../../app/services', () => ({ lifeService: { listForApp: async () => b.local.list('lifeItems'), historyForAll: async () => b.local.list('itemEvents'), subscribe: () => () => undefined } }));
       return (await import('../../theoria/providers/home')).theoriaHome;
     },
   },
