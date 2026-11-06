@@ -39,8 +39,37 @@ The release is selective and stacked: each release is its own branch from `main`
 
 **Not on `main` yet, in order:** Release 5B (K1, not before 2026-11-13), Release 6 Library (switch OFF by default), then Commit 8, K2 and Hydros notices as in section 3. Release 5B starts only when the owner authorizes it.
 
+**Separate workstream, not started:** Unified Session Security & Local Data Protection (section 0a). Its first task is a read-only audit.
+
 **Still true:** the Lab page and the diagnostic pages exist only on the development branch. Before that branch is merged with `main`, they must be handled explicitly (kept off `main` by a revert commit or removed from the branch), never by a silent conflict resolution.
 
+
+## 0a. Separate workstream: Unified Session Security & Local Data Protection
+
+Added 2026-11-06 at the owner's request. It is **not** part of Release 5B or Release 6 and has its own plan, tests and pull requests. Nothing is implemented. The first task is a read-only audit; implementation waits until the audit has explained exactly why signing out can leave private information reachable and the owner has approved a plan.
+
+**Concern.** After a person signs out, private information may still be reachable on the device. The audit has to find where and why, not assume.
+
+**Audit scope**
+
+| Area | What the audit covers |
+| --- | --- |
+| Browser storage | localStorage, sessionStorage, IndexedDB (including the per-app and device-only stores) and Cache Storage: what is there after sign-out, what is sealed, what is readable |
+| Service workers | cached pages, the on-device notice cache and the words kept for notifications, the data key kept for opening sealed pushes, and what a worker can do in the background after sign-out |
+| Authentication | session revocation, refresh tokens, the sign-in pass between apps, passkeys, and what sign-out actually does on the server and on the device |
+| Encryption | passphrases, the data key and its exportable copies, key derivation, recovery keys, and where each is held and for how long |
+| Memory | decrypted records, application state, caches and open companion apps after sign-out |
+| Cross-app behavior | signing out of Proairetos must lock every companion app, including the ones that keep their own storage |
+| Multiple tabs | signing out in one tab must lock every other tab and window at once |
+
+**Expected outcome (the standard the audit measures against).** Signing out makes private information inaccessible immediately; clears decrypted data and encryption keys from memory; stops another person reopening private screens; preserves encrypted offline data where appropriate; and requires authentication and unlocking before data becomes accessible again.
+
+**Constraint (the owner's).** Local databases are never deleted automatically. The aim is to protect the information, not to destroy someone's offline records. A person's own explicit choice to delete (Delete account, a device wipe they ask for) is separate and unchanged. Existing rules still hold: a different account on the same device already has the previous account's data put away (`changeDeviceAccount`), the optional Reflect lock is privacy on a shared device and not encryption, and the passphrase unlocks the data.
+
+**Order of work**
+1. Read-only audit with a written finding for each scope row: what is reachable after sign-out, why, how it was found, and how serious. No code changes.
+2. A plan for the owner to approve, with each change separately reviewable and a rollback for each.
+3. Implementation as separate releases, each verified in a real browser across tabs and companion apps, and on real devices.
 
 ## 1. Repository state at the checkpoint
 
