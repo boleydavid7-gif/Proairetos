@@ -7,7 +7,7 @@ import { enforceLibrary, libraryRecords, mayProvideLibrary, visibleInLibrary, ty
 /* The Library contract: what may reach the Library, who may put entries there, which entries are shown. No app provides yet. */
 const range = { from: new Date('2026-11-01T00:00:00'), until: new Date('2026-12-01T00:00:00') };
 const classify = (...ids: string[]): AppManifest[] =>
-  APPS.map((app) => (ids.includes(app.id) ? { ...app, provides: [...(app.provides ?? []), 'library' as const], library: { kinds: ['workout', 'meal'], shows: ['a title and a date'], excludes: ['heart rate'] } } : app));
+  APPS.map((app) => (ids.includes(app.id) ? { ...app, provides: [...(app.provides ?? []), 'library' as const], library: { kinds: ['workout', 'meal'], shows: ['a title and a date'], detailsOnly: ['words'], excludes: ['heart rate'] } } : app));
 const manifest = classify('askesis', 'dynamis', 'soma');
 const app = (id: string) => manifest.find((each) => each.id === id) as AppManifest;
 
@@ -63,10 +63,10 @@ describe('what may reach the Library', () => {
 describe('who may put entries in the Library', () => {
   it('needs the manifest to list library and classify its entries, and a named app', () => {
     expect(mayProvideLibrary(undefined, provider(() => []))?.reason).toMatch(/manifest/);
-    expect(mayProvideLibrary(APPS.find((each) => each.id === 'askesis'), provider(() => []))?.reason).toMatch(/does not list library/);
+    expect(mayProvideLibrary(APPS.find((each) => each.id === 'hydros'), provider(() => [], { app: 'hydros' }))?.reason).toMatch(/does not list library/);
     const unclassified = { ...app('askesis'), library: undefined };
     expect(mayProvideLibrary(unclassified, provider(() => []))?.reason).toMatch(/not classified/);
-    const notNamed = { ...app('hydros'), provides: ['library' as const], library: { kinds: ['note'], shows: ['x'], excludes: ['y'] } };
+    const notNamed = { ...app('hydros'), provides: ['library' as const], library: { kinds: ['note'], shows: ['x'], detailsOnly: ['z'], excludes: ['y'] } };
     expect(mayProvideLibrary(notNamed, provider(() => [], { app: 'hydros' }))?.reason).toMatch(/not one of the apps the Library names/);
     expect(mayProvideLibrary(app('askesis'), provider(() => []))).toBeNull();
   });
@@ -75,9 +75,9 @@ describe('who may put entries in the Library', () => {
     expect(mayProvideLibrary(app('askesis'), provider(() => [], { privacy: 'shared' }))?.reason).toMatch(/class shared/);
     expect(mayProvideLibrary({ ...app('askesis'), status: 'retired' }, provider(() => []))?.reason).toMatch(/retired/);
   });
-  it('declares no app as a provider of the Library yet, so nothing about the Library changes', () => {
-    expect(APPS.filter((each) => each.provides?.includes('library'))).toEqual([]);
-    expect(APPS.filter((each) => each.library)).toEqual([]);
+  it('classifies the Library of every app that declares it, and only those', () => {
+    const declared = APPS.filter((each) => each.provides?.includes('library')).map((each) => each.id).sort();
+    expect(APPS.filter((each) => each.library).map((each) => each.id).sort()).toEqual(declared);
   });
 });
 

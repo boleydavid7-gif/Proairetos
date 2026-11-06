@@ -11,7 +11,7 @@ import { libraryStore, useLibraryRecords } from '../../app/providers/library';
 
 /* The Library's store: when an app's entries are derived, that nothing is stored, the device switch and the hook. */
 const withLibrary = (...ids: string[]): AppManifest[] =>
-  APPS.map((app) => (ids.includes(app.id) ? { ...app, provides: [...(app.provides ?? []), 'library' as const], library: { kinds: ['workout', 'meal'], shows: ['a title'], excludes: ['heart rate'] } } : app));
+  APPS.map((app) => (ids.includes(app.id) ? { ...app, provides: [...(app.provides ?? []), 'library' as const], library: { kinds: ['workout', 'meal'], shows: ['a title'], detailsOnly: ['words'], excludes: ['heart rate'] } } : app));
 const manifest = withLibrary('askesis', 'dynamis', 'soma');
 
 const entry = (id: string, extra: Partial<LifeRecord> = {}): LifeRecord =>
@@ -162,8 +162,8 @@ describe('the device switch', () => {
     const { syncedSetting } = await import('../../data/sync/deviceRecords');
     expect(syncedSetting('proairetosLibraryProviders')).toBe(false);
   });
-  it('lists no app as a provider of the Library yet', () => {
-    expect(providedLibraryApps()).toEqual([]);
+  it('lists the apps whose manifest declares the Library as its providers, and no other', () => {
+    expect(providedLibraryApps().sort()).toEqual(APPS.filter((app) => app.provides?.includes('library')).map((app) => app.id).sort());
   });
 });
 

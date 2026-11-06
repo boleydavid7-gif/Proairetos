@@ -428,27 +428,32 @@ export const lifeRecordAdapters = {
   } satisfies LifeRecordAdapter<readonly StudySession[]>,
 };
 
+/** Newest first; entries with the same time by key. The one order the Library uses, for its own entries and the apps' together. */
+export const orderLifeRecords = (records: readonly LifeRecord[]): LifeRecord[] => [...records].sort((a, b) => b.at.localeCompare(a.at) || a.key.localeCompare(b.key));
+
 /** Builds the shared library projection without changing or duplicating source records. */
-export function buildLifeRecords(input: LifeRecordInput): LifeRecord[] {
-  return [
+export function buildLifeRecords(input: LifeRecordInput, skip: ReadonlySet<string> = new Set()): LifeRecord[] {
+  // An app named in `skip` is left out here: its entries come through its Library provider instead (nothing is skipped by default).
+  const from = <T,>(app: string, make: () => T[]): T[] => (skip.has(app) ? [] : make());
+  return orderLifeRecords([
     ...lifeRecordAdapters.reflections.toRecords(input.reflections ?? []),
     ...lifeRecordAdapters.decisions.toRecords({ decisions: input.decisions ?? [] }),
     ...lifeRecordAdapters.pursuits.toRecords(input.pursuits ?? []),
     ...lifeRecordAdapters.lifeItems.toRecords(input.items ?? []),
-    ...lifeRecordAdapters.askesis.toRecords({ workouts: input.workouts ?? [], unit: input.distanceUnit ?? 'km' }),
-    ...lifeRecordAdapters.dynamis.toRecords({ workouts: input.strengthWorkouts ?? [], unit: input.strengthUnit ?? 'kg' }),
-    ...lifeRecordAdapters.soma.toRecords(input.recipes ?? []),
-    ...lifeRecordAdapters.theoria.toRecords(input.studySessions ?? []),
-    ...lifeRecordAdapters.mnemeNotes.toRecords(input.mnemeNotes ?? []),
-    ...lifeRecordAdapters.mnemeIdeas.toRecords(input.mnemeIdeas ?? []),
-    ...lifeRecordAdapters.poreia.toRecords({
+    ...from('askesis', () => lifeRecordAdapters.askesis.toRecords({ workouts: input.workouts ?? [], unit: input.distanceUnit ?? 'km' })),
+    ...from('dynamis', () => lifeRecordAdapters.dynamis.toRecords({ workouts: input.strengthWorkouts ?? [], unit: input.strengthUnit ?? 'kg' })),
+    ...from('soma', () => lifeRecordAdapters.soma.toRecords(input.recipes ?? [])),
+    ...from('theoria', () => lifeRecordAdapters.theoria.toRecords(input.studySessions ?? [])),
+    ...from('mneme', () => lifeRecordAdapters.mnemeNotes.toRecords(input.mnemeNotes ?? [])),
+    ...from('mneme', () => lifeRecordAdapters.mnemeIdeas.toRecords(input.mnemeIdeas ?? [])),
+    ...from('poreia', () => lifeRecordAdapters.poreia.toRecords({
       trips: input.poreiaTrips ?? [],
       journal: input.poreiaJournal ?? [],
       today: input.poreiaToday ?? (() => {
         const now = new Date();
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
       })(),
-    }),
-    ...lifeRecordAdapters.oikonomia.toRecords(input.oikonomiaMilestones ?? []),
-  ].sort((a, b) => b.at.localeCompare(a.at) || a.key.localeCompare(b.key));
+    })),
+    ...from('oikonomia', () => lifeRecordAdapters.oikonomia.toRecords(input.oikonomiaMilestones ?? [])),
+  ]);
 }

@@ -82,10 +82,10 @@ export type AppManifest = {
    */
   calendar?: { shows: readonly string[]; excludes: readonly string[]; kinds: readonly ('event' | 'deadline' | 'recurring' | 'info')[]; parts?: Partial<Record<'event' | 'deadline' | 'recurring' | 'info', string>> };
   /**
-   * What the app's entries in the Library (Reflect) may state (`shows`) and never do (`excludes`), and the kinds of entry it has. An
+   * What the app's entries in the Library (Reflect) may state in the list (`shows`), may state only when an entry is opened (`detailsOnly`: its words and detail) and never do (`excludes`), and the kinds of entry it has. An
    * entry is the existing `LifeRecord`; the app's own records stay the authority. Present for an app that provides `library`.
    */
-  library?: { kinds: readonly string[]; shows: readonly string[]; excludes: readonly string[] };
+  library?: { kinds: readonly string[]; shows: readonly string[]; detailsOnly: readonly string[]; excludes: readonly string[] };
   /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
   provides?: readonly Capability[];
   declares?: { reads: readonly string[]; writes: readonly string[] };
@@ -131,7 +131,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['workout title', 'workout notes', 'went well', 'next time', 'intention'], excludes: ['heart rate', 'health data brought in', 'distance by GPS'] },
-    provides: ['search', 'home', 'notices'],
+    provides: ['search', 'home', 'notices', 'library'],
+    library: { kinds: ['workout'], shows: ['a title (the activity or session name)', 'the date and time'], detailsOnly: ['distance and time in the person’s unit', 'how it felt', 'notes, what went well, next time and intention', 'the activity and date as search terms'], excludes: ['heart rate', 'GPS points', 'health data brought in', 'shoes', 'Strava ids', 'the plan and why'] },
     home: { shows: ['today\u2019s session title and length', 'the run done today, with its distance and time', 'whether a plan exists'], excludes: ['heart rate', 'notes', 'the log', 'health data brought in', 'distance by GPS'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -179,7 +180,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 1,
     },
     search: { privacy: 'own-search', indexes: ['recipe title', 'ingredients', 'recipe notes', 'tags'], excludes: ['grocery lists', 'nutrition'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'library'],
+    library: { kinds: ['meal'], shows: ['the recipe’s title', 'the day it was cooked'], detailsOnly: ['who it was cooked for', 'the recipe’s notes', 'tags, ingredients and source as search terms only'], excludes: ['nutrition and its grade', 'shopping lists', 'the pantry', 'the recipe’s steps and photos'] },
     home: { shows: ['recipe titles planned for today'], excludes: ['ingredients', 'notes', 'nutrition', 'grocery lists', 'tags'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -392,7 +394,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['session title', 'session note'], excludes: ['weights and reps', 'heart rate'] },
-    provides: ['search', 'home', 'notices'],
+    provides: ['search', 'home', 'notices', 'library'],
+    library: { kinds: ['workout'], shows: ['the exercises as a title', 'the date and time'], detailsOnly: ['sets, minutes and how it felt', 'each exercise with its sets, reps and weights', 'the session note', 'the session, exercise names, reps and weights as search terms'], excludes: ['health data brought in', 'mobility records', 'the plan, places and equipment'] },
     home: { shows: ['whether strength training is set up', 'today\u2019s session name or that it is done or a rest day'], excludes: ['weights and reps', 'notes', 'heart rate', 'the log'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
