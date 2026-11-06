@@ -19,13 +19,12 @@ describe('search classification', () => {
       expect(Object.keys(providerModules), app.id).toContain(app.id);
     }
   });
-  it('a private app is not searched: no fields, no provider', () => {
+  it('a private app is not searched: no fields, no search provider', () => {
     const privateApps = APPS.filter((app) => app.search?.privacy === 'private').map((app) => app.id);
     expect(privateApps.sort()).toEqual(['diaita', 'mneme', 'melete', 'phyton', 'praxis'].sort());
     for (const id of privateApps) {
       expect(APPS.find((app) => app.id === id)?.search?.indexes, id).toEqual([]);
-      expect(APPS.find((app) => app.id === id)?.provides ?? [], id).toEqual([]);
-      expect(Object.keys(providerModules), id).not.toContain(id);
+      expect(APPS.find((app) => app.id === id)?.provides ?? [], id).not.toContain('search');
     }
   });
   it('the decided exclusions are in the manifest', () => {

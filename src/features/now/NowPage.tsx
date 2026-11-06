@@ -273,7 +273,7 @@ export default function NowPage() {
       </>
     ),
     'daily-practices': <DailyPractices today={today} range={rangeOf(today)} />,
-    'worth-attention': <WorthYourAttention today={today} now={clock} />,
+    'worth-attention': <WorthYourAttention today={today} range={rangeOf(today)} />,
     'on-this-day': <TodayOnThisDay today={today} />,
     'open-time': shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
       <OpenTime stretches={stretches} items={items} today={today} />

@@ -31,7 +31,31 @@ export type SearchProjection = {
 };
 
 export type CalendarLine = { ref: RecordRef; day: string; time?: string; title: string; open: string };
-export type HomeRow = { ref: RecordRef; group: 'practice' | 'attention'; title: string; line?: string; open: string; action?: 'done' | 'skip' };
+
+/**
+ * One line an app puts on Today. It is a summary and a way in, never the record: a title and a detail in words, where
+ * tapping goes (inside the owning app), and at most a progress bar, a glyph and what a pull does. Nothing else can ride on it.
+ */
+export type HomeRow = {
+  ref: RecordRef;
+  /** Which of Today's two app groups it belongs to; the manifest says the same (`today.group`). */
+  group: 'practice' | 'attention';
+  /** An attention row has a title; a practice row is one line, its detail. */
+  title?: string;
+  detail: string;
+  /** Inside the owning app: its own address, with `?open=` for a record. */
+  open: string;
+  /** A glyph other than the app's own mark (bills, people and trips have their own). */
+  icon?: 'list' | 'person' | 'suitcase';
+  progress?: { value: number; label: string };
+  /**
+   * Pulls on the row. `id` is what "Not today" remembers; `marks` says a pull to the left marks the thing in its own app
+   * (the provider's `act`) and `word` is what that is called; otherwise it is only done here for the day.
+   */
+  swipe?: { id: string; word?: string; marks?: boolean; label?: string };
+  /** The What's included part that "Not for me" sets aside. */
+  notForMe?: string;
+};
 
 export type OutputOf<C extends Capability> = C extends 'search'
   ? SearchProjection[]
@@ -50,6 +74,12 @@ export type ProviderContext = {
   records<T>(source: string): Promise<T[]>;
   /** A stored setting of the same app. */
   setting(key: string): string | null;
+  /** Home: the person's schedule between two times (Proairetos's own), for a night shift's day, work days and sleep. */
+  schedule?(from: Date, until: Date): Promise<import('../scheduling/types').ScheduleOccurrence[]>;
+  /** Home: the person's day that Today is showing, from when it starts to when the next begins (a night shift carries a day past midnight). */
+  day?: { start: Date; end: Date };
+  /** Home: where the person's day starts and whether a shift carries it. */
+  daySettings?(): import('../rhythm/personalDay').DaySettings;
 };
 
 export type Provider<C extends Capability = Capability> = {
@@ -64,4 +94,10 @@ export type Provider<C extends Capability = Capability> = {
   read(ctx: ProviderContext): Promise<OutputOf<C>> | OutputOf<C>;
   /** Called when its own app's records change on this device, so a cached result is dropped. */
   subscribe?(listener: () => void): () => void;
+  /** Home only: marks the row's thing in its own app, and gives back how to take the mark off. Runs on a pull, never on a read. */
+  act?(ref: RecordRef, today: string): () => void;
+  /** Home only: starts what a row needs to be current (a forecast, a worked-out week). Called when Home starts, on sync and on coming back into view. */
+  warm?(ctx: ProviderContext): void;
+  /** How long a result is kept before it is derived again, when sooner than the usual five minutes (Poreia's next thing moves by the minute). */
+  maxAgeMs?: number;
 };
