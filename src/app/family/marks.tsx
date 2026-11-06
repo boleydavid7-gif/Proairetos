@@ -52,15 +52,12 @@ const line = (d: string, width: number): Shape['attrs'] => ({
 
 function lanternCompass(): Shape[] {
   return [
-    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 330, fill: 'none', strokeWidth: 24, strokeDasharray: '440 74 440 74 440 74 440 74' }, level: SECOND },
-    { tag: 'path', attrs: line('M512 150 V250', 28), level: SECOND },
-    { tag: 'path', attrs: path('M512 238 L420 326 V650 Q420 686 456 686 H568 Q604 686 604 650 V326Z', { fill: 'none', strokeWidth: 28, strokeLinejoin: 'round' }), gap: 12 },
-    { tag: 'path', attrs: line('M396 346 H628 M446 704 H578', 26), level: SECOND },
-    { tag: 'path', attrs: path('M512 416 C512 416 452 490 452 548 A60 60 0 0 0 572 548 C572 490 512 416 512 416Z'), gap: 12 },
-    { tag: 'path', attrs: path('M512 132 L512 54 L544 132Z'), level: SECOND },
-    { tag: 'path', attrs: path('M512 892 L480 778 L512 798 L544 778Z'), level: SECOND },
-    { tag: 'path', attrs: path('M132 512 L246 480 L226 512 L246 544Z'), level: SECOND },
-    { tag: 'path', attrs: path('M892 512 L778 544 L798 512 L778 480Z'), level: SECOND },
+    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 340, fill: 'none', strokeWidth: 24, strokeDasharray: '460 74 460 74 460 74 460 74' }, level: SECOND },
+    { tag: 'path', attrs: line('M512 92 V174 M512 850 V932 M92 512 H174 M850 512 H932', 24), level: SECOND },
+    { tag: 'path', attrs: path('M512 238 L408 338 L448 700 Q452 730 482 730 H542 Q572 730 576 700 L616 338Z', { fill: 'none', strokeWidth: 34, strokeLinejoin: 'round' }), gap: 12 },
+    { tag: 'path', attrs: line('M390 344 H634 M454 758 H570', 28), level: SECOND },
+    { tag: 'path', attrs: path('M512 410 C480 462 450 502 450 558 A62 62 0 0 0 574 558 C574 506 544 466 512 410Z'), gap: 12 },
+    { tag: 'path', attrs: path('M512 486 C500 514 486 532 488 554 A24 24 0 0 0 536 554 C536 530 524 510 512 486Z'), level: SECOND },
   ];
 }
 
