@@ -157,6 +157,11 @@ export function wallpaperStyleSvg(art: WallArt, page: string, light: boolean, wi
   return cachedWallpaper(wallpaperCache, key, () => buildWallpaperStyleSvg(art, page, light, wide, lamp, style));
 }
 
+/** Proairetos's fixed home wallpaper: intentionally has no time-of-day lamp input. */
+export function staticWallpaperStyleSvg(art: WallArt, page: string, light: boolean, wide = false, style: WallStyle = 'paper'): string {
+  return wallpaperStyleSvg(art, page, light, wide, undefined, style);
+}
+
 /** Backwards-compatible name for callers that want the default paper treatment. */
 export function materialWallpaperSvg(art: WallArt, page: string, light: boolean, wide = false, lamp?: WallLamp): string {
   return wallpaperStyleSvg(art, page, light, wide, lamp, 'paper');
