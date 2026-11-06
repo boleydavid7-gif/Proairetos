@@ -1,7 +1,7 @@
 import { defaultNoticeSettings, normalizeLeadMinutes, type NoticeSettings } from '../../core/notify/notices';
 import { sessions, type SessionId } from '../../core/meditate/sessions';
 import type { SitKind, SitSetup } from '../../core/meditate/setup';
-import { DEFAULT_ROOM, isColorChoice, isRoom, isWallStyle, type ColorChoice, type Room, type WallStyle } from '../../core/look/lamplight';
+import { DEFAULT_BACKGROUND, DEFAULT_ROOM, isBackground, isColorChoice, isRoom, isWallStyle, type BackgroundId, type ColorChoice, type Room, type WallStyle } from '../../core/look/lamplight';
 // Small per-device flags. Storage can be blocked (private mode), so every access is guarded.
 const ONBOARDED_KEY = 'proairetos.onboarded';
 
@@ -625,6 +625,8 @@ export type TextSize = (typeof TEXT_SIZES)[number];
 export type Appearance = {
   theme: 'system' | 'dark' | 'light';
   textSize: TextSize;
+  /** The selected Proairetos wallpaper; companion apps keep their own scenes. */
+  background: BackgroundId;
   /** A soft buzz when ticking something off, on phones that have one. */
   taps: boolean;
   /** Lamplight's room and color in Proairetos; each other app has its own room and lamp, from its content. */
@@ -643,6 +645,7 @@ export function loadAppearance(): Appearance {
     taps: true,
     dayLight: true,
     ...saved,
+    background: isBackground(saved.background) ? saved.background : DEFAULT_BACKGROUND,
     room: isRoom(saved.room) ? saved.room : DEFAULT_ROOM,
     color: isColorChoice(saved.color) ? saved.color : 'match',
     wallStyle: isWallStyle(saved.wallStyle) ? saved.wallStyle : 'paper',

@@ -1,4 +1,5 @@
 import { identityFor } from '../lamplight/identity';
+import { backgroundFootOf, backgroundOf } from './backgrounds';
 import type { Appearance } from '../data/storage/preferences';
 import { materialFootSvg, wallpaperStyleSvg, type WallLamp } from './wallpaper';
 import { SHADE_DARK, SHADE_LIGHT, mixHex, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
@@ -11,7 +12,7 @@ import { ALWAYS_DARK, familyVars } from '../lamplight/family';
 import { setBarMark } from '../lamplight/behaviors';
 import { familyMarkSvg, isFamilyApp } from './family/marks';
 
-export { DEFAULT_ROOM, LAMP_COLORS, ROOMS, WALL_STYLES, type ColorChoice, type LampColor, type Room, type WallStyle } from '../core/look/lamplight';
+export { BACKGROUND_OPTIONS, DEFAULT_BACKGROUND, DEFAULT_ROOM, LAMP_COLORS, ROOMS, WALL_STYLES, type BackgroundId, type ColorChoice, type LampColor, type Room, type WallStyle } from '../core/look/lamplight';
 
 /** Lamplight: a room (the wallpaper and the tint of every surface) and a color (the lamp), each in dark and light.
  *  The values are made from seeds by src/lamplight/scheme.ts; this lays them on the page. */
@@ -124,6 +125,13 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   const root = document.documentElement;
   const pieces = day && app === 'proairetos' ? dayPieces(appearance, s, day) : undefined;
   const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, pieces?.lamp, appearance.wallStyle) : familyVars(s, app)) };
+  if (app === 'proairetos' && appearance.background !== 'lamplight') {
+    const scene = backgroundOf(appearance.background, mode, s.page);
+    vars['--room-wall'] = scene;
+    vars['--room-wall-wide'] = scene;
+    vars['--room-foot'] = backgroundFootOf();
+    vars['--room-foot-wide'] = backgroundFootOf();
+  }
   if (app === 'proairetos') {
     if (pieces) root.style.setProperty('--room-shade', pieces.shade);
     else root.style.removeProperty('--room-shade');

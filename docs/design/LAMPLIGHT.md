@@ -102,6 +102,17 @@ blooms of the room's colors, the lamp as a warm glow toward the upper right (no 
 with light along their top edges and a soft shade beneath, and a fine grain so gradients never band. Today's foot is
 two folds in the same colors fading into the page, with no sun of their own.
 
+## Background scenes
+
+Settings › Appearance › Background offers twelve choices: Lamplight, Dawn, Twilight, Night, Forest, Mountains, Ocean,
+Lake, Desert, Stone, Aurora and Ember. The selection is stored in `proairetos.appearance.background`, alongside
+the existing appearance preference, so the current preference-sync path carries it between devices.
+
+Lamplight remains the original room wallpaper, including its day-light behavior and wall materials. The other eleven
+scenes are locally drawn SVGs with separate dark and light palettes; they fade into the selected room's page color.
+They make no image requests, use no animation, canvas, filters or backdrop blur, and are cached in memory. Content
+surfaces stay solid and opaque. Companion apps keep their own scene and color identity.
+
 ## The signature (1.6)
 
 One lamp, one direction, one lit thing (`src/lamplight/brand.css`, imported after `tonal.css`):
