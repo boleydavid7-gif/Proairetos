@@ -1,6 +1,6 @@
 import type { AppManifest } from '../apps/manifest';
-import { enforceHome, enforceSearch, mayProvideHome, mayProvideSearch, type Rejection } from './policy';
-import type { HomeRow, Provider, ProviderContext, SearchProjection } from './types';
+import { enforceHome, enforceSearch, mayProvideHome, mayProvideCalendar, enforceCalendar, mayProvideSearch, type Rejection } from './policy';
+import type { CalendarLine, HomeRow, Provider, ProviderContext, SearchProjection } from './types';
 
 /*
  * The one caller of providers. It checks that the app is added and usable, that the person has this capability on,
@@ -76,4 +76,39 @@ export async function homeRows(providers: readonly Provider<'home'>[], manifest:
     rejected.push(...cut.rejected);
   }
   return { rows, rejected, timings };
+}
+
+export type CalendarOutcome = { lines: CalendarLine[]; rejected: Rejection[]; timings: { app: string; ms: number; rows: number }[] };
+
+/**
+ * The lines the apps put on the calendar for a visible range. A provider runs only for an app that is added and usable
+ * and whose calendar the person has on, and only the lines of a calendar survive (`enforceCalendar`). The range is
+ * `ctx.range`; a provider expands what repeats inside it and nothing beyond.
+ */
+export async function calendarLines(providers: readonly Provider<'calendar'>[], manifest: readonly AppManifest[], ctx: HostContext): Promise<CalendarOutcome> {
+  const lines: CalendarLine[] = [];
+  const rejected: Rejection[] = [];
+  const timings: CalendarOutcome['timings'] = [];
+  for (const provider of providers) {
+    const app = manifest.find((each) => each.id === provider.app);
+    const refusal = mayProvideCalendar(app, provider);
+    if (refusal) {
+      rejected.push(refusal);
+      continue;
+    }
+    if (!ctx.isUsable(provider.app) || !ctx.enabled(provider.app, 'calendar')) continue;
+    const started = performance.now();
+    let output: CalendarLine[];
+    try {
+      output = await provider.read(ctx);
+    } catch (error) {
+      rejected.push({ app: provider.app, reason: `its provider could not read: ${error instanceof Error ? error.message : String(error)}` });
+      continue;
+    }
+    const cut = enforceCalendar(app!, output, ctx.range);
+    timings.push({ app: provider.app, ms: Math.round((performance.now() - started) * 100) / 100, rows: cut.kept.length });
+    lines.push(...cut.kept);
+    rejected.push(...cut.rejected);
+  }
+  return { lines, rejected, timings };
 }
