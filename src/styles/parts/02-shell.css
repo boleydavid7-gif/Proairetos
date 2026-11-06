@@ -8,25 +8,23 @@
     var(--color-bg);
 }
 
-/* Lamplight's room: its wallpaper fills the top of the first screen and fades into the page color halfway down,
-   above where Today's landscape begins. */
+/* Lamplight's room: its material stays legible deeper into the page, then eases into the page color without a hard fade band. */
 :root[data-room] .app-shell {
-  --room-height: 52lvh;
-  /* The picture ends two pixels before its fade: at a fractional height (52lvh) the browser drew the picture a row
-     taller than the fade over it, and that last row showed as a faint line across the middle of Today. */
+  --room-height: 58lvh;
+  /* Keep the image just short of the fade layer to prevent a fractional-pixel seam. */
   background:
     var(--room-shade, linear-gradient(transparent, transparent)),
-    linear-gradient(rgba(var(--color-bg-rgb), 0) 45%, var(--color-bg) 96%) top / 100% var(--room-height) no-repeat,
+    linear-gradient(rgba(var(--color-bg-rgb), 0) 62%, var(--color-bg) 100%) top / 100% var(--room-height) no-repeat,
     var(--room-wall) top / 100% calc(var(--room-height) - 2px) no-repeat,
     var(--color-bg);
 }
 
 @media (min-width: 62rem) {
   :root[data-room] .app-shell {
-    --room-height: 45lvh;
+    --room-height: 52lvh;
     background:
       var(--room-shade, linear-gradient(transparent, transparent)),
-      linear-gradient(rgba(var(--color-bg-rgb), 0) 50%, var(--color-bg) 96%) top / 100% var(--room-height) no-repeat,
+      linear-gradient(rgba(var(--color-bg-rgb), 0) 66%, var(--color-bg) 100%) top / 100% var(--room-height) no-repeat,
       var(--room-wall-wide) top / 100% calc(var(--room-height) - 2px) no-repeat,
       var(--color-bg);
   }
