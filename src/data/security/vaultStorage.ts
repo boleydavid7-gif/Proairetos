@@ -41,19 +41,28 @@ export function localStorageHeader(key = HEADER_KEY): HeaderStore & { exists(): 
 /** A small database of its own, so the main database and its version are not touched. */
 export function indexedDbHeader(factory?: IDBFactory, name = DB): HeaderStore {
   // Looked up when used, not when this is made: places with no IndexedDB (a test, a blocked browser) simply have no second copy.
-  const open = () =>
-    new Promise<IDBDatabase>((resolve, reject) => {
-      const where = factory ?? (typeof indexedDB === 'undefined' ? undefined : indexedDB);
-      if (!where) return reject(new Error('No IndexedDB here.'));
-      const request = where.open(name, 1);
-      request.onupgradeneeded = () => request.result.createObjectStore(STORE);
+  const where = () => factory ?? (typeof indexedDB === 'undefined' ? undefined : indexedDB);
+
+  /** Opens the database, making it only when `create` is true; otherwise a database that is not there stays not there. */
+  const open = (create: boolean) =>
+    new Promise<IDBDatabase | null>((resolve, reject) => {
+      const idb = where();
+      if (!idb) return reject(new Error('No IndexedDB here.'));
+      const request = idb.open(name);
+      request.onupgradeneeded = () => {
+        if (create) request.result.createObjectStore(STORE);
+        else request.transaction?.abort();
+      };
       request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
+      request.onerror = () => (create ? reject(request.error) : resolve(null));
     });
+
   return {
     async read() {
-      const db = await open();
+      const db = await open(false);
+      if (!db) return null;
       try {
+        if (!db.objectStoreNames.contains(STORE)) return null;
         return await new Promise<string | null>((resolve, reject) => {
           const request = db.transaction(STORE).objectStore(STORE).get('header');
           request.onsuccess = () => resolve((request.result as string | undefined) ?? null);
@@ -64,7 +73,8 @@ export function indexedDbHeader(factory?: IDBFactory, name = DB): HeaderStore {
       }
     },
     async write(text) {
-      const db = await open();
+      const db = await open(true);
+      if (!db) throw new Error('Could not open the vault copy.');
       try {
         await new Promise<void>((resolve, reject) => {
           const tx = db.transaction(STORE, 'readwrite');

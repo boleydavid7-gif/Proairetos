@@ -34,7 +34,7 @@ describe('every app opens behind the security gate', () => {
     expect(read('app/ErrorBoundary.tsx')).toMatch(/<SecurityGate>\{this\.props\.children\}<\/SecurityGate>/);
   });
 
-  it('the sync controller, which every app starts, starts the security service when a vault exists', () => {
-    expect(read('app/sync/syncController.ts')).toMatch(/vaultExistsHere\(\)\) void security\.start\(\)/);
+  it('the sync controller, which every app starts, starts the security service', () => {
+    expect(read('app/sync/syncController.ts')).toMatch(/void security\.start\(\)/);
   });
 });

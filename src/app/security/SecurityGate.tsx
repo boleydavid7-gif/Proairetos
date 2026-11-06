@@ -1,6 +1,6 @@
 import { useEffect, type ReactNode } from 'react';
 import LockedScreen from './LockedScreen';
-import { security, vaultExistsHere } from './securityService';
+import { security } from './securityService';
 import { useSecurity } from './useSecurity';
 
 const page = { display: 'grid', gap: 16, maxWidth: '28rem', margin: '18vh auto 0', padding: '0 24px', color: 'inherit' } as const;
@@ -13,7 +13,8 @@ const page = { display: 'grid', gap: 16, maxWidth: '28rem', margin: '18vh auto 0
 export default function SecurityGate({ children }: { children: ReactNode }) {
   const status = useSecurity();
   useEffect(() => {
-    if (vaultExistsHere()) void security.start();
+    // Always listening, so a vault made in another page reaches this one; reading what is stored makes nothing when there is none.
+    void security.start();
   }, []);
   if (status.phase === 'locked') return <LockedScreen />;
   if (status.phase === 'corrupt') {

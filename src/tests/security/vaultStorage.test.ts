@@ -94,4 +94,12 @@ describe('where the vault header is kept', () => {
     expect(await storage.load()).toMatchObject({ state: 'ok', header: made, repaired: true });
     expect(localStorage.getItem('proairetosVault')).toBe(JSON.stringify(made));
   });
+
+  it('reads with nothing stored without making anything: no database appears until a vault is saved', async () => {
+    const before = (await indexedDB.databases()).map((db) => db.name);
+    const storage = createVaultStorage(localStorageHeader('proairetosVaultTest'), indexedDbHeader(undefined, 'proairetos-vault-never-made'));
+    expect(await storage.load()).toEqual({ state: 'none' });
+    expect((await indexedDB.databases()).map((db) => db.name)).toEqual(before);
+    expect((await indexedDB.databases()).map((db) => db.name)).not.toContain('proairetos-vault-never-made');
+  });
 });

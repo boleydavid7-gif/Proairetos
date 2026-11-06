@@ -664,8 +664,8 @@ async function syncHere(): Promise<SyncResult | null> {
 export async function startSync(): Promise<void> {
   if (started) return;
   started = true;
-  // Where a vault exists, its state (locked or open) is known to every app from the start.
-  if (vaultExistsHere()) void security.start();
+  // Every app learns the vault's state (locked or open, or made in another page) from the start.
+  void security.start();
 
   // Apps served from the same origin share the Supabase session storage.
   // Refresh the local account/key state whenever another app changes that session.
