@@ -6,7 +6,7 @@ import { subscribePreferences } from '../../data/storage/preferences';
 import { subscribeAdded, isAdded } from '../family/added';
 import { onChangedCollections } from '../sync/syncController';
 import { hostContext, providerEnabled } from './context';
-import { libraryProvidersOn } from './libraryPath';
+import { libraryProvidersOn, providedLibraryApps } from './libraryPath';
 import { createLibraryStore } from './libraryStore';
 import { providerModules } from './registry';
 
@@ -42,4 +42,19 @@ export function useLibraryRecords(own: readonly LifeRecord[]): readonly LifeReco
   const on = libraryProvidersOn();
   const version = useSyncExternalStore(on ? libraryStore.subscribe : noSubscription, on ? libraryStore.version : () => 0);
   return useMemo(() => (on ? libraryStore.visible(own) : own), [on, version, own]);
+}
+
+/**
+ * What the Library page lists. `build` gathers the page's own records the way it always has; given a set of apps, it leaves those apps out
+ * (their entries come through their providers). With the device switch off nothing is left out and the list is exactly what `build` gives.
+ * On, the apps that provide `library` are left out of the page's own gathering, so no entry is listed twice, and their entries come from the
+ * store, an app that is not added and usable hidden together with the reflections written from its prompts. The store runs only while the
+ * page that uses this hook is shown, so nothing is derived while the Library is locked or left. `inputs` are what `build` reads.
+ */
+export function useLibrarySource(build: (skip: ReadonlySet<string> | undefined) => LifeRecord[], inputs: readonly unknown[]): readonly LifeRecord[] {
+  const on = libraryProvidersOn();
+  const skip = useMemo(() => (on ? new Set<string>(providedLibraryApps()) : undefined), [on]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const own = useMemo(() => build(skip), [skip, ...inputs]);
+  return useLibraryRecords(own);
 }

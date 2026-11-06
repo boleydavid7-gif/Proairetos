@@ -1,4 +1,4 @@
-import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
+import { buildLifeRecords, type LifeRecord, type LifeRecordInput } from '../../core/life-records';
 
 /*
  * The records the Library tests share (Slice 6): companion records in the stores the page reads, Proairetos's own records and the study
@@ -59,7 +59,7 @@ export const NATIVE = {
 };
 
 /** `study`: the raw study sessions (the baseline gives plain values; a test that takes them from the timer's blocks and events gives those). */
-export async function gather(skip: ReadonlySet<string> = new Set(), study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecord[]> {
+export async function gatherInput(study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecordInput> {
   const { readRuns } = await import('../../app/askesis/runs');
   const { readRecipes } = await import('../../app/soma/meals');
   const { combineReadingSessions } = await import('../../app/praxis/study');
@@ -68,7 +68,7 @@ export async function gather(skip: ReadonlySet<string> = new Set(), study: reado
   const { trips, journal } = await import('../../poreia/app/state');
   const { reflectMilestones } = await import('../../oikonomia/data/reflect');
   const runs = await readRuns();
-  return buildLifeRecords({
+  return {
     reflections: NATIVE.reflections as never,
     decisions: NATIVE.decisions as never,
     pursuits: NATIVE.pursuits as never,
@@ -85,7 +85,11 @@ export async function gather(skip: ReadonlySet<string> = new Set(), study: reado
     poreiaJournal: journal.list(),
     poreiaToday: TODAY,
     oikonomiaMilestones: reflectMilestones.list(),
-  }, skip);
+  };
+}
+
+export async function gather(skip: ReadonlySet<string> = new Set(), study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecord[]> {
+  return buildLifeRecords(await gatherInput(study), skip);
 }
 
 export const STATES = {

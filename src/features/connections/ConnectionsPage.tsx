@@ -16,6 +16,7 @@ import { libraryValueConnections, setLibraryValueConnection } from '../../app/li
 import { loadLibraryTimelineExpansion, saveLibraryTimelineExpansion } from '../../app/library/timeline';
 import { expireLibraryTrash, libraryTrash, moveToLibraryTrash, permanentlyRemoveFromLibraryTrash, restoreFromLibraryTrash, LIBRARY_TRASH_RETENTION_DAYS, type LibraryTrashEntry } from '../../app/library/trash';
 import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
+import { useLibrarySource } from '../../app/providers/library';
 import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, isLibraryTrashExpired, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
 import type { ChosenValue } from '../../core/values/types';
 import PageHero from '../../components/layout/PageHero';
@@ -118,7 +119,9 @@ export default function ConnectionsPage() {
   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
   const valueConnectionByRecord = useMemo(() => new Map(valueConnections.map((connection) => [connection.id, connection])), [valueConnections]);
-  const sourceRecords = useMemo(() => buildLifeRecords({
+  // The page's own gathering, which leaves out the apps that give their entries through providers when the device switch is on
+  // (off, by default: nothing is left out and this is exactly the list it has always been).
+  const sourceRecords = useLibrarySource((skip) => buildLifeRecords({
     reflections,
     decisions,
     pursuits: allPursuits,
@@ -135,7 +138,7 @@ export default function ConnectionsPage() {
     poreiaJournal: journal,
     poreiaToday: tripToday,
     oikonomiaMilestones: financialMilestones,
-  }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
+  }, skip), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
   const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
 
   const trashByRecord = useMemo(() => new Map(trashEntries.map((entry) => [entry.id, entry])), [trashEntries]);

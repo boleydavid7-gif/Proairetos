@@ -1,5 +1,6 @@
 import type { AppId, AppManifest } from '../../core/apps/manifest';
 import type { LifeRecord } from '../../core/life-records/contract';
+import { orderLifeRecords } from '../../core/life-records';
 import { libraryRecords, sourceChanged, visibleInLibrary, type HostContext, type Provider } from '../../core/providers';
 import { toLocalDate } from '../../core/scheduling/dates';
 
@@ -171,7 +172,7 @@ export function createLibraryStore(deps: LibraryDeps) {
      * `own` (what Proairetos itself lists, including reflections written from an app's prompt) and the apps' entries together, with
      * the entries of an app that is not added and usable left out. Nothing is changed or deleted; they return with the app.
      */
-    visible: (own: readonly LifeRecord[]) => visibleInLibrary([...own, ...all], (app) => deps.usable(app) && deps.enabled(app)),
+    visible: (own: readonly LifeRecord[]) => orderLifeRecords(visibleInLibrary([...own, ...all], (app) => deps.usable(app) && deps.enabled(app))),
     /** For a test or a measurement: waits until the store has caught up. */
     settled: async () => {
       schedule();
