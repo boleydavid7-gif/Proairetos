@@ -1,5 +1,6 @@
 import type { AppManifest } from '../apps/manifest';
-import { refKey, type CalendarLine, type HomeRow, type Provider, type SearchProjection } from './types';
+import { placeFor } from '../notify/place';
+import { refKey, type CalendarLine, type HomeRow, type NoticeLine, type Provider, type SearchProjection } from './types';
 
 /*
  * The enforcement. A provider is not trusted: whatever it returns is cut down to what the manifest allows for its app
@@ -158,6 +159,50 @@ export function enforceCalendar(app: AppManifest, lines: readonly CalendarLine[]
       const inside = line.start && line.end ? line.start < range.until && line.end > range.from : line.until ? line.day < untilDay && last > fromDay : line.day >= fromDay && line.day < untilDay;
       if (!inside) continue;
     }
+    kept.push(line);
+  }
+  return { kept, rejected };
+}
+
+/** Whether a provider's output may reach notices at all. */
+export function mayProvideNotices(app: AppManifest | undefined, provider: Provider<'notices'>): Rejection | null {
+  if (!app) return { app: provider.app, reason: 'not in the manifest' };
+  if (app.status === 'retired') return { app: app.id, reason: 'retired apps provide nothing' };
+  if (!app.provides?.includes('notices')) return { app: app.id, reason: 'the manifest does not list notices for this app' };
+  if (!app.notices.source || app.notices.kinds.length === 0) return { app: app.id, reason: 'it has no reminder source or notice kinds' };
+  if (!app.notices.fields) return { app: app.id, reason: 'its notice fields are not classified' };
+  // The person's own notices: private never leaves its app, and shared is not built.
+  if (provider.privacy === 'private' || provider.privacy === 'shared') return { app: app.id, reason: `class ${provider.privacy} is not available to notices` };
+  return null;
+}
+
+const NOTICE_KEYS = new Set(['ref', 'kind', 'key', 'at', 'title', 'body', 'open', 'also']);
+
+/**
+ * Cuts a provider's notices down to what a notice may be: the app's own, of a kind the manifest lists (which fixes the
+ * reminder source), with only the keys of a notice, a real time from the start of today to the end of the range asked for, a key no other notice has,
+ * and a way in that stays inside the app. The words are not shortened or reworded here (the sender caps their length).
+ */
+export function enforceNotices(app: AppManifest, lines: readonly NoticeLine[], range: { from: Date; until: Date }): { kept: NoticeLine[]; rejected: Rejection[] } {
+  const kept: NoticeLine[] = [];
+  const rejected: Rejection[] = [];
+  const seen = new Set<string>();
+  const no = (reason: string) => rejected.push({ app: app.id, reason });
+  // Earlier today still counts: a morning notice is carried to the end of quiet hours when the day has already begun.
+  const dayStart = new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate());
+  for (const line of lines) {
+    const extra = Object.keys(line).filter((key) => !NOTICE_KEYS.has(key));
+    if (extra.length) { no(`a notice with ${extra.join(', ')}, which a notice may not carry`); continue; }
+    if (line.ref?.app !== app.id) { no(`a notice about ${String(line.ref?.app)}`); continue; }
+    if (typeof line.kind !== 'string' || !app.notices.kinds.includes(line.kind)) { no(`a ${String(line.kind)} notice; the manifest lists ${app.notices.kinds.join(', ')}`); continue; }
+    if (typeof line.key !== 'string' || !line.key) { no('a notice with no key'); continue; }
+    if (!(line.at instanceof Date) || Number.isNaN(line.at.getTime())) { no(`a notice with no valid time (${line.key})`); continue; }
+    if (line.at < dayStart || line.at > range.until) { no(`a notice outside the range asked for (${line.key})`); continue; }
+    if (typeof line.title !== 'string' || !line.title || typeof line.body !== 'string') { no(`a notice whose words are not text (${line.key})`); continue; }
+    if (typeof line.open !== 'string' || line.open.includes('//') || placeFor(line.open).app !== app.urls.href) { no(`a notice that opens ${String(line.open)}, outside ${app.urls.href}`); continue; }
+    if (line.also !== undefined && (!Array.isArray(line.also) || line.also.length > 4 || line.also.some((earlier) => typeof earlier !== 'string' || !earlier || earlier === line.key))) { no(`earlier keys that are not up to four other keys (${line.key})`); continue; }
+    if (seen.has(line.key)) { no(`the same notice twice (${line.key})`); continue; }
+    seen.add(line.key);
     kept.push(line);
   }
   return { kept, rejected };

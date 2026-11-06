@@ -7,6 +7,7 @@ import { familyWorker } from './familyWorker';
 import { setHydrationSchedule, type HydrationSchedule } from './hydrationSchedule';
 import { appNameForOpen, iconForOpen } from '../../core/notify/sources';
 import { isNativeApp } from '../native/platform';
+import { remembers } from '../../core/notify/identity';
 
 /** The phone app's own notifications, loaded only inside it (the website never fetches this). */
 const native = () => import('../native/localReminders');
@@ -31,7 +32,8 @@ const LONGEST_WAIT = 60 * 60_000;
 /** How far back the app looks, on opening or waking, for a notice that came while it slept and was never shown. */
 const CATCH_UP = 30 * 60_000;
 
-export type StoredNotice = { key: string; at: string; title: string; body: string; open: string };
+/** What the worker reads from Cache Storage. `also` (earlier keys) stays on the device: it is not in the sealed words or the server's rows. */
+export type StoredNotice = { key: string; at: string; title: string; body: string; open: string; also?: string[] };
 
 const listeners = new Set<() => void>();
 let timer: number | undefined;
@@ -53,7 +55,7 @@ function notify(): void {
 async function store(notices: readonly Notice[], details: boolean): Promise<void> {
   const stored: StoredNotice[] = notices.map((notice) => {
     const shown = details ? notice : privateNotice(notice);
-    return { key: notice.key, at: notice.at.toISOString(), title: shown.title, body: shown.body, open: notice.open };
+    return { key: notice.key, at: notice.at.toISOString(), title: shown.title, body: shown.body, open: notice.open, ...(notice.also?.length ? { also: [...notice.also] } : {}) };
   });
   try {
     const cache = await caches.open(CACHE);
@@ -122,7 +124,7 @@ async function catchUp(find: (now: Date, settings: NoticeSettings) => Promise<No
   const missed = (await find(since, loadNotify())).filter((notice) => notice.at.getTime() < now - 1000);
   if (missed.length === 0) return;
   const done = new Set(await shownKeys());
-  for (const notice of missed) if (!done.has(notice.key)) await show(notice, details).catch(() => undefined);
+  for (const notice of missed) if (!remembers(done, notice)) await show(notice, details).catch(() => undefined);
 }
 
 /** Waits for the next notice while the app is open, shows it, and waits again. */

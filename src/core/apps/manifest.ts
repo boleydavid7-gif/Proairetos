@@ -58,6 +58,11 @@ export type AppManifest = {
     pushIcon?: string;
     /** Proairetos writes this source too, when it holds the app's data. */
     mainWrites: boolean;
+    /**
+     * What a notice from this app may state (`shows`), may state only when the person has chosen details on the lock
+     * screen (`detailsOnly`), and never does (`excludes`). Present for an app that provides `notices`.
+     */
+    fields?: { shows: readonly string[]; detailsOnly: readonly string[]; excludes: readonly string[] };
   };
   today?: { group?: 'practice' | 'attention'; order?: number; parts: readonly string[] };
   /**
@@ -112,7 +117,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/askesis/', scope: '/askesis/', entry: 'askesis/index.html' },
     data: { backupPrefix: 'askesis:', syncKnown: true },
-    notices: { source: 'askesis', kinds: ['run'], switches: [{ key: 'runs', label: 'Run days' }, { key: 'runMilestones', label: 'Milestones' }], page: 1, mainWrites: true },
+    notices: { source: 'askesis', kinds: ['run'], switches: [{ key: 'runs', label: 'Run days' }, { key: 'runMilestones', label: 'Milestones' }], page: 1, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['the session\u2019s name and length', '“Run day” for next week', 'the place the runner gave'], excludes: ['heart rate', 'distance by GPS', 'the log and its notes', 'shoes', 'Strava', 'health data brought in', 'the reason for the plan', 'the if-then plan', 'the aim in the runner\u2019s words', 'how a run felt'] } },
     today: { group: 'practice', order: 2, parts: ['askesis'] },
     declares: { reads: ['the schedule', 'the weather place', 'health data the person brought in'], writes: ['a Compass goal and protected time, when asked', 'a line in Reflect, when asked'] },
     details: {
@@ -121,7 +126,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['workout title', 'workout notes', 'went well', 'next time', 'intention'], excludes: ['heart rate', 'health data brought in', 'distance by GPS'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'notices'],
     home: { shows: ['today\u2019s session title and length', 'the run done today, with its distance and time', 'whether a plan exists'], excludes: ['heart rate', 'notes', 'the log', 'health data brought in', 'distance by GPS'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -185,10 +190,10 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/oikonomia/', scope: '/oikonomia/', entry: 'oikonomia/index.html' },
     data: { backupPrefix: 'oikonomia:', syncKnown: true },
-    notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true },
+    notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a bill\u2019s name', 'when it is due', 'paid automatically'], excludes: ['amounts', 'account and card numbers', 'notes', 'categories', 'balances', 'pay', 'statements', 'the monthly plan and envelopes', 'payment history'] } },
     today: { group: 'attention', order: 3, parts: ['bills', 'bill-dates'] },
     search: { privacy: 'own-search', indexes: ['bill name', 'due date', 'paid status'], excludes: ['bill amounts', 'amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
-    provides: ['search', 'home', 'calendar'],
+    provides: ['search', 'home', 'calendar', 'notices'],
     home: { shows: ['bill names', 'the first due date'], excludes: ['bill amounts', 'account numbers', 'balances', 'notes', 'payment history'] },
     calendar: { shows: ['a bill’s name and each due date', 'whether a payment is recorded for that date'], excludes: ['amounts and currency', 'payments and their amounts', 'accounts and balances', 'notes', 'bill types'], kinds: ['deadline'] },
     details: {
@@ -210,7 +215,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/poreia/', scope: '/poreia/', entry: 'poreia/index.html' },
     data: { backupPrefix: 'poreia:', syncKnown: true },
-    notices: { source: 'poreia', kinds: ['trip'], switches: [{ key: 'trips', label: 'Bookings and plans' }], page: 11, genericTap: true, pushIcon: '/poreia/icon.svg', mainWrites: true },
+    notices: { source: 'poreia', kinds: ['trip'], switches: [{ key: 'trips', label: 'Bookings and plans' }], page: 11, genericTap: true, pushIcon: '/poreia/icon.svg', mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a booking\u2019s title', 'a stay, car or ticket time', 'a plan\u2019s title and place', 'a trip\u2019s name', 'the first thing of the day', 'what is left to pack'], excludes: ['confirmation codes', 'addresses', 'where a trip leaves from', 'documents and numbers', 'loyalty numbers', 'spending and budget', 'time off', 'forwarded email', 'notes', 'travelers'] } },
     today: { group: 'attention', order: 6, parts: ['trips'] },
     details: {
       adds: 'Trips show on Today and plans with a time show in Days ahead. Approved time off clears those days from your schedule.',
@@ -218,7 +223,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['trip name', 'place', 'trip notes', 'booking name', 'booking provider', 'booking place', 'booking notes', 'plan title', 'plan place', 'plan note'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
-    provides: ['search', 'home', 'calendar'],
+    provides: ['search', 'home', 'calendar', 'notices'],
     home: { shows: ['trip name and where it stands', 'the next thing on it', 'how many things are left to pack'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes'] },
     calendar: { shows: ['a trip and time off as spans of days', 'a booking or plan with a time, by title, time and place'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes', 'booking providers'], kinds: ['event', 'info'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
@@ -275,7 +280,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/diaita/', scope: '/diaita/', entry: 'diaita/index.html' },
     data: { backupPrefix: 'diaita:', syncKnown: true },
-    notices: { source: 'diaita', kinds: ['rhythm'], switches: [{ key: 'rhythm', label: 'Sleep and naps' }], page: 4, genericTap: true, mainWrites: true },
+    notices: { source: 'diaita', kinds: ['rhythm'], switches: [{ key: 'rhythm', label: 'Sleep and naps' }], page: 4, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['planned bedtime and nap end times', 'the name of the reminder (wind down, worry time, nap, morning daylight, last caffeine)'], excludes: ['sleep log', 'check-in answers', 'worry text', 'light and meal advice', 'sleep sources', 'sleep adjustments', 'experiments'] } },
     today: { group: 'practice', order: 4, parts: ['diaita'] },
     details: {
       adds: 'Today shows your sleep record, and Proairetos adjusts its lighting through the day to match your waking hours.',
@@ -283,7 +288,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['sleep and naps', 'check-ins', 'worries'] },
-    provides: ['home'],
+    provides: ['home', 'notices'],
     home: { shows: ['whether sleep tracking is set up', 'hours slept last night'], excludes: ['how it was', 'notes', 'signs the person recorded', 'bed and wake times'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -299,7 +304,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/philia/', scope: '/philia/', entry: 'philia/index.html' },
     data: { backupPrefix: 'philia:', syncKnown: true },
-    notices: { source: 'philia', kinds: ['person'], switches: [{ key: 'people', label: 'Birthdays and keeping in touch' }], page: 5, genericTap: true, mainWrites: true },
+    notices: { source: 'philia', kinds: ['person'], switches: [{ key: 'people', label: 'Birthdays and keeping in touch' }], page: 5, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a person’s name', 'a date’s label', 'the age turned', 'days since last in touch'], excludes: ['remember lines', 'gift ideas', 'who they are', 'phone', 'email', 'photos', 'times together', 'notes'] } },
     today: { group: 'attention', order: 4, parts: ['birthdays', 'birthday-dates'] },
     details: {
       adds: 'Birthdays in the next week show on Today and dates show in Days ahead. You can import people from Compass.',
@@ -307,7 +312,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['person name', 'relation', 'remember lines', 'gift ideas', 'times together'], excludes: ['phone number', 'email address', 'birthdays and dates'] },
-    provides: ['search', 'home', 'calendar'],
+    provides: ['search', 'home', 'calendar', 'notices'],
     home: { shows: ['who it is for and what it is', 'when it comes'], excludes: ['phone number', 'email address', 'notes and gift ideas', 'dates beyond the next week'] },
     calendar: { shows: ['a birthday or other date, by name and label', 'a one-time event with a time, by label and name'], excludes: ['phone numbers and email', 'notes', 'gift ideas', 'times together', 'ages'], kinds: ['event', 'recurring', 'info'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
@@ -324,7 +329,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/ergon/', scope: '/ergon/', entry: 'ergon/index.html' },
     data: { backupPrefix: 'ergon:', syncKnown: true },
-    notices: { source: 'ergon', kinds: ['chore'], switches: [{ key: 'chores', label: 'Chores' }], page: 6, genericTap: true, mainWrites: true },
+    notices: { source: 'ergon', kinds: ['chore'], switches: [{ key: 'chores', label: 'Chores' }], page: 6, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['chore names', 'a count of chores'], excludes: ['rooms', 'steps', 'notes', 'who a chore is assigned to', 'household member ids'] } },
     today: { group: 'attention', order: 1, parts: ['chores'] },
     declares: { reads: ['the schedule (days off)', 'the household’s members'], writes: ['a to-do in Proairetos, when asked'] },
     details: {
@@ -333,7 +338,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['chore name', 'room'], excludes: ['chore note', 'who it is assigned to', 'steps'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'notices'],
     home: { shows: ['chore name', 'since when', 'who has it'], excludes: ['notes', 'steps', 'history', 'the rest of the household'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -349,7 +354,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/therapeia/', scope: '/therapeia/', entry: 'therapeia/index.html' },
     data: { backupPrefix: 'therapeia:', syncKnown: true },
-    notices: { source: 'therapeia', kinds: ['dose', 'care'], switches: [{ key: 'medicines', label: 'Medicines and visits' }], page: 7, genericTap: true, mainWrites: true },
+    notices: { source: 'therapeia', kinds: ['dose', 'care'], switches: [{ key: 'medicines', label: 'Medicines and visits' }], page: 7, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a medicine\u2019s name, only when names are chosen', 'who the visit is with and where, only when names are chosen', 'whose medicine or visit it is', 'days of supply left'], excludes: ['dose amounts','visit notes and questions', 'medicine notes', 'readings', 'the health card (allergies, conditions, contacts)', 'how a dose is taken'] } },
     today: { group: 'attention', order: 8, parts: ['medicines'] },
     details: {
       adds: 'Doses and visits you haven’t marked show on Today.',
@@ -357,7 +362,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['medicine name', 'visit contact', 'visit place'], excludes: ['medication doses', 'medicine notes', 'visit notes', 'questions for the doctor', 'health card', 'readings'] },
-    provides: ['search', 'home', 'calendar'],
+    provides: ['search', 'home', 'calendar', 'notices'],
     home: { shows: ['medicine name', 'dose time', 'refill day', 'visit contact, time and place'], excludes: ['dose amounts', 'medicine and visit notes', 'questions for the doctor', 'readings', 'the health card', 'supply counts'] },
     calendar: { shows: ['visit contact, time and place', 'who the visit is for'], excludes: ['visit notes', 'questions for the doctor', 'medicines and doses', 'readings', 'the health card'], kinds: ['event'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
@@ -374,7 +379,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/dynamis/', scope: '/dynamis/', entry: 'dynamis/index.html' },
     data: { backupPrefix: 'dynamis:', syncKnown: true },
-    notices: { source: 'dynamis', kinds: ['training'], switches: [{ key: 'training', label: 'Training days' }, { key: 'strengthMilestones', label: 'Milestones' }], page: 8, genericTap: true, mainWrites: true },
+    notices: { source: 'dynamis', kinds: ['training'], switches: [{ key: 'training', label: 'Training days' }, { key: 'strengthMilestones', label: 'Milestones' }], page: 8, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['the session\u2019s name', 'that it is a training day'], excludes: ['lifts, weights, reps and sets', 'notes', 'how a session felt', 'mobility records', 'places and equipment', 'progress and records'] } },
     today: { group: 'practice', order: 3, parts: ['training'] },
     details: {
       adds: 'Today shows the session planned for the day.',
@@ -382,7 +387,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['session title', 'session note'], excludes: ['weights and reps', 'heart rate'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'notices'],
     home: { shows: ['whether strength training is set up', 'today\u2019s session name or that it is done or a rest day'], excludes: ['weights and reps', 'notes', 'heart rate', 'the log'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -398,7 +403,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/ktema/', scope: '/ktema/', entry: 'ktema/index.html' },
     data: { backupPrefix: 'ktema:', syncKnown: true },
-    notices: { source: 'ktema', kinds: ['upkeep'], switches: [{ key: 'upkeep', label: 'Upkeep and warranties' }], page: 9, genericTap: true, mainWrites: true },
+    notices: { source: 'ktema', kinds: ['upkeep'], switches: [{ key: 'upkeep', label: 'Upkeep and warranties' }], page: 9, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['thing and upkeep names', 'the month a warranty ends'], excludes: ['serial numbers', 'price', 'store', 'notes', 'manual links', 'odometer readings', 'photos and files', 'insurance values'] } },
     today: { group: 'attention', order: 2, parts: ['upkeep', 'ktema-dates'] },
     details: {
       adds: 'Upkeep that is due shows on Today. Warranty end dates and upkeep dates show on their day in Days ahead.',
@@ -406,7 +411,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
-    provides: ['search', 'home', 'calendar'],
+    provides: ['search', 'home', 'calendar', 'notices'],
     home: { shows: ['upkeep name', 'the thing it is for', 'since when'], excludes: ['serial numbers', 'prices', 'warranty details', 'notes', 'photos and files'] },
     calendar: { shows: ['a warranty or document end, by name', 'an upkeep and the thing it is for, on the day it is next due'], excludes: ['serial numbers', 'prices and stores', 'manual links', 'notes', 'odometer readings', 'photos and files'], kinds: ['deadline'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
@@ -423,7 +428,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/phyton/', scope: '/phyton/', entry: 'phyton/index.html' },
     data: { backupPrefix: 'phyton:', syncKnown: true },
-    notices: { source: 'phyton', kinds: ['plant'], switches: [{ key: 'plants', label: 'Plants to check' }], page: 10, genericTap: true, mainWrites: true },
+    notices: { source: 'phyton', kinds: ['plant'], switches: [{ key: 'plants', label: 'Plants to check' }], page: 10, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['plant names', 'a count of plants', 'frost tonight and its low', 'the day someone is back home'], excludes: ['photos', 'care journal text (pruned, pests, notes)', 'the weather place and coordinates', 'rain and forecast figures beyond frost tonight', 'away dates beyond the back-home line'] } },
     today: { group: 'attention', order: 5, parts: ['plants'] },
     details: {
       adds: 'Plants that need checking show on Today.',
@@ -431,7 +436,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['plant names', 'plant types', 'places', 'notes', 'photos'] },
-    provides: ['home'],
+    provides: ['home', 'notices'],
     home: { shows: ['plant name', 'since when'], excludes: ['notes', 'places', 'photos', 'care history'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
@@ -469,7 +474,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/melete/', scope: '/melete/', entry: 'melete/index.html' },
     data: { backupPrefix: 'melete:', syncKnown: true },
-    notices: { source: 'melete', kinds: ['melete'], switches: [{ key: 'melete', label: 'Study sessions and dates' }], page: 12, genericTap: true, mainWrites: true },
+    notices: { source: 'melete', kinds: ['melete'], switches: [{ key: 'melete', label: 'Study sessions and dates' }], page: 12, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a subject’s name', 'a session’s length', 'the label of an exam or due date'], excludes: ['materials and links', 'if-then lines', 'hour estimates', 'rhythm', 'notes'] } },
     today: { group: 'practice', order: 6, parts: ['study-dates'] },
     declares: { reads: ['the schedule', 'the sleep plan (Diaita)', 'other calendars', 'training days (Askesis, Dynamis)'], writes: ['a line in Reflect, when asked'] },
     details: {
@@ -478,7 +483,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['subject names', 'dates', 'materials', 'if-then lines'] },
-    provides: ['home', 'calendar'],
+    provides: ['home', 'calendar', 'notices'],
     home: { shows: ['minutes studied today or the next session', 'the nearest date within a week, by subject name and title'], excludes: ['materials', 'if-then lines', 'hours estimates', 'the rest of the week'] },
     calendar: { shows: ['study sessions, by subject name and time', 'exam, due and other dates, by subject name and title'], excludes: ['materials', 'if-then lines', 'hour estimates', 'rhythm'], kinds: ['event', 'deadline'] },
     surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },

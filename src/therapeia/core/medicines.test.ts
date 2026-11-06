@@ -122,14 +122,21 @@ describe('notices', () => {
     expect(plain.map((notice) => notice.title)).toEqual(['2 medicines', '2 medicines']);
     const named = careNotices([marked, two], [], { ...defaultCareNotices, names: true }, now, until);
     expect(named.map((notice) => notice.title)).toEqual(['2 medicines', 'Vitamin D']);
-    expect(named[0].body).toBe('Sertraline, 50 mg · Vitamin D');
+    // The names show; the amount never does. The key still holds it, so the tag and the server row stay as they were.
+    expect(named[0].body).toBe('Sertraline · Vitamin D');
+    expect(named[0].key).toContain('Sertraline, 50 mg');
   });
 
   it('reminds before an appointment', () => {
     const notices = careNotices([], [{ id: 'a1', with: 'Dr Patel', at: '2026-10-07T10:30', where: 'Health center', questions: [], createdAt: '' }], defaultCareNotices, atTime('2026-10-07', '06:00'), atTime('2026-10-08', '06:00'));
     expect(notices).toHaveLength(1);
     expect(clock(notices[0].at)).toBe('08:30');
-    expect(notices[0].body).toMatch(/Health center/);
+    // Without names a visit says only that it is a visit and when; with names it says who with and where.
+    expect(notices[0].title).toBe('A visit');
+    expect(notices[0].body).not.toMatch(/Health center|Patel/);
+    const named = careNotices([], [{ id: 'a1', with: 'Dr Patel', at: '2026-10-07T10:30', where: 'Health center', questions: [], createdAt: '' }], { ...defaultCareNotices, names: true }, atTime('2026-10-07', '06:00'), atTime('2026-10-08', '06:00'));
+    expect(named[0].title).toBe('Dr Patel');
+    expect(named[0].body).toMatch(/Health center/);
   });
 });
 
@@ -161,7 +168,7 @@ describe('medicines for someone else', () => {
 
   it('names whose dose it is, with or without medicine names', () => {
     const named = careNotices([base(), mia], [], { ...defaultCareNotices, names: true }, now, until);
-    expect(named.map((notice) => notice.title)).toEqual(['Sertraline, 50 mg', 'Mia: Amoxicillin, 5 ml']);
+    expect(named.map((notice) => notice.title)).toEqual(['Sertraline', 'Mia: Amoxicillin']);
     const plain = careNotices([base(), mia], [], defaultCareNotices, now, until);
     expect(plain.map((notice) => notice.title)).toEqual(['A medicine', 'A medicine for Mia']);
   });

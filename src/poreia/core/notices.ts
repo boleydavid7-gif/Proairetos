@@ -7,6 +7,9 @@ import { daysOf, entryTitle, type Booking, type PackItem, type PlanItem, type Tr
  * check-in a day ahead, check-in and check-out at a stay, a car's pick-up and return, timed tickets and the person's own
  * timed plans, and an evening line the day before a trip with its first thing and what is left to pack. Times are the
  * phone's local time, which is the place's own time once the phone has moved there.
+ *
+ * A reminder says what and when. It never carries a confirmation code, a stay's address or where a trip leaves from: those stay in
+ * the booking, whatever the lock screen shows.
  */
 
 export type TripNoticeChoices = {
@@ -56,11 +59,10 @@ export function tripNotices(
   for (const booking of bookings) {
     if (!trips.some((trip) => trip.id === booking.tripId)) continue;
     const open = `poreia:booked:${booking.id}`;
-    const code = booking.confirmation ? `Confirmation ${booking.confirmation}` : undefined;
     if (booking.startDate && booking.startTime) {
       const leaves = atTime(booking.startDate, booking.startTime);
       if (TRAVEL.has(booking.kind)) {
-        add({ key: `poreia:leave:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.travelLead), title: booking.title, body: words(`Leaves ${clock(booking.startTime)}`, booking.from && `from ${booking.from}`, code), open });
+        add({ key: `poreia:leave:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.travelLead), title: booking.title, body: words(`Leaves ${clock(booking.startTime)}`), open });
         // Leave for the airport: the flight's time, less the time to be there early and the time to get there from home.
         const early = choices.atAirport ?? defaultTripNotices.atAirport!;
         const trip = trips.find((each) => each.id === booking.tripId);
@@ -70,14 +72,14 @@ export function tripNotices(
           add({ key: `poreia:go:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: go, title: 'Leave for the airport', body: words(booking.title, `Flight ${clock(booking.startTime)}`, `about ${choices.toAirport.minutes} min to get there`), open });
         }
         if (booking.kind === 'flight' && choices.checkIn) {
-          add({ key: `poreia:checkin:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, 24 * 60), title: booking.title, body: words('Check-in usually opens now', code), open });
+          add({ key: `poreia:checkin:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, 24 * 60), title: booking.title, body: words('Check-in usually opens now'), open });
         }
       } else {
         const what = booking.kind === 'stay' ? `Check-in from ${clock(booking.startTime)}` : booking.kind === 'car' ? `Pick-up at ${clock(booking.startTime)}` : `At ${clock(booking.startTime)}`;
-        add({ key: `poreia:start:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.otherLead), title: booking.title, body: words(what, booking.address, code), open });
+        add({ key: `poreia:start:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.otherLead), title: booking.title, body: words(what), open });
       }
     } else if (booking.startDate && booking.kind === 'stay') {
-      add({ key: `poreia:start:${booking.id}:${booking.startDate}`, kind: 'trip', at: atTime(booking.startDate, MORNING), title: booking.title, body: words('Check-in today', booking.address, code), open });
+      add({ key: `poreia:start:${booking.id}:${booking.startDate}`, kind: 'trip', at: atTime(booking.startDate, MORNING), title: booking.title, body: words('Check-in today'), open });
     }
     if ((booking.kind === 'stay' || booking.kind === 'car') && booking.endDate && booking.endDate !== booking.startDate) {
       const what = booking.kind === 'stay' ? 'Check-out' : 'Return';

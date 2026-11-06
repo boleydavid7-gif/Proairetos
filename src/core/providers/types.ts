@@ -88,13 +88,43 @@ export type HomeRow = {
   notForMe?: string;
 };
 
+/**
+ * One notice an app puts forward: when it is shown and the words it says. It is the same moment the app's own notice
+ * function gives today, with the same key (which is also the notification's tag and the server row's identity), and it
+ * carries nothing else: no note, amount, code, address, reading or other field the manifest does not list.
+ */
+export type NoticeLine = {
+  /** The record or day it is about. For audit and duplicate checks; never shown. */
+  ref: RecordRef;
+  /** One of the app's manifest `notices.kinds`. */
+  kind: string;
+  /** Stable for this reminder at this time. */
+  key: string;
+  at: Date;
+  title: string;
+  body: string;
+  /** Earlier keys of this same notice while its key is being changed. Kept on the device only. */
+  also?: readonly string[];
+  /** Where a tap opens, in the form notices use (`app:record` or the app's bare name), which `placeFor` resolves to a page inside the owning app. */
+  open: string;
+};
+
 export type OutputOf<C extends Capability> = C extends 'search'
   ? SearchProjection[]
   : C extends 'calendar'
     ? CalendarLine[]
     : C extends 'home'
       ? HomeRow[]
-      : unknown[];
+      : C extends 'notices'
+        ? NoticeLine[]
+        : unknown[];
+
+/**
+ * A stretch of the person's committed or protected time, for a notice that follows the day (sleep, waking, work days).
+ * Only when it starts and ends and what kind it is. `label` is the name of a shift in the person's own schedule and is never
+ * set for an event from another calendar, whose title and details do not reach a provider.
+ */
+export type NoticeBlock = { start: Date; end: Date; kind: import('../scheduling/types').ScheduleKind; label?: string };
 
 /** What a provider may read: its own records, through the device's stores. */
 export type ProviderContext = {
@@ -113,6 +143,8 @@ export type ProviderContext = {
   daySettings?(): import('../rhythm/personalDay').DaySettings;
   /** Calendar: the visible range, `until` exclusive. A provider expands repeats only inside it. */
   range?: { from: Date; until: Date };
+  /** Notices: the person's schedule and counting calendars between two times, as `NoticeBlock`s. */
+  blocks?(from: Date, until: Date): Promise<NoticeBlock[]>;
 };
 
 export type Provider<C extends Capability = Capability> = {
