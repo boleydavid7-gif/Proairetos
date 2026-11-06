@@ -18,7 +18,7 @@ mkdirSync(OUT, { recursive: true });
 const stamp = '2026-11-01T09:00:00.000Z';
 
 /** The home seed, plus what only the calendar shows: a dinner at a time, an anniversary, a warranty end, a paid bill, a booking at a time, a visit for someone else. */
-async function seed(page) {
+export async function seed(page) {
   await seedHome(page);
   await page.evaluate(([stamp]) => {
     const put = (key, value) => localStorage.setItem(key, JSON.stringify(value));
