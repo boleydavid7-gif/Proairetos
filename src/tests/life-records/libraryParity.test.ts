@@ -18,7 +18,7 @@ import { createLifeRecord } from '../../core/life-records';
  * source (`gather()`); the new way leaves those apps out of it (the skip list) and takes their entries from their providers, through the
  * host, with the Store's real availability. The two must list the same entries, field for field, in the same order, with nothing twice.
  */
-const MOVED = ['askesis', 'dynamis', 'mneme', 'soma', 'theoria'];
+const MOVED = ['askesis', 'dynamis', 'mneme', 'oikonomia', 'poreia', 'soma', 'theoria'];
 const now = new Date('2026-11-05T12:00:00');
 
 async function providers(): Promise<Provider<'library'>[]> {
@@ -172,5 +172,41 @@ describe('Mneme’s notes and ideas', () => {
     expect(JSON.stringify(own)).toBe(frozen);
     STATES['every app added (the owner)']();
     expect(libraryStore.visible(own).map((record) => record.key)).toEqual(['reflection:rm', 'reflection:rt']);
+  });
+});
+
+describe('Poreia’s trips and journal', () => {
+  it('are only completed trips and their journal: not an upcoming trip, its journal, a booking, a code or an address', async () => {
+    const { given } = await viaProviders();
+    const poreia = given.records.filter((record) => record.sourceApp === 'poreia');
+    expect(poreia.map((record) => record.key).sort()).toEqual(['poreia:trip:j1:journal', 'poreia:trip:r1']);
+    expect(poreia.map((record) => [record.title, record.detail])).toEqual(expect.arrayContaining([['Lisbon', 'Lisbon, Portugal · 2026-09-10 – 2026-09-16'], ['Tram 28', 'Lisbon · Memory · Alfama']]));
+    expect(JSON.stringify(poreia)).not.toMatch(/Porto|upcoming|TP 237|CANARY/);
+  });
+  it('keep their dates and the day a trip becomes completed, which is the person’s day', async () => {
+    const { given } = await viaProviders();
+    expect(given.records.find((record) => record.key === 'poreia:trip:r1')!.at).toBe('2026-09-16T12:00:00');
+    const later = await libraryRecords(await providers(), APPS, { ...hostContext(new Date('2026-12-20T12:00:00')), today: '2026-12-20' });
+    expect(later.records.filter((record) => record.sourceApp === 'poreia').map((record) => record.key).sort()).toEqual(['poreia:trip:j1:journal', 'poreia:trip:j2:journal', 'poreia:trip:r1', 'poreia:trip:r2']);
+  });
+});
+
+describe('Oikonomia’s milestones', () => {
+  it('are only the ones the person chose for Reflect, with the words they wrote and nothing about money', async () => {
+    const { given } = await viaProviders();
+    const milestones = given.records.filter((record) => record.sourceApp === 'oikonomia');
+    expect(milestones.map((record) => [record.key, record.title, record.body, record.at])).toEqual([['oikonomia:financial:m1', 'Paid off the card', 'Wrote this down for myself.', '2026-10-30T12:00:00']]);
+    expect(JSON.stringify(milestones)).not.toMatch(/unselected|CANARY/);
+  });
+  it('read no financial record: bills in the database are not touched, and a bill’s amount cannot reach an entry', async () => {
+    const { deviceDatabase } = await import('../../app/services');
+    const db = (await deviceDatabase)!;
+    await new Promise<void>((resolve, reject) => {
+      const request = db.transaction('oikonomiaBills', 'readwrite').objectStore('oikonomiaBills').put({ id: 'b1', name: 'CANARY-Rent', amountCents: 987654, currency: 'USD', dueDate: '2026-11-05', frequency: 'monthly', autopay: false, reminderDays: 3, notes: 'CANARY-note', payments: [], createdAt: '', updatedAt: '' });
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+    const { given } = await viaProviders();
+    expect(JSON.stringify(given.records)).not.toMatch(/CANARY|9876|Rent/);
   });
 });
