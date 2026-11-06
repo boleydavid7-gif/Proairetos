@@ -136,7 +136,7 @@ function sceneShapes(id: SceneId, p: Palette): string {
 
 const cache = new Map<string, string>();
 
-/** A quiet, locally drawn scene. No network request, animation, filter or runtime image decoding. */
+/** A quiet, locally drawn scene. No remote request, animation, canvas, filter or external image asset. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
