@@ -21,12 +21,12 @@ function AppsSheet({ onClose, onStore }: { onClose: () => void; onStore: () => v
   const pinned = usePinnedApps();
   const apps = familyApps.filter((app) => added.includes(app.id as never));
   return (
-    <dialog ref={dialog} className="sheet sheet--top" aria-label="Your apps" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
+    <dialog ref={dialog} className="sheet sheet--top" aria-label="Manage dock" onClose={onClose} onClick={(event) => event.target === dialog.current && close()}>
       <div ref={panel} className="sheet__panel">
         <button type="button" className="sheet__close" onClick={close}>
           Close
         </button>
-        <p className="sheet__title sheet__title--static">All apps</p>
+        <p className="sheet__title sheet__title--static">Manage dock</p>
         <ul className="apps-grid">
           {apps.map((app) => (
             <li key={app.id} className="apps-grid__managed">
@@ -35,7 +35,7 @@ function AppsSheet({ onClose, onStore }: { onClose: () => void; onStore: () => v
                 <span>{app.name}</span>
               </a>
               <button type="button" className="text-link apps-grid__pin" onClick={() => (pinned.includes(app.id as never) ? unpinApp(app.id as never) : pinApp(app.id as never))}>
-                {pinned.includes(app.id as never) ? 'Unpin' : 'Pin'}
+                {pinned.includes(app.id as never) ? 'Remove from dock' : 'Add to dock'}
               </button>
             </li>
           ))}
@@ -80,9 +80,9 @@ export function AllAppsTrigger({ onStore = () => window.location.assign('/?open=
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className={`tab-bar__item tab-bar__apps-trigger${desktopOnly ? ' tab-bar__desktop-only' : ''}`} data-to-header="" aria-label="Apps" title="All apps" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
-        <AppsIcon size={24} />
-        <span>All apps</span>
+      <button type="button" className={`tab-bar__item tab-bar__apps-trigger${desktopOnly ? ' tab-bar__desktop-only' : ''}`} data-to-header="" aria-label="Manage dock" title="Manage dock" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        <Sym name="plus" size={24} />
+        <span>Manage dock</span>
       </button>
       {open && <AppsSheet onClose={() => setOpen(false)} onStore={onStore} />}
     </>
