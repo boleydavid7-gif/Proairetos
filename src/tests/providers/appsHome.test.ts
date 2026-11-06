@@ -240,18 +240,27 @@ describe('Phyton on Today', () => {
 });
 
 describe('Therapeia on Today', () => {
-  const medicine = (id: string, name: string, extra: Record<string, unknown> = {}) => ({ id, name, dose: '50 mg', note: 'CANARY-MEDNOTE', times: [{ kind: 'clock', at: '20:00' }], days: { kind: 'daily' }, start: '2026-10-01', taken: [], createdAt: day, ...extra });
+  const medicine = (id: string, name: string, extra: Record<string, unknown> = {}) => ({ id, name, dose: 'CANARY-DOSE 50 mg', strength: 'CANARY-DOSE-STRENGTH', amount: 'CANARY-DOSE-AMOUNT', note: 'CANARY-MEDNOTE', times: [{ kind: 'clock', at: '20:00' }], days: { kind: 'daily' }, start: '2026-10-01', taken: [], createdAt: day, ...extra });
   const visit = (id: string, at: string, extra: Record<string, unknown> = {}) => ({ id, with: 'Dr Lee', where: 'Clinic', notes: 'CANARY-VISITNOTE', questions: [{ id: 'q', text: 'CANARY-QUESTION' }], at, createdAt: day, ...extra });
-  it('says the doses not yet marked, with the time and the dose on the label, and visits today with time and place', async () => {
+  it('says the doses not yet marked, with the time only, and visits today with time and place', async () => {
     const { therapeiaHome } = await import('../../therapeia/providers/home');
     put('therapeia:medicine:m1', medicine('m1', 'Sertraline'));
     put('therapeia:visit:v1', visit('v1', '2026-11-05T15:00'));
     put('therapeia:visit:v2', visit('v2', '2026-11-06T15:00'));
     const rows = await lines(therapeiaHome);
-    expect(rows.map((row) => [row.title, row.detail])).toEqual([['Sertraline', '8:00 PM · 50 mg'], ['Dr Lee', '3:00 PM · Clinic']]);
+    expect(rows.map((row) => [row.title, row.detail])).toEqual([['Sertraline', '8:00 PM'], ['Dr Lee', '3:00 PM · Clinic']]);
     expect(rows[0].swipe).toEqual({ id: 'dose:m1:2026-11-05#0', word: 'Taken', marks: true });
     expect(rows[1].swipe).toEqual({ id: 'visit:v1', word: 'Done' });
     expect(text(rows)).not.toMatch(/CANARY/);
+  });
+  it('the amount of a dose reaches no field of any line: not title, detail, open, ref, swipe or icon', async () => {
+    const { therapeiaHome } = await import('../../therapeia/providers/home');
+    put('therapeia:medicine:m1', medicine('m1', 'Sertraline', { supply: { count: 3, countedAt: '2026-11-01T08:00:00', perDose: 1, lead: 7 } }));
+    put('therapeia:medicine:m2', medicine('m2', 'Vitamin D', { dose: 'CANARY-DOSE 2000 IU' }));
+    const rows = await lines(therapeiaHome);
+    expect(rows.map((row) => row.ref.kind).sort()).toEqual(['dose', 'dose', 'refill']);
+    expect(JSON.stringify(rows)).not.toMatch(/CANARY|50 mg|2000|IU|\bmg\b/i);
+    for (const row of rows) expect(Object.keys(row).every((key) => ['ref', 'group', 'title', 'detail', 'open', 'icon', 'progress', 'swipe', 'notForMe'].includes(key))).toBe(true);
   });
   it('says a refill coming up, with the day it is due', async () => {
     const { therapeiaHome } = await import('../../therapeia/providers/home');

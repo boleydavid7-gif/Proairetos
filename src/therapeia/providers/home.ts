@@ -11,9 +11,9 @@ const clock = (at: Date) => at.toLocaleTimeString(undefined, { hour: 'numeric', 
 const open = (what: string) => `/therapeia/?open=${encodeURIComponent(what)}`;
 
 /*
- * Doses not yet marked, refills coming up and visits today: the medicine or contact, the time and the place. A dose
- * line says the dose written on the label, as it always has on Today; never notes, questions, readings or the health
- * card (manifest, therapeia.home). A pull marks a dose taken in Therapeia, with an undo.
+ * Doses not yet marked, refills coming up and visits today: the medicine or contact, the time and the place. The amount
+ * of a dose never leaves Therapeia through Home, nor do notes, questions, readings or the health card (manifest,
+ * therapeia.home). A pull marks a dose taken in Therapeia, with an undo.
  */
 export const therapeiaHome: Provider<'home'> = {
   app: 'therapeia',
@@ -39,7 +39,7 @@ export const therapeiaHome: Provider<'home'> = {
         ref: { app: 'therapeia', kind: 'dose', id: `${dose.medicine.id}|${dose.slot}` },
         group: 'attention',
         title: withWho(dose.medicine, dose.medicine.name),
-        detail: [clock(dose.at), dose.medicine.dose].filter(Boolean).join(' · '),
+        detail: clock(dose.at),
         open: open(`medicine:${dose.medicine.id}`),
         swipe: { id: `dose:${dose.medicine.id}:${dose.slot}`, word: 'Taken', marks: true },
       });

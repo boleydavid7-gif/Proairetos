@@ -116,3 +116,13 @@ Today's two groups, Daily practices and Worth your attention, read only provider
   `provider-derive:home:<app>` performance mark.
 - **Parity.** `scripts/home-check/` (`npm run home:check`) seeds one record in every contributing app on a fixed clock
   and compares text, markup and pictures against the pre-migration build (`compare.mjs`), in UTC and Los Angeles.
+- **Doses.** Therapeia's Home lines carry the medicine name and the dose time, never the amount of a dose. The manifest
+  lists `dose amounts` under `excludes`, and a canary test puts a dose in every field a record has and checks the whole
+  serialized line. The baselines in `scripts/home-check/baseline/` were edited for this one change (`8:00 PM · 50 mg`
+  became `8:00 PM`); nothing else in them moved.
+- **Coverage.** `syncHomeApps.test.ts` runs one table over all 14 providers on two installs and a stand-in server:
+  creation, edit, deletion, an offline install, excluded fields (canaries, and no plain text on the server) and an app
+  set aside (never asked). `scripts/home-check/behaviors.mjs` covers the browser scenarios once, on representative apps.
+- **Layout.** This change touches a text string inside an existing line and no markup or style, so the parity compare
+  (390 and 1440, dark and light, UTC and Los Angeles) is the layout check; `layout-check` and `visual-check` measure
+  docks and bars, which nothing here changed.
