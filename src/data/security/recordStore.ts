@@ -33,7 +33,7 @@ export class SecureRecordStore<T> {
   constructor(
     /** Names the store; it is part of what every sealed value is bound to. */
     readonly name: string,
-    private readonly backend: KeyValueBackend,
+    readonly backend: KeyValueBackend,
     private readonly key: KeySource,
     /** What new writes look like. Reads accept both whatever this is. */
     private mode: StoreMode = 'plain',
