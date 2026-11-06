@@ -407,7 +407,7 @@ function DeleteSection() {
             onClick={async () => {
               setBusy(true);
               // Sign this device out first, so the deletion stays here and is not synced to other devices.
-              if (syncStatus.get().phase !== 'unavailable' && syncStatus.get().phase !== 'signed-out') await signOut();
+              if (syncStatus.get().phase !== 'unavailable' && syncStatus.get().phase !== 'signed-out') await signOut('local');
               await backupService.deleteAll();
               clearPreferences();
               window.location.reload();

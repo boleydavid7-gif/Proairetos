@@ -56,6 +56,8 @@ export interface SyncStateStore {
   removeFingerprint(key: string): Promise<void>;
   getMeta<T>(name: string): Promise<T | undefined>;
   setMeta(name: string, value: unknown): Promise<void>;
+  /** Removes one value (a key that must no longer be kept on this device). */
+  removeMeta(name: string): Promise<void>;
   clear(): Promise<void>;
 }
 

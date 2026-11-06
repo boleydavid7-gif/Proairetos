@@ -72,6 +72,20 @@ Stages 3 and 4 interleave in practice, because a store cannot be sealed before i
 - **Encryption.** Real sealing of the stored data, not a screen gate; tested by reading the raw storage while locked.
 - **Compatibility.** Existing users migrate safely; the web app keeps working in desktop and mobile browsers and, optionally, in the bridge apps. A browser that lacks a needed feature falls back to asking per page, never to unprotected storage without saying so.
 
+## 7a. Conditions the owner set on the encryption work
+
+These bind Stages 2 and 3 and are checked in each stage's pull request.
+
+1. **Argon2id is evaluated before the encryption format is final.** The key-derivation choice for the passphrase wrap (PBKDF2 today, Argon2id as the candidate through a vetted WebAssembly library) is decided, with measurements of time and memory on a slow phone, bundle size, content-policy fit and the wrap-format change, before the header format of Stage 2 is fixed. PBKDF2 stays only provisionally until then.
+2. **The key-wrapping design is reviewed before implementation.** How the local key is wrapped by the passphrase, the passkey and the recovery key, what the header holds, how a passphrase change re-wraps it, and what an attacker holding only the header can try, are reviewed and approved before any of it is built.
+3. **Plaintext is never removed until the encrypted replacement is verified and recoverability is established.** A record's plaintext stays until its sealed copy opens, counts and hashes match, a safety copy exists and a recovery (restore from that copy, and unlock with each credential) has been demonstrated. Each plaintext-removal pass needs the owner's approval.
+
+Also standing: every stage is its own pull request with its own tests and rollback; there is no large all-at-once migration; no user data is deleted.
+
+## 7b. Outstanding limitation until Stage 3
+
+Signing out does not yet protect the local records. Stage 1 removes the keys and ends the session, but the records on the device stay readable by anyone who opens the app or reads the browser profile. This is a known, unresolved security limitation, not a completed protection, and every release note, plan and status line says so until Stage 3 seals the records.
+
 ## 8. Postponed
 
 | Item | Decision | Revisit when |

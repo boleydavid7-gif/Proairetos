@@ -67,4 +67,17 @@ describe('Settings > Calendar', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Turn off' }));
     expect(document.body.textContent).toContain('Calendars using it stop updating.');
   });
+
+  it('signed out with the link on, says the link is still on and where to turn it off; with it off, says what the link needs', () => {
+    phase = 'signed-out';
+    saveCalendarFeed({ enabled: true, options: loadCalendarFeed().options });
+    const { unmount } = render(<CalendarSection onOpenAccount={() => undefined} />);
+    expect(document.body.textContent).toContain('Your calendar link is still on, and anyone who has it can read the file. Sign in to turn it off.');
+    expect(screen.getByRole('button', { name: 'Account and sync' })).toBeTruthy();
+    unmount();
+    saveCalendarFeed({ enabled: false, options: loadCalendarFeed().options });
+    render(<CalendarSection onOpenAccount={() => undefined} />);
+    expect(document.body.textContent).toContain('The link needs sync turned on.');
+    expect(document.body.textContent).not.toContain('still on');
+  });
 });

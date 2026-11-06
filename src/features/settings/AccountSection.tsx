@@ -135,6 +135,7 @@ function SignIn() {
 
   return (
     <>
+      {sync.phase === 'signed-out' && sync.error && <p className="sheet__hint" role="status">{sync.error}</p>}
       <PasskeySignIn className="button-accent account-wide" errorClass="form-error" />
       <form className="stack-tight" onSubmit={(event: FormEvent) => {
         event.preventDefault();
@@ -499,10 +500,10 @@ function DeviceSessions() {
             <button type="button" className="text-link" onClick={() => setConfirmingAll(true)}>Sign out everywhere…</button>
           ) : (
             <>
-              <p className="section-description">This revokes refreshable sessions for the account. You will need to sign in again on your devices.</p>
+              <p className="section-description">This ends the sign-in on every device. Each one needs to sign in again.</p>
               <div className="chip-row">
                 <button type="button" className="button-quiet" onClick={() => setConfirmingAll(false)}>Cancel</button>
-                <button type="button" className="chip" onClick={() => void signOut()}>Sign out everywhere</button>
+                <button type="button" className="chip" onClick={() => void signOut('global')}>Sign out everywhere</button>
               </div>
             </>
           )}
@@ -629,14 +630,14 @@ function Ready() {
             <button type="button" className="button-quiet" onClick={() => setConfirmingSignOut(false)}>
               Stay signed in
             </button>
-            <button type="button" className="chip" onClick={() => void signOut()}>
+            <button type="button" className="chip" onClick={() => void signOut('local')}>
               Sign out
             </button>
           </div>
         </>
       ) : (
         <button type="button" className="text-link" onClick={() => setConfirmingSignOut(true)}>
-          Sign out
+          Sign out of this device
         </button>
       )}
     </div>

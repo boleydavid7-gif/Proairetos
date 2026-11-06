@@ -35,3 +35,13 @@ It does not make records unreadable after sign-out (Stage 3), add a Locked scree
 ## Approvals needed
 
 The owner's go-ahead to build; later, the merge. No production step is involved.
+
+## Implementation notes (added with the Stage 1 pull request)
+
+- **Retry of a failed server sign-out was not built.** A retry needs the session's access token, and keeping a credential after sign-out is what this work removes. The device is signed out either way; when the server cannot be reached the screen says the session there is still active and that Sign out everywhere, from a signed-in device, ends it. (`supabase-js` 2.117.2 removes the local session even when the network call fails, so the local side is safe.)
+- **"No user" is not always "session over".** With an expired token and no connection the client reports no session but keeps the stored one. `checkSession` (in `supabase.ts`) therefore reports `ended` only when there is no session and the failure was not a network one; only then are the stored keys removed. This is tested with a fake client, because the real one retries a refresh for about 30 seconds offline.
+- **This device only** also leaves the account's waiting reminder rows alone (they belong to the account, and other devices still use them); **everywhere** clears them, as sign-out did before. The device's own push subscription is always removed.
+- **`scope: 'local'` semantics** (it ends only this browser's session) are Supabase's documented behavior and the stub tests confirm the request that is sent; they have not been confirmed against a real project, as the plan asked. That check remains open before the pull request is merged.
+- **Verification still required before merge:** the two sign-out scopes on a real Supabase test project (`SCOPE_LOCAL_VERIFICATION.md`, `scripts/session-check/scope-check.mjs`). The unit and browser tests use stubs; they confirm which request the app sends, not what Supabase does with it.
+- **The failure message reaches the person.** The sign-out's own status refresh used to wipe the message, and the sign-in form did not show it; the message is now kept on the device until the next sign-in and shown on the sign-in form (Account, and the companion apps' account card). It says only what happened: signing out of this device when the server was not reached says the device still counts as signed in; signing out everywhere says only this device was signed out and the others are still signed in.
+- **Known limitation, unchanged by this stage:** records stay readable after sign-out until Stage 3.

@@ -73,6 +73,11 @@ export function createIndexedDbSyncStateStore(db: Db): SyncStateStore {
       store.put({ name, value });
       await transactionDone(transaction);
     },
+    async removeMeta(name) {
+      const { transaction, store } = await tx(db, stores.syncMeta, 'readwrite');
+      store.delete(name);
+      await transactionDone(transaction);
+    },
     async clear() {
       for (const name of [stores.syncState, stores.syncMeta]) {
         const { transaction, store } = await tx(db, name, 'readwrite');
@@ -125,6 +130,9 @@ export function createMemorySyncStateStore(): SyncStateStore {
     },
     async setMeta(name, value) {
       meta.set(name, value);
+    },
+    async removeMeta(name) {
+      meta.delete(name);
     },
     async clear() {
       prints = new Map();
