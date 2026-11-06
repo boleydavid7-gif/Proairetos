@@ -2,7 +2,7 @@
  *  into each other, the lamp as a warm glow toward the upper right (no rings, no hard center), two silk folds
  *  sweeping across with light along their top edges and a soft shade beneath, and a fine grain so nothing bands.
  *  Drawn from a room's colors, so every room has its own; a tall version for phones and a wide one for computers.
- *  The page fades it out (02-shell.css). */
+ *  The selected material continues across the full page surface; the shell does not fade it into a flat color. */
 export type WallArt = {
   sky: string;
   glow: string;
@@ -45,25 +45,30 @@ function paperFibers(w: number, h: number, fiber: string, shadow: string): strin
   return fibers + flecks;
 }
 function woodGrain(w: number, h: number, dark: string, glow: string): string {
-  // Long, quiet growth lines. No plank seams or decorative knots: the grain should read as a material, not a picture.
-  let seed = 37;
+  // Quiet growth grain with varied drift and spacing. The lines suggest wood without reading as repeated stripes.
+  let seed = 73;
   const random = () => {
     seed = (seed * 48271) % 2147483647;
     return seed / 2147483647;
   };
-  const fine = Array.from({ length: 84 }, (_, i) => {
+  const fine = Array.from({ length: 52 }, (_, i) => {
     const y = random() * h;
-    const a = 3 + random() * 13;
-    const b = 4 + random() * 18;
-    const c = 2 + random() * 12;
-    const d = `M-${Math.round(w * 0.04)} ${y.toFixed(1)} C${Math.round(w * 0.24)} ${(y - a).toFixed(1)}, ${Math.round(w * 0.38)} ${(y + b).toFixed(1)}, ${Math.round(w * 0.57)} ${(y + c).toFixed(1)} S${Math.round(w * 0.86)} ${(y - b * 0.55).toFixed(1)}, ${Math.round(w * 1.04)} ${(y + a * 0.4).toFixed(1)}`;
-    const color = i % 5 === 0 ? dark : glow;
-    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${(0.55 + random() * 1.25).toFixed(2)}" stroke-linecap="round" opacity="${(0.018 + random() * 0.026).toFixed(3)}"/>`;
+    const x1 = -w * (0.02 + random() * 0.05);
+    const x2 = w * (0.24 + random() * 0.12);
+    const x3 = w * (0.57 + random() * 0.1);
+    const x4 = w * (1.02 + random() * 0.04);
+    const drift = (random() - 0.5) * h * 0.035;
+    const bend1 = (random() - 0.5) * h * 0.035;
+    const bend2 = (random() - 0.5) * h * 0.04;
+    const d = `M${x1.toFixed(1)} ${(y - drift * 0.4).toFixed(1)} C${x2.toFixed(1)} ${(y + bend1).toFixed(1)}, ${x3.toFixed(1)} ${(y + bend2).toFixed(1)}, ${x4.toFixed(1)} ${(y + drift).toFixed(1)}`;
+    const color = i % 6 === 0 ? dark : glow;
+    return `<path d="${d}" fill="none" stroke="${color}" stroke-width="${(0.45 + random() * 0.8).toFixed(2)}" stroke-linecap="round" opacity="${(0.012 + random() * 0.018).toFixed(3)}"/>`;
   }).join('');
-  const broad = Array.from({ length: 9 }, (_, i) => {
-    const y = h * (0.08 + i * 0.105) + (random() - 0.5) * 24;
-    const d = `M-${Math.round(w * 0.06)} ${y.toFixed(1)} C${Math.round(w * 0.3)} ${(y - 18).toFixed(1)}, ${Math.round(w * 0.66)} ${(y + 22).toFixed(1)}, ${Math.round(w * 1.06)} ${(y - 4).toFixed(1)}`;
-    return `<path d="${d}" fill="none" stroke="${i % 2 ? glow : dark}" stroke-width="${(2 + random() * 3).toFixed(1)}" opacity="0.018"/>`;
+  const broad = Array.from({ length: 5 }, (_, i) => {
+    const y = h * (0.12 + i * 0.19) + (random() - 0.5) * h * 0.035;
+    const tilt = (random() - 0.5) * h * 0.04;
+    const d = `M-${Math.round(w * 0.05)} ${(y - tilt).toFixed(1)} C${Math.round(w * 0.28)} ${(y + tilt * 0.35).toFixed(1)}, ${Math.round(w * 0.68)} ${(y - tilt * 0.55).toFixed(1)}, ${Math.round(w * 1.05)} ${(y + tilt).toFixed(1)}`;
+    return `<path d="${d}" fill="none" stroke="${i % 2 ? glow : dark}" stroke-width="${(1.2 + random() * 1.6).toFixed(1)}" opacity="0.012"/>`;
   }).join('');
   return broad + fine;
 }

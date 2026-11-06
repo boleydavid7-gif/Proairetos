@@ -8,24 +8,20 @@
     var(--color-bg);
 }
 
-/* Lamplight's room: its material stays legible deeper into the page, then eases into the page color without a hard fade band. */
+/* The selected material is one continuous surface across the whole page.
+   Keep its texture present to the bottom; do not fade it into a flat page-color block. */
 :root[data-room] .app-shell {
-  --room-height: 58lvh;
-  /* Keep the image just short of the fade layer to prevent a fractional-pixel seam. */
   background:
     var(--room-shade, linear-gradient(transparent, transparent)),
-    linear-gradient(rgba(var(--color-bg-rgb), 0) 62%, var(--color-bg) 100%) top / 100% var(--room-height) no-repeat,
-    var(--room-wall) top / 100% calc(var(--room-height) - 2px) no-repeat,
+    var(--room-wall) top / 100% 100% no-repeat,
     var(--color-bg);
 }
 
 @media (min-width: 62rem) {
   :root[data-room] .app-shell {
-    --room-height: 52lvh;
     background:
-      var(--room-shade, linear-gradient(transparent, transparent)),
-      linear-gradient(rgba(var(--color-bg-rgb), 0) 66%, var(--color-bg) 100%) top / 100% var(--room-height) no-repeat,
-      var(--room-wall-wide) top / 100% calc(var(--room-height) - 2px) no-repeat,
+      var(--room-shade, linear-gradient(transparent, transparent)) top / 100% 100% no-repeat,
+      var(--room-wall-wide) top / 100% 100% no-repeat,
       var(--color-bg);
   }
 }
