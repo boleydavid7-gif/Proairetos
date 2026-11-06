@@ -305,8 +305,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['person name', 'relation', 'remember lines', 'gift ideas', 'times together'], excludes: ['phone number', 'email address', 'birthdays and dates'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['who it is for and what it is', 'when it comes'], excludes: ['phone number', 'email address', 'notes and gift ideas', 'dates beyond the next week'] },
+    calendar: { shows: ['a birthday or other date, by name and label', 'a one-time event with a time, by label and name'], excludes: ['phone numbers and email', 'notes', 'gift ideas', 'times together', 'ages'], kinds: ['event', 'recurring', 'info'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

@@ -9,7 +9,6 @@ import { otherCalendars } from '../../app/calendars/otherCalendars';
 import { calendarStore } from '../../app/providers/calendar';
 import { eventsFromLines } from '../../app/providers/calendarView';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
-import { philiaCalendar } from '../../app/calendars/philiaCalendar';
 import TodayWeather from '../today/TodayWeather';
 import NotForMe from '../today/NotForMe';
 import TodayOnThisDay from '../today/TodayOnThisDay';
@@ -74,9 +73,8 @@ import { useNow } from './hooks/useNow';
 function subscribeCalendars(listener: () => void): () => void {
   const offOther = otherCalendars.subscribe(listener);
   const offPoreia = poreiaCalendar.subscribe(listener);
-  const offPhilia = philiaCalendar.subscribe(listener);
   const offStore = calendarStore.subscribe(listener);
-  return () => { offOther(); offPoreia(); offPhilia(); offStore(); };
+  return () => { offOther(); offPoreia(); offStore(); };
 }
 
 /**
@@ -121,14 +119,14 @@ export default function NowPage() {
     useServiceData(subscribeCalendars, async () => {
       const from = atTime(date, '00:00');
       const until = atTime(addDays(date, 1), '00:00');
-      const [other, poreia, philia] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until)]);
-      return [...other, ...poreia, ...philia, ...eventsFromLines(await calendarStore.lines({ from, until }))];
+      const [other, poreia] = await Promise.all([otherCalendars.eventsBetween(from, until), poreiaCalendar.eventsBetween(from, until)]);
+      return [...other, ...poreia, ...eventsFromLines(await calendarStore.lines({ from, until }))];
     }, [date]) ?? [];
   const todayRange = rangeOf(today);
   const todayEvents =
     useServiceData(subscribeCalendars, async () => {
-      const [other, poreia, philia] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end), philiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
-      return [...other, ...poreia, ...philia, ...eventsFromLines(await calendarStore.lines({ from: todayRange.start, until: todayRange.end }))];
+      const [other, poreia] = await Promise.all([otherCalendars.eventsBetween(todayRange.start, todayRange.end), poreiaCalendar.eventsBetween(todayRange.start, todayRange.end)]);
+      return [...other, ...poreia, ...eventsFromLines(await calendarStore.lines({ from: todayRange.start, until: todayRange.end }))];
     }, [todayRange.start.getTime()]) ?? [];
   const busy = [
     ...nearOccurrences,

@@ -112,6 +112,18 @@ const specs: Spec[] = [
     kinds: ['deadline', 'deadline', 'recurring'],
     provider: load(() => import('../../ktema/providers/calendar'), 'ktemaCalendar'),
   },
+  {
+    app: 'philia',
+    create: [
+      pref('philia:person:p1', { id: 'p1', name: 'Mara', birthday: '1984-11-08', phone: 'CANARY-PHONE', email: 'canary@example.test', notes: [{ id: 'n', text: 'CANARY-NOTE' }], gifts: [{ id: 'g', text: 'CANARY-GIFT' }], times: [], createdAt: day }),
+      pref('philia:person:p2', { id: 'p2', name: 'Tomas', dates: [{ id: 'd1', label: 'Dinner', date: '2026-11-06', once: true, time: '19:00' }, { id: 'd2', label: 'Anniversary', date: '2015-11-09' }, { id: 'd3', label: 'Reunion', date: '2026-11-20', once: true }], notes: [], gifts: [], times: [], createdAt: day }),
+    ],
+    edit: [pref('philia:person:p1', { id: 'p1', name: 'Mara K', birthday: '1984-11-08', phone: 'CANARY-PHONE', notes: [], gifts: [], times: [], createdAt: day })],
+    titles: ['Dinner · Tomas', 'Mara’s birthday', 'Tomas: Anniversary', 'Tomas: Reunion'],
+    edited: ['Dinner · Tomas', 'Mara K’s birthday', 'Tomas: Anniversary', 'Tomas: Reunion'],
+    kinds: ['event', 'info', 'recurring', 'recurring'],
+    provider: load(() => import('../../philia/providers/calendar'), 'philiaCalendar'),
+  },
 ];
 
 const CANARY = /CANARY|99\b/;
