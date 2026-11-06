@@ -1338,11 +1338,11 @@ export async function refreshCalendarFeed(): Promise<void> {
   if (!feed.enabled || status.phase !== 'ready' || !userId || !navigator.onLine) return;
   const token = await fetchCalendarFeedToken();
   if (!token) {
-    saveCalendarFeed({ ...feed, enabled: false });
+    saveCalendarFeed({ ...feed, enabled: false, linkEnded: true });
     return;
   }
   const updated = await updateCalendarFeed(userId, token, await buildCalendarFile(feed.options));
-  if (!updated) saveCalendarFeed({ ...feed, enabled: false });
+  if (!updated) saveCalendarFeed({ ...feed, enabled: false, linkEnded: true });
 }
 
 /** Turns the feed on and returns its link. A link already in use (from another device) is kept. */
@@ -1360,7 +1360,7 @@ export async function calendarFeedLink(): Promise<string | null> {
   if (!loadCalendarFeed().enabled || status.phase !== 'ready') return null;
   const token = await fetchCalendarFeedToken();
   if (!token) {
-    saveCalendarFeed({ ...loadCalendarFeed(), enabled: false });
+    saveCalendarFeed({ ...loadCalendarFeed(), enabled: false, linkEnded: true });
     return null;
   }
   return calendarFeedUrl(token);
@@ -1378,5 +1378,5 @@ export async function renewCalendarFeedLink(): Promise<string> {
 export async function disableCalendarFeed(): Promise<void> {
   const feed = loadCalendarFeed();
   if (userId) await deleteCalendarFeed(userId);
-  saveCalendarFeed({ ...feed, enabled: false });
+  saveCalendarFeed({ enabled: false, options: feed.options });
 }

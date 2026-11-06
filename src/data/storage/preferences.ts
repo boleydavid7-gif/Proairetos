@@ -317,13 +317,15 @@ const FEED_KEY = 'proairetos.calendarFeed';
 
 export type StoredFeedOptions = { shifts: boolean; shiftLabels: boolean; protectedTime: boolean; tasks: boolean };
 
-export type StoredFeed = { enabled: boolean; options: StoredFeedOptions };
+/** `linkEnded`: the link was turned off elsewhere or by an update; the page says so until a new link is made. */
+export type StoredFeed = { enabled: boolean; options: StoredFeedOptions; linkEnded?: boolean };
 
 export function loadCalendarFeed(): StoredFeed {
   const stored = readJson<Partial<StoredFeed>>(FEED_KEY);
   return {
     enabled: stored?.enabled === true,
     options: { shifts: true, shiftLabels: false, protectedTime: false, tasks: false, ...stored?.options },
+    ...(stored?.linkEnded ? { linkEnded: true } : {}),
   };
 }
 
