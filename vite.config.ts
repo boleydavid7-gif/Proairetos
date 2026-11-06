@@ -83,7 +83,7 @@ export default defineConfig(({ mode }) => {
   build: {
     outDir,
     rollupOptions: {
-      input: { main: 'index.html', ...Object.fromEntries(APPS.filter((app) => app.status !== 'main').map((app) => [app.id, app.urls.entry])), lamplight: 'lamplight/index.html', lab: 'lab/index.html' },
+      input: { main: 'index.html', ...Object.fromEntries(APPS.filter((app) => app.status !== 'main').map((app) => [app.id, app.urls.entry])), lamplight: 'lamplight/index.html' },
     },
   },
   // When this copy was built, so Settings can say which build a phone is running.

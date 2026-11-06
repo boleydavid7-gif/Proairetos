@@ -92,7 +92,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   // The Lamplight guide is a separate plain page; leave its own assets alone.
-  if (url.origin === self.location.origin && /^\/(lamplight|lab)(\/|$)/.test(url.pathname)) return;
+  if (url.origin === self.location.origin && /^\/lamplight(\/|$)/.test(url.pathname)) return;
   // Pages: fresh when online, cached when not.
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request));
