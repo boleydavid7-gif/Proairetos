@@ -35,7 +35,7 @@ export const meleteCalendar: Provider<'calendar'> = {
         ref: { app: 'melete', kind: 'session', id: session.id },
         kind: 'event',
         title: `${subject} · Study`,
-        open: session.subjectId ? open(session.subjectId) : '/melete/',
+        open: `/melete/?open=session:${encodeURIComponent(session.id)}`,
         day: localDayOf(start),
         start,
         end,

@@ -1,4 +1,6 @@
 import { Fragment, type KeyboardEvent } from 'react';
+import { ChevronRightIcon } from '../../components/icons/Icons';
+import { isAppOwned } from '../../app/providers/calendarView';
 import { toLocalDate } from '../../core/scheduling/dates';
 import { formatTimeOf } from '../schedule/format';
 import type { DayChangeTarget } from './DayChangeSheet';
@@ -58,7 +60,18 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
       {entries.map((entry) =>
         entry.kind === 'allday' ? (
           <li key={entry.key} className="timeline__allday">
-            All day · {entry.event.title} <span className="timeline__source">{entry.event.source}</span>
+            {isAppOwned(entry.event) ? (
+              <a className="timeline__allday-link" href={entry.event.open}>
+                <span>
+                  All day · {entry.event.title} <span className="timeline__source">{entry.event.source}</span>
+                </span>
+                <ChevronRightIcon size={18} className="timeline__chevron" />
+              </a>
+            ) : (
+              <>
+                All day · {entry.event.title} <span className="timeline__source">{entry.event.source}</span>
+              </>
+            )}
           </li>
         ) : null,
       )}
@@ -109,6 +122,26 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
             </li>
           ) : entry.kind === 'event' ? (
             <li className={index === nowIndex ? 'll-next' : undefined}>
+              {isAppOwned(entry.event) ? (
+                // An entry an app owns opens its record in that app, the whole row.
+                <a
+                  href={entry.event.open}
+                  data-ll-lit={index === nowIndex || undefined}
+                  className="timeline__entry timeline__entry--event timeline__entry--link"
+                >
+                  <span className="timeline__time">
+                    {formatTimeOf(entry.start)}
+                    <span className="timeline__until">{formatTimeOf(entry.end)}</span>
+                  </span>
+                  <span className="timeline__body">
+                    <span className="timeline__title">{entry.event.title}</span>
+                    <span className="timeline__detail">
+                      {[until(entry, index), entry.event.source, entry.event.location].filter(Boolean).join(' · ')}
+                    </span>
+                  </span>
+                  <ChevronRightIcon size={18} className="timeline__chevron" />
+                </a>
+              ) : (
               <div
                 data-ll-lit={index === nowIndex || undefined}
                 className="timeline__entry timeline__entry--event"
@@ -125,6 +158,7 @@ export default function DayTimeline({ date, entries, now, onChangeDay, onOpenIte
                   </span>
                 </span>
               </div>
+              )}
             </li>
           ) : entry.kind === 'item' ? (
             <li className={index === nowIndex ? 'll-next' : undefined}>
