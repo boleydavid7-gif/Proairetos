@@ -17,6 +17,12 @@ const PLACE_KEY = 'phytonDevice.place';
 const CACHE_KEY = 'phytonDevice.rain';
 const REFRESH_MS = 3 * 60 * 60_000;
 const listeners = new Set<() => void>();
+
+/** Told when the rain and forecast kept on this device change (for a result derived from them). */
+export function watchOutdoors(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 let inFlight: Promise<void> | undefined;
 
 function read<T>(key: string): T | undefined {
