@@ -3,7 +3,6 @@ import { calendarSources, otherCalendars } from '../../app/calendars/otherCalend
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { philiaCalendar } from '../../app/calendars/philiaCalendar';
 import { therapeiaCalendar } from '../../app/calendars/therapeiaCalendar';
-import { meleteCalendar } from '../../app/calendars/meleteCalendar';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
@@ -13,7 +12,6 @@ import { calendarStore } from '../../app/providers/calendar';
 import { eventsFromLines, quietLinesByDay } from '../../app/providers/calendarView';
 import { ktemaDatesOn } from '../../app/calendars/ktemaDates';
 import type { Thing as KtemaThing, Upkeep as KtemaUpkeep } from '../../ktema/core/things';
-import { studyDatesOn, useMeleteSubjects } from '../../app/calendars/meleteCalendar';
 import { people } from '../../philia/app/state';
 import MiniMonth from './MiniMonth';
 import { useStore } from '../../app/family/read';
@@ -111,7 +109,7 @@ const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
 };
 
 function subscribeAll(listener: () => void) {
-  const off = [calendarStore.subscribe(listener), lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), therapeiaCalendar.subscribe(listener), meleteCalendar.subscribe(listener), compassService.subscribe(listener)];
+  const off = [calendarStore.subscribe(listener), lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), therapeiaCalendar.subscribe(listener), compassService.subscribe(listener)];
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
@@ -170,7 +168,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const shows = useTodayParts();
   const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
   const everyone = people.use();
-  const studySubjects = useMeleteSubjects(shows('study-dates'));
   const ktemaThings = useStoredRecords<KtemaThing>('ktema:thing:', shows('ktema-dates'));
   const ktemaUpkeeps = useStoredRecords<KtemaUpkeep>('ktema:upkeep:', shows('ktema-dates'));
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
@@ -291,9 +288,9 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         compassService.statements(),
       ]);
       const goals = statements.filter((statement) => statement.type === 'GOAL');
-      const [otherEvents, travelEvents, peopleEvents, visitEvents, studyEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until), therapeiaCalendar.eventsBetween(from, until), meleteCalendar.eventsBetween(from, until)]);
+      const [otherEvents, travelEvents, peopleEvents, visitEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until), therapeiaCalendar.eventsBetween(from, until)]);
       const lines = await calendarStore.lines({ from, until });
-      const events = [...otherEvents, ...travelEvents, ...peopleEvents, ...visitEvents, ...studyEvents, ...eventsFromLines(lines)];
+      const events = [...otherEvents, ...travelEvents, ...peopleEvents, ...visitEvents, ...eventsFromLines(lines)];
       const sources = calendarSources();
       return {
         items,
@@ -311,7 +308,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
     ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
     ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
     ...(shows('ktema-dates') ? ktemaDatesOn(ktemaThings, ktemaUpkeeps, date).map((line) => ({ ...line, color: 'sky' })) : []),
-    ...(shows('study-dates') ? studyDatesOn(studySubjects, date).map((line) => ({ ...line, color: 'sage' })) : []),
     ...(quietByDay.get(date) ?? []),
   ];
 

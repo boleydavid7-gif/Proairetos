@@ -473,8 +473,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['subject names', 'dates', 'materials', 'if-then lines'] },
-    provides: ['home'],
+    provides: ['home', 'calendar'],
     home: { shows: ['minutes studied today or the next session', 'the nearest date within a week, by subject name and title'], excludes: ['materials', 'if-then lines', 'hours estimates', 'the rest of the week'] },
+    calendar: { shows: ['study sessions, by subject name and time', 'exam, due and other dates, by subject name and title'], excludes: ['materials', 'if-then lines', 'hour estimates', 'rhythm'], kinds: ['event', 'deadline'] },
     surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
 ];
