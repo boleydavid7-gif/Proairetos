@@ -131,6 +131,7 @@ function sceneShapes(id: SceneId, p: Palette): string {
         '<path d="M0 1360 C240 1230 470 1260 700 1340 S1010 1370 1200 1270 V1600 H0Z" fill="' + p.base + '"/>' +
         '<g fill="' + p.accent + '" opacity=".52"><circle cx="210" cy="760" r="4"/><circle cx="390" cy="680" r="3"/><circle cx="1040" cy="780" r="4"/><circle cx="760" cy="720" r="2.5"/></g>';
   }
+  return '';
 }
 
 const cache = new Map<string, string>();
