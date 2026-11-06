@@ -1,7 +1,21 @@
 # Phase 3, Slice 5: Notices and notifications
 
-Status: plan for review. No application code, migration, test or build was changed or run to write it. Everything
-below comes from reading the files named in it.
+Status: approved with the decisions in section 13 (revision 2). The plan was written from reading the files named in it.
+Commit 0, the pre-change parity baseline, now exists (section 10); nothing else is implemented.
+
+### Revision 2: what the approved decisions change
+
+Four notice words change on purpose. Everything else is held byte for byte by the baseline.
+
+1. Poreia notices no longer carry a confirmation code, an address or a departure place.
+2. Oikonomia bill notices no longer carry the amount, in the title or the preview.
+3. Therapeia visit notices follow the `names` choice for the clinician and the place (doses already do).
+4. Health-related details (medicine names and doses, clinician and place, sleep times, workout details) get the same
+   protection everywhere a notice can appear: the cache, the sealed words, the server's preview columns, the phone
+   shell and the notifications page.
+
+Unchanged: delivery, schedules, reminder times, quiet hours, permissions, per-app switches, sync, and the plain-text
+preview mechanism itself.
 
 ## 1. Current architecture and findings
 
@@ -141,9 +155,14 @@ export type NoticeLine = {
   by manifest, skip unless `ctx.isUsable(app)` (added, trial or bought) **and** the app's notices switch is on
   (a `switchOn(app)` member on the host context, supplied from `NoticeSettings`, not a new stored setting), read,
   enforce, collect timings and rejections. Across apps it drops a repeat of a key (first wins, the repeat is reported).
-- **`ProviderContext`** gains two optional members, both already available on the device and read only:
-  `blocks?(from, until)` (own schedule plus counting other calendars, what `familyNotices` builds today as `blocks()`)
-  and `settings` stays `setting(key)`. `now` and `range` already exist (`range` carries `[now, until]`).
+- **`ProviderContext`** gains one optional, read-only member: `blocks?(from, until)`, returning only
+  `{ start, end, kind }` and, for a shift of the person's own schedule, its `label` (Diaita keys a shift's sleep
+  adjustment by the shift's name). No title, location, description, attendee or calendar name of an other-calendar
+  event is ever passed on; for those the label is empty. Today `familyNotices` passes `block.label || block.patternName`
+  for other calendars as well, so the parity test includes an other-calendar block and must show the sleep plan is
+  unchanged without its title (the planner only reads a label to match a schedule shift's name). If it is not
+  unchanged, `label` stays own-schedule only and the difference is reported before anything else moves.
+  `now` and `range` already exist (`range` carries `[now, until]`).
 - **Adapter** `src/app/providers/notices.ts`: `providerNotices(now, until, settings)` loads the provider modules of
   added apps whose switch is on, builds the host context, calls `noticeLines`, and returns `Notice[]`. It replaces
   `familyNotices` and the Askesis, Oikonomia and Hydros lines in `upcoming.ts`. `noticesBetween` and `pursuitNotices`
@@ -210,14 +229,33 @@ schedule payload. The manifest list is what that test iterates, so a new exclude
 Proairetos's own notices (item titles and locations, calendar event titles and locations, decision titles) are the
 person's own words and are not provider output. They are unchanged and not classified by the manifest.
 
+### Decisions applied to the table (revision 2)
+
+| Flagged field | Decision | Effect |
+| --- | --- | --- |
+| Poreia confirmation code, booking address, departure place (`from`) | Excluded | A flight reads "Leaves 7:40 AM"; a stay reads "Check-in today"; a start-of-booking notice drops the address. Titles, kind words, times, plan titles and a plan's place stay. |
+| Oikonomia amount | Excluded from the title and the preview | The title is the bill's name; the body keeps the due wording and "paid automatically". Amounts also stay out of the cache, the sealed words, the preview and the notifications page. |
+| Therapeia clinician and place | Follow the `names` choice (off by default) | With names off a visit reads "A visit" (for someone else: "A visit for Mia") with the time only; with names on it reads as today. Doses and refills already follow `names`. |
+| Plain preview columns | Mechanism kept | They are still written only with Details on the lock screen, still hold the same words the sealed copy holds, and now cannot hold an excluded field because the provider never produces one. |
+
+The exact new wording for the visit lines follows the existing pattern ("A medicine", "A refill for Mia"); I will show
+it in the parity diff for your review rather than assume it.
+
+**Health-related details.** Medicine names and doses, visits, sleep times, workout titles and run places, water times
+and any reading are treated as one class for this slice: they appear only when the person has turned on both the app's
+notice switch and Details on the lock screen (for medicines and visits, also the `names` choice), they are never in the
+server's readable columns when details are off, and the canary tests cover them in every output listed below. Readings,
+measurements, notes, questions, the health card, sleep logs and heart rate stay excluded entirely.
+
 ### Rules this slice enforces
 
 - A notice never carries a note, a free-text record field, a photo, a file name, a document, a reading, a measurement,
   a balance, an account or card number, a serial number, an identifier of a person other than their given name, or a
   coordinate. Anything in the table's "Must stay excluded" column is tested with a canary.
-- `privateNotice` stays the one gate for words. A provider returns full words; the existing code decides whether they are
-  shown. The host does not weaken or bypass it, and a test asserts that with details off no provider word reaches the
-  cache, the sealed words input or the preview columns.
+- `privateNotice` stays the one gate for the lock-screen preference. A provider returns the words allowed with details on
+  (never an excluded field); the existing code decides whether they are shown. The host does not weaken or bypass it, and
+  a test asserts that with details off no provider word reaches the cache, the sealed words input or the preview columns,
+  and that with details on no excluded field does either.
 - The server sees, as now, only the opaque id, the time, the source, the sealed words and (details on) the preview. This
   slice adds nothing the server can read.
 
@@ -312,22 +350,28 @@ migration, any per-app `core/notices.ts` (the providers call them), any wording.
 
 ## 10. Implementation order (each an independent commit)
 
-0. **Parity harness first.** A test that runs the current `upcomingNotices` over fixed fixtures and records the exact
-   `Notice[]` and the derived row inputs. It changes nothing. It is the baseline every later commit must match.
+0. **Parity baseline (done, uncommitted until you say).** `src/tests/notify/noticesBaseline.test.ts` and two
+   baseline files. It changes no behavior. It records 56 notices per scenario for Diaita, Philia, Ergon, Therapeia,
+   Ktema, Meletē, Phyton and Poreia, with the delivery inputs, and the marked fields that reach the words today.
 1. **Contract.** `NoticeLine`, `enforceNotices`, `mayProvideNotices`, `noticeLines`, manifest `fields` type, the
-   classification test. No provider and no consumer yet. Reversible by revert.
-2. **Context and adapter.** `ctx.blocks`, the adapter, the path switch (legacy by default). Still no output change.
-3. **Pure-record apps:** Philia, Ergon, Ktema, Meletē.
-4. **Privacy-heavy apps:** Phyton, Poreia, Therapeia (canary coverage is the point of this commit).
-5. **Schedule-dependent app:** Diaita (needs `blocks`; Therapeia's anchors already use it).
-6. **Cross-app and direct paths:** Dynamis, Askesis runs (shared training week), Oikonomia bills, and optionally Hydros.
+   classification test. No provider and no consumer yet.
+2. **Context and adapter.** Minimal `ctx.blocks`, the adapter, the path switch (legacy by default). No output change.
+3. **Pure-record apps:** Philia, Ergon, Ktema, Meletē. Output identical to the baseline.
+4. **Privacy-heavy apps:** Phyton, Poreia, Therapeia. This commit carries the intended changes (Poreia code, address and
+   departure place out; Therapeia visits follow `names`) with the canary tests and the expected differences listed in
+   the parity file.
+5. **Schedule-dependent app:** Diaita (needs `blocks`; the other-calendar label question is settled here).
+6. **Cross-app and direct paths:** Dynamis, Askesis runs (shared training week), Oikonomia bills (amount out). Their
+   fixtures are added to the baseline in this commit, from the legacy path, before their providers exist.
 7. **Switch the default to the provider path** after parity, canary and sync tests pass. Legacy still present.
-8. **Remove the legacy gather** (`familyNotices.ts` and the direct lines) in its own commit, only after review.
+8. **Remove the legacy gather** in its own commit, only after review.
+9. **Optional, last: Hydros.** Its provider is added only if you ask for it after step 8; the rolling schedule and the
+   re-roll after delivery stay in `notifications.ts`.
 
 Rollback at any step: revert that commit. After step 7 and before 8, setting the path switch back restores the legacy
 gather with no release.
 
-## 11. Test plan (nothing is run until you approve it)
+## 11. Test plan (only what you authorize is run)
 
 Estimates for time come from earlier runs in this session where I have them; where I do not, I say so.
 
@@ -335,7 +379,8 @@ Estimates for time come from earlier runs in this session where I have them; whe
 | --- | --- | --- | --- | --- |
 | **Essential: contract and enforcement** | Unknown keys, wrong app, wrong kind or source, key repeats, bad times, `open` outside the app, unclassified app, `shared` class are all rejected | `npx vitest run src/tests/providers/notices.test.ts` | 1 | a few seconds |
 | **Essential: privacy canaries** | A unique marker in every excluded field above (booking notes and documents, medicine notes, health card, serial number, bill notes and account, chore notes, person remember lines, plant journal, subject materials) never appears in a provider line, `Notice`, cache entry, sealed-words input, preview columns or native payload; with details off no provider word reaches any of them | `npx vitest run src/tests/providers/noticesCanary.test.ts` | 1 | a few seconds |
-| **Essential: parity** | The provider path returns the same `Notice[]` as the legacy path (key, kind, time, title, body, open) and the same server row inputs, for fixtures covering each app, every switch combination, names on and off, details on and off | same file run under `TZ=UTC` and `TZ=America/Los_Angeles` | 2 | a few seconds each |
+| **Done: baseline (commit 0)** | The current notices and delivery inputs, recorded from fixed fixtures | `NOTICES_BASELINE=write npx vitest run src/tests/notify/noticesBaseline.test.ts` under `TZ=UTC` and `TZ=America/Los_Angeles`, then once each to compare | 4 | about 1.5 s each |
+| **Essential: parity** | The provider path returns the same `Notice[]` as the legacy path (key, kind, time, title, body, open) and the same server row inputs, for fixtures covering each app, every switch combination, names on and off, details on and off | the baseline file, compared against the provider path, with the four intended changes listed as expected differences and nothing else allowed; `TZ=UTC` and `TZ=America/Los_Angeles` | 2 | a few seconds each |
 | **Background delivery** | Existing: due rows kept, older server step-down, sources, worker routing. No new test is needed because the provider output feeds the same code; these confirm it still does | `npx vitest run src/tests/notify` | 1 | a few seconds (the folder holds 7 files; not timed this session) |
 | **Cross-install sync** | Records written the way a pull writes them yield the same notices as local writes; an app removed or a switch turned off clears its source | `npx vitest run src/tests/providers/noticesSync.test.ts` | 1 | a few seconds |
 | **Types and lint** | Compiles and lints | `npx tsc --noEmit` and `npx oxlint` | 2 | about 10 to 20 s each (not timed this session) |
@@ -358,34 +403,24 @@ for those four apps), so per-commit usage stays small.
 | A provider for an app that is not added or whose switch is off still runs | Notices for an app the person removed | `noticeLines` checks both; a test asserts it, including the household and trial paths of `isUsable` |
 | Training week fit is read synchronously from a device cache | Dynamis and Askesis times differ from today | Same cache functions as now (`liftDays`, `trainingTimeOn`, `fitAhead`); these two go in a later commit so the first commits carry no such dependency |
 | Wording drifts | The owner's wording rules | No text is changed; the language guard still scans every source file |
-| Preview columns hold plain words with details on | Pre-existing; any app added later inherits it | Decision D3; documented in the field table |
+| Preview columns hold plain words with details on | Pre-existing mechanism, kept | The provider cannot produce an excluded field, and a canary test reads the preview columns |
+| Devices on the older build keep writing rows with the old words (codes, amounts, visit details) until they update | The same account on two installs of different builds | Rows are replaced wholesale on each refresh, so the newest writer wins; listed for the release notes |
 | `ctx.blocks` merges device-only calendars | Another calendar's event could reach a provider | It supplies start, end, kind and label only, as `familyNotices` passes today; the canary covers an other-calendar title |
 
 Compatibility: no data format, migration, server object, worker or manifest of an installed app changes. Older devices
 keep running the legacy path until the switch is on, and the output is the same either way.
 
-## 13. Open decisions for you
+## 13. Decisions (approved, revision 2)
 
-- **D1. Poreia confirmation code, address and departure place in a notice.** Today they appear in the words when
-  Details on the lock screen is on ("Confirmation ABC123"). The calendar excludes them. Recommendation: keep them for
-  this slice (they are the point of a check-in reminder, they are sealed in transit and shown only on your choice),
-  classify them `detailsOnly`, and revisit with D3. Alternative: remove them from notices, a visible change.
-- **D2. Oikonomia bill amount in the notice title** ("Rent · $1,200.00"). Calendar and search exclude amounts. Same
-  recommendation: keep for this slice, classify `detailsOnly`. Alternative: name only.
-- **D3. Plain preview columns on the server with details on.** Option A (recommended for this slice): leave as is and
-  state it in the field audit and Privacy at a glance if not already there. Option B: send preview only for kinds with
-  no `detailsOnly` field. B changes what an iPhone's own push shows for doses, bills and trips, so I will not do it
-  without your say.
-- **D4. Therapeia visit notices name the clinician and place whatever the `names` choice says.** Doses respect it.
-  Recommendation: keep, then ask whether `names` should cover visits as a separate small change after this slice.
-- **D5. Scope.** Recommended in: Philia, Ergon, Ktema, Meletē, Phyton, Poreia, Therapeia, Diaita, Dynamis, Askesis runs,
-  Oikonomia bills. Hydros as a last, optional commit (its rolling schedule and re-roll after delivery stay in
-  `notifications.ts`). Out: Praxis study end (running timer state), Poreia flight status, Phyton frost background check,
-  milestones and schedule changes, household invites.
-- **D6. Gate.** Recommended: only the existing `NoticeSettings` switches; no new `proairetos.providers` switch for
-  notices, because that would be a second way to turn the same thing off.
-- **D7. `ctx.blocks`.** Recommended: add it, read only, start, end, kind and label. Alternative: Diaita and Therapeia
-  stay on the legacy gather and only the pure-record apps move.
+- **D1. Poreia confirmation code, address and departure place:** excluded from notifications.
+- **D2. Oikonomia bill amount:** excluded from the title and the preview.
+- **D3. Plain preview columns:** the mechanism is preserved; exclusions and the lock-screen preference are enforced.
+- **D4. Therapeia clinician and place:** follow the `names` choice.
+- **D5. Scope:** Philia, Ergon, Ktema, Meletē, Phyton, Poreia, Therapeia, Diaita, Dynamis, Askesis runs and Oikonomia
+  bills. Hydros is an optional final migration. Out: Praxis study end, Poreia flight status, Phyton's frost background
+  check, milestones and schedule changes, household invites.
+- **D6. Gate:** only the existing `NoticeSettings` switches.
+- **D7. `ctx.blocks`:** added, read only, restricted to `{ start, end, kind }` plus a shift's own label (section 3).
 
 ## 14. Health data on the roadmap (not in this slice)
 
