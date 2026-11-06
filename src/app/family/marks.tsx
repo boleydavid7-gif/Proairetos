@@ -50,29 +50,17 @@ const line = (d: string, width: number): Shape['attrs'] => ({
   strokeLinejoin: 'round',
 });
 
-function compass(): Shape[] {
-  // Corners turned here rather than by a transform, since a cut is measured inside the shape's own transform.
-  const turn = (angle: number, x: number, y: number) => {
-    const r = (angle * Math.PI) / 180;
-    const [dx, dy] = [x - 512, y - 512];
-    return `${(512 + dx * Math.cos(r) - dy * Math.sin(r)).toFixed(1)} ${(512 + dx * Math.sin(r) + dy * Math.cos(r)).toFixed(1)}`;
-  };
-  const point = (angle: number, length: number, width: number, a: number, b: number): Shape[] => {
-    const tip = turn(angle, 512, 512 - length);
-    return [
-      { tag: 'path', attrs: path(`M${tip} L512 512 L${turn(angle, 512 - width, 512 - width)}Z`), level: a },
-      { tag: 'path', attrs: path(`M${tip} L${turn(angle, 512 + width, 512 - width)} L512 512Z`), level: b },
-    ];
-  };
+function lanternCompass(): Shape[] {
   return [
-    {
-      tag: 'circle',
-      attrs: { cx: 512, cy: 512, r: 318, fill: 'none', strokeWidth: 26 },
-      level: SECOND,
-    },
-    ...[45, 135, 225, 315].flatMap((a) => point(a, 200, 44, SECOND, 0.6)),
-    ...[0, 90, 180, 270].flatMap((a) => point(a, 330, 62, 0.72, 1)).map((shape) => ({ ...shape, gap: 8 })),
-    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 26 }, gap: 12 },
+    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 330, fill: 'none', strokeWidth: 24, strokeDasharray: '440 74 440 74 440 74 440 74' }, level: SECOND },
+    { tag: 'path', attrs: line('M512 150 V250', 28), level: SECOND },
+    { tag: 'path', attrs: path('M512 238 L420 326 V650 Q420 686 456 686 H568 Q604 686 604 650 V326Z', { fill: 'none', strokeWidth: 28, strokeLinejoin: 'round' }), gap: 12 },
+    { tag: 'path', attrs: line('M396 346 H628 M446 704 H578', 26), level: SECOND },
+    { tag: 'path', attrs: path('M512 416 C512 416 452 490 452 548 A60 60 0 0 0 572 548 C572 490 512 416 512 416Z'), gap: 12 },
+    { tag: 'path', attrs: path('M512 132 L512 54 L544 132Z'), level: SECOND },
+    { tag: 'path', attrs: path('M512 892 L480 778 L512 798 L544 778Z'), level: SECOND },
+    { tag: 'path', attrs: path('M132 512 L246 480 L226 512 L246 544Z'), level: SECOND },
+    { tag: 'path', attrs: path('M892 512 L778 544 L798 512 L778 480Z'), level: SECOND },
   ];
 }
 
@@ -100,7 +88,7 @@ const WHOLE: Partial<Record<FamilyApp, string>> = {
 };
 
 const MARKS: Record<FamilyApp, Shape[]> = {
-  proairetos: compass(),
+  proairetos: lanternCompass(),
   askesis: [
     { tag: 'circle', attrs: { cx: 636, cy: 356, r: 92 }, level: SECOND },
     {
