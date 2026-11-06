@@ -1,11 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-<defs><clipPath id="clip"><rect width="1024" height="1024" rx="229"/></clipPath></defs>
-<rect width="1024" height="1024" rx="229" fill="#18202b"/>
-<g clip-path="url(#clip)">
-<circle cx="512" cy="512" r="346" fill="none" stroke="#d8b47d" stroke-width="22" stroke-dasharray="470 76" transform="rotate(-45 512 512)"/>
-<path d="M512 126 L512 238" stroke="#fbf3e4" stroke-width="30" stroke-linecap="round"/>
-<path d="M512 238 L424 324 L424 652 Q424 686 458 686 H566 Q600 686 600 652 V324 L512 238Z" fill="none" stroke="#fbf3e4" stroke-width="28" stroke-linejoin="round"/>
-<path d="M398 344 H626 M444 696 H580" stroke="#d8b47d" stroke-width="28" stroke-linecap="round"/>
-<path d="M512 418 C512 418 450 492 450 548 A62 62 0 0 0 574 548 C574 492 512 418 512 418Z" fill="#fbf3e4"/>
-<path d="M512 126 L512 42 L548 126Z M512 898 L476 770 L512 790 L548 770Z M126 512 L254 476 L234 512 L254 548Z M898 512 L770 548 L790 512 L770 476Z" fill="#d8b47d"/>
-</g></svg>
+<defs><linearGradient id="tile" x1="1" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#263442"/><stop offset="1" stop-color="#101923"/></linearGradient><radialGradient id="light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#e6c58d" stop-opacity=".20"/><stop offset=".45" stop-color="#e6c58d" stop-opacity=".06"/><stop offset="1" stop-color="#e6c58d" stop-opacity="0"/></radialGradient></defs>
+<rect width="1024" height="1024" fill="url(#tile)"/><rect width="1024" height="1024" fill="url(#light)"/>
+<circle cx="512" cy="512" r="340" fill="none" stroke="#d6b783" stroke-width="24" stroke-dasharray="460 74 460 74 460 74 460 74" transform="rotate(-45 512 512)"/>
+<path d="M512 92 V174 M512 850 V932 M92 512 H174 M850 512 H932" stroke="#d6b783" stroke-width="24" stroke-linecap="round"/>
+<path d="M512 238 L408 338 L448 700 Q452 730 482 730 H542 Q572 730 576 700 L616 338Z" fill="none" stroke="#fbf6ec" stroke-width="34" stroke-linejoin="round"/>
+<path d="M390 344 H634 M454 758 H570" fill="none" stroke="#d6b783" stroke-width="28" stroke-linecap="round"/>
+<path d="M512 410 C480 462 450 502 450 558 A62 62 0 0 0 574 558 C574 506 544 466 512 410Z" fill="#fbf6ec"/>
+<path d="M512 486 C500 514 486 532 488 554 A24 24 0 0 0 536 554 C536 530 524 510 512 486Z" fill="#d6b783"/>
+</svg>

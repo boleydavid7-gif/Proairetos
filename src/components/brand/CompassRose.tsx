@@ -1,17 +1,17 @@
 type Props = { size?: number; tone?: 'light' | 'dark' };
 
-/** The Proairetos lantern-compass: a flame held inside a lantern, guided by a broken compass ring. */
+/** A minimal lantern and flame held inside a directional ring. */
 export default function CompassRose({ size = 72, tone = 'light' }: Props) {
   const ink = tone === 'light' ? '#3a2f24' : '#f2d7a5';
   const tint = tone === 'light' ? '#a07d55' : '#c9a274';
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" role="img" aria-label="Proairetos lantern compass">
-      <circle cx="50" cy="50" r="39" fill="none" stroke={tint} strokeWidth="2.2" strokeDasharray="52 9" transform="rotate(-45 50 50)" />
-      <path d="M50 12 V25 M50 75 V88 M12 50 H25 M75 50 H88" stroke={tint} strokeWidth="3" strokeLinecap="round" />
-      <path d="M50 23 L39 34 V65 Q39 69 43 69 H57 Q61 69 61 65 V34Z" fill="none" stroke={ink} strokeWidth="3.2" strokeLinejoin="round" />
-      <path d="M36 36 H64 M43 72 H57" stroke={tint} strokeWidth="3" strokeLinecap="round" />
-      <path d="M50 42 C50 42 43 51 43 56 A7 7 0 0 0 57 56 C57 51 50 42 50 42Z" fill={ink} />
-      <path d="M50 12 L47 20 H53Z M50 88 L47 80 H53Z M12 50 L20 47 V53Z M88 50 L80 47 V53Z" fill={tint} />
+      <circle cx="50" cy="50" r="34" fill="none" stroke={tint} strokeWidth="2.4" strokeDasharray="46 7.4" transform="rotate(-45 50 50)" />
+      <path d="M50 9 V17 M50 83 V91 M9 50 H17 M83 50 H91" stroke={tint} strokeWidth="2.4" strokeLinecap="round" />
+      <path d="M50 23 L39.8 33 L43.8 69 Q44.2 72 47.2 72 H52.8 Q55.8 72 56.2 69 L60.2 33Z" fill="none" stroke={ink} strokeWidth="3.2" strokeLinejoin="round" />
+      <path d="M38 34 H62 M44.5 75 H55.5" fill="none" stroke={tint} strokeWidth="2.8" strokeLinecap="round" />
+      <path d="M50 40 C46.8 45.2 44 49.8 44 55.8 A6 6 0 0 0 56 55.8 C56 50.2 53.2 45.2 50 40Z" fill={ink} />
+      <path d="M50 47.6 C48.8 50.4 48.2 52.2 48.2 54.2 A1.8 1.8 0 0 0 51.8 54.2 C51.8 52.2 51.2 50.4 50 47.6Z" fill={tint} />
     </svg>
   );
 }
