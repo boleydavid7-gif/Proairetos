@@ -71,7 +71,7 @@ describe('who may put notices forward', () => {
   });
   it('classifies the fields of every app that provides notices, and only those', () => {
     const providing = APPS.filter((each) => each.provides?.includes('notices'));
-    const moved = ['diaita', 'ergon', 'ktema', 'melete', 'philia', 'phyton', 'poreia', 'therapeia'];
+    const moved = ['askesis', 'diaita', 'dynamis', 'ergon', 'ktema', 'melete', 'oikonomia', 'philia', 'phyton', 'poreia', 'therapeia'];
     expect(providing.map((each) => each.id).sort()).toEqual(moved);
     expect(APPS.filter((each) => each.notices.fields).map((each) => each.id).sort()).toEqual(moved);
     for (const each of providing) {

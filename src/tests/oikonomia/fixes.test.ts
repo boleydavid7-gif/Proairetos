@@ -108,7 +108,7 @@ describe('bill reminders', () => {
   it('come on the morning of the lead day, none for a paid date', () => {
     const phone = bill({ id: 'p', name: 'Phone', amountCents: 4500, dueDate: '2026-10-21', reminderDays: 3 });
     const reminders = billReminders([phone, withPayment(bill({ dueDate: '2026-10-20' }), '2026-10-20', 'x')], '2026-10-10', '2026-10-24');
-    expect(reminders.map((r) => [r.day, r.title])).toEqual([['2026-10-18', 'Phone · $45.00']]);
+    expect(reminders.map((r) => [r.day, r.title])).toEqual([['2026-10-18', 'Phone']]);
     const notices = noticesBetween({
       items: [],
       decisions: [],

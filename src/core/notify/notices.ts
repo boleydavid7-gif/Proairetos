@@ -284,6 +284,9 @@ export function noticesBetween(sources: Sources): Notice[] {
       plant: settings.plants,
       trip: settings.trips,
       melete: settings.melete,
+      // Askesis and Oikonomia come this way too when their providers are asked (the same switches act on them).
+      run: settings.runs,
+      bill: settings.bills,
     };
     if (on[notice.kind]) raw.push(notice);
   }
@@ -379,8 +382,8 @@ export function noticesBetween(sources: Sources): Notice[] {
 
   // Quiet hours and protected time hold a notice until they end; the wording follows.
   const held = raw.map(({ starts, extra, ...notice }) => {
-    // A block the person started, and the plan around their sleep, are said at their own time.
-    if (!sources.quiet || notice.kind === 'study' || notice.kind === 'rhythm' || notice.kind === 'dose') return notice;
+    // A block the person started, the plan around their sleep and a run day (said at its own time) are not moved.
+    if (!sources.quiet || notice.kind === 'study' || notice.kind === 'rhythm' || notice.kind === 'dose' || notice.kind === 'run') return notice;
     const at = deliverAt(notice.at, sources.quiet, sources.holding ?? sources.blocks);
     if (at.getTime() === notice.at.getTime()) return notice;
     // A reminder for something with a start is never held past that start: arriving after it would be no reminder.

@@ -11,18 +11,19 @@ import { hostContext } from '../../app/providers/context';
 import { setNoticeProviders } from '../../app/providers/noticePath';
 import { scheduleTemplates } from '../../core/scheduling/templates';
 import { now, seed, until } from './noticeFixtures';
+import { seedMore } from './noticeFixturesMore';
 
 /*
- * Philia, Ergon, Ktema, Meletē, Phyton, Poreia, Therapeia and Diaita, old way and new way. The same records and the same choices are gathered once by the
+ * Philia, Ergon, Ktema, Meletē, Phyton, Poreia, Therapeia, Diaita, Dynamis, Askesis and Oikonomia, old way and new way. The same records and the same choices are gathered once by the
  * apps' own functions (the default) and once through their providers (the device switch), both through `upcomingNotices`, so the
  * person's switches and quiet hours act on each as they do in the app. What they say must be identical, field for field.
  */
 vi.mock('../../app/family/added', () => ({ isAdded: () => true, addedApps: () => [], useAddedApps: () => [] }));
 
-const APPS_MOVED = ['philia', 'ergon', 'ktema', 'melete', 'phyton', 'poreia', 'therapeia', 'diaita'] as const;
-const KINDS = new Set(['person', 'chore', 'upkeep', 'melete', 'plant', 'trip', 'dose', 'care', 'rhythm']);
+const APPS_MOVED = ['philia', 'ergon', 'ktema', 'melete', 'phyton', 'poreia', 'therapeia', 'diaita', 'dynamis', 'askesis', 'oikonomia'] as const;
+const KINDS = new Set(['person', 'chore', 'upkeep', 'melete', 'plant', 'trip', 'dose', 'care', 'rhythm', 'training', 'run', 'bill']);
 const rows = (notices: readonly Notice[]) => notices.filter((notice) => KINDS.has(notice.kind)).map(({ key, kind, at, title, body, open }) => ({ key, kind, at: at.toISOString(), title, body, open }));
-const FAMILY_OFF = { rhythm: false, people: false, chores: false, medicines: false, training: false, upkeep: false, plants: false, trips: false, melete: false };
+const FAMILY_OFF = { runs: false, bills: false, rhythm: false, people: false, chores: false, medicines: false, training: false, upkeep: false, plants: false, trips: false, melete: false };
 
 async function both(settings: NoticeSettings) {
   const { upcomingNotices } = await import('../../app/notify/upcoming');
@@ -35,13 +36,14 @@ async function both(settings: NoticeSettings) {
 }
 
 // The shared chore is due this morning, before the test’s “now”, so a second one is due on a later day for the notices to carry.
-beforeEach(() => {
+beforeEach(async () => {
   seed(false);
+  await seedMore();
   localStorage.setItem('ergon:chore:c2', JSON.stringify({ id: 'c2', name: 'Water the lawn', repeat: { kind: 'days', every: 3 }, history: [{ date: '2026-09-30' }], start: '2026-09-01' }));
 });
 afterEach(() => localStorage.clear());
 
-describe('the eight apps, old way and new way', () => {
+describe('the eleven apps, old way and new way', () => {
   it('say the same, field for field, with every switch on', async () => {
     const { legacy, provided } = await both({ ...defaultNoticeSettings, melete: true });
     expect(rows(legacy).length).toBeGreaterThan(0);
@@ -63,7 +65,7 @@ describe('the eight apps, old way and new way', () => {
     expect(rows(provided)).toEqual(rows(legacy));
   });
   it('say the same with one switch on at a time, and nothing for a switch that is off', async () => {
-    for (const [key, kind] of [['people', ['person']], ['chores', ['chore']], ['upkeep', ['upkeep']], ['plants', ['plant']], ['trips', ['trip']], ['medicines', ['dose', 'care']], ['rhythm', ['rhythm']]] as const) {
+    for (const [key, kind] of [['people', ['person']], ['chores', ['chore']], ['upkeep', ['upkeep']], ['plants', ['plant']], ['trips', ['trip']], ['medicines', ['dose', 'care']], ['rhythm', ['rhythm']], ['training', ['training']], ['runs', ['run']], ['bills', ['bill']]] as const) {
       const { legacy, provided } = await both({ ...defaultNoticeSettings, ...FAMILY_OFF, [key]: true });
       expect(new Set(rows(legacy).map((row) => row.kind)), key).toEqual(new Set(kind));
       expect(rows(provided), key).toEqual(rows(legacy));
@@ -77,7 +79,7 @@ describe('the eight apps, old way and new way', () => {
     const delivery = (notices: readonly Notice[]) => notices.filter((notice) => KINDS.has(notice.kind)).map((notice) => ({ key: notice.key, at: notice.at.toISOString(), details: wordsOf(notice), private: wordsOf(privateNotice(notice)) }));
     expect(delivery(provided)).toEqual(delivery(legacy));
   });
-  it('show each notice once: the legacy gather leaves the eight out when they come through providers', async () => {
+  it('show each notice once: the legacy gather leaves the eleven out when they come through providers', async () => {
     const { provided } = await both({ ...defaultNoticeSettings, melete: true });
     const keys = rows(provided).map((row) => row.key);
     expect(new Set(keys).size).toBe(keys.length);
@@ -95,11 +97,11 @@ describe('the eight apps, old way and new way', () => {
   });
 });
 
-describe('what the eight providers keep out', () => {
+describe('what the eleven providers keep out', () => {
   it('lets no marked value into a notice, its words with details on or off, or what the host rejects', async () => {
     const ctx = { ...hostContext(now), range: { from: now, until }, noticeSwitch: () => true, blocks: async () => [] };
     const providers = (await Promise.all(APPS_MOVED.map((app) => providerModules[app]!()))).flatMap((module) => module.providers).filter((provider) => provider.capability === 'notices');
-    expect(providers).toHaveLength(8);
+    expect(providers).toHaveLength(11);
     const out = await noticeLines(providers as never, APPS, ctx);
     expect(out.rejected).toEqual([]);
     expect(out.notices.length).toBeGreaterThan(0);
@@ -109,6 +111,11 @@ describe('what the eight providers keep out', () => {
     expect(everything).toMatch(/Mia/);
     expect(everything).toMatch(/Take out bins/);
     expect(everything).toMatch(/Biology/);
+    expect(everything).toMatch(/Rent/);
+    expect(everything).toMatch(/River path/);
+    expect(everything).toMatch(/Session B/);
+    // No amount, in any title, body or preview.
+    expect(everything).not.toMatch(/\$\s?\d|1,234|123456|7999/);
     expect(everything).toMatch(/Kitchen pothos/);
     expect(everything).toMatch(/Lisbon tomorrow/);
     expect(everything).toMatch(/A visit/);

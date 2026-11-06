@@ -1,4 +1,6 @@
-import { addDays, formatMoney, occurrencesBetween, paidForOccurrence, parseDate, type Bill } from './bills';
+import type { Notice } from '../../core/notify/notices';
+import { atTime } from '../../core/scheduling/dates';
+import { addDays, occurrencesBetween, paidForOccurrence, parseDate, type Bill } from './bills';
 
 /** One bill reminder: the morning of the day the person chose (their lead before the date). */
 export type BillReminder = { key: string; day: string; billId: string; title: string; body: string };
@@ -27,10 +29,16 @@ export function billReminders(bills: readonly Bill[], from: string, until: strin
         key: `${bill.id}:${date}:${day === date ? 0 : lead}`,
         day,
         billId: bill.id,
-        title: `${bill.name} · ${formatMoney(bill.amountCents, bill.currency)}`,
+        // The name and the due wording only. An amount stays in the app: never in a title, body or preview.
+        title: bill.name,
         body: bill.autopay ? `${when} · paid automatically` : when,
       });
     }
   }
   return out;
+}
+
+/** The notice for a reminder, as the notices page and the lock screen word it: the morning of its day. */
+export function billNotice(reminder: BillReminder): Notice {
+  return { key: `bill:${reminder.key}`, kind: 'bill', at: atTime(reminder.day, '09:00'), title: reminder.title, body: reminder.body, open: `oikonomia:bill:${reminder.billId}` };
 }

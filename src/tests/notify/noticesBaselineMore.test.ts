@@ -12,12 +12,19 @@ import { seedMore } from './noticeFixturesMore';
  * The baseline for Dynamis, Askesis run days and Oikonomia bills (Slice 5, commit 6), recorded from the apps' own functions before
  * they move: every field of the notices for these three kinds, and the delivery inputs (source, row id, fire time, the words with
  * details on, the words kept private). Written with NOTICES_BASELINE=write; compared otherwise, one file a time zone.
+ *
+ * The one difference the privacy decisions call for: a bill's reminder no longer states its amount. Each row below lists the
+ * words the baseline holds (checked, so this table cannot drift from the file) and the words now; the files are not edited.
  */
 vi.mock('../../app/family/added', () => ({ isAdded: () => true, addedApps: () => [], useAddedApps: () => [] }));
 
 const zone = process.env.TZ || 'UTC';
 const FILE = resolve(process.cwd(), 'src/tests/notify/fixtures', `noticesBaselineMore.${zone.replace(/\W+/g, '-').toLowerCase()}.json`);
 const KINDS = new Set(['training', 'run', 'bill']);
+const CHANGES: Record<string, { was: string; now: string }> = {
+  'bill:b1:2026-10-05:2': { was: 'Rent · $1,234.56', now: 'Rent' },
+  'bill:b2:2026-10-06:2': { was: 'Internet · $79.99', now: 'Internet' },
+};
 const settings = { ...defaultNoticeSettings, runs: true, bills: true, training: true };
 
 async function capture(quiet: { start: string; end: string }) {
@@ -46,7 +53,7 @@ describe('notice baseline: Dynamis, Askesis runs, Oikonomia bills', () => {
 
   it('covers the three apps', () => {
     for (const scenario of Object.values(result)) {
-      const kinds = new Set(scenario.notices.map((row) => row.kind));
+      const kinds = new Set<string>(scenario.notices.map((row) => row.kind));
       for (const kind of KINDS) expect(kinds.has(kind), kind).toBe(true);
     }
   });
@@ -56,6 +63,24 @@ describe('notice baseline: Dynamis, Askesis runs, Oikonomia bills', () => {
       return;
     }
     expect(existsSync(FILE), `no baseline for ${zone}`).toBe(true);
-    expect(JSON.parse(JSON.stringify(result))).toEqual(JSON.parse(readFileSync(FILE, 'utf8')));
+    const recorded = JSON.parse(readFileSync(FILE, 'utf8')) as typeof result;
+    let changed = 0;
+    for (const value of Object.values(recorded)) {
+      for (const row of value.notices) {
+        const change = CHANGES[row.key];
+        if (!change) continue;
+        expect(row.title, row.key).toBe(change.was);
+        row.title = change.now;
+        changed += 1;
+      }
+      for (const row of value.delivery) {
+        const change = CHANGES[row.key];
+        if (!change) continue;
+        expect(row.details.t, row.key).toBe(change.was);
+        row.details.t = change.now;
+      }
+    }
+    expect(changed).toBe(4); // two bills in each of the two scenarios
+    expect(JSON.parse(JSON.stringify(result))).toEqual(recorded);
   });
 });

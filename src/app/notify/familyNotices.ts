@@ -73,7 +73,7 @@ export async function familyNotices(now: Date, until: Date, skip: ReadonlySet<st
   }
 
   const training = dynamisPlan.load();
-  if (isSetup(training) && dynamisSettings.load().reminders && isAdded('dynamis')) {
+  if (isSetup(training) && dynamisSettings.load().reminders && isAdded('dynamis') && !skip.has('dynamis')) {
     notices.push(...trainingNotices(training, true, nextSession(training, dynamisWorkouts.list()).name, today, horizon, now, liftDays, (date) => trainingTimeOn('dynamis', date)));
   }
 
