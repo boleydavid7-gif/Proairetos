@@ -642,10 +642,10 @@ export function loadAppearance(): Appearance {
   const saved = readJson<Partial<Appearance>>(APPEARANCE_KEY) ?? {};
   return {
     theme: 'dark',
-    background: isBackground(saved.background) ? saved.background : DEFAULT_BACKGROUND,
     taps: true,
     dayLight: true,
     ...saved,
+    background: isBackground(saved.background) ? saved.background : DEFAULT_BACKGROUND,
     room: isRoom(saved.room) ? saved.room : DEFAULT_ROOM,
     color: isColorChoice(saved.color) ? saved.color : 'match',
     wallStyle: isWallStyle(saved.wallStyle) ? saved.wallStyle : 'paper',
