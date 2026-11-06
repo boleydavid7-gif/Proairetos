@@ -1,4 +1,3 @@
-import { comingUp, type Person } from '../../philia/core/people';
 import { addDays, occurrencesBetween, paidForOccurrence, type Bill } from '../../oikonomia/core/bills';
 
 /**
@@ -50,14 +49,4 @@ export function waterDuring(
   const last = since.map((drink) => drink.loggedAt!).sort().pop()!;
   const time = new Date(last).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   return { line: `Water: ${volume(total, unit)} since work began · last ${time}` };
-}
-
-/** Birthdays and dates from Philia that fall on a day (read only; each opens the person in Philia). */
-export function birthdaysOn(people: readonly Person[], date: string): { id: string; name: string; href: string }[] {
-  // Events with a time show as entries at that time (`philia/providers/calendar.ts`), not as lines.
-  return comingUp(people, date, 0).filter((entry) => !entry.time).map((entry) => ({
-    id: entry.key,
-    name: entry.label === 'Birthday' ? `${entry.person.name}’s birthday` : `${entry.person.name}: ${entry.label}`,
-    href: `/philia/?open=${encodeURIComponent(`person:${entry.person.id}`)}`,
-  }));
 }

@@ -2,7 +2,7 @@
 
 Status: approved design (docs/PHASE3_PLAN.md). Slices 1 and 2 are built: the provider types, host and policy, and search
 providers for Soma, Theoria, Philia, Ergon, Therapeia, Ktema, Poreia, Askesis, Dynamis, Oikonomia and Hydros. Slice 3 is
-built: home providers for the 14 apps that put lines on Today (section 6). Calendar, notices and library providers do not
+built: home providers for the 14 apps that put lines on Today (section 6). Slice 4 (calendar) is built except the presentation of kinds (section 7). Notices and library providers do not
 exist yet. Section 4 below was revised by the owner's decision D1. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
 existing read-only `LifeRecordAdapter` (`docs/LIFE_RECORD_INTEGRATION.md`).
 
@@ -126,3 +126,36 @@ Today's two groups, Daily practices and Worth your attention, read only provider
 - **Layout.** This change touches a text string inside an existing line and no markup or style, so the parity compare
   (390 and 1440, dark and light, UTC and Los Angeles) is the layout check; `layout-check` and `visual-check` measure
   docks and bars, which nothing here changed.
+
+## 7. Calendar providers (Slice 4)
+
+Days ahead, Today's timeline and open time read the apps' calendar providers through `app/providers/calendarStore.ts`.
+Six apps contribute: Philia, Oikonomia, Ktema, Meletē, Therapeia and Poreia. Others do not, and none was added.
+
+- **Manifest.** An app that provides `calendar` declares `calendar: { shows, excludes, kinds }`; the check refuses
+  `provides calendar` without all three. Lines show while the app is added.
+- **Line.** `CalendarLine` has only `ref`, `kind`, `title`, `detail`, `open`, `day`, `until`, `start`, `end`, `location`,
+  `done` and `color`. `kind` is `event` (a time on the clock), `deadline` (a day something is due or ends), `recurring`
+  (a date that comes round: birthdays, anniversaries) or `info` (a span of days, or a one-time date, that gives context).
+  `enforceCalendar` rejects any other key, another app's ref, a kind the manifest does not list, an `open` outside the
+  app, a bad day, a span that does not end after it starts, an event without a valid time, a time on any other kind, and a
+  record twice (ref and day). A line outside the visible range is dropped.
+- **Days and spans.** A day is the person's local calendar day, `YYYY-MM-DD`, so a date with no time is that day in every
+  time zone. `until` is the day after the last day (end-exclusive). Only an `event` has instants.
+- **Ownership.** `ref` is `app:kind:id[:occurrence]` (the occurrence is the day, for a date that comes round); `open`
+  stays inside the owning app. Nothing is copied into Proairetos.
+- **Range.** The reader gives the visible range (`ctx.range`, `until` exclusive). A provider expands what repeats inside it
+  and not beyond (`rangeDays`).
+- **Store.** Results are held in memory per app and range (six ranges at most). An app is asked again only when its sources
+  change in a sync, its own records change (`subscribe`), the day turns over, the age limit passes, or it is added or
+  removed. Once the calendar is being read the store keeps watching, so moving between Today and Days ahead reuses what it
+  holds. Each derivation leaves a `provider-derive:calendar:<app>` mark. Nothing is stored or synced.
+- **Amounts.** Oikonomia's lines give the bill's name, due date and whether a payment is recorded. Amounts, currency,
+  payments, notes and bill types are excluded (the owner's decision). The baselines in `scripts/calendar-check/baseline/`
+  were edited for this one change.
+- **The published calendar.** The file people subscribe to still carries Poreia's events as before, with their notes and
+  confirmation codes (the person's own file). It reads through `app/calendars/poreiaFeed.ts`, not through the provider.
+- **Readers.** `eventsFromLines` and `quietLinesByDay` (`app/providers/calendarView.ts`) make the shapes the screens
+  draw. `busyTime.ts` takes only Philia, Therapeia and Meletē entries as busy time, as before.
+- **Parity.** `scripts/calendar-check/` (`npm run calendar:check`) seeds one record of every kind in the six apps on a fixed
+  clock and compares Days ahead (list, week, month, year) and Today's timeline against the pre-migration build.
