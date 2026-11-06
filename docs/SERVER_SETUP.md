@@ -216,7 +216,7 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
 5. Calendar link (optional): **Settings → Calendar subscription → Create
    link**, then use the Apple, Google, or Outlook button it shows. Migration
    `20261111000000_calendar_feed_format.sql` ends every link made before it and
-   needs the order in `docs/CALENDAR_CORRECTIONS_PLAN.md` (deployment order).
+   needs the order in `docs/CALENDAR_CORRECTIONS_PLAN.md` (deployment runbook): migration, then function, then app.
 6. Notifications on **iPhone**: open the site in Safari, **Share → Add to
    Home Screen**, open Proairetos from the Home Screen (iOS 16.4 or newer).
    Then **Settings → Notifications → Allow notifications**, and switch on

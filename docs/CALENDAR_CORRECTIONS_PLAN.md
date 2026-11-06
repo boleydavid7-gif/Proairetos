@@ -269,27 +269,69 @@ Two commits, kept apart: the recurrence correction (`core/bills.ts`, its tests) 
 - The function is deployed by hand: `supabase functions deploy calendar-feed --no-verify-jwt`.
 - Old rows have no `format` (null). Old clients write without it.
 
-### Deployment order (nothing below has been run)
+### Deployment runbook (nothing below has been run in production)
 
-1. **Deploy the function first.** It serves only format 2, so every old file stops being served at once, before the client and
-   migration land. Old clients that keep publishing write rows with no format, which are never served.
-2. **Release the client** (merge to `main` when you decide). New devices write format 2 files with the chosen categories. A device
-   with the feed on finds no format 2 row and ends its link; the page says so.
-3. **Run the migration.** It deletes the old rows and refuses writes without format 2, so an older client cannot put an old-format
-   file back.
-4. Read the three counts in 1.2 before step 3 and again after, and confirm one request each with an old token (404), a new token
-   (200) and a malformed token (404).
+This replaces the order in 1.4 and the first version of this section. The function and the app both read the new `format`
+column, so the migration has to come first; running it first also ends every old link at once. Checked locally against a
+scratch Postgres 16 and the function's own code (section 4).
 
-Running the migration before step 1 or 2 would stop old clients from publishing but would leave the old function serving
-nothing new either; it is not harmful, but step 1 is what ends serving, and it comes first so the window is shortest.
+Before you start (read-only, optional): run the three counts in 1.2 and note them.
+
+1. **Run the migration** `supabase/migrations/20261111000000_calendar_feed_format.sql` in the Supabase SQL editor.
+   - It is one transaction (`begin` ... `commit`). It adds `format`, changes the write rule to need `format = 2`, then deletes
+     every row that is not format 2. If any statement fails nothing changes. Running it twice is safe.
+   - If the editor already wraps the script in a transaction, the inner `begin` gives a harmless warning.
+   - Result: every old link answers 404, every old file is gone, and an older app cannot write a file (it shows an error line when a
+     person tries to create a link, until it updates).
+2. **Deploy the function:** `supabase functions deploy calendar-feed --no-verify-jwt`. It serves only format 2 and sends a no-referrer
+   policy. With step 1 done there are no old rows, so this is a second guard.
+3. **Release the app** (merge to `main`; Cloudflare builds and deploys). New devices write format 2 files with the categories the
+   person switched on. A device that had the feed on finds no link at its next sync, turns it off and shows the status line.
+4. **Check, with one request each** (use a test account's link, never print a real person's token): an old token answers 404; a
+   new link made in Settings answers 200 with the right categories; a malformed token answers 404. Run the three counts again; every
+   count is 0.
+5. Tell people (What's new has the lines): old links ended; make a new link; remove the old subscription in the calendar app.
+
+Windows and what they mean:
+
+- Between 1 and 3, old apps cannot publish; people who open Settings > Calendar and try to create a link see an error line. No file
+  is exposed.
+- If 3 happened before 1 (a mistaken merge), the new app's calls ask for a `format` column that does not exist and fail; no file is
+  written, and old files stay served until 1. The order matters for how long old files stay readable, not for new ones.
+- If 2 happened before 1, every feed request answers "try again later" (the column does not exist), which exposes nothing.
 
 ### Rollback limits
 
 - Deleted rows cannot be restored from the app; there is no copy. Backups and point-in-time recovery may hold them until their
   retention ends, and restoring one would bring old plain-text files back; do not.
-- Rolling the function back to the previous version would serve format-null rows again (none remain after the migration).
-- Rolling the client back leaves old clients refused by the `format = 2` rule; the policy can be dropped and the old one
-  recreated (the migration text shows both), but that restores the ability to write old content, so it is not advised.
+- Rolling the function back to the previous version is harmless after step 1 (no old rows remain).
+- Rolling the app back leaves older apps refused by the `format = 2` rule. Dropping that rule (recreate the first policy in the
+  migration without `and format = 2`) would let them write old content again, so it is not advised.
 - Nothing already fetched by a calendar app can be recalled. People remove the old subscription in the app.
 - Logs: the link contains the token and the platform's own request logs may record it. The app and the function write no log of
-  it, and every old token is dead after step 3. Platform log retention is outside this code.
+  it (a test holds the function to that), and every old token is dead after step 1. Platform log retention is outside this code.
+
+---
+
+## 4. Local verification (done, not production)
+
+- `tsc` and lint: no errors.
+- Recurrence and bills (`src/tests/oikonomia`, 83 tests) in UTC, Pacific/Auckland and America/Los_Angeles: all pass. The new
+  functions equal the old uncapped walk for every frequency, month-end day, 29 February and `endedOn`; a weekly bill from 1990 has
+  every date; payment history for a thirty-year-old weekly autopay bill gives the newest 24 in order; a range with no end stops at
+  10,000 and returns at once; no ordinary range comes near the limit.
+- Feed, ICS, providers, time zones, Poreia core, language guard: all pass.
+- Migration against a scratch Postgres 16 (`bash supabase/tests/calendar_feed_format.sh`): 20 of 20. A failure part-way rolls
+  everything back; old rows are removed; writes without `format = 2` or with another format are refused; a new link (upsert) works; a
+  row cannot be set back to no format; people cannot see or change each other's row; a visitor cannot read the table; the function's
+  query never returns an old row; a second run keeps new files.
+- The function's code, with a stand-in client that applies its filters: old rows are not served by any form of the link, a format 2
+  file is, a malformed token and other methods never reach the database, a database error gives 503, nothing is logged. With the
+  `format` filter removed the first and third tests fail, so they do hold it.
+- Settings > Calendar (jsdom): new switches off, description matches the switches, an older stored choice reads the new ones as
+  off, the ended-link line and the calendar-app copy line show when they should.
+
+Not tested automatically: `refreshCalendarFeed`, `calendarFeedLink` and `enableCalendarFeed` end to end (they depend on the sync
+controller's internal state); read instead. A stale link sets `enabled: false, linkEnded: true`; a new link or turning off clears
+`linkEnded`; the client reads and writes only format 2, so an old row is invisible to it and a new link replaces it. Not run: the
+function on Supabase, the production migration, a real calendar app subscribing.

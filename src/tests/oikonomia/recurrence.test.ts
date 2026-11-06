@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { addDays, addMonths, occurrenceBefore, occurrenceOnOrAfter, occurrencesBetween, standing, type Bill, type BillFrequency } from '../../oikonomia/core/bills';
+import { addDays, addMonths, occurrenceBefore, occurrenceOnOrAfter, occurrencesBetween, paymentHistory, standing, type Bill, type BillFrequency } from '../../oikonomia/core/bills';
 
 /*
  * A bill's dates are found from the calendar, not by counting from its first date. These hold the new functions to the
@@ -110,5 +110,29 @@ describe('an old bill costs no more than a new one', () => {
     const time = (b: Bill) => { const at = performance.now(); for (let i = 0; i < 200; i += 1) occurrencesBetween(b, '2026-11-01', '2026-11-30'); return performance.now() - at; };
     time(old);
     expect(time(old)).toBeLessThan(time(recent) * 5 + 20);
+  });
+});
+
+describe('history and the limit on one call', () => {
+  it('a weekly autopay bill from thirty years ago still lists its newest payments first, none cut off', () => {
+    const b = bill({ frequency: 'weekly', dueDate: '1996-01-01', autopay: true, createdAt: '1996-01-01T00:00:00.000Z' });
+    const history = paymentHistory(b, '2026-11-06', 24);
+    expect(history).toHaveLength(24);
+    expect(history[0].date).toBe('2026-11-02');
+    expect(history.every((payment, index) => index === 0 || payment.date === addDays(history[index - 1].date, -7))).toBe(true);
+    // The whole run from 1996 is more than a thousand dates and is all there.
+    expect(occurrencesBetween(b, '1996-01-01', '2026-11-06').length).toBeGreaterThan(1500);
+  });
+  it('a range with no end stops at the limit and returns at once', () => {
+    const b = bill({ frequency: 'weekly', dueDate: '2026-01-05' });
+    const at = performance.now();
+    const dates = occurrencesBetween(b, '2026-01-01', '9999-12-31');
+    expect(dates).toHaveLength(10_000);
+    expect(dates[0].date).toBe('2026-01-05');
+    expect(performance.now() - at).toBeLessThan(1000);
+  });
+  it('no ordinary range comes near the limit: a year of weekly dates is 52 or 53', () => {
+    const b = bill({ frequency: 'weekly', dueDate: '2000-01-03' });
+    for (const year of [2024, 2025, 2026, 2027]) expect(occurrencesBetween(b, `${year}-01-01`, `${year}-12-31`).length).toBeLessThanOrEqual(53);
   });
 });
