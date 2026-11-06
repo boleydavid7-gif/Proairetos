@@ -59,7 +59,7 @@ check('the derivations are quick', first.every((m) => m.ms < 200), `${first.map(
 
 let t = await text();
 check('a visit, a birthday, a warranty end, an exam and a trip are on the list', /Dr Lee/.test(t) && /Mara’s birthday/.test(t) && /Dishwasher: warranty ends/.test(t) && /Biology: Midterm/.test(t) && /All day · Lisbon/.test(t));
-check('the bills show their names and paid state and no amount', /Internet/.test(t) && /Rent/.test(t) && /\bpaid\b/.test(t) && !/\$|98,765|1,234|USD/.test(t));
+check('the bills show their names and paid state and no amount', /Internet/.test(t) && /Rent/.test(t) && /\bpaid\b/i.test(t) && !/\$|98,765|1,234|USD/.test(t));
 check('excluded fields are nowhere on the page', !/canary/i.test(await page.locator('body').innerText()));
 const spanDays = (t.match(/All day · Lisbon/g) ?? []).length;
 check('a trip fills its days and ends the day after its last day', spanDays === 4, `${spanDays} days shown for ${dates.tripStart} to ${dates.tripEnd}`);

@@ -1,5 +1,7 @@
 # Calendar feed correction: deployment checklist
 
+> **Superseded for deployment (Nov 6).** The server steps this document plans (migration `20261111000000_calendar_feed_format.sql`, the `calendar-feed` function) were run in production from `main` by the owner, using the stand-alone version in `docs/CALENDAR_FEED_FIX.md`. The migration's statements are identical; only its comments differ, and `main`'s copy is the one kept. No link made before it existed ever worked in production, so nothing was ended. Release 4 adds only app code: three category switches, all off, and the providers behind them. It needs no migration and no function deploy. Read this document for the reasoning, and `docs/CALENDAR_FEED_FIX.md` for what was run.
+
 Status: prepared, not executed. Every production step below waits for the owner's explicit confirmation at that step.
 Nothing here has been run against production, and this session has no access to production.
 
