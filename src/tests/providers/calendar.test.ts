@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { APPS, type AppManifest } from '../../core/apps';
 import { calendarLines, enforceCalendar, type CalendarLine, type HostContext, type Provider } from '../../core/providers';
 
+import { createCalendarStore, type CalendarDeps } from '../../app/providers/calendarStore';
 /* The lines apps put on the calendar: what may reach it, and who may put lines there. */
 const TODAY = '2026-11-05';
 const range = { from: new Date('2026-11-01T00:00:00'), until: new Date('2026-12-01T00:00:00') };
@@ -78,5 +79,102 @@ describe('who may put lines on the calendar', () => {
     const out = await calendarLines([broken, fine], manifest, ctx());
     expect(out.lines.map((each) => each.ref.app)).toEqual(['ktema']);
     expect(out.rejected[0].reason).toMatch(/bad record/);
+  });
+});
+
+
+
+function store(providers: Provider<'calendar'>[], overrides: Partial<CalendarDeps> = {}) {
+  const synced = new Set<(collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) => void>();
+  const choices = new Set<() => void>();
+  let clock = new Date(`${TODAY}T12:00:00`);
+  const deps: CalendarDeps = {
+    manifest,
+    load: async (id) => providers.filter((each) => each.app === id),
+    context: (_given, now) => ({ ...ctx(), now }),
+    usable: () => true,
+    enabled: () => true,
+    onSynced: (listener) => { synced.add(listener); return () => synced.delete(listener); },
+    onChoices: (listener) => { choices.add(listener); return () => choices.delete(listener); },
+    now: () => clock,
+    ...overrides,
+  };
+  const instance = createCalendarStore(deps);
+  return { instance, sync: (collections: string[], ids?: Map<string, string[]>) => synced.forEach((listener) => listener(collections, ids)), choose: () => choices.forEach((listener) => listener()), advance: (ms: number) => { clock = new Date(clock.getTime() + ms); } };
+}
+const ktemaLine = (id: string) => line(id, { ref: { app: 'ktema', kind: 'upkeep', id }, open: `/ktema/?open=upkeep%3A${id}` });
+const nov = { from: new Date('2026-11-01T00:00:00'), until: new Date('2026-12-01T00:00:00') };
+const dec = { from: new Date('2026-12-01T00:00:00'), until: new Date('2027-01-01T00:00:00') };
+
+describe('when an app’s calendar lines are derived', () => {
+  it('derives each eligible app once for a range, and uses what it holds the second time', async () => {
+    const { instance } = store([provider(() => [line('c1')]), provider(() => [ktemaLine('k1')], { app: 'ktema' })]);
+    expect((await instance.lines(nov)).map((each) => each.ref.app)).toEqual(['ergon', 'ktema']);
+    await instance.lines(nov);
+    expect(instance.derivations().map((each) => each.app).sort()).toEqual(['ergon', 'ktema']);
+  });
+  it('asks again for a range not yet seen, and keeps the first range', async () => {
+    const { instance } = store([provider(() => [line('c1')])]);
+    await instance.lines(nov);
+    await instance.lines(dec);
+    await instance.lines(nov);
+    expect(instance.derivations()).toHaveLength(2);
+  });
+  it('a sync that changed one app’s records derives only that app, and tells the reader', async () => {
+    const { instance, sync } = store([provider(() => [line('c1')], { sources: ['local:ergon:chore:'] }), provider(() => [], { app: 'ktema', sources: ['local:ktema:upkeep:'] })]);
+    const told: number[] = [];
+    const off = instance.subscribe(() => told.push(instance.version()));
+    await instance.lines(nov);
+    const before = instance.derivations().length;
+    sync(['preferences'], new Map([['preferences', ['ktema:upkeep:u1']]]));
+    expect(told).toHaveLength(1);
+    await instance.lines(nov);
+    expect(instance.derivations().slice(before).map((each) => each.app)).toEqual(['ktema']);
+    sync(['somaRecipes']);
+    expect(told).toHaveLength(1);
+    off();
+  });
+  it('a change inside an app, told by the provider, derives only that app', async () => {
+    let tell = () => undefined as void;
+    const { instance } = store([provider(() => [line('c1')], { subscribe: (listener) => { tell = listener; return () => undefined; } }), provider(() => [], { app: 'ktema' })]);
+    const off = instance.subscribe(() => undefined);
+    await instance.lines(nov);
+    const before = instance.derivations().length;
+    tell();
+    await instance.lines(nov);
+    expect(instance.derivations().slice(before).map((each) => each.app)).toEqual(['ergon']);
+    off();
+  });
+  it('the day turning over, or the age limit, derives again; the same day within the limit does not', async () => {
+    const { instance, advance } = store([provider(() => [line('c1')])]);
+    await instance.lines(nov);
+    advance(60_000);
+    await instance.lines(nov);
+    expect(instance.derivations()).toHaveLength(1);
+    advance(6 * 60_000);
+    await instance.lines(nov);
+    expect(instance.derivations()).toHaveLength(2);
+    advance(24 * 3_600_000);
+    await instance.lines(nov);
+    expect(instance.derivations()).toHaveLength(3);
+  });
+  it('an app removed or set aside is dropped and not asked again', async () => {
+    let usable = true;
+    const { instance, choose } = store([provider(() => [line('c1')]), provider(() => [ktemaLine('k1')], { app: 'ktema' })], { usable: (app) => app !== 'ktema' || usable });
+    const off = instance.subscribe(() => undefined);
+    expect(await instance.lines(nov)).toHaveLength(2);
+    usable = false;
+    choose();
+    const before = instance.derivations().length;
+    expect((await instance.lines(nov)).map((each) => each.ref.app)).toEqual(['ergon']);
+    expect(instance.derivations().length).toBe(before);
+    off();
+  });
+  it('keeps no more than a handful of ranges for an app', async () => {
+    const { instance } = store([provider(() => [])]);
+    for (let month = 0; month < 9; month += 1) await instance.lines({ from: new Date(2027, month, 1), until: new Date(2027, month + 1, 1) });
+    const before = instance.derivations().length;
+    await instance.lines({ from: new Date(2027, 0, 1), until: new Date(2027, 1, 1) });
+    expect(instance.derivations().length).toBe(before + 1);
   });
 });

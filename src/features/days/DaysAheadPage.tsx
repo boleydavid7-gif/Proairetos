@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
 import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { philiaCalendar } from '../../app/calendars/philiaCalendar';
@@ -9,6 +9,8 @@ import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { billsOn, birthdaysOn } from '../../app/family/glance';
 import { useStoredRecords } from '../../app/family/storedRecords';
+import { calendarStore } from '../../app/providers/calendar';
+import { eventsFromLines, quietLinesByDay } from '../../app/providers/calendarView';
 import { ktemaDatesOn } from '../../app/calendars/ktemaDates';
 import type { Thing as KtemaThing, Upkeep as KtemaUpkeep } from '../../ktema/core/things';
 import { studyDatesOn, useMeleteSubjects } from '../../app/calendars/meleteCalendar';
@@ -109,7 +111,7 @@ const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
 };
 
 function subscribeAll(listener: () => void) {
-  const off = [lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), therapeiaCalendar.subscribe(listener), meleteCalendar.subscribe(listener), compassService.subscribe(listener)];
+  const off = [calendarStore.subscribe(listener), lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), therapeiaCalendar.subscribe(listener), meleteCalendar.subscribe(listener), compassService.subscribe(listener)];
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
@@ -172,12 +174,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const ktemaThings = useStoredRecords<KtemaThing>('ktema:thing:', shows('ktema-dates'));
   const ktemaUpkeeps = useStoredRecords<KtemaUpkeep>('ktema:upkeep:', shows('ktema-dates'));
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
-  const billsFor = (date: string): FamilyLine[] => [
-    ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
-    ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
-    ...(shows('ktema-dates') ? ktemaDatesOn(ktemaThings, ktemaUpkeeps, date).map((line) => ({ ...line, color: 'sky' })) : []),
-    ...(shows('study-dates') ? studyDatesOn(studySubjects, date).map((line) => ({ ...line, color: 'sage' })) : []),
-  ];
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
@@ -296,18 +292,28 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
       ]);
       const goals = statements.filter((statement) => statement.type === 'GOAL');
       const [otherEvents, travelEvents, peopleEvents, visitEvents, studyEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until), therapeiaCalendar.eventsBetween(from, until), meleteCalendar.eventsBetween(from, until)]);
-      const events = [...otherEvents, ...travelEvents, ...peopleEvents, ...visitEvents, ...studyEvents];
+      const lines = await calendarStore.lines({ from, until });
+      const events = [...otherEvents, ...travelEvents, ...peopleEvents, ...visitEvents, ...studyEvents, ...eventsFromLines(lines)];
       const sources = calendarSources();
       return {
         items,
         patterns,
         sources,
+        lines,
         goals: { goals, lines: goalLines(goals, items, patterns) },
         days: days.map((date) => ({ date, entries: buildDayTimeline(date, occurrences, items, patterns, events) })),
       };
     },
     [first, span],
   );
+  const quietByDay = useMemo(() => quietLinesByDay(data?.lines ?? []), [data?.lines]);
+  const billsFor = (date: string): FamilyLine[] => [
+    ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
+    ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
+    ...(shows('ktema-dates') ? ktemaDatesOn(ktemaThings, ktemaUpkeeps, date).map((line) => ({ ...line, color: 'sky' })) : []),
+    ...(shows('study-dates') ? studyDatesOn(studySubjects, date).map((line) => ({ ...line, color: 'sage' })) : []),
+    ...(quietByDay.get(date) ?? []),
+  ];
 
   const focused = useRef<HTMLElement | null>(null);
   const scroller = useRef<HTMLDivElement>(null);

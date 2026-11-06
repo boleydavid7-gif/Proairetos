@@ -72,9 +72,8 @@ export type AppManifest = {
    */
   home?: { shows: readonly string[]; excludes: readonly string[] };
   /**
-   * What the app's lines on the calendar may state (`shows`) and never do (`excludes`), the kinds of line it has, and the
-   * What's included part that switches a kind (`parts`; a kind with none is always on while the app is added). Present for
-   * an app that provides `calendar`.
+   * What the app's lines on the calendar may state (`shows`) and never do (`excludes`), and the kinds of line it has.
+   * Present for an app that provides `calendar`. Lines show while the app is added.
    */
   calendar?: { shows: readonly string[]; excludes: readonly string[]; kinds: readonly ('event' | 'deadline' | 'recurring' | 'info')[]; parts?: Partial<Record<'event' | 'deadline' | 'recurring' | 'info', string>> };
   /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
