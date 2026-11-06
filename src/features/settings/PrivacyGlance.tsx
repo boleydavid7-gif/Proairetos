@@ -26,7 +26,7 @@ const GLANCE: { title: string; lines: string[] }[] = [
       'Your email address, to sign you in.',
       'How many records you have, their rough sizes and kinds, and when they changed.',
       'When reminders are due, and each device’s address for notifications.',
-      'The calendar link’s file, only if you turn it on (“Busy” times by default).',
+      'The calendar link’s file, only if you turn it on: the categories you switch on, “Busy” times by default.',
     ],
   },
   {

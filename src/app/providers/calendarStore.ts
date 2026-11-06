@@ -147,11 +147,12 @@ export function createCalendarStore(deps: CalendarDeps) {
       listeners.clear();
     },
     version: () => version,
-    /** Every eligible app's lines inside a range, in the manifest's order; only what is missing or out of date is derived. */
-    async lines(range: CalendarRange): Promise<CalendarLine[]> {
+    /** Every eligible app's lines inside a range (or only those of `only`), in the manifest's order; only what is missing or out of date is derived. */
+    async lines(range: CalendarRange, only?: readonly AppId[]): Promise<CalendarLine[]> {
       const out: CalendarLine[] = [];
-      const wanted = eligible().sort((a, b) => order(a) - order(b));
-      for (const app of entries.keys()) if (!wanted.includes(app)) {
+      const all = eligible();
+      const wanted = (only ? all.filter((app) => only.includes(app)) : all).sort((a, b) => order(a) - order(b));
+      for (const app of entries.keys()) if (!all.includes(app)) {
         entries.get(app)?.offs.forEach((off) => off());
         entries.delete(app);
       }

@@ -7,6 +7,7 @@ import {
   refreshCalendarFeed,
   renewCalendarFeedLink,
 } from '../../app/sync/syncController';
+import { FEED_NEVER, describeFeed } from '../../core/calendar/feedEvents';
 import { loadCalendarFeed, saveCalendarFeed, type StoredFeedOptions } from '../../data/storage/preferences';
 import { useSyncStatus } from './AccountSection';
 
@@ -15,7 +16,13 @@ const choices: { key: keyof StoredFeedOptions; label: string; hint?: string }[] 
   { key: 'shiftLabels', label: 'Use the names from my schedule' },
   { key: 'protectedTime', label: 'Protected time' },
   { key: 'tasks', label: 'Things with a day or time' },
+  { key: 'bills', label: 'Bill names and due dates' },
+  { key: 'trips', label: 'Trips and time off' },
+  { key: 'tripTimes', label: 'Bookings and plans with a time' },
 ];
+
+/** Calendar apps keep what they fetched. */
+const KEEPS_COPY = 'Calendar apps keep what they have already fetched. After you turn the link off or make a new one, remove the old subscription in your calendar app.';
 
 const webcal = (url: string) => url.replace(/^https:/, 'webcal:');
 
@@ -62,6 +69,7 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
   }
 
   const links = link ? subscribeLinks(link) : null;
+  const summary = describeFeed(feed.options);
 
   return (
     <>
@@ -79,9 +87,12 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
       <section className="settings-card" aria-label="Subscription link">
         <h2 className="section-label">Subscription link</h2>
         <p className="section-description">
-          Unlike the rest of Proairetos, the calendar file is not encrypted: the server and anyone with the link can
-          read what you chose above.
+          Unlike the rest of Proairetos, the calendar file is not encrypted: the server and anyone with the link can read it.{' '}
+          {summary.length ? `It holds ${summary.join('; ')}.` : 'Nothing above is switched on, so it is empty.'} {FEED_NEVER}
         </p>
+        {feed.linkEnded && !feed.enabled && (
+          <p className="sheet__hint">Your calendar link was turned off. Create a new link to subscribe again. {KEEPS_COPY}</p>
+        )}
 
         {!ready ? (
           <>
@@ -148,9 +159,7 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
                 </button>
               </div>
             )}
-            {confirmingOff && (
-              <p className="sheet__hint">Calendars using it stop updating.</p>
-            )}
+            <p className="sheet__hint">{confirmingOff ? `Calendars using it stop updating. ${KEEPS_COPY}` : KEEPS_COPY}</p>
           </>
         ) : (
           <button
@@ -177,6 +186,7 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
 
       <section className="settings-card" aria-label="Download instead">
         <h2 className="section-label">Or download a file</h2>
+        <p className="section-description">The file holds the same as the link would: {summary.length ? `${summary.join('; ')}.` : 'nothing, as nothing above is switched on.'}</p>
         <button type="button" className="chip chip--wide" onClick={() => run(() => downloadCalendarFile(feed.options))}>
           Download calendar file
         </button>

@@ -235,3 +235,61 @@ directly.
 
 Deferrable: browser and visual checks (no markup changes), search, together. Reminders for old weekly bills change in effect, and
 that is covered by the new-against-old and `standing` cases; a notification-level test is not needed.
+
+---
+
+## 3. Implementation record (both approved with the decisions below)
+
+Decisions: the three new switches start off; the original four keep their defaults; a trip's place name is the only place in the
+feed; booking addresses, routes, plan places, codes and notes are out; trip and bill downloads drop codes, notes and amounts; every
+existing row is deleted and new links are required; old tokens cannot be served or rewritten; no full feed address or token is
+logged by the app or the function; the page says external calendars may keep what they fetched; `occurrencesBetween`,
+`occurrenceOnOrAfter` and `occurrenceBefore` all use the shared helper.
+
+Two commits, kept apart: the recurrence correction (`core/bills.ts`, its tests) and the feed correction (everything else).
+
+### Feed: what changed
+
+- `feedLines` and `describeFeed` (`core/calendar/feedEvents.ts`); `buildCalendarFile` takes bills, trips and bookings from the
+  calendar providers for the apps whose switches are on. `poreiaFeed.ts` is gone and `billCalendarEvents` has no amount.
+- `tripEvents` and `poreiaEvents` (`poreia/core/calendar.ts`) write no notes, so a trip's own file and the feed hold no code or note.
+- `supabase.ts` writes and reads format 2 only; `syncController.ts` marks a link that ended (`linkEnded`) so the page says so.
+- `calendar-feed` serves format 2 only, adds `referrer-policy: no-referrer`, logs nothing.
+- Migration `20261111000000_calendar_feed_format.sql`: adds `format`, deletes every row that is not format 2, and makes writes
+  need `format = 2`.
+- Settings > Calendar: three new switches; the description is built from the switches that are on; one line says what is never
+  in the file; a line says calendar apps keep what they fetched and that the old subscription has to be removed there; a status line
+  appears when a link was ended.
+- `privacy.html`, `PrivacyGlance`, `SERVER_SETUP.md`, `CLAUDE.md`, What's new.
+
+### Deployment dependencies, as found
+
+- The client reaches people through the Cloudflare Worker build, which deploys when `main` is pushed. Nothing here is on `main`.
+- The migration is run by hand in the Supabase SQL editor; no CI step applies migrations (`docs/SERVER_SETUP.md`).
+- The function is deployed by hand: `supabase functions deploy calendar-feed --no-verify-jwt`.
+- Old rows have no `format` (null). Old clients write without it.
+
+### Deployment order (nothing below has been run)
+
+1. **Deploy the function first.** It serves only format 2, so every old file stops being served at once, before the client and
+   migration land. Old clients that keep publishing write rows with no format, which are never served.
+2. **Release the client** (merge to `main` when you decide). New devices write format 2 files with the chosen categories. A device
+   with the feed on finds no format 2 row and ends its link; the page says so.
+3. **Run the migration.** It deletes the old rows and refuses writes without format 2, so an older client cannot put an old-format
+   file back.
+4. Read the three counts in 1.2 before step 3 and again after, and confirm one request each with an old token (404), a new token
+   (200) and a malformed token (404).
+
+Running the migration before step 1 or 2 would stop old clients from publishing but would leave the old function serving
+nothing new either; it is not harmful, but step 1 is what ends serving, and it comes first so the window is shortest.
+
+### Rollback limits
+
+- Deleted rows cannot be restored from the app; there is no copy. Backups and point-in-time recovery may hold them until their
+  retention ends, and restoring one would bring old plain-text files back; do not.
+- Rolling the function back to the previous version would serve format-null rows again (none remain after the migration).
+- Rolling the client back leaves old clients refused by the `format = 2` rule; the policy can be dropped and the old one
+  recreated (the migration text shows both), but that restores the ability to write old content, so it is not advised.
+- Nothing already fetched by a calendar app can be recalled. People remove the old subscription in the app.
+- Logs: the link contains the token and the platform's own request logs may record it. The app and the function write no log of
+  it, and every old token is dead after step 3. Platform log retention is outside this code.

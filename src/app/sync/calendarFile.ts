@@ -1,9 +1,6 @@
-import { feedEvents, type FeedOptions } from '../../core/calendar/feedEvents';
+import { feedEvents, feedLines, type FeedOptions } from '../../core/calendar/feedEvents';
 import { buildIcs } from '../../core/calendar/ics';
 import { lifeService, scheduleService } from '../services';
-import { addDays, localDate } from '../../oikonomia/core/bills';
-import { billCalendarEvents } from '../../oikonomia/core/calendar';
-import { poreiaFeed } from '../calendars/poreiaFeed';
 
 /** A week back and two months ahead: enough for a calendar, small enough to publish often. */
 const DAYS_BACK = 7;
@@ -13,15 +10,15 @@ export async function buildCalendarFile(options: FeedOptions, now = new Date()):
   const day = 86_400_000;
   const fromDate = new Date(now.getTime() - DAYS_BACK * day);
   const untilDate = new Date(now.getTime() + DAYS_AHEAD * day);
-  const from = localDate(fromDate);
-  const until = addDays(from, DAYS_BACK + DAYS_AHEAD);
-  const [occurrences, items, bills, poreia] = await Promise.all([
+  const wanted = [...(options.bills ? ['oikonomia' as const] : []), ...(options.trips || options.tripTimes ? ['poreia' as const] : [])];
+  const [occurrences, items, lines] = await Promise.all([
     scheduleService.occurrencesBetween(fromDate, untilDate),
     lifeService.list(),
-    import('../../oikonomia/data/store').then(({ listBills }) => listBills()).catch(() => []),
-    poreiaFeed.feedEvents(fromDate, untilDate),
+    // Bills, trips and bookings come from the apps' calendar providers, for the apps whose categories are switched on. Loaded
+    // only when asked for: the providers pull in sync, which imports this file.
+    wanted.length ? import('../providers/calendar').then(({ calendarStore }) => calendarStore.lines({ from: fromDate, until: untilDate }, wanted)) : [],
   ]);
-  return buildIcs(feedEvents(occurrences, items, options).concat(billCalendarEvents(bills, from, until), poreia), { name: 'Proairetos', now });
+  return buildIcs(feedEvents(occurrences, items, options).concat(feedLines(lines, options)), { name: 'Proairetos', now });
 }
 
 /** Saves the calendar file to the device: a one-time import, no server involved. */

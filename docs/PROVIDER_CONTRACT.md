@@ -153,8 +153,11 @@ Six apps contribute: Philia, Oikonomia, Ktema, Meletē, Therapeia and Poreia. Ot
 - **Amounts.** Oikonomia's lines give the bill's name, due date and whether a payment is recorded. Amounts, currency,
   payments, notes and bill types are excluded (the owner's decision). The baselines in `scripts/calendar-check/baseline/`
   were edited for this one change.
-- **The published calendar.** The file people subscribe to still carries Poreia's events as before, with their notes and
-  confirmation codes (the person's own file). It reads through `app/calendars/poreiaFeed.ts`, not through the provider.
+- **The published calendar.** The file people subscribe to takes bills, trips and bookings only through these lines
+  (`feedLines`), only for the categories the person switched on (Bills, Trips and time off, Bookings and plans with a
+  time; all off until chosen), so it never carries an amount, a code, an address, a route or a note. The only place in it
+  is a trip's own place name. `calendar_feeds` rows are format 2; the function serves and row-level security accepts only
+  format 2. See `docs/CALENDAR_CORRECTIONS_PLAN.md` for the deployment order.
 - **Readers.** `eventsFromLines` and `quietLinesByDay` (`app/providers/calendarView.ts`) make the shapes the screens
   draw. `busyTime.ts` takes only Philia, Therapeia and Meletē entries as busy time, as before.
 - **Parity.** `scripts/calendar-check/` (`npm run calendar:check`) seeds one record of every kind in the six apps on a fixed

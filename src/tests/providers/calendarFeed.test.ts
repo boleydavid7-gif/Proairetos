@@ -1,52 +1,55 @@
-// @vitest-environment jsdom
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { poreiaEvents } from '../../poreia/core/calendar';
-import type { Booking, PlanItem, Trip } from '../../poreia/core/model';
+import { describe, expect, it } from 'vitest';
+import { buildIcs } from '../../core/calendar/ics';
+import { feedLines, type FeedOptions } from '../../core/calendar/feedEvents';
+import type { CalendarLine } from '../../core/providers';
 
 /*
- * The published calendar still carries Poreia exactly as before the calendar providers: the same events, with the notes
- * and confirmation codes that file has always held, and nothing when the app is not added. Today and Days ahead read
- * Poreia through the provider, which leaves those out; this holds the two apart.
+ * The calendar file takes Poreia and Oikonomia only through their calendar lines, for the categories switched on. These
+ * hold the file to what the lines can carry: no amount, code, note, address or route, whatever is switched on.
  */
-let added = true;
-vi.mock('../../app/family/added', () => ({ isAdded: () => added, subscribeAdded: () => () => undefined }));
+const off: Pick<FeedOptions, 'bills' | 'trips' | 'tripTimes'> = { bills: false, trips: false, tripTimes: false };
+const lines: CalendarLine[] = [
+  { ref: { app: 'oikonomia', kind: 'bill', id: 'b1', occurrence: '2026-11-07' }, kind: 'deadline', title: 'Internet', open: '/oikonomia/?open=bill:b1', day: '2026-11-07', done: true, color: 'amber' },
+  { ref: { app: 'poreia', kind: 'trip', id: 'tr1' }, kind: 'info', title: 'Lisbon', open: '/poreia/?open=trip%3Atr1', day: '2026-11-07', until: '2026-11-13', location: 'Lisbon' },
+  { ref: { app: 'poreia', kind: 'off', id: 'o1' }, kind: 'info', title: 'Time off', open: '/poreia/?open=time', day: '2026-11-16', until: '2026-11-18', location: 'CANARY-PLACE' },
+  { ref: { app: 'poreia', kind: 'booking', id: 'b1' }, kind: 'event', title: 'Flight: TP 123', open: '/poreia/?open=booked%3Ab1', day: '2026-11-07', start: new Date('2026-11-07T08:15:00'), end: new Date('2026-11-07T10:30:00'), location: 'CANARY-ROUTE JFK → LIS' },
+  { ref: { app: 'poreia', kind: 'plan', id: 'p1' }, kind: 'event', title: 'Tram 28', open: '/poreia/?open=plan%3Ap1', day: '2026-11-07', start: new Date('2026-11-07T09:00:00'), end: new Date('2026-11-07T10:00:00'), location: 'CANARY-WHERE' },
+  { ref: { app: 'philia', kind: 'birthday', id: 'p', occurrence: '2026-11-08' }, kind: 'recurring', title: 'Mara’s birthday', open: '/philia/?open=person%3Ap', day: '2026-11-08' },
+];
+const ics = (options: Partial<typeof off>) => buildIcs(feedLines(lines, { ...off, ...options }), { name: 'Proairetos', now: new Date('2026-11-05T12:00:00Z') });
 
-const day = '2026-11-01T09:00:00.000Z';
-const put = (key: string, value: unknown) => localStorage.setItem(key, JSON.stringify(value));
-const trip = { id: 'tr1', name: 'Lisbon', place: { label: 'Lisbon' }, start: '2026-11-07', end: '2026-11-12', travelers: 1, stage: 'booked', createdAt: day, updatedAt: day } as unknown as Trip;
-const booking = { id: 'b1', tripId: 'tr1', kind: 'flight', title: 'TP 123', startDate: '2026-11-07', startTime: '08:15', endTime: '10:30', confirmation: 'ABC123', createdAt: day, updatedAt: day } as unknown as Booking;
-const plan = { id: 'pn1', tripId: 'tr1', date: '2026-11-07', time: '09:00', title: 'Tram 28', note: 'Bring a jacket', createdAt: day, updatedAt: day } as unknown as PlanItem;
-const from = new Date('2026-11-01T00:00:00');
-const until = new Date('2026-12-01T00:00:00');
-
-beforeEach(() => {
-  localStorage.clear();
-  added = true;
-  put('poreia:trip:tr1', trip);
-  put('poreia:booking:b1', booking);
-  put('poreia:plan:pn1', plan);
-});
-
-describe('the published calendar’s Poreia events', () => {
-  it('are the events the calendar has always been given, notes and confirmation included', async () => {
-    const { poreiaFeed } = await import('../../app/calendars/poreiaFeed');
-    const feed = await poreiaFeed.feedEvents(from, until);
-    expect(feed).toEqual(poreiaEvents([trip], [], [booking], from, until, [plan]));
-    expect(JSON.stringify(feed)).toContain('Confirmation ABC123');
-    expect(JSON.stringify(feed)).toContain('Bring a jacket');
+describe('the calendar file takes only the categories switched on', () => {
+  it('holds nothing with every category off', () => {
+    expect(feedLines(lines, off)).toEqual([]);
   });
-  it('are none while Poreia is not added', async () => {
-    added = false;
-    const { poreiaFeed } = await import('../../app/calendars/poreiaFeed');
-    expect(await poreiaFeed.feedEvents(from, until)).toEqual([]);
+  it('bills: the name and the date, no amount, and no paid state', () => {
+    const text = ics({ bills: true });
+    expect(text).toContain('SUMMARY:Internet');
+    expect(text).toMatch(/DTSTART;VALUE=DATE:20261107/);
+    expect(text).not.toMatch(/Lisbon|Flight|Tram|Time off|birthday|\$|paid/i);
   });
-  it('are the same records the calendar provider shows, one line for each event, and the provider carries none of the notes', async () => {
-    const { poreiaFeed } = await import('../../app/calendars/poreiaFeed');
-    const { poreiaCalendar } = await import('../../poreia/providers/calendar');
-    const feed = await poreiaFeed.feedEvents(from, until);
-    const read = (source: string) => Object.keys(localStorage).filter((key) => key.startsWith(source.slice(6))).map((key) => JSON.parse(localStorage.getItem(key)!));
-    const lines = await poreiaCalendar.read({ today: '2026-11-05', now: new Date('2026-11-05T12:00:00'), range: { from, until }, records: async (source: string) => read(source), setting: () => null } as never);
-    expect(lines).toHaveLength(feed.length);
-    expect(JSON.stringify(lines)).not.toMatch(/ABC123|Bring a jacket|Confirmation/);
+  it('trips: names, dates and the trip’s place name, and time off as days, and no other place', () => {
+    const text = ics({ trips: true });
+    expect(text).toContain('SUMMARY:Lisbon');
+    expect(text).toContain('LOCATION:Lisbon');
+    expect(text).toContain('SUMMARY:Time off');
+    expect(text).toMatch(/DTEND;VALUE=DATE:20261113/);
+    expect(text).not.toMatch(/CANARY|Flight|Tram|Internet/);
+  });
+  it('bookings and plans with a time: the title and the time, no place of any kind', () => {
+    const text = ics({ tripTimes: true });
+    expect(text).toContain('SUMMARY:Flight: TP 123');
+    expect(text).toContain('SUMMARY:Tram 28');
+    expect(text).not.toMatch(/LOCATION|DESCRIPTION|CANARY|Lisbon|Internet/);
+  });
+  it('another app’s lines never go in, even with everything on', () => {
+    const text = ics({ bills: true, trips: true, tripTimes: true });
+    expect(text).not.toMatch(/birthday|Mara|CANARY|DESCRIPTION|\$/);
+    expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(5);
+  });
+  it('each event has its own stable identity', () => {
+    const uids = feedLines(lines, { bills: true, trips: true, tripTimes: true }).map((event) => event.uid);
+    expect(new Set(uids).size).toBe(uids.length);
+    expect(uids).toContain('oikonomia-bill-b1-2026-11-07');
   });
 });

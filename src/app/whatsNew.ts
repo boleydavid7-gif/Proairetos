@@ -1,6 +1,15 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-06',
+    lines: [
+      'The calendar file now holds only the categories you switch on in Settings > Calendar. Bills, trips and time off, and bookings and plans with a time are new switches, all off. It never holds bill amounts, confirmation codes, addresses, routes or notes.',
+      'Calendar links made before this were ended. Create a new link in Settings > Calendar and remove the old subscription in your calendar app.',
+      'Files saved from a trip or a bill no longer hold confirmation codes, notes or amounts.',
+      'A weekly bill that was first due more than ten years ago shows its dates again.',
+    ],
+  },
+  {
     date: '2026-11-05',
     lines: [
       'Search no longer finds plants in Phyton, subjects in Meletē or notes in Mneme, and leaves out medicine doses and notes, serial numbers, booking confirmation codes and chore notes.',
