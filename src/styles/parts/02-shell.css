@@ -12,7 +12,7 @@
    Keep its texture present to the bottom; do not fade it into a flat page-color block. */
 :root[data-room] .app-shell {
   background:
-    var(--room-shade, linear-gradient(transparent, transparent)) top / 100% 100% no-repeat,
+    var(--room-shade, linear-gradient(transparent, transparent)),
     var(--room-wall) top / 100% 100% no-repeat,
     var(--color-bg);
 }
