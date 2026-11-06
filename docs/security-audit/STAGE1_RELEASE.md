@@ -48,3 +48,6 @@ A deployment replaces the build stamp of `sw.js`, as every deployment does; it d
 4. The two sign-out scopes were confirmed on **one** disposable project; "Time-box user sessions" and "Inactivity timeout" in the dashboard were not read. Real devices, an installed iPhone Home Screen app (each has its own storage and learns of a sign-out when it next reaches the server), and Safari were not tested.
 5. **Behavior change:** "Sign out" used to end every device; it now ends this device. People who relied on the old meaning will find the other devices still signed in. The What's new line says so, and Sign out everywhere is under Devices & sessions.
 6. The published calendar link stays on after sign-out by design; the settings page says so and signing in turns it off.
+
+## Deployment record
+Merged 2026-11-06 as `1bda13fd30f0b7018c451ff7ee8158361d41e416` (a merge commit; parents `a13994aa` and `31640337`). `checks` green on the merge commit; Workers Builds succeeded at 15:57:07 UTC; live `sw.js` stamp **20261106155652** (it was 20261106143519); the app, the 15 companion apps, `/welcome/`, `/lamplight/` and `/api/store` answered 200; the live Account chunk contains "Sign out of this device". Still open: step 5, the owner's two-device check with a real account. The remaining risks above are unchanged.
