@@ -1,7 +1,7 @@
 import { identityFor } from '../lamplight/identity';
 import { backgroundFootOf, backgroundOf } from './backgrounds';
 import type { Appearance } from '../data/storage/preferences';
-import { materialFootSvg, wallpaperStyleSvg } from './wallpaper';
+import { materialFootSvg, staticWallpaperStyleSvg, wallpaperStyleSvg } from './wallpaper';
 import { SHADE_DARK, SHADE_LIGHT, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
 import { currentDayLight } from './dayLightState';
 import { ownHue, type ColorChoice, type LampColor, type Room, type WallStyle } from '../core/look/lamplight';
@@ -69,8 +69,8 @@ export function proairetosVars(s: Scheme, style: WallStyle = 'paper'): Record<st
     '--color-accent-ink': dark ? s.onLamp : s.card,
     '--color-accent-rgb': triple(s.lamp),
     // The home wallpaper is a fixed scene. Day light may warm the interface, but never moves its artwork.
-    '--room-wall': wallpaperStyleSvg(s.art, s.page, !dark, false, undefined, style),
-    '--room-wall-wide': wallpaperStyleSvg(s.art, s.page, !dark, true, undefined, style),
+    '--room-wall': staticWallpaperStyleSvg(s.art, s.page, !dark, false, style),
+    '--room-wall-wide': staticWallpaperStyleSvg(s.art, s.page, !dark, true, style),
     '--room-foot': materialFootSvg(s.art, s.page, !dark, false, style),
     '--room-foot-wide': materialFootSvg(s.art, s.page, !dark, true, style),
   };
