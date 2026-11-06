@@ -1,6 +1,6 @@
 import { LampIcon } from '../../lamplight/icons';
 
-/** Proairetos's lantern-compass mark, drawn in the line style of the family's bars. */
+/** Proairetos's lantern and compass points (the app icon), drawn in the line style of the family's bars. */
 export function ProairetosMark({ size = 22 }: { size?: number }) {
   return (
     <LampIcon
@@ -8,13 +8,13 @@ export function ProairetosMark({ size = 22 }: { size?: number }) {
       glyph={{
         line: (
           <>
-            <circle cx="12" cy="12" r="9" strokeDasharray="12 4" />
-            <path d="M12 5.5 7.5 10 V17 Q7.5 18.5 9 18.5 H15 Q16.5 18.5 16.5 17 V10Z" />
-            <path d="M12 10.5 C10.8 12.5 10 13.5 10 15 A2 2 0 0 0 14 15 C14 13.5 13.2 12.5 12 10.5Z" />
-            <path d="M12 2.5 V4 M12 20 V21.5 M2.5 12 H4 M20 12 H21.5" />
+            <path d="M12 1.6V3.8M12 20.4V22.4M1.6 13H4.4M19.6 13H22.4" />
+            <path d="M10.2 7V6.4A1.8 1.8 0 0 1 13.8 6.4V7" />
+            <path d="M8 8.2H16L17.4 9.6H6.6Z" />
+            <path d="M8.2 10.6 9.2 17.4H14.8L15.8 10.6" />
           </>
         ),
-        lit: <path d="M12 11 C12 11 10 13.3 10 14.8 A2 2 0 0 0 14 14.8 C14 13.3 12 11 12 11Z" />,
+        lit: <path d="M12 11.6C11.2 12.7 10.7 13.5 10.7 14.5A1.3 1.3 0 0 0 13.3 14.5C13.3 13.5 12.8 12.7 12 11.6Z" />,
       }}
     />
   );
