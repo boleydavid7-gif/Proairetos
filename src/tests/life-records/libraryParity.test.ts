@@ -1,30 +1,51 @@
 // @vitest-environment jsdom
 import 'fake-indexeddb/auto';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { APPS } from '../../core/apps';
 import { orderLifeRecords, type LifeRecord } from '../../core/life-records';
 import { libraryRecords, type Provider } from '../../core/providers';
 import { hostContext } from '../../app/providers/context';
 import { providedLibraryApps } from '../../app/providers/libraryPath';
 import { libraryStore } from '../../app/providers/library';
+import { ideas, notes } from '../../mneme/app/state';
+import { mnemeLibrary } from '../../mneme/providers/library';
 import { providerModules } from '../../app/providers/registry';
 import { STATES, gather, seedCompanions } from './libraryFixtures';
+import { createLifeRecord } from '../../core/life-records';
 
 /*
  * The apps that give their Library entries through providers, old way and new way. The old way is the page's own gathering of every
  * source (`gather()`); the new way leaves those apps out of it (the skip list) and takes their entries from their providers, through the
  * host, with the Store's real availability. The two must list the same entries, field for field, in the same order, with nothing twice.
  */
-const MOVED = ['askesis', 'dynamis', 'soma'];
+const MOVED = ['askesis', 'dynamis', 'mneme', 'soma', 'theoria'];
 const now = new Date('2026-11-05T12:00:00');
 
 async function providers(): Promise<Provider<'library'>[]> {
   const modules = await Promise.all(providedLibraryApps().map((app) => providerModules[app]!()));
   return modules.flatMap((module) => module.providers).filter((provider): provider is Provider<'library'> => provider.capability === 'library');
 }
+// Study sessions as the page derives them, from the timer's blocks and focus events on this device (not plain values).
+let study: Awaited<ReturnType<typeof realStudy>> = [];
+async function realStudy() {
+  const { lifeService } = await import('../../app/services');
+  const { studySessions } = await import('../../app/praxis/study');
+  const make = async (title: string, minutes: number) => {
+    const block = await lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis' });
+    await lifeService.recordFocus(block.id, minutes, { app: 'praxis' });
+    return block;
+  };
+  await make('Biology', 40);
+  const reading = await make('Read: Meditations', 20);
+  await lifeService.recordFocus(reading.id, 15, { app: 'praxis' });
+  const [blocks, events] = await Promise.all([lifeService.listForApp('praxis'), lifeService.historyForAll(true)]);
+  return studySessions(blocks, events);
+}
+beforeAll(async () => { study = await realStudy(); }, 30_000);
+
 async function viaProviders() {
   const skip = new Set<string>(providedLibraryApps());
-  const rest = await gather(skip);
+  const rest = await gather(skip, study);
   const given = await libraryRecords(await providers(), APPS, hostContext(now));
   return { rest, given, merged: orderLifeRecords([...rest, ...given.records]) };
 }
@@ -48,7 +69,7 @@ describe('the apps whose entries come through providers', () => {
     }
   });
   it('list the same entries as the page’s own gathering, field for field, in the same order', async () => {
-    const old = await gather();
+    const old = await gather(new Set(), study);
     const { merged, given } = await viaProviders();
     expect(given.rejected).toEqual([]);
     expect(JSON.stringify(merged)).toBe(JSON.stringify(old));
@@ -59,10 +80,10 @@ describe('the apps whose entries come through providers', () => {
     expect(rest.filter((record) => MOVED.includes(record.sourceApp) && record.kind !== 'reflection')).toEqual([]);
     const keys = merged.map((record) => record.key);
     expect(new Set(keys).size).toBe(keys.length);
-    expect((await gather()).filter((record) => MOVED.includes(record.sourceApp) && record.kind !== 'reflection').length).toBeGreaterThan(0);
+    expect((await gather(new Set(), study)).filter((record) => MOVED.includes(record.sourceApp) && record.kind !== 'reflection').length).toBeGreaterThan(0);
   });
   it('keep the owner, kind, source id and times of every entry, so the links to the app are the same', async () => {
-    const old = new Map((await gather()).map((record) => [record.key, record]));
+    const old = new Map((await gather(new Set(), study)).map((record) => [record.key, record]));
     const { given } = await viaProviders();
     expect(given.records.length).toBeGreaterThan(0);
     for (const record of given.records) {
@@ -82,7 +103,7 @@ describe('an app that is removed, not bought or past its trial', () => {
   });
   it('also hides the reflections written from its prompts, without changing them', async () => {
     STATES['every app removed (the owner)']();
-    const own: LifeRecord[] = await gather(new Set(providedLibraryApps()));
+    const own: LifeRecord[] = await gather(new Set(providedLibraryApps()), study);
     const frozen = JSON.stringify(own);
     const visible = libraryStore.visible(own);
     expect(visible.some((record) => record.key === 'reflection:rf2')).toBe(false);
@@ -101,8 +122,55 @@ describe('what the providers keep out', () => {
   it('read and write nothing: the source records are as they were and no new store appears', async () => {
     const keys = () => JSON.stringify(Object.entries(localStorage));
     const databases = async () => JSON.stringify((await indexedDB.databases()).map((db) => db.name).sort());
-    const before = [keys(), await databases(), JSON.stringify(await gather())];
+    const before = [keys(), await databases(), JSON.stringify(await gather(new Set(), study))];
     await viaProviders();
-    expect([keys(), await databases(), JSON.stringify(await gather())]).toEqual(before);
+    expect([keys(), await databases(), JSON.stringify(await gather(new Set(), study))]).toEqual(before);
+  });
+});
+
+describe('Theoria’s study entries', () => {
+  it('come from the timer’s blocks and focus events, with one reading entry for a book and a day, as the page shows them', async () => {
+    const { given } = await viaProviders();
+    const theoria = given.records.filter((record) => record.sourceApp === 'theoria');
+    expect(theoria.map((record) => [record.title, record.detail]).sort()).toEqual([['Biology', '40 min · Study'], ['Read: Meditations', '35 min · Reading']]);
+    expect(theoria.every((record) => record.kind === 'study' && record.source === 'Theoria')).toBe(true);
+  });
+});
+
+describe('Mneme’s notes and ideas', () => {
+  it('are only what was chosen: a note by inReflect ?? pinned, an idea by inReflect alone', async () => {
+    const { given } = await viaProviders();
+    const mneme = given.records.filter((record) => record.sourceApp === 'mneme').map((record) => record.key).sort();
+    expect(mneme).toEqual(['mneme:idea:i1', 'mneme:note:n1', 'mneme:note:n2']);
+    expect(JSON.stringify(given.records)).not.toMatch(/unselected|pinned-but-declined/);
+  });
+  it('follow the page’s own archive write, which stays in the page: the note is kept and listed as archived', async () => {
+    const before = notes.get('n1')!;
+    notes.put({ ...before, archived: true, updatedAt: '2026-11-05T09:00:00.000Z' });
+    const { given, merged } = await viaProviders();
+    expect(given.records.find((record) => record.key === 'mneme:note:n1')!.archived).toBe(true);
+    expect(JSON.stringify(merged)).toBe(JSON.stringify(await gather(new Set(), study)));
+    expect(notes.get('n1')).toMatchObject({ id: 'n1', body: before.body, archived: true });
+    expect(ideas.get('i1')).toBeTruthy();
+  });
+  it('tell the store when a note changes, so a note archived in the page is read again', () => {
+    let told = 0;
+    const off = mnemeLibrary.subscribe!(() => { told += 1; });
+    const note = notes.get('n2')!;
+    notes.put({ ...note, archived: false, updatedAt: '2026-11-05T09:30:00.000Z' });
+    off();
+    expect(told).toBeGreaterThan(0);
+  });
+  it('and Theoria’s, with reflections attributed to either, are hidden while the app is not available, and nothing is changed', async () => {
+    STATES['every app removed (the owner)']();
+    const { given } = await viaProviders();
+    expect(given.records.filter((record) => record.sourceApp === 'mneme' || record.sourceApp === 'theoria')).toEqual([]);
+    const reflection = (id: string, sourceApp: 'mneme' | 'theoria', source: 'Mneme' | 'Theoria') => createLifeRecord({ key: `reflection:${id}`, kind: 'reflection', sourceApp, source, sourceId: id, at: '2026-10-20T08:00:00.000Z', title: `From ${source}`, valueIds: [], archived: false });
+    const own: LifeRecord[] = [reflection('rm', 'mneme', 'Mneme'), reflection('rt', 'theoria', 'Theoria')];
+    const frozen = JSON.stringify(own);
+    expect(libraryStore.visible(own)).toEqual([]);
+    expect(JSON.stringify(own)).toBe(frozen);
+    STATES['every app added (the owner)']();
+    expect(libraryStore.visible(own).map((record) => record.key)).toEqual(['reflection:rm', 'reflection:rt']);
   });
 });

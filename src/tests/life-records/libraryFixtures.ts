@@ -58,7 +58,8 @@ export const NATIVE = {
   ],
 };
 
-export async function gather(skip: ReadonlySet<string> = new Set()): Promise<LifeRecord[]> {
+/** `study`: the raw study sessions (the baseline gives plain values; a test that takes them from the timer's blocks and events gives those). */
+export async function gather(skip: ReadonlySet<string> = new Set(), study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecord[]> {
   const { readRuns } = await import('../../app/askesis/runs');
   const { readRecipes } = await import('../../app/soma/meals');
   const { combineReadingSessions } = await import('../../app/praxis/study');
@@ -77,7 +78,7 @@ export async function gather(skip: ReadonlySet<string> = new Set()): Promise<Lif
     strengthWorkouts: workouts.list(),
     strengthUnit: plan.load().unit ?? 'kg',
     recipes: await readRecipes(),
-    studySessions: combineReadingSessions(NATIVE.study),
+    studySessions: combineReadingSessions(study),
     mnemeNotes: notes.list(),
     mnemeIdeas: ideas.list(),
     poreiaTrips: trips.list(),
