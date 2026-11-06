@@ -1,8 +1,27 @@
 # Phase 3 handoff: where to resume
 
-> This copy is on `main` for reference only. The Phase 3 code, the recovery patch `docs/handoff/slice6-commit4-uncommitted.patch` and the unfinished work live on the branch `claude/optimistic-franklin-b5dehe` (HEAD `8ac6394e` when this was written). Nothing described below as done is on `main` yet except these documents.
+> Updated 2026-11-06 after Releases 1 and 2 were merged and deployed. Section 0 is current. Sections 1 to 9 are the checkpoint as written at the usage limit and stay for reference; where they say Phase 3 is not on `main`, section 0 replaces them. The development branch `claude/optimistic-franklin-b5dehe` (HEAD `ce301810`) still holds everything not yet released and the Lab and diagnostic pages that `main` intentionally leaves out.
 
 Written at a usage limit, as a preservation checkpoint. Nothing here was merged, deployed or migrated. Read this first after the limit resets.
+
+## 0. Release status (current)
+
+The release is selective and stacked: each release is its own branch from `main`, its own pull request, merged with a merge commit (not a squash, so later releases see earlier commits as ancestors), and verified in production before the next one starts.
+
+| Release | Content | PR | Merge commit on `main` | Production |
+| --- | --- | --- | --- | --- |
+| Docs | Phase 3 plans, provider contract, handoff | #110 | `6cf6df83` | no code |
+| 1 | Application manifest (Waves 0 to 3). The Lab page was removed entirely | #111 | `78673da96356c934b22da9ef7050dbe2d5e4e6fd` | `sw.js` stamp 20261106133651 |
+| 2 | Provider core and universal search (Slices 1 and 2); diagnostic pages and their doc left out | #112 | `2ee57f7db4ad386d0a66956e177f9f956d820aae` (head `72fa6c11`) | `sw.js` stamp 20261106134438 |
+
+**Release 2 verification on record:** GitHub `checks` green on the PR head and on `main` (run 1221); Cloudflare Workers Builds succeeded on the merge commit at 13:44:51 UTC; 24 of 25 routes answered 200 (the app, all 15 add-on apps, welcome pages, Lamplight, sitemap, manifest, `/api/store`, `/api/speculation-rules`) and `/privacy.html` redirects 307 to `/privacy`; the live `SearchSheet` chunk carries the `provider-derive` marks. No migration, Edge Function deploy or new Cloudflare variable. Rollback: `git revert -m 1 2ee57f7d`.
+
+**Outstanding verification for Release 2 (not done):** a browser check of universal search on production (a typed word finds a record from at least three added apps; an app not added is not found; Hydros stays off until turned on in What's included); the family `together` check, which times out in this environment on `main` as well; a check on a real device.
+
+**Not on `main` yet, in order:** Release 3 Home (Slice 3), Release 4 Calendar (reconcile with #109 and its tests `feedContent.test.ts` and `downloadsPrivacy.test.ts`), Release 5 notices with K0 and K1 (provider path default ON; deploying K1 starts K2's 21-day clock, to be recorded in `docs/PHASE3_SLICE5_KEY_MIGRATION.md`), Release 6 Library (switch OFF by default), then Commit 8, K2 and Hydros notices as in section 3.
+
+**Still true:** the Lab page and the diagnostic pages exist only on the development branch. Before that branch is merged with `main`, they must be handled explicitly (kept off `main` by a revert commit or removed from the branch), never by a silent conflict resolution.
+
 
 ## 1. Repository state at the checkpoint
 
