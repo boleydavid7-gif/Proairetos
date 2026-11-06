@@ -113,8 +113,8 @@ function buildWallpaperStyleSvg(art: WallArt, page: string, light: boolean, wide
   const styleLayer = style === 'ink'
     ? `${inkPools(w, h, light)}<rect width="${w}" height="${h}" fill="${art.b2}" opacity="${light ? 0.035 : 0.05}" />`
     : style === 'wood'
-      ? `<rect width="${w}" height="${h}" fill="${woodBase}" opacity="${light ? 0.27 : 0.38}" /><g >${woodGrain(w, h, woodShadow, woodGlow)}</g>`
-      : `<rect width="${w}" height="${h}" fill="${paperBase}" opacity="${light ? 0.2 : 0.34}"/><g >${paperFibers(w, h, paperFiber, paperShadow)}</g>`;
+      ? `<rect width="${w}" height="${h}" fill="${woodBase}" opacity="${light ? 0.27 : 0.38}" /><g>${woodGrain(w, h, woodShadow, woodGlow)}</g>`
+      : `<rect width="${w}" height="${h}" fill="${paperBase}" opacity="${light ? 0.2 : 0.34}"/><g>${paperFibers(w, h, paperFiber, paperShadow)}</g>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
 <defs>
 <linearGradient id="material-strength" x1="0" y1="0" x2="0" y2="1">
@@ -127,9 +127,6 @@ function buildWallpaperStyleSvg(art: WallArt, page: string, light: boolean, wide
 </mask>
 <linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
 <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${art.b1}" stop-opacity="${washOpacity}"/><stop offset=".52" stop-color="${art.b2}" stop-opacity="${(washOpacity * 0.55).toFixed(3)}"/><stop offset="1" stop-color="${art.b3}" stop-opacity="${(washOpacity * 0.25).toFixed(3)}"/></linearGradient>
-${style === 'ink' ? '' : ''}
-${style === 'wood' ? '' : ''}
-${style === 'paper' ? '' : ''}
 <radialGradient id="pool" cx="${x}" cy="${y}" r="${Math.round(Math.max(w, h) * 0.68)}" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="${art.glow}" stop-opacity="${poolOpacity.toFixed(3)}"/><stop offset=".45" stop-color="${art.glow}" stop-opacity="${(poolOpacity * 0.42).toFixed(3)}"/><stop offset="1" stop-color="${art.glow}" stop-opacity="0"/></radialGradient>
 
 
@@ -138,7 +135,7 @@ ${style === 'paper' ? '' : ''}
 <rect width="${w}" height="${h}" fill="url(#wash)"/>
 <rect width="${w}" height="${h}" fill="url(#pool)"/>
 <g mask="url(#material-fade)">${styleLayer}</g>
-<rect width="${w}" height="${h}"  opacity="${grainOpacity}"/>
+
 </svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
 }
