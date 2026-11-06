@@ -1,0 +1,468 @@
+{
+  "records": [
+    {
+      "key": "oikonomia:financial:m1",
+      "kind": "financial",
+      "sourceApp": "oikonomia",
+      "source": "Oikonomia",
+      "sourceId": "m1",
+      "at": "2026-10-30T12:00:00",
+      "title": "Paid off the card",
+      "detail": "Financial milestone",
+      "body": "Wrote this down for myself.",
+      "searchText": "paid off the card financial milestone wrote this down for myself. oikonomia financial progress milestone review",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "life:it1",
+      "kind": "life",
+      "sourceApp": "proairetos",
+      "source": "Proairetos",
+      "sourceId": "it1",
+      "at": "2026-10-29T08:00:00.000Z",
+      "title": "Call the bank",
+      "detail": "To do · Open",
+      "body": "Ask about the form. · Next step: Find the number",
+      "searchText": "call the bank to do · open ask about the form. · next step: find the number proairetos",
+      "valueIds": [
+        "v1"
+      ],
+      "archived": false
+    },
+    {
+      "key": "reflection:rf1",
+      "kind": "reflection",
+      "sourceApp": "proairetos",
+      "source": "Proairetos",
+      "sourceId": "rf1",
+      "at": "2026-10-28T20:00:00.000Z",
+      "title": "A reflection from the journal.",
+      "detail": "free",
+      "body": "A reflection from the journal.\nMore words.",
+      "searchText": "a reflection from the journal. free a reflection from the journal.\nmore words. proairetos",
+      "valueIds": [
+        "v1"
+      ],
+      "archived": false
+    },
+    {
+      "key": "study:s2",
+      "kind": "study",
+      "sourceApp": "theoria",
+      "source": "Theoria",
+      "sourceId": "s2",
+      "at": "2026-10-27T21:00:00.000Z",
+      "title": "Read: Meditations",
+      "detail": "35 min · Reading",
+      "body": null,
+      "searchText": "read: meditations 35 min · reading theoria reading book",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "study:s1",
+      "kind": "study",
+      "sourceApp": "theoria",
+      "source": "Theoria",
+      "sourceId": "s1",
+      "at": "2026-10-27T15:00:00.000Z",
+      "title": "Biology",
+      "detail": "40 min · Study",
+      "body": null,
+      "searchText": "biology 40 min · study theoria study learning",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "mneme:idea:i1",
+      "kind": "idea",
+      "sourceApp": "mneme",
+      "source": "Mneme",
+      "sourceId": "i1",
+      "at": "2026-10-25T08:00:00.000Z",
+      "title": "An idea chosen for Reflect",
+      "detail": "Developing",
+      "body": "An idea chosen for Reflect\nwith more words",
+      "searchText": "an idea chosen for reflect developing an idea chosen for reflect\nwith more words mneme shape",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "meal:rc1@2026-10-24",
+      "kind": "meal",
+      "sourceApp": "soma",
+      "source": "Soma",
+      "sourceId": "rc1",
+      "at": "2026-10-24T12:00:00",
+      "title": "Lentil soup",
+      "detail": "Cooked for Mia",
+      "body": "Less salt next time.",
+      "searchText": "lentil soup cooked for mia less salt next time. soma 2026-10-24 soup lentils carrot grandma",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "mneme:note:n1",
+      "kind": "note",
+      "sourceApp": "mneme",
+      "source": "Mneme",
+      "sourceId": "n1",
+      "at": "2026-10-20T08:00:00.000Z",
+      "title": "Chosen note",
+      "detail": "Note",
+      "body": "A note chosen for Reflect.\nSecond line.",
+      "searchText": "chosen note note a note chosen for reflect.\nsecond line. mneme voice note spoken words",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "workout:a2",
+      "kind": "workout",
+      "sourceApp": "askesis",
+      "source": "Askesis",
+      "sourceId": "a2",
+      "at": "2026-10-18T09:00:00.000Z",
+      "title": "Walk",
+      "detail": "40 min",
+      "body": "",
+      "searchText": "walk 40 min askesis 2026-10-18 walk",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "reflection:rf2",
+      "kind": "reflection",
+      "sourceApp": "askesis",
+      "source": "Askesis",
+      "sourceId": "rf2",
+      "at": "2026-10-14T08:00:00.000Z",
+      "title": "A line after the run.",
+      "detail": "free · after run",
+      "body": "A line after the run.",
+      "searchText": "a line after the run. free · after run a line after the run. askesis",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "workout:a1",
+      "kind": "workout",
+      "sourceApp": "askesis",
+      "source": "Askesis",
+      "sourceId": "a1",
+      "at": "2026-10-14T07:10:00.000Z",
+      "title": "Easy run",
+      "detail": "3.2 mi · 29 min · Felt easy",
+      "body": "River loop. · Went well: Steady pace · Next time: Start slower · Intention: Relax the shoulders",
+      "searchText": "easy run 3.2 mi · 29 min · felt easy river loop. · went well: steady pace · next time: start slower · intention: relax the shoulders askesis 2026-10-14 run",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "dynamis-workout:w1",
+      "kind": "workout",
+      "sourceApp": "dynamis",
+      "source": "Dynamis",
+      "sourceId": "w1",
+      "at": "2026-10-12T18:30:00.000Z",
+      "title": "Back squat, Row",
+      "detail": "3 sets · 48 min · Felt good",
+      "body": "Back squat: 135 lb × 5, 145 lb × 5 · Row: 8 reps · Right knee felt fine.",
+      "searchText": "back squat, row 3 sets · 48 min · felt good back squat: 135 lb × 5, 145 lb × 5 · row: 8 reps · right knee felt fine. dynamis 2026-10-12 a squat back squat 5 135 lb 5 145 lb row row 8 lb",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "meal:rc1@2026-10-10",
+      "kind": "meal",
+      "sourceApp": "soma",
+      "source": "Soma",
+      "sourceId": "rc1",
+      "at": "2026-10-10T12:00:00",
+      "title": "Lentil soup",
+      "detail": "Cooked for Mia, Tomas and Ana",
+      "body": "Less salt next time.",
+      "searchText": "lentil soup cooked for mia, tomas and ana less salt next time. soma 2026-10-10 soup lentils carrot grandma",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "decision:d1",
+      "kind": "decision",
+      "sourceApp": "compass",
+      "source": "Compass",
+      "sourceId": "d1",
+      "at": "2026-10-05T12:00:00.000Z",
+      "title": "Take the new role?",
+      "detail": "Chose: Yes",
+      "body": "More room to learn. · Expected: A harder year",
+      "searchText": "take the new role? chose: yes more room to learn. · expected: a harder year compass yes no",
+      "valueIds": [
+        "v1"
+      ],
+      "archived": false
+    },
+    {
+      "key": "reflection:rf3",
+      "kind": "reflection",
+      "sourceApp": "proairetos",
+      "source": "Proairetos",
+      "sourceId": "rf3",
+      "at": "2026-10-02T08:00:00.000Z",
+      "title": "An archived intention.",
+      "detail": "Daily intention",
+      "body": "An archived intention.",
+      "searchText": "an archived intention. daily intention an archived intention. proairetos",
+      "valueIds": [],
+      "archived": true
+    },
+    {
+      "key": "poreia:trip:r1",
+      "kind": "trip",
+      "sourceApp": "poreia",
+      "source": "Poreia",
+      "sourceId": "r1",
+      "at": "2026-09-16T12:00:00",
+      "title": "Lisbon",
+      "detail": "Lisbon, Portugal · 2026-09-10 – 2026-09-16",
+      "body": null,
+      "searchText": "lisbon lisbon, portugal · 2026-09-10 – 2026-09-16 poreia lisbon lisbon, portugal pt",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "pursuit:p1",
+      "kind": "pursuit",
+      "sourceApp": "compass",
+      "source": "Compass",
+      "sourceId": "p1",
+      "at": "2026-09-15T08:00:00.000Z",
+      "title": "Run a 10K",
+      "detail": "Active · Health",
+      "body": "Finish · Energy · Week 3 · Next: Long run Sunday",
+      "searchText": "run a 10k active · health finish · energy · week 3 · next: long run sunday compass",
+      "valueIds": [
+        "v1"
+      ],
+      "archived": false
+    },
+    {
+      "key": "poreia:trip:j1:journal",
+      "kind": "trip",
+      "sourceApp": "poreia",
+      "source": "Poreia",
+      "sourceId": "j1",
+      "at": "2026-09-12T12:00:00",
+      "title": "Tram 28",
+      "detail": "Lisbon · Memory · Alfama",
+      "body": "Rode the tram up the hill.",
+      "searchText": "tram 28 lisbon · memory · alfama rode the tram up the hill. poreia lisbon lisbon, portugal alfama memory",
+      "valueIds": [],
+      "archived": false
+    },
+    {
+      "key": "mneme:note:n2",
+      "kind": "note",
+      "sourceApp": "mneme",
+      "source": "Mneme",
+      "sourceId": "n2",
+      "at": "2026-08-02T08:00:00.000Z",
+      "title": "Old pinned note",
+      "detail": "Pinned note",
+      "body": "Pinned before choosing existed.",
+      "searchText": "old pinned note pinned note pinned before choosing existed. mneme",
+      "valueIds": [],
+      "archived": true
+    }
+  ],
+  "byYearAndMonth": [
+    {
+      "year": "2026",
+      "count": 19,
+      "months": [
+        {
+          "month": "2026-10",
+          "keys": [
+            "oikonomia:financial:m1",
+            "life:it1",
+            "reflection:rf1",
+            "study:s2",
+            "study:s1",
+            "mneme:idea:i1",
+            "meal:rc1@2026-10-24",
+            "mneme:note:n1",
+            "workout:a2",
+            "reflection:rf2",
+            "workout:a1",
+            "dynamis-workout:w1",
+            "meal:rc1@2026-10-10",
+            "decision:d1",
+            "reflection:rf3"
+          ]
+        },
+        {
+          "month": "2026-09",
+          "keys": [
+            "poreia:trip:r1",
+            "pursuit:p1",
+            "poreia:trip:j1:journal"
+          ]
+        },
+        {
+          "month": "2026-08",
+          "keys": [
+            "mneme:note:n2"
+          ]
+        }
+      ]
+    }
+  ],
+  "bySource": {
+    "askesis": [
+      "workout:a2",
+      "reflection:rf2",
+      "workout:a1"
+    ],
+    "compass": [
+      "decision:d1",
+      "pursuit:p1"
+    ],
+    "dynamis": [
+      "dynamis-workout:w1"
+    ],
+    "mneme": [
+      "mneme:idea:i1",
+      "mneme:note:n1",
+      "mneme:note:n2"
+    ],
+    "oikonomia": [
+      "oikonomia:financial:m1"
+    ],
+    "poreia": [
+      "poreia:trip:r1",
+      "poreia:trip:j1:journal"
+    ],
+    "proairetos": [
+      "life:it1",
+      "reflection:rf1",
+      "reflection:rf3"
+    ],
+    "soma": [
+      "meal:rc1@2026-10-24",
+      "meal:rc1@2026-10-10"
+    ],
+    "theoria": [
+      "study:s2",
+      "study:s1"
+    ]
+  },
+  "appStates": {
+    "every app added (the owner)": {
+      "added": {
+        "askesis": true,
+        "dynamis": true,
+        "soma": true,
+        "theoria": true,
+        "mneme": true,
+        "poreia": true,
+        "oikonomia": true
+      },
+      "keys": [
+        "oikonomia:financial:m1",
+        "life:it1",
+        "reflection:rf1",
+        "study:s2",
+        "study:s1",
+        "mneme:idea:i1",
+        "meal:rc1@2026-10-24",
+        "mneme:note:n1",
+        "workout:a2",
+        "reflection:rf2",
+        "workout:a1",
+        "dynamis-workout:w1",
+        "meal:rc1@2026-10-10",
+        "decision:d1",
+        "reflection:rf3",
+        "poreia:trip:r1",
+        "pursuit:p1",
+        "poreia:trip:j1:journal",
+        "mneme:note:n2"
+      ]
+    },
+    "every app removed (the owner)": {
+      "added": {
+        "askesis": false,
+        "dynamis": false,
+        "soma": false,
+        "theoria": false,
+        "mneme": false,
+        "poreia": false,
+        "oikonomia": false
+      },
+      "keys": [
+        "oikonomia:financial:m1",
+        "life:it1",
+        "reflection:rf1",
+        "study:s2",
+        "study:s1",
+        "mneme:idea:i1",
+        "meal:rc1@2026-10-24",
+        "mneme:note:n1",
+        "workout:a2",
+        "reflection:rf2",
+        "workout:a1",
+        "dynamis-workout:w1",
+        "meal:rc1@2026-10-10",
+        "decision:d1",
+        "reflection:rf3",
+        "poreia:trip:r1",
+        "pursuit:p1",
+        "poreia:trip:j1:journal",
+        "mneme:note:n2"
+      ]
+    },
+    "apps added, not bought and no trial left": {
+      "added": {
+        "askesis": false,
+        "dynamis": false,
+        "soma": false,
+        "theoria": false,
+        "mneme": false,
+        "poreia": false,
+        "oikonomia": false
+      },
+      "keys": [
+        "oikonomia:financial:m1",
+        "life:it1",
+        "reflection:rf1",
+        "study:s2",
+        "study:s1",
+        "mneme:idea:i1",
+        "meal:rc1@2026-10-24",
+        "mneme:note:n1",
+        "workout:a2",
+        "reflection:rf2",
+        "workout:a1",
+        "dynamis-workout:w1",
+        "meal:rc1@2026-10-10",
+        "decision:d1",
+        "reflection:rf3",
+        "poreia:trip:r1",
+        "pursuit:p1",
+        "poreia:trip:j1:journal",
+        "mneme:note:n2"
+      ]
+    }
+  },
+  "lock": {
+    "lockedRoutes": [
+      "reflect",
+      "journal",
+      "insights",
+      "review"
+    ],
+    "libraryRouteIsInLockedRoutes": false,
+    "pageGate": true,
+    "lockScreenForLibraryRoute": true
+  }
+}
