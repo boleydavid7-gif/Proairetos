@@ -1,151 +1,95 @@
-# Unified Session Security & Local Data Protection: architecture proposal
+# Unified Session Security & Local Data Protection: architecture proposal (simplified)
 
-Status: **proposal for the owner's approval. Nothing is implemented.** Authentication, storage and encryption are not to be touched until this is approved. It follows `SESSION_SECURITY_AUDIT.md` (same folder), which found that sign-out ends the session and forgets the account key but leaves every local record readable.
+Status: **proposal; nothing is implemented.** No authentication, storage or encryption change is made until the owner approves. It follows `SESSION_SECURITY_AUDIT.md` (same folder): sign-out ends the session and forgets the account key, but every local record stays readable. This revision (2026-11-06) replaces the first, larger proposal after the owner asked for the simplest design that meets the goal.
 
-## 0. Decisions already made by the owner (2026-11-06)
+## 1. The goal
 
-1. **Sign-out means lock the device and keep its data.** All private information becomes inaccessible; the local database stays intact but sealed; keys leave memory; opening the app shows a locked screen; unlocking restores the existing data; no connection is needed to unlock. Local data is never deleted to achieve this.
-2. **Two actions.** *Sign out of this device* locks this device and revokes its own session. *Sign out everywhere* revokes every session and locks every connected device. Signing out on one device does not lock the others by default. A device must learn of a revocation when it reconnects and also while it is active.
-3. **The calendar link is a separate setting.** Signing out does not change a sharing arrangement. The person gets a clear way to turn the link off, and can see whether a link is active.
-4. **Order.** The encryption architecture is designed before any storage-copy protection is built (this document). Stage 3, sealing the primary databases with a unified Locked state, is the largest and needs a careful migration.
-5. **One implementation for the whole family.** A shared Identity & Session layer and a shared Local Security layer; no app does its own. Every app respects the same lock state, and no app can bypass it by opening its own address.
-6. **Approve the architecture before authentication or storage change.**
+When someone signs out of Proairetos, another person opening that browser cannot see their personal information. Their data stays on the device, intact and recoverable, and comes back when they unlock.
 
-## 1. Goals, threats, limits
+The experience: open Proairetos, unlock when necessary, use any companion app without unlocking again, sign out or lock, and everything private becomes unreadable with nothing deleted.
 
-**Protects against** (what a person without the unlocked app can do): reading a lost, stolen, borrowed or shared device's browser profile; copying the profile to another machine; opening the app after sign-out and reading its screens; a former session on a device the owner has since revoked.
+## 2. Four requirements
 
-**Does not protect against:** an attacker who is present while the app is unlocked, or who runs code in an unlocked page (a malicious extension, an injected script): a key that can be used can be used by that code, though it cannot be copied out because keys are non-extractable. Operating-system malware. The person choosing to keep the app unlocked. Record counts, sizes and write times (metadata) are not hidden.
+1. **Encrypted local data.** Personal information is not readable after sign-out. A locked screen alone does not count: the stored data itself is encrypted.
+2. **Preserved data.** Sign-out and lock never delete records, settings or history.
+3. **Simple unlocking.** The existing passphrase, passkey or recovery key. No new password.
+4. **Unified protection.** One shared security service; every app uses it and none can bypass it.
 
-**Constraints that shape the design:** local-first and offline (the app must open, unlock and work with no network); web-first with native shells only additive; no account required to use the app; no records deleted as a protective measure; iPhone Home Screen apps each keep their own storage; the owner's rule that an app never asks for attention that was not chosen.
-
-## 2. What exists today (the starting point)
-
-- **Account Data Key (ADK).** AES-GCM 256, non-extractable on the device, kept in the device database (`syncMeta.dataKey`) while signed in. It encrypts what syncs. It is wrapped by the passphrase (PBKDF2, 600,000 iterations), the recovery key (HKDF) and, optionally, a passkey's PRF secret; the wrapped copies live on the server (`user_keys`, `passkeys.wrap`). Nothing about it changes in this proposal, so no server data is re-encrypted.
-- **Local data is plaintext.** About thirty IndexedDB stores in `proairetos`; device-only file databases (`ktema-files`, `philia-photos`, `phyton-photos`, `poreia-files`, `theoria-files`, `askesis-music`); 226 browser-storage call sites in 72 files, 21 of which reach the data through the shared `collection`, `stored` and `readRecords` helpers (synchronous reads); backups (`proairetos-daily`, `proairetos-accounts`); the notice cache in Cache Storage.
-- **Seams that help.** The IndexedDB repositories sit behind interfaces with an in-memory twin; the family apps' records go through one `collection` helper; Phase 3 providers read other apps' records through one reader (`ctx.records`, `readRecords`); every app starts through `startApp` or Proairetos's `main.tsx` (18 entry points, 15 service workers); `apps:check` already validates every app against the manifest.
-- **Device registry.** `account_devices` (device key, label, platform, `revoked_at`) records devices; it holds no session identifier, so revoking one device cannot yet end that device's session on the server.
-
-## 3. Key hierarchy
+## 3. The design
 
 ```
-passphrase ──PBKDF2──┐
-recovery key ──HKDF──┤            ┌── wraps ──> Local Vault Key (LVK)   ── seals local data at rest
-passkey (PRF) ───────┤ unlock ────┤
-device passcode ─────┘ factors    └── wraps ──> Account Data Key (ADK)  ── seals synced records (unchanged)
-(native: Keychain/Keystore + biometrics, a convenience factor only)
+account credentials:  passphrase · passkey · recovery key   (all exist today)
+                              │
+                 Unified Security Service  (one module, shared by every app)
+        local key · lock and unlock · locked screen · sign-out
+                              │
+                 Encrypted local storage  (one mechanism)
+                              │
+              Proairetos · Ergon · Theoria · Askesis · every companion app
 ```
 
-- **Local Vault Key (new).** A random AES-GCM 256 key made per storage partition (a browser profile, or an installed app's own storage). It seals local data. It is separate from the ADK because (a) a person with no account needs one, (b) it must not depend on the account's lifecycle (sign-out, a different account on the same device, account deletion), and (c) it can be rotated without touching the server.
-- **Unlock factors.** The LVK is wrapped once per factor and the wrapped copies are kept on the device in a **vault header** (a small record: version, factor list, salts, iteration counts, wrapped keys, a check value). A wrapped key reveals nothing without its factor, so keeping it locally is safe, and it is what makes offline unlocking possible. The same passphrase, recovery key and passkey that open the ADK open the LVK, so a signed-in person has one thing to remember.
-- **A device passcode** (opt-in) is a factor for people with no account: a passcode through PBKDF2 into a wrapping key. Turning it on requires saving a **recovery key**, because forgetting both means the local data cannot be read (said once, plainly, when it is turned on). The existing Reflect passcode stays a separate screen gate.
-- **Where the LVK lives.** In memory only, as a non-extractable key, while the app is unlocked. A key that stays in the database is usable by anyone who opens the app, so protection comes from removing it. The opt-in *Stay unlocked on this device* mode (section 5) may keep it in the database; that is today's behavior and is labelled as such.
-- **Changing a factor** (a new passphrase) re-wraps the LVK only: cheap, no data is re-sealed. **Rotating the LVK** (suspected exposure) re-seals everything as a resumable job.
-- **Sealing a record.** AES-GCM with a fresh random 96-bit nonce per write; associated data names the store, the record id and the format version, so a sealed record cannot be moved to another place and still open.
+- **One local key.** A random AES-GCM 256 key, made on the device, seals local data at rest. It is separate from the account key (which seals what syncs and does not change) because it must keep working when the account session ends, and re-sealing local data must never touch what is on the server.
+- **Opened by what people already have.** The local key is stored on the device only in wrapped form (a small header), wrapped by the same passphrase, recovery key and passkey that open the account key. Nothing new to remember. Because the wrapped key is a local record, **unlocking works offline**.
+- **In memory only while unlocked.** The key is never left in the database: a key that stays there is usable by anyone who opens the app, so protection comes from removing it. A fresh open with no unlocked page asks for the unlock. The key is non-extractable, so it can be used but not copied out.
+- **Shared simply.** Unlocking in one page hands the same key object to the other open pages of that browser profile over a `BroadcastChannel` (a key object can be passed between same-origin pages without exposing its bytes). So one unlock covers Proairetos and every companion app open in the profile. Locking is sent the same way and every page drops the key at once. If the browser cannot pass a key between pages, the fallback is to ask again per page; nothing more elaborate.
+- **Sign out or lock.** *Sign out* ends the session and locks. *Lock now* locks without signing out. An inactivity lock is an optional setting, default off, and can come after the rest.
+- **One authority, no bypass.** The security service is started by `startApp` and Proairetos's `main.tsx`, before any app reads private data, so `/soma/`, `/ktema/` or any other address opens the same locked screen. `apps:check` fails if an entry point or worker skips it, and a browser test opens every app's address while locked.
+- **Two sign-outs with what Supabase already offers.** *Sign out of this device* uses the client's `scope: 'local'` (the code already uses it for a revoked device); *Sign out everywhere* uses `scope: 'global'` (what sign-out does today). No Edge Function and no server change. (That `local` ends only this device's session is to be confirmed in a test against a real project in Stage 1.)
+- **One session per browser profile.** Companion apps in the same profile share it. Separate installed iPhone Home Screen apps each keep their own storage and therefore their own session and lock; each honors a server-side sign-out when it next reaches the server (and while active, on focus and on a failed refresh).
 
-## 4. What is sealed, and how
+## 4. What it protects, and what it does not
 
-Classification first, because not everything is private:
+**Protects:** someone opening a signed-out or locked browser, reading or copying its profile, or reading a lost or borrowed device's storage. **Does not protect:** an attacker with the app unlocked in front of them, or code running inside an unlocked page. Record counts, sizes and write times are not hidden. Until Stage 3 finishes, sign-out still leaves records readable, and the docs say so.
+
+## 5. What is sealed
 
 | Class | Examples | Treatment |
 | --- | --- | --- |
-| Private records | every app's records, reflections, medicines, bills, trips, notes, books, photos, attachments | sealed under the LVK |
-| Credentials and device secrets | Strava and cloud-library tokens, the capture and health inbox keys, shared-list keys, the sign-in pass key | sealed under the LVK, or cleared at disconnect |
-| Copies | daily backups, put-away account backups, the notice cache, the share inbox | sealed under the LVK |
-| Not private | appearance, text size, the offline shell, map tiles, static assets | left readable |
+| Private records | every app's records, reflections, medicines, bills, trips, notes | sealed |
+| Credentials and secrets | Strava and cloud-library tokens, capture and health inbox keys, shared-list keys | sealed (or cleared when a service is disconnected) |
+| Copies and files | daily and put-away backups, the notice cache, photos, attachments, book files | sealed |
+| Not private | appearance, text size, the offline shell, map tiles | left readable |
 
-**IndexedDB stores.** The repository layer seals the stored value and keeps an opaque id and the write time in the clear. Queries that used indexes (by date or status) run against in-memory indexes built when the vault unlocks. The data sets are small (thousands of records); the unlock budget is set in section 11 and measured before anything ships.
+IndexedDB values are sealed behind the repository interfaces, with the id and write time in the clear and in-memory indexes built at unlock. The 21 files that use the shared browser-storage helpers move behind one facade with the same synchronous API (an in-memory copy filled at unlock, sealed writes behind it). The other private call sites move onto the facade app by app; a check keeps new private keys off raw `localStorage`. Each record is sealed with a fresh nonce and associated data that names its store and id. While locked, notices show the app's name and the time only (the existing private form).
 
-**Browser-storage records.** The 21 files that use `collection`, `stored` and `readRecords` move behind one **secure storage facade** with the same synchronous API: it holds an in-memory copy filled at unlock and persists sealed values behind it (write-behind, flushed when the page is hidden or closed, with a journal so a crash cannot lose a write). The remaining call sites that hold private data are moved onto the facade one app at a time, using the classification above; non-private settings stay plain. A static check keeps new private keys off raw `localStorage`.
+## 6. Four stages
 
-**Files and photos.** Sealed per file, in chunks for large books so that opening one does not need the whole file in memory.
+Each stage is its own pull request with tests, a rollback and the owner's approval. Sealing stages follow the K0/K1 method: a release that can **read** both forms ships first and runs at least seven days before the release that starts sealing.
 
-**Backups.** Daily copies and put-away backups are sealed under the LVK and restore only while unlocked. *Save a backup file* keeps its existing optional password; the person is offered the encrypted form first. A readable export stays an explicit action that leaves the device by the person's choice.
+**Stage 1. Fix logout and session security** (no encryption). Clear the key, passkey and pending-password state in every signed-out path and on the signed-out event, so other tabs and apps lock; remove the stored key when a session ends without a sign-out; handle a revoked device and a failed refresh; offer *Sign out of this device* and *Sign out everywhere*; report a failed server sign-out and retry it when online; make sure no page keeps working from a stale key. Also here, because it is small and separate: the calendar link shows whether it is active and has its own place to turn it off (sign-out does not change it). Plan: `STAGE1_PLAN.md`.
 
-**Notices and push.** While locked, the worker cannot open words. Notices show the app's name and the time only (the existing private lock-screen form, `privateNotice`), and sealed push payloads show the generic line. While unlocked, behavior is unchanged. This also settles the notice cache: it is sealed, or not written while locked.
+**Stage 2. Encryption foundation** (no data migration). The local key, the header, unlock with the account credentials and recovery key, offline unlock, the shared service, the Locked screen and the start-up check in every entry point. It ships first as a reading build and seals nothing.
 
-**Servers.** No change to what the server stores or can read.
+**Stage 3. Protect existing local data.** Seal the databases, backups, attachments, files, credentials and the notice cache, and migrate what is already there without losing anything: a sealed safety copy first; per store a journaled sequence of plaintext, dual writes, verified, sealed, then plaintext removed, resumable after a crash; plaintext removed only after its sealed twin opens and counts match, which needs the owner's approval for each pass; rollback always lands on a build that reads both forms. A store is sealed only when every reader of it, including search, Home, Calendar and Library, already goes through the service. Restore and recovery are verified before the pass is approved.
 
-## 5. Lock, unlock and the offline experience
+**Stage 4. Complete ecosystem integration.** The remaining companion apps and the providers (search, Home, Calendar, Library, notifications) on the service, and the final cross-ecosystem testing: several tabs, a companion app left open in another tab, other browsers, installed mobile versions, optional bridge apps.
 
-- **States.** *Locked* (no key in memory, header present), *Unlocked*, and *No vault* (a device that has not turned protection on, or a person with no account who has not set a passcode, behaves as today). Sign-in alone never creates a surprise prompt: a device gets a vault when the person signs in or turns protection on, through the migration in section 7.
-- **Sign out of this device** (the new default meaning of sign-out): revoke this device's session, remove the LVK from memory and from the database, close the remembered-key option, show the locked screen. Records are untouched.
-- **Unlock offline.** Passphrase or recovery key against the header; a passkey where the device offers it (a platform passkey's assertion works without a network); a device passcode. No server call is needed. An unlock with the account factors also restores sync when the session returns.
-- **Stay unlocked on this device** (opt-in, per device): the LVK stays in the database as a non-extractable key so a reload does not ask again, and sign-out still removes it. It is bounded by an **offline grace period** (a deadline refreshed by every successful contact with the server; past it the app locks). This protects a lost device that is also offline for a long time, within the limits stated in section 9. The default for a signed-in device is the owner's decision (section 12).
-- **Across pages.** Unlocking in one tab hands the non-extractable key to the other live pages of the same storage over a `BroadcastChannel` (a key object can be structured-cloned between same-origin pages without its bytes being exposed), so a person unlocks once for all of Proairetos and the companion apps open in that profile. *Lock* is broadcast the same way and every page drops the key and shows the locked screen at once; a Web Lock makes lock and unlock one at a time. If no live page holds the key, the next page to open asks.
-- **No bypass by address.** Every entry point calls one security start-up before it reads data, so `/soma/`, `/ktema/` or any other address opens the same locked screen. `apps:check` is extended to fail if an entry point or worker skips it, and a browser test opens every app's address while locked.
-- **Locked screen.** Plain: the app's name, Unlock, "Use a passkey" where available, "Forgot it?" leading to the recovery key, and Sign in on a device with no vault. No instructions or reassurance lines, per the writing rules.
+Stages 3 and 4 interleave in practice, because a store cannot be sealed before its readers are ready; the sealing is therefore ordered by app group, and the order is settled when Stage 3 is planned.
 
-## 6. Identity and sessions (device-specific)
+## 7. The three things not to compromise
 
-- **One session per storage partition**, shared by every app in it (as today). Each partition is a *device* for revocation purposes (`account_devices.device_key`).
-- **Sign out of this device** calls `signOut({ scope: 'local' })`. **Sign out everywhere** calls `scope: 'global'` and marks every device revoked. Today only the global form exists and it is the only one exposed.
-- **Revoking a chosen device** needs the server to end that device's session. Plan: record the session identifier (`session_id` in the access token) on the device row at registration, and add an Edge Function that, for the signed-in owner, deletes that session and sets `revoked_at`. **This needs a migration and an Edge Function deploy, each requiring the owner's approval at its time.**
-- **Detecting revocation while active:** on focus, every five minutes, and on any failed refresh the device re-reads its own registry row and its session; a revoked device **locks** (it no longer wipes the key and returns to sign-in, which is what it does today). Offline devices learn on reconnect; this window cannot be closed and is bounded by the offline grace period.
-- **Failed remote sign-out** is reported ("Signed out on this device. Reconnect to end the session everywhere") and retried when the device is online.
-- **Account switching** keeps today's rule: the previous account's data is put away (now sealed) and the new account starts clean.
+- **Recovery.** Changing a passphrase re-wraps the one local key and re-seals nothing. A forgotten passphrase is recovered with the recovery key, which also re-wraps the local key. Nothing is removed until its sealed copy opens, there is a safety copy, and a failed or interrupted migration resumes and leaves the plaintext in place. Lost passphrase and recovery key together mean the local sealed data cannot be opened (as already true of synced data); this is said where the key is made. A readable export remains available while unlocked.
+- **Encryption.** Real sealing of the stored data, not a screen gate; tested by reading the raw storage while locked.
+- **Compatibility.** Existing users migrate safely; the web app keeps working in desktop and mobile browsers and, optionally, in the bridge apps. A browser that lacks a needed feature falls back to asking per page, never to unprotected storage without saying so.
 
-## 7. Migrating existing plaintext without losing anything
+## 8. Postponed
 
-Every sealing stage follows the pattern that K0 and K1 used for notices: a release that can **read** both forms ships first and runs for at least seven days; the release that **starts sealing** follows; a revert of the second always lands on a build that still reads both. Within a release:
-
-1. **Prepare (no data change).** Create the vault header and LVK with the person's existing factors, only while the account key is open or a passcode is being set. Take a sealed **safety copy** of everything first.
-2. **Per store, a journaled state machine:** plaintext → *dual* (every write goes to both, existing rows are copied sealed in small batches) → *verified* (each sealed row is opened and compared with its plaintext by hash) → *sealed* (reads and writes use the sealed form only) → *cleaned* (the plaintext rows are removed). The journal makes it resumable after a crash or a closed tab. A row whose verification fails keeps its plaintext and stops the pass with a message; nothing is removed until its sealed twin opens.
-3. **Removing the plaintext of a verified sealed row replaces it; it is not deleting a record.** It is still the step that needs the owner's explicit approval per stage, and it runs only after the safety copy exists and the verified count equals the record count.
-4. **Rollback.** Before *cleaned*, any build still finds the plaintext. After *cleaned*, rollback is to the reading build, never to a build that cannot read sealed data. A person can export a readable copy at any time.
-5. **Storage-partition reality.** Each iPhone Home Screen app migrates its own storage separately; a progress screen is not shown (the work is quick and batched), and an interrupted migration resumes on the next open.
-
-## 8. Backup, restore and recovery
-
-- **Restore from a backup file** onto a device with no vault creates a vault with a new LVK and seals what it restores; restore onto a device with a vault asks for an unlock first. Older plaintext backups still restore.
-- **New device:** sign in, unlock with the passphrase or passkey (this opens the ADK), sync brings the records, and the device creates its own LVK wrapped by the same factors. Nothing sealed under another device's LVK is copied between devices; sync carries ADK-sealed records only.
-- **Forgot the passphrase:** the recovery key re-wraps both the ADK and the LVK under a new passphrase (the existing flow, extended to the header).
-- **Lost both:** synced data cannot be opened (the existing statement), and the local sealed data cannot be opened either. For a person who still has the unlocked app elsewhere, the readable export and the backup file are the way out; this is said at the moment a passcode or vault is created.
-- **Lost or stolen device:** from another device, *Sign out everywhere* or revoke that device (section 6). The sealed data on the lost device stays sealed unless the thief has the passphrase or the device was left in *Stay unlocked* mode and is within its offline grace period; section 9 states this honestly. The owner can also rotate the account key if they fear exposure.
-
-## 9. Compatibility and platform realities
-
-- **Browsers (desktop, Android Chrome, Safari).** Web Crypto, IndexedDB, `BroadcastChannel` and Web Locks are available in all current targets; structured-cloning a key over `BroadcastChannel` and Web Locks are to be confirmed on the oldest supported Safari. A fallback (ask again per tab) exists if a target cannot hand a key across pages.
-- **iPhone Home Screen apps** keep their own storage: each has its own vault, session and unlock, and a sign-out in one does not reach the others. This is why revocation has to be server-side and detected by each app (section 6), and why the offline grace period matters there.
-- **Passkeys with PRF** unlock the vault in one tap where the platform supports PRF on use (the existing code already handles the iPhone case that needs a second tap). Where it is unavailable, the passphrase is the factor.
-- **Capacitor shells (iOS, Android WebView).** Optional and additive, per the web-first rule: a native plugin may hold a wrapping key in the Keychain or Keystore behind biometrics as one more unlock factor. The web path must work without it, and nothing in this proposal requires the shell.
-- **Service workers.** The 15 workers cannot hold the key; they show generic notices while locked and use the existing private form. The fetch handlers are unchanged because the offline shell is not private.
-- **Storage eviction.** Browsers may evict storage; the existing `keepStorage()` request and daily copies are unchanged, and the vault header is part of what is backed up and synced as a device record.
-
-## 10. Staged plan (adjusted order)
-
-| Stage | Work | What a person gets |
+| Item | Decision | Revisit when |
 | --- | --- | --- |
-| 0. Session | Clear memory (key, passkey and pending-password state) in every signed-out path and on the signed-out event; remove the stored key when a session ends without sign-out; local and global sign-out as two actions; report and retry a failed remote sign-out; detect a revoked device while active and clear its key. Cross-tab lock of the signed-out state | Sign-out is consistent across tabs and apps; "Sign out of this device" and "Sign out everywhere" |
-| 1. Credentials and sharing | Service tokens and inbox keys cleared when a service is disconnected and at sign-out, with a reconnect path (sealed under the LVK later); a visible state of the calendar link and one clear place to turn it off, separate from sign-out; shared-list keys handled the same way | Nothing credential-like survives a sign-out; sharing is visible and separate |
-| 2a. Vault core | Vault header, LVK, factors, secure storage facade, lock coordinator, locked screen, offline unlock, the start-up check in every entry point and `apps:check`. **Reading release first, no sealing** | The machinery exists and is tested; nothing is sealed yet |
-| 2b. Copies, files, notices | Seal daily copies, put-away backups, the notice cache, photos and files, credentials | Copies and files are protected |
-| 3. Primary stores | Seal the IndexedDB stores and the browser-storage records, make sign-out lock, the *Stay unlocked* option and grace period, the device passcode for accountless people, the journaled migration | The stated outcome: sign-out locks the device and the data stays sealed and offline-readable |
+| Device passcode or PIN for people with no account | Postponed. They have no sign-out; nothing changes for them until a decision. A short numeric PIN is guessable offline, so a future option must be a strong passphrase or a platform credential, with a mandatory recovery key | after Stage 4 |
+| Persistent unlocked key and a 14-day offline grace period | Removed. A browser cannot enforce a deadline against someone who controls the profile | only with a platform-backed option |
+| Revoking one chosen device from another device | Later. Needs a session identifier on the device record and a server function; first confirm in Supabase's documentation and a test project that an arbitrary session can be ended | after Stage 4, if needed |
+| Custom Edge Functions | Only if the existing services cannot do it | with the item above |
+| Native Keychain or Keystore factor | Future optional enhancement; the web path must not need it | later |
+| Argon2id instead of PBKDF2 | Evaluate before PBKDF2 is treated as permanent: a vetted WebAssembly implementation is possible (the site's content policy already allows WebAssembly); memory use on phones, bundle size and the wrap-format change need measuring. PBKDF2 (600,000 iterations) is reused for now | before Stage 2 settles the header format |
+| Elaborate key transfer, extra abstraction layers | Not built; the shared `BroadcastChannel` hand-over and one storage facade only | n/a |
 
-Between stages the app behaves as today for anything not yet protected, and each release says so in What's new only when a person can see a change. Every stage is its own pull request with its own tests, a rollback, and the K0/K1-style gap before sealing begins.
+## 9. Verification (per stage, and at the end)
 
-**Needs approval at its time, separately:** the migration and Edge Function for revoking one device (Stage 0 or 1), each plaintext-removal pass (2b and 3), and any change to authentication or encryption behavior.
+Unit and integration tests of the key, header, every credential, wrong-credential failures, a record opened only with its own id and store; the migration killed at random points and resumed; counts and hashes before and after on a large seeded profile; the audit's two-instance harness extended to lock and unlock across pages; a browser test of every app's address while locked, of raw storage while locked, of offline unlock with the network blocked and of a companion app left open in another tab; speed and unlock budgets; real devices (iPhone Home Screen, Safari, Android Chrome, desktop) with and without passkey support. All new text follows the writing standards.
 
-## 11. Verification plan
+## 10. Decisions already made, and what is still open
 
-- **Unit and integration.** Key hierarchy, header versioning, wrap and unwrap with every factor, wrong-factor failures, associated-data binding, rotation, the journaled migration (crash at every step, partial batches, verification mismatch), and the two-instance harness from the audit extended to lock and unlock across pages.
-- **Browser.** Every app's address opened while locked (no private data in the DOM, storage reads return sealed rows only); sign-out in one tab locks the others; the offline unlock with the network blocked; a reload in each mode; the worker's locked notices.
-- **Data safety.** Before and after counts and hashes for every store on a seeded copy of a large profile; a migration run killed at random points and resumed; the backup round trip.
-- **Performance.** An unlock budget (target under 300 ms for ten thousand records, to be set after measuring), the first paint budget in `speed-check`, scroll cost, and sealing throughput on a slow CPU.
-- **Real devices.** iPhone Home Screen and Safari, Android Chrome, a desktop browser; passkey unlock with and without PRF; offline grace expiry; revocation from another device.
-- **Language.** All new text passes the writing standards and the language guard.
+Made by the owner: sign-out locks and keeps the data; sign out of this device versus everywhere; the calendar link is separate; one local key (kept for proper separation); no new passwords; require an unlock when no unlocked page remains, share the unlock between open pages, lock on sign-out, offer Lock now; no persistent unlocked key; the four stages above.
 
-## 12. Decisions for the owner
-
-1. **Default for a signed-in device:** unlock on every launch, or *Stay unlocked on this device* until sign-out (today's convenience, with the grace period)? Recommendation: stay unlocked until sign-out, with a per-device switch to lock on every launch.
-2. **People with no account:** nothing changes until they turn on a device passcode, with a recovery key required. Agreed?
-3. **Offline grace period** for *Stay unlocked*: recommended 14 days of no server contact; shorter for a revoked device on reconnect (immediate).
-4. **A separate LVK** (recommended) or sealing under the ADK for signed-in people (simpler, but no protection for people with no account and it ties local data to the account's lifecycle).
-5. **PBKDF2 at 600,000 iterations** stays (Web Crypto has no stronger memory-hard option); the passphrase's strength is the weak point and is said so where it is set.
-6. **The server pieces** (session id on the device row, a revoke Edge Function): approved to design, with each deployment approved separately?
-7. **Native Keychain/Keystore factor:** include in the plan as a later optional stage, or leave out for now?
-8. **Order:** Stage 0 first as proposed, or Stage 2a (the vault core) first so that Stage 0's sign-out can lock from the start?
-
-## 13. Not decided here, to be measured first
-
-How much of the 226 browser-storage call sites move onto the facade versus staying plain (the classification pass is the first piece of Stage 2a); the exact unlock budget; whether write-behind is safe enough for every key or a few need synchronous sealed writes; the cost of sealing large books; and the oldest Safari behavior for key hand-over between pages.
+Open: (a) the Argon2id evaluation before the header format is fixed; (b) whether the inactivity lock is part of Stage 2 or later; (c) the order of apps inside Stages 3 and 4; (d) the Stage 2 unlock performance budget, set after measuring.
