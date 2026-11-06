@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import { copyFileSync, createReadStream, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { APPS } from './src/core/apps/manifest';
 
 const builtAt = new Date().toISOString();
 
@@ -82,7 +83,7 @@ export default defineConfig(({ mode }) => {
   build: {
     outDir,
     rollupOptions: {
-      input: { main: 'index.html', askesis: 'askesis/index.html', soma: 'soma/index.html', oikonomia: 'oikonomia/index.html', hydros: 'hydros/index.html', poreia: 'poreia/index.html', praxis: 'praxis/index.html', theoria: 'theoria/index.html', diaita: 'diaita/index.html', philia: 'philia/index.html', ergon: 'ergon/index.html', therapeia: 'therapeia/index.html', dynamis: 'dynamis/index.html', ktema: 'ktema/index.html', phyton: 'phyton/index.html', mneme: 'mneme/index.html', melete: 'melete/index.html', lamplight: 'lamplight/index.html' },
+      input: { main: 'index.html', ...Object.fromEntries(APPS.filter((app) => app.status !== 'main').map((app) => [app.id, app.urls.entry])), lamplight: 'lamplight/index.html' },
     },
   },
   // When this copy was built, so Settings can say which build a phone is running.

@@ -1,3 +1,4 @@
+import { APPS } from '../../core/apps/manifest';
 import { filesBucket, type FileStore } from './attachmentFiles';
 import type { EmailOtpType, SupabaseClient, User } from '@supabase/supabase-js';
 import type { WrappedKey } from './keys';
@@ -197,7 +198,7 @@ function accountDeviceDetails(): { key: string; label: string; platform: string;
     : platform === 'macos' ? 'Mac'
     : platform === 'linux' ? 'Linux device' : 'Web browser';
   const path = location.pathname.split('/').filter(Boolean);
-  const knownApps = ['askesis','soma','oikonomia','hydros','poreia','praxis','theoria','diaita','philia','ergon','therapeia','dynamis','ktema','phyton','mneme','melete'];
+  const knownApps: string[] = APPS.filter((app) => app.status !== 'main').map((app) => app.id);
   const appId = knownApps.includes(path[0] ?? '') ? path[0] : 'proairetos';
   return { key: accountDeviceKey(), label, platform, appId };
 }

@@ -1,7 +1,10 @@
 // Proairetos service worker: lets the app open and work without a connection.
 // Data lives in IndexedDB on the device; this only caches the app itself.
 const CACHE = 'proairetos-v19';
-const APP_PATHS = ['/askesis/','/soma/','/oikonomia/','/hydros/','/praxis/','/theoria/','/diaita/','/philia/','/ergon/','/therapeia/','/dynamis/','/ktema/','/phyton/','/poreia/','/mneme/','/melete/'];
+// BEGIN GENERATED REGISTRY (npm run apps:build, from src/core/apps/manifest.ts; a test keeps it current)
+const REGISTRY = {"appPaths":["/askesis/","/hydros/","/soma/","/oikonomia/","/poreia/","/theoria/","/praxis/","/diaita/","/philia/","/ergon/","/therapeia/","/dynamis/","/ktema/","/phyton/","/mneme/","/melete/"],"windowPaths":["/askesis/","/hydros/","/soma/","/oikonomia/","/poreia/","/theoria/","/praxis/","/diaita/","/philia/","/ergon/","/therapeia/","/dynamis/","/ktema/","/phyton/","/melete/"],"sources":["proairetos","askesis","hydros","oikonomia","poreia","praxis","diaita","philia","ergon","therapeia","dynamis","ktema","phyton","melete"],"noticeNames":{"proairetos":"Proairetos","askesis":"Askesis","hydros":"Hydros","oikonomia":"Oikonomia","poreia":"Poreia","praxis":"Theoria","diaita":"Diaita","philia":"Philia","ergon":"Ergon","therapeia":"Therapeia","dynamis":"Dynamis","ktema":"Ktema","phyton":"Phyton","melete":"Meletē"},"pushNames":{"proairetos":"Proairetos","askesis":"Askesis","hydros":"Hydros","oikonomia":"Oikonomia","poreia":"Poreia","praxis":"Praxis","diaita":"Diaita","philia":"Philia","ergon":"Ergon","therapeia":"Therapeia","dynamis":"Dynamis","ktema":"Ktema","phyton":"Phyton","melete":"Meletē"},"pushIcons":{"proairetos":"/icons/icon-192.png","askesis":"/askesis/icons/icon-192.png","hydros":"/hydros/icons/icon-192.png","oikonomia":"/oikonomia/icons/icon-192.png","poreia":"/poreia/icon.svg","praxis":"/praxis/icons/icon-192.png","diaita":"/diaita/icons/icon-192.png","philia":"/philia/icons/icon-192.png","ergon":"/ergon/icons/icon-192.png","therapeia":"/therapeia/icons/icon-192.png","dynamis":"/dynamis/icons/icon-192.png","ktema":"/ktema/icons/icon-192.png","phyton":"/phyton/icons/icon-192.png","melete":"/melete/icons/icon-192.png"},"genericTap":["poreia","diaita","philia","ergon","therapeia","dynamis","ktema","phyton","melete"]};
+// END GENERATED REGISTRY
+const APP_PATHS = REGISTRY.appPaths;
 const SHELL = ['/','/index.html','/manifest.webmanifest','/favicon.svg','/icons/icon-192.png', ...APP_PATHS];
 
 // Requests this worker never answers (live API answers, recordings, the OCR and speech files, the Lamplight guide, the
@@ -127,17 +130,12 @@ async function readJson(cache, path, fallback) {
   }
 }
 
-const APP_NAMES = {
-  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Theoria', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia', melete: 'Meletē',
-};
+const APP_NAMES = REGISTRY.noticeNames;
 
 function appFor(open) {
-  if (open === 'askesis' || (open && open.startsWith('askesis:'))) return 'askesis';
-  if (open === 'oikonomia' || (open && open.startsWith('oikonomia:'))) return 'oikonomia';
-  if (open === 'hydros' || (open && open.startsWith('hydros:'))) return 'hydros';
-  if (open === 'praxis' || (open && open.startsWith('praxis:'))) return 'praxis';
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete']) if (open === app || (open && open.startsWith(app + ':'))) return app;
+  for (const app of REGISTRY.sources) {
+    if (app !== 'proairetos' && open && (open === app || open.startsWith(app + ':'))) return app;
+  }
   return 'proairetos';
 }
 
@@ -303,13 +301,13 @@ self.addEventListener('push', (event) => {
 
 // A tap opens the app where the notice belongs: the item, the day or Today in Proairetos; a reading block in
 // Theoria, Askesis or a bill in Oikonomia in their own app. An open window of that app is brought forward.
-const APPS = ['/askesis/', '/soma/', '/oikonomia/', '/hydros/', '/praxis/', '/theoria/', '/diaita/', '/philia/', '/ergon/', '/therapeia/', '/dynamis/', '/ktema/', '/phyton/', '/poreia/', '/melete/'];
+const APPS = REGISTRY.windowPaths;
 
 function placeFor(open) {
   if (open === 'praxis') return { app: '/theoria/', url: '/theoria/?open=pomodoro' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete']) {
+  for (const app of REGISTRY.genericTap) {
     if (open === app) return { app: '/' + app + '/', url: '/' + app + '/' };
     if (open.startsWith(app + ':')) return { app: '/' + app + '/', url: '/' + app + '/?open=' + encodeURIComponent(open.slice(app.length + 1)) };
   }

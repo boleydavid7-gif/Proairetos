@@ -75,7 +75,9 @@ describe('reminders from every app', () => {
     const worker = readFileSync('public/sw.js', 'utf8');
     expect(worker).toContain("'proairetos-notice'");
     expect(worker).toContain("get('dataKey')");
-    expect(worker).toContain("open === 'hydros'");
+    // Hydros's notices are recognised through the generated registry (a test in apps/generated keeps it current).
+    expect(worker).toContain('"hydros"');
+    expect(worker).toContain('REGISTRY.sources');
     expect(worker).toContain("'/' + app + '/icons/icon-192.png'");
     expect(worker).toContain('bodyFor');
     expect(findJudgmentLanguage(worker)).toEqual([]);

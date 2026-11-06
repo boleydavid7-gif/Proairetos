@@ -4,6 +4,7 @@ import { disableReminders, enableReminders, refreshReminders, testReminderThroug
 import { noticeLeadChoices, noticeLeadLabel, type NoticeSettings } from '../../core/notify/notices';
 import { loadQuietHours, saveQuietHours } from '../../data/storage/preferences';
 import { useSyncStatus } from './AccountSection';
+import { APPS } from '../../core/apps/manifest';
 import { useAddedApps, type AddOn } from '../../app/family/added';
 import { familyApps } from '../../app/family/FamilyApps';
 
@@ -79,20 +80,9 @@ function Lead({
 type AppSwitch = 'runMilestones' | 'strengthMilestones' | 'runs' | 'bills' | 'study' | 'rhythm' | 'people' | 'chores' | 'medicines' | 'training' | 'upkeep' | 'plants' | 'trips' | 'melete';
 
 /** Each added app's own notices, under its name. */
-const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = [
-  { id: 'askesis', switches: [['runs', 'Run days'], ['runMilestones', 'Milestones']] },
-  { id: 'oikonomia', switches: [['bills', 'Bills']] },
-  { id: 'theoria', switches: [['study', 'End of a reading block']] },
-  { id: 'diaita', switches: [['rhythm', 'Sleep and naps']] },
-  { id: 'philia', switches: [['people', 'Birthdays and keeping in touch']] },
-  { id: 'ergon', switches: [['chores', 'Chores']] },
-  { id: 'therapeia', switches: [['medicines', 'Medicines and visits']] },
-  { id: 'dynamis', switches: [['training', 'Training days'], ['strengthMilestones', 'Milestones']] },
-  { id: 'ktema', switches: [['upkeep', 'Upkeep and warranties']] },
-  { id: 'phyton', switches: [['plants', 'Plants to check']] },
-  { id: 'poreia', switches: [['trips', 'Bookings and plans']] },
-  { id: 'melete', switches: [['melete', 'Study sessions and dates']] },
-];
+const APP_NOTICES: { id: AddOn; switches: [AppSwitch, string][]; elsewhere?: string }[] = APPS.filter((app) => app.notices.page && app.notices.switches.length)
+  .sort((a, b) => (a.notices.page ?? 0) - (b.notices.page ?? 0))
+  .map((app) => ({ id: app.id as AddOn, switches: app.notices.switches.map((each) => [each.key as AppSwitch, each.label] as [AppSwitch, string]) }));
 
 function NotifyGroup({ label, icon, children }: { label: string; icon?: string; children: ReactNode }) {
   return (

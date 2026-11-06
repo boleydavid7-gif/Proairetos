@@ -11,6 +11,7 @@
 import { mkdirSync } from 'node:fs';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { surfaceIds } from '../apps/lib.mjs';
 
 const playwrightModule = process.env.PLAYWRIGHT_MODULE ?? '/opt/codex/cua_node/lib/node_modules/playwright/index.js';
 const playwright = await import(playwrightModule);
@@ -21,7 +22,8 @@ const baselinePath = process.env.VISUAL_BASELINE ?? join(new URL('.', import.met
 const updateBaseline = process.env.VISUAL_BASELINE_UPDATE === '1';
 mkdirSync(outputDir, { recursive: true });
 
-const apps = ['proairetos', 'askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
+// The apps this check covers come from the manifest (`surfaces.smoke`).
+const apps = await surfaceIds('smoke');
 const viewports = [
   { name: 'phone-dark', width: 390, height: 844, colorScheme: 'dark' },
   { name: 'phone-light', width: 390, height: 844, colorScheme: 'light' },

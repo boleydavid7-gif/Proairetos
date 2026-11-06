@@ -10,7 +10,7 @@ describe('added apps', () => {
   });
 
   it('finds the apps already used on this device', () => {
-    expect(usedApps(['askesis:settings', 'somaShared.items.1', 'hydros:settings', 'proairetos.praxisCards', 'proairetos.name'])).toEqual(['askesis', 'soma', 'hydros', 'praxis']);
+    expect(usedApps(['askesis:settings', 'somaShared.items.1', 'hydros:settings', 'proairetos.praxisCards', 'proairetos.name'])).toEqual(['askesis', 'hydros', 'soma', 'praxis']);
   });
 
   it('starts from the apps used here, then keeps the choice', () => {

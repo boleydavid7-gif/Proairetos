@@ -4,10 +4,12 @@
 // 4173`; CHROMIUM may point at a browser (in the cloud: /opt/pw-browsers/chromium).
 import { createRequire } from 'node:module';
 import { execSync } from 'node:child_process';
+import { surfaceIds } from '../apps/lib.mjs';
 
 const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)(`${execSync('npm root -g').toString().trim()}/playwright`));
 
-const ALL = ['', 'askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
+// The apps this check covers come from the manifest (`surfaces.speed`); Proairetos is the page at the root.
+const ALL = (await surfaceIds('speed')).map((app) => (app === 'proairetos' ? '' : app));
 // APPS=proairetos,soma narrows a run.
 const APPS = process.env.APPS ? process.env.APPS.split(',').map((app) => (app === 'proairetos' ? '' : app)) : ALL;
 const BASE = process.env.BASE || 'http://localhost:4173';

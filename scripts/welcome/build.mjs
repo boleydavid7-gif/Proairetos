@@ -5,15 +5,17 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadRegistry } from '../apps/lib.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const site = 'https://proairetos.com';
 
-const apps = [
+// What only the front pages say about each app: its category, a card line, its points. Everything else (name, address,
+// icon, colors, line, description) comes from the application manifest, so a change there reaches these pages.
+const content = [
   {
-    id: 'proairetos', name: 'Proairetos', href: '/', icon: '/icons/icon-192.png', category: 'LifestyleApplication',
+    id: 'proairetos', category: 'LifestyleApplication',
     ground: '#0e1112', accent: '#c9a274', ink: '#ece8e1',
-    line: 'A calm planner for your days',
     card: 'To-dos, your calendar and a journal, on any schedule.',
     about: 'Write it down, plan your week and look back on how it went. Proairetos fits any schedule, from nine to five to nights, and never nags.',
     points: [
@@ -24,11 +26,8 @@ const apps = [
     ],
   },
   {
-    id: 'askesis', name: 'Askesis', icon: '/askesis/icons/icon-192.png', category: 'HealthApplication',
-    ground: '#0b0f0e', accent: '#86d9b0', ink: '#e8ece9',
-    line: 'A running plan for any level',
+    id: 'askesis', category: 'HealthApplication',
     card: 'A running plan based on how much you can run now, from a first walk-run to a marathon.',
-    about: 'A running plan based on how much you can run now. Choose a goal like a 5K or a marathon, or just keep running regularly, and Askesis plans the weeks.',
     points: [
       ['A plan that fits you', 'A quick test sets your first week. Each week builds a little, with an easier week every fourth.'],
       ['Guided runs', 'Bells tell you when to run and walk, even with your screen locked. Play your own music.'],
@@ -37,11 +36,8 @@ const apps = [
     ],
   },
   {
-    id: 'soma', name: 'Soma', icon: '/soma/icons/icon-192.png', category: 'LifestyleApplication',
-    ground: '#f3ede2', accent: '#2f5a3e', ink: '#2f5a3e',
-    line: 'Recipes, meal plans and groceries',
+    id: 'soma', category: 'LifestyleApplication',
     card: 'Save recipes from anywhere, plan the week and shop from a list sorted by aisle.',
-    about: 'Save recipes from websites, photos and other recipe apps, plan the week’s meals, and make a grocery list sorted by aisle.',
     points: [
       ['Save from anywhere', 'Paste a link, snap a recipe card or bring in your Paprika or Mela library.'],
       ['Grocery list', 'Add a recipe’s ingredients in one tap, sorted by aisle. Share the list with whoever shops with you.'],
@@ -50,11 +46,8 @@ const apps = [
     ],
   },
   {
-    id: 'oikonomia', name: 'Oikonomia', icon: '/oikonomia/icons/icon-192.png', category: 'FinanceApplication',
-    ground: '#0d1110', accent: '#d79572', ink: '#f2eee6',
-    line: 'Bills, budgets and spending',
+    id: 'oikonomia', category: 'FinanceApplication',
     card: 'Track every bill and subscription, with a reminder before each one is due.',
-    about: 'Track your bills and subscriptions, see what’s due, and set a monthly budget. Swipe a bill to mark it paid.',
     points: [
       ['Bills', 'See what’s due next and get a reminder before each one. Swipe to mark it paid.'],
       ['Payday', 'Your next payday and the bills due before it, with what’s left after them.'],
@@ -63,11 +56,8 @@ const apps = [
     ],
   },
   {
-    id: 'theoria', name: 'Theoria', icon: '/theoria/icons/icon-192.png', category: 'BookApplication',
-    ground: '#0b1020', accent: '#d9b46a', ink: '#ede5d3',
-    line: 'Books, PDFs and highlights',
+    id: 'theoria', category: 'BookApplication',
     card: 'Read books and PDFs, and keep your highlights and notes with them.',
-    about: 'Read books and PDFs on any device. Highlights, notes and bookmarks are saved with each book.',
     points: [
       ['Your library', 'EPUB, PDF, text and Markdown, with shelves and search.'],
       ['Highlights and notes', 'Highlight passages, add notes and export them as Markdown.'],
@@ -77,11 +67,8 @@ const apps = [
     ],
   },
   {
-    id: 'diaita', name: 'Diaita', icon: '/diaita/icons/icon-192.png', category: 'HealthApplication',
-    ground: '#0e1014', accent: '#e2b26e', ink: '#ece8e1',
-    line: 'Sleep planning for any schedule',
+    id: 'diaita', category: 'HealthApplication',
     card: 'Plan sleep, naps and caffeine around your schedule, including night shifts.',
-    about: 'A sleep plan based on your schedule, including night shifts. It shows when to go to sleep, when to wake up and when to stop caffeine, with a source for each suggestion.',
     points: [
       ['Fits your schedule', 'Bedtime, wind-down and your last coffee move with your days, evenings and nights.'],
       ['Night shifts', 'When to nap before your first night, when to seek light and how to sleep after your last.'],
@@ -90,11 +77,8 @@ const apps = [
     ],
   },
   {
-    id: 'philia', name: 'Philia', icon: '/philia/icons/icon-192.png', category: 'LifestyleApplication',
-    ground: '#120f10', accent: '#e39a8f', ink: '#f0e8e4',
-    line: 'Birthdays and staying in touch',
+    id: 'philia', category: 'LifestyleApplication',
     card: 'Birthdays, gift ideas and when you last spoke to the people you care about.',
-    about: 'Keep track of birthdays and other dates, gift ideas, and when you last spoke to the people you care about.',
     points: [
       ['Coming up', 'Birthdays and other dates in the next month, with reminders if you want them.'],
       ['Stay in touch', 'Pick how often you’d like to catch up with someone and see how long it’s been.'],
@@ -103,11 +87,8 @@ const apps = [
     ],
   },
   {
-    id: 'ergon', name: 'Ergon', icon: '/ergon/icons/icon-192.png', category: 'LifestyleApplication',
-    ground: '#0e1112', accent: '#8fc1b5', ink: '#e9ece8',
-    line: 'Shared household chores',
+    id: 'ergon', category: 'LifestyleApplication',
     card: 'Chores that repeat on a schedule, shared with everyone you live with.',
-    about: 'Chores that repeat on the schedule you choose. Share them with the people you live with and take turns.',
     points: [
       ['Repeats', 'Every few days, on set weekdays, monthly or once, counted from when it was last done.'],
       ['Shared', 'One list for your whole household, end-to-end encrypted.'],
@@ -116,11 +97,8 @@ const apps = [
     ],
   },
   {
-    id: 'therapeia', name: 'Therapeia', icon: '/therapeia/icons/icon-192.png', category: 'HealthApplication',
-    ground: '#10141a', accent: '#9cb8e0', ink: '#e8edf4',
-    line: 'Medicines and appointments',
+    id: 'therapeia', category: 'HealthApplication',
     card: 'Medicine reminders, refills and appointments, with your questions for the doctor.',
-    about: 'Medicine reminders, refill tracking and appointments, with a list of questions for your doctor. Therapeia doesn’t give medical advice.',
     points: [
       ['Dose times', 'At a set time, after waking or before bed, so doses follow a night shift.'],
       ['Refills', 'Your supply counts down as you take doses, with a reminder before you run out.'],
@@ -129,11 +107,8 @@ const apps = [
     ],
   },
   {
-    id: 'dynamis', name: 'Dynamis', icon: '/dynamis/icons/icon-192.png', category: 'HealthApplication',
-    ground: '#141110', accent: '#e0a36b', ink: '#f2ebe4',
-    line: 'Strength training and mobility',
+    id: 'dynamis', category: 'HealthApplication',
     card: 'Strength workouts based on research, with every set logged.',
-    about: 'Strength workouts based on published research. Log your sets and weights as you go.',
     points: [
       ['Built on research', 'Each muscle group twice a week, reps matched to your goal.'],
       ['Gym or home', 'Train at the gym, with dumbbells at home or with no equipment. Swap any exercise.'],
@@ -142,11 +117,8 @@ const apps = [
     ],
   },
   {
-    id: 'ktema', name: 'Ktema', icon: '/ktema/icons/icon-192.png', category: 'LifestyleApplication',
-    ground: '#12130f', accent: '#c7b37a', ink: '#efece2',
-    line: 'Warranties, manuals and upkeep',
+    id: 'ktema', category: 'LifestyleApplication',
     card: 'Warranties, manuals and upkeep reminders for your home and car.',
-    about: 'Keep warranties, model and serial numbers and manuals for the things you own, and get reminders for home and car upkeep.',
     points: [
       ['Your things', 'Make, model, serial number, receipt, manual and photos.'],
       ['Warranties', 'A reminder a month before a warranty or document expires.'],
@@ -155,11 +127,8 @@ const apps = [
     ],
   },
   {
-    id: 'phyton', name: 'Phyton', icon: '/phyton/icons/icon-192.png', category: 'LifestyleApplication',
-    ground: '#0f1410', accent: '#9fc48a', ink: '#ecf0e6',
-    line: 'Plant care and reminders',
+    id: 'phyton', category: 'LifestyleApplication',
     card: 'Reminders to check each plant, and care details for about 170 plants.',
-    about: 'Reminds you when to check each plant for water, and adjusts to how often you actually water it. Look up care for about 170 plants.',
     points: [
       ['Learns your plants', 'Mark watered or still moist, and the timing adjusts to what you do.'],
       ['Plant care', 'Type a plant’s name to read its light, watering, feeding and pet safety, for about 170 types.'],
@@ -168,11 +137,9 @@ const apps = [
     ],
   },
   {
-    id: 'poreia', name: 'Poreia', icon: '/poreia/icons/icon-192.png', category: 'TravelApplication',
-    ground: '#071c24', accent: '#4cc3c7', ink: '#e8f5f2',
-    line: 'Trip planning and time off',
+    id: 'poreia', category: 'TravelApplication',
+    ink: '#e8f5f2', // the front page's own ink for Poreia; the apps' own list uses #d9fbf6
     card: 'Plan a trip from the first idea to the trip home: bookings, daily plans, packing and costs.',
-    about: 'Plan a trip from the first idea to the trip home. Keep bookings, daily plans, packing lists and costs together, and track your time off.',
     points: [
       ['Day by day', 'Each day with its forecast, travel times between places and your free time.'],
       ['Bookings from anywhere', 'Paste a confirmation or add a PDF, screenshot or calendar invite. It lands on the right day.'],
@@ -183,6 +150,30 @@ const apps = [
     ],
   },
 ];
+
+// Proairetos has no colors in the manifest; its page keeps its own (above). An entry may override a manifest field.
+const manifest = await loadRegistry();
+const known = new Map(manifest.APPS.map((app) => [app.id, app]));
+for (const entry of content) {
+  const app = known.get(entry.id);
+  if (!app) throw new Error(`front page for ${entry.id}, which is not in src/core/apps/manifest.ts`);
+  if (app.status === 'retired') throw new Error(`front page for ${entry.id}, a retired app (it lives in ${app.aliasOf})`);
+}
+const withoutPage = manifest.APPS.filter((app) => app.status === 'active' && !content.some((entry) => entry.id === app.id)).map((app) => app.id);
+if (withoutPage.length) console.log(`No front page yet: ${withoutPage.join(', ')}`);
+const apps = content.map((entry) => {
+  const app = known.get(entry.id);
+  return {
+    id: app.id,
+    name: app.name,
+    href: app.urls.href,
+    icon: app.id === 'proairetos' ? '/icons/icon-192.png' : `/${app.id}/icons/icon-192.png`,
+    ...(app.tint ? { ground: app.tint.ground, accent: app.tint.accent, ink: app.tint.ink } : {}),
+    line: app.line,
+    ...(app.about ? { about: app.about } : {}),
+    ...entry,
+  };
+});
 
 const addOns = apps.filter((app) => app.id !== 'proairetos');
 const hrefOf = (app) => app.href ?? `/${app.id}/`;

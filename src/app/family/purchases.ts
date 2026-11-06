@@ -1,3 +1,4 @@
+import { APPS } from '../../core/apps/manifest';
 import { useSyncExternalStore } from 'react';
 import { heldReferral } from './referral';
 import type { AddOn } from './added';
@@ -20,7 +21,7 @@ type StoreInfo = { paid: boolean; prices?: Record<string, number>; price?: numbe
 
 export type PurchaseItem = 'core' | 'coreyear' | 'cloud';
 // Praxis is retained as a compatibility route into Theoria's Pomodoro, but is no longer a purchasable or addable app.
-export const CORE_APPS = ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'] as const;
+export const CORE_APPS = APPS.filter((app) => app.install.coreBundle).map((app) => app.id) as unknown as readonly ['askesis', 'soma', 'oikonomia', 'poreia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'mneme', 'melete'];
 
 const listeners = new Set<() => void>();
 const changed = () => listeners.forEach((listener) => listener());
