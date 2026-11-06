@@ -88,13 +88,34 @@ export type HomeRow = {
   notForMe?: string;
 };
 
+/**
+ * One notice an app puts forward: when it is shown and the words it says. It is the same moment the app's own notice
+ * function gives today, with the same key (which is also the notification's tag and the server row's identity), and it
+ * carries nothing else: no note, amount, code, address, reading or other field the manifest does not list.
+ */
+export type NoticeLine = {
+  /** The record or day it is about. For audit and duplicate checks; never shown. */
+  ref: RecordRef;
+  /** One of the app's manifest `notices.kinds`. */
+  kind: string;
+  /** Stable for this reminder at this time. */
+  key: string;
+  at: Date;
+  title: string;
+  body: string;
+  /** Where a tap opens, in the form notices use (`app:record` or the app's bare name), which `placeFor` resolves to a page inside the owning app. */
+  open: string;
+};
+
 export type OutputOf<C extends Capability> = C extends 'search'
   ? SearchProjection[]
   : C extends 'calendar'
     ? CalendarLine[]
     : C extends 'home'
       ? HomeRow[]
-      : unknown[];
+      : C extends 'notices'
+        ? NoticeLine[]
+        : unknown[];
 
 /** What a provider may read: its own records, through the device's stores. */
 export type ProviderContext = {

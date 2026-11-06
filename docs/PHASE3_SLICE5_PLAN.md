@@ -144,9 +144,9 @@ export type NoticeLine = {
 
 - **`enforceNotices(app, lines, range)`** in `policy.ts`: only keys of a line; `ref.app` is the app; `kind` is in the
   manifest's `notices.kinds`; `key` is non-empty, unique, and its source (`sourceOf`, from the kind) is the app's
-  `notices.source`; `at` is a real date inside `[now, until]`; `open` starts with the app's `urls.href` or is one of the
-  app's existing bare addresses that `placeFor` resolves (`ergon`, `diaita:worry`); words are text within the lengths
-  `wordsOf` already caps (120 and 300). Anything else is rejected and reported, not passed on.
+  `notices.source`; `at` is a real date inside `[now, until]`; `open` is in the form notices use today (`app:record` or the app's bare name, as in `ergon` or `diaita:worry`) and
+  `placeFor` resolves it to a page inside the app (a URL is rejected); the words are text. Lengths are not enforced:
+  `wordsOf` already shortens them when sending, and rejecting a long one would change behavior. Anything else is rejected and reported, not passed on.
 - **`mayProvideNotices(app, provider)`**: the manifest lists `notices` in `provides`; the app is not retired; the
   manifest has a notices field classification (section 4); class `shared` is refused. Notices are the person's own
   surfaces, so the class is `own-search`, as for Home and Calendar (the name is existing vocabulary: the person's own

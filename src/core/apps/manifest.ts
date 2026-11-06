@@ -58,6 +58,11 @@ export type AppManifest = {
     pushIcon?: string;
     /** Proairetos writes this source too, when it holds the app's data. */
     mainWrites: boolean;
+    /**
+     * What a notice from this app may state (`shows`), may state only when the person has chosen details on the lock
+     * screen (`detailsOnly`), and never does (`excludes`). Present for an app that provides `notices`.
+     */
+    fields?: { shows: readonly string[]; detailsOnly: readonly string[]; excludes: readonly string[] };
   };
   today?: { group?: 'practice' | 'attention'; order?: number; parts: readonly string[] };
   /**
