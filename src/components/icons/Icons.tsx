@@ -242,6 +242,7 @@ export function LotusIcon(props: IconProps) {
 export const LeafIcon = glyphIcon('leaf', 24);
 
 export const TargetIcon = glyphIcon('target', 24);
+export const RepeatIcon = glyphIcon('repeat', 24);
 
 export const PlayIcon = glyphIcon('play', 24);
 

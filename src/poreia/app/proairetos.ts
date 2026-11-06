@@ -6,7 +6,7 @@ import { nowStamp, setupOrDefault, timeOff } from './state';
  * Poreia and Proairetos, both ways. Poreia reads the work shifts in Proairetos's schedule (COMMITTED patterns) to count
  * the hours a stretch of time off takes. When time off is marked approved, Poreia takes those shifts off the schedule
  * (a one-day change on each pattern) and remembers what each day had, so moving or canceling the time off puts them
- * back. Time off itself shows in Proairetos's Today and Days ahead (see `app/calendars/poreiaCalendar.ts`).
+ * back. Time off itself shows in Proairetos's Today and Days ahead (see `poreia/providers/calendar.ts`).
  * Proairetos's services load only when needed, so Poreia's first screen never waits for them.
  */
 

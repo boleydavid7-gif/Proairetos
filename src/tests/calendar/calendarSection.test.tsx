@@ -21,24 +21,31 @@ beforeEach(() => { localStorage.clear(); phase = 'ready'; link = null; });
 afterEach(cleanup);
 
 describe('Settings > Calendar', () => {
-  it('lists the four switches with their defaults', () => {
+  it('lists the new categories, all off, and the original four as before', () => {
     render(<CalendarSection onOpenAccount={() => undefined} />);
     const pressed = (name: string) => screen.getByRole('button', { name }).getAttribute('aria-pressed');
     expect(pressed('Commitments from my schedule')).toBe('true');
     expect(pressed('Use the names from my schedule')).toBe('false');
     expect(pressed('Protected time')).toBe('false');
     expect(pressed('Things with a day or time')).toBe('false');
+    expect(pressed('Bill names and due dates')).toBe('false');
+    expect(pressed('Trips and time off')).toBe('false');
+    expect(pressed('Bookings and plans with a time')).toBe('false');
   });
   it('says exactly what the file holds for the switches that are on, and what it never holds', () => {
     render(<CalendarSection onOpenAccount={() => undefined} />);
     const text = () => document.body.textContent ?? '';
     expect(text()).toContain('It holds your commitments, titled “Busy”.');
     expect(text()).toContain('It never holds bill amounts, confirmation codes, addresses, routes or notes.');
-    fireEvent.click(screen.getByRole('button', { name: 'Protected time' }));
-    expect(text()).toContain('It holds your commitments, titled “Busy”; protected time, titled “Protected time”.');
+    fireEvent.click(screen.getByRole('button', { name: 'Bill names and due dates' }));
+    expect(text()).toContain('It holds your commitments, titled “Busy”; bill names and due dates.');
     fireEvent.click(screen.getByRole('button', { name: 'Commitments from my schedule' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Protected time' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Bill names and due dates' }));
     expect(text()).toContain('Nothing above is switched on, so it is empty.');
+  });
+  it('a stored choice from before the new switches keeps its answers and starts them off', () => {
+    localStorage.setItem('proairetos.calendarFeed', JSON.stringify({ enabled: true, options: { shifts: false, shiftLabels: false, protectedTime: true, tasks: true } }));
+    expect(loadCalendarFeed().options).toEqual({ shifts: false, shiftLabels: false, protectedTime: true, tasks: true, bills: false, trips: false, tripTimes: false });
   });
   it('after a link was ended it says so and offers a new one, and says calendar apps keep what they fetched', () => {
     saveCalendarFeed({ enabled: false, options: loadCalendarFeed().options, linkEnded: true });

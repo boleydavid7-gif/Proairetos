@@ -71,6 +71,11 @@ export type AppManifest = {
    * not the record. Present for an app that provides `home`.
    */
   home?: { shows: readonly string[]; excludes: readonly string[] };
+  /**
+   * What the app's lines on the calendar may state (`shows`) and never do (`excludes`), and the kinds of line it has.
+   * Present for an app that provides `calendar`. Lines show while the app is added.
+   */
+  calendar?: { shows: readonly string[]; excludes: readonly string[]; kinds: readonly ('event' | 'deadline' | 'recurring' | 'info')[]; parts?: Partial<Record<'event' | 'deadline' | 'recurring' | 'info', string>> };
   /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
   provides?: readonly Capability[];
   declares?: { reads: readonly string[]; writes: readonly string[] };
@@ -183,8 +188,9 @@ export const APPS: readonly AppManifest[] = [
     notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true },
     today: { group: 'attention', order: 3, parts: ['bills', 'bill-dates'] },
     search: { privacy: 'own-search', indexes: ['bill name', 'due date', 'paid status'], excludes: ['bill amounts', 'amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['bill names', 'the first due date'], excludes: ['bill amounts', 'account numbers', 'balances', 'notes', 'payment history'] },
+    calendar: { shows: ['a bill’s name and each due date', 'whether a payment is recorded for that date'], excludes: ['amounts and currency', 'payments and their amounts', 'accounts and balances', 'notes', 'bill types'], kinds: ['deadline'] },
     details: {
       adds: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.',
       connects: [{ app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' }, { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
@@ -212,8 +218,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['trip name', 'place', 'trip notes', 'booking name', 'booking provider', 'booking place', 'booking notes', 'plan title', 'plan place', 'plan note'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['trip name and where it stands', 'the next thing on it', 'how many things are left to pack'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes'] },
+    calendar: { shows: ['a trip and time off as spans of days', 'a booking or plan with a time, by title, time and place'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes', 'booking providers'], kinds: ['event', 'info'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
@@ -300,8 +307,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['person name', 'relation', 'remember lines', 'gift ideas', 'times together'], excludes: ['phone number', 'email address', 'birthdays and dates'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['who it is for and what it is', 'when it comes'], excludes: ['phone number', 'email address', 'notes and gift ideas', 'dates beyond the next week'] },
+    calendar: { shows: ['a birthday or other date, by name and label', 'a one-time event with a time, by label and name'], excludes: ['phone numbers and email', 'notes', 'gift ideas', 'times together', 'ages'], kinds: ['event', 'recurring', 'info'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -349,8 +357,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['medicine name', 'visit contact', 'visit place'], excludes: ['medication doses', 'medicine notes', 'visit notes', 'questions for the doctor', 'health card', 'readings'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['medicine name', 'dose time', 'refill day', 'visit contact, time and place'], excludes: ['dose amounts', 'medicine and visit notes', 'questions for the doctor', 'readings', 'the health card', 'supply counts'] },
+    calendar: { shows: ['visit contact, time and place', 'who the visit is for'], excludes: ['visit notes', 'questions for the doctor', 'medicines and doses', 'readings', 'the health card'], kinds: ['event'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -397,8 +406,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['upkeep name', 'the thing it is for', 'since when'], excludes: ['serial numbers', 'prices', 'warranty details', 'notes', 'photos and files'] },
+    calendar: { shows: ['a warranty or document end, by name', 'an upkeep and the thing it is for, on the day it is next due'], excludes: ['serial numbers', 'prices and stores', 'manual links', 'notes', 'odometer readings', 'photos and files'], kinds: ['deadline'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -468,8 +478,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['subject names', 'dates', 'materials', 'if-then lines'] },
-    provides: ['home'],
+    provides: ['home', 'calendar'],
     home: { shows: ['minutes studied today or the next session', 'the nearest date within a week, by subject name and title'], excludes: ['materials', 'if-then lines', 'hours estimates', 'the rest of the week'] },
+    calendar: { shows: ['study sessions, by subject name and time', 'exam, due and other dates, by subject name and title'], excludes: ['materials', 'if-then lines', 'hour estimates', 'rhythm'], kinds: ['event', 'deadline'] },
     surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
 ];

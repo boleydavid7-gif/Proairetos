@@ -30,7 +30,38 @@ export type SearchProjection = {
   open: string;
 };
 
-export type CalendarLine = { ref: RecordRef; day: string; time?: string; title: string; open: string };
+/**
+ * What a line on the calendar is, so that not every record looks like an appointment: an `event` has a time and a place on
+ * the clock, a `deadline` is a day something is due or ends, `recurring` is a date that comes round (a birthday, a bill
+ * that repeats) and `info` is a span of days that only gives context (a trip).
+ */
+export type CalendarKind = 'event' | 'deadline' | 'recurring' | 'info';
+
+/**
+ * One line an app puts on the calendar. A line points at a record the app keeps and owns; it is never the record, and
+ * nothing here can carry a note, an amount, a code or a detail the manifest does not list. Days are the person's local
+ * calendar days (`YYYY-MM-DD`), so a date with no time stays that day in every time zone.
+ */
+export type CalendarLine = {
+  /** `occurrence` is the day, for a date that comes round, so each coming is its own line. */
+  ref: RecordRef;
+  kind: CalendarKind;
+  title: string;
+  detail?: string;
+  /** Inside the owning app: its own address, with `?open=` for a record. */
+  open: string;
+  /** The day it falls on: the first day of a span, the day a timed line starts. */
+  day: string;
+  /** A span of days only: the day after its last day (end-exclusive). */
+  until?: string;
+  /** A timed `event` only. */
+  start?: Date;
+  end?: Date;
+  location?: string;
+  /** A deadline that is met (a bill with its payment recorded). */
+  done?: boolean;
+  color?: 'amber' | 'violet' | 'sage' | 'sky' | 'rose' | 'slate';
+};
 
 /**
  * One line an app puts on Today. It is a summary and a way in, never the record: a title and a detail in words, where
@@ -80,6 +111,8 @@ export type ProviderContext = {
   day?: { start: Date; end: Date };
   /** Home: where the person's day starts and whether a shift carries it. */
   daySettings?(): import('../rhythm/personalDay').DaySettings;
+  /** Calendar: the visible range, `until` exclusive. A provider expands repeats only inside it. */
+  range?: { from: Date; until: Date };
 };
 
 export type Provider<C extends Capability = Capability> = {

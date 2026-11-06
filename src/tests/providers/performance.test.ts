@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { APPS } from '../../core/apps';
-import { homeRows, searchProjections, type HostContext } from '../../core/providers';
+import { calendarLines, homeRows, searchProjections, type HostContext } from '../../core/providers';
 import { search, type Searchable } from '../../core/search/search';
 import { withCache } from '../../app/providers/cache';
 
@@ -108,5 +108,55 @@ describe('Home time on a large library', () => {
     expect(out.rejected).toEqual([]);
     for (const each of out.timings) expect(each.ms, each.app).toBeLessThan(1500);
     expect(total).toBeLessThan(5000);
+  }, 60_000);
+});
+
+describe('Calendar time on a large library', () => {
+  const dateIn = (i: number, month = '11') => `2026-${month}-${String(1 + (i % 28)).padStart(2, '0')}`;
+  const calRecords: Record<string, unknown[]> = {
+    'local:philia:person:': many((i) => ({ id: `p${i}`, name: `Person ${i}`, birthday: `19${60 + (i % 40)}-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}`, dates: [{ id: 'a', label: 'Anniversary', date: `2010-${String(1 + (i % 12)).padStart(2, '0')}-${String(1 + (i % 28)).padStart(2, '0')}` }, { id: 'e', label: 'Dinner', date: dateIn(i), once: true, time: '19:00' }], notes: [], gifts: [], times: [], createdAt: iso })),
+    oikonomiaBills: many((i) => ({ id: `bill${i}`, name: `Bill ${i}`, amountCents: 1000, currency: 'USD', dueDate: dateIn(i, '10'), frequency: ['weekly', 'monthly', 'quarterly', 'yearly'][i % 4], autopay: false, reminderDays: 3, payments: [], createdAt: iso, updatedAt: iso })),
+    'local:ktema:thing:': many((i) => ({ id: `t${i}`, name: `Thing ${i}`, category: 'Appliance', warrantyUntil: dateIn(i), createdAt: iso })),
+    'local:ktema:upkeep:': many((i) => ({ id: `u${i}`, thingId: `t${i}`, name: `Upkeep ${i}`, every: { count: 3, unit: 'months' }, start: dateIn(i), history: [], createdAt: iso })),
+    'local:melete:subject:': many((i) => ({ id: `s${i}`, name: `Subject ${i}`, dates: [{ id: 'd', title: 'Exam', date: dateIn(i), kind: 'exam' }], materials: [], createdAt: iso })),
+    'local:melete:session:': many((i) => ({ id: `ss${i}`, subjectId: `s${i}`, kind: 'read', start: `${dateIn(i)}T${String(8 + (i % 10)).padStart(2, '0')}:00:00`, minutes: 30 })),
+    'local:therapeia:visit:': many((i) => ({ id: `v${i}`, with: `Dr ${i}`, at: `${dateIn(i)}T${String(8 + (i % 10)).padStart(2, '0')}:30`, questions: [], createdAt: iso })),
+    'local:poreia:trip:': many((i) => ({ id: `tr${i}`, name: `Trip ${i}`, place: { label: `Place ${i}` }, start: dateIn(i), end: dateIn(i + 3), travelers: 1, stage: 'booked', createdAt: iso, updatedAt: iso })),
+    'local:poreia:booking:': many((i) => ({ id: `bk${i}`, tripId: `tr${i}`, kind: 'flight', title: `Flight ${i}`, startDate: dateIn(i), startTime: '08:15', endTime: '10:30', createdAt: iso, updatedAt: iso })),
+    'local:poreia:plan:': many((i) => ({ id: `pl${i}`, tripId: `tr${i}`, date: dateIn(i), time: '09:00', title: `Plan ${i}`, createdAt: iso, updatedAt: iso })),
+  };
+  const calCtx = (from: string, until: string): HostContext => ({
+    today: TODAY,
+    now: new Date(`${TODAY}T12:00:00`),
+    range: { from: new Date(`${from}T00:00:00`), until: new Date(`${until}T00:00:00`) },
+    records: async <T,>(source: string) => (calRecords[source] ?? []) as T[],
+    setting: () => null,
+    isUsable: () => true,
+    enabled: () => true,
+  } as HostContext);
+
+  it('every calendar provider derives a month and a year from thousands of records quickly, and one pass serves the whole range', async () => {
+    const modules = await Promise.all([
+      import('../../philia/providers/calendar'), import('../../oikonomia/providers/calendar'), import('../../ktema/providers/calendar'),
+      import('../../melete/providers/calendar'), import('../../therapeia/providers/calendar'), import('../../poreia/providers/calendar'),
+    ]);
+    const providers = modules.flatMap((module) => Object.values(module)) as never[];
+    for (const [from, until] of [['2026-11-01', '2026-12-01'], ['2026-01-01', '2027-01-01']]) {
+      const started = performance.now();
+      const out = await calendarLines(providers, APPS, calCtx(from, until));
+      const total = performance.now() - started;
+      console.log(`calendar ${from}..${until}: ${Math.round(total)} ms for ${out.lines.length} lines; ${out.timings.map((each) => `${each.app} ${each.ms} ms (${each.rows})`).join(', ')}`);
+      expect(out.rejected).toEqual([]);
+      expect(out.lines.length).toBeGreaterThan(N);
+      for (const each of out.timings) expect(each.ms, each.app).toBeLessThan(2500);
+      expect(total).toBeLessThan(8000);
+    }
+  }, 60_000);
+
+  it('a short range costs no more than a long one and returns only what falls inside it', async () => {
+    const providers = (await Promise.all([import('../../philia/providers/calendar'), import('../../oikonomia/providers/calendar')])).flatMap((module) => Object.values(module)) as never[];
+    const week = await calendarLines(providers, APPS, calCtx('2026-11-05', '2026-11-12'));
+    expect(week.rejected).toEqual([]);
+    for (const line of week.lines) expect(line.day >= '2026-11-05' && line.day < '2026-11-12', line.title).toBe(true);
   }, 60_000);
 });

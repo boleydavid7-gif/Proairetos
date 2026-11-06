@@ -1,5 +1,4 @@
-import { comingUp, type Person } from '../../philia/core/people';
-import { addDays, formatMoney, occurrencesBetween, paidForOccurrence, type Bill } from '../../oikonomia/core/bills';
+import { addDays, occurrencesBetween, paidForOccurrence, type Bill } from '../../oikonomia/core/bills';
 
 /**
  * Quiet facts from the other apps for Today, worked out from their own records. Only what was recorded:
@@ -14,21 +13,6 @@ export function billsSoon(bills: readonly Bill[], today: string, days = 3): Bill
     .flatMap((bill) => occurrencesBetween(bill, today, last).filter((occurrence) => !paidForOccurrence(bill, occurrence.date)))
     .map(({ bill, date }) => ({ id: bill.id, name: bill.name, date }))
     .sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
-}
-
-export type BillOnDay = { id: string; name: string; amount: string; paid: boolean };
-
-/** The bills with a date on one day, for the calendar. Read only; paid ones are marked, not hidden. */
-export function billsOn(bills: readonly Bill[], date: string): BillOnDay[] {
-  return bills
-    .flatMap((bill) => occurrencesBetween(bill, date, date).map((occurrence) => ({ bill, occurrence })))
-    .map(({ bill, occurrence }) => ({
-      id: bill.id,
-      name: bill.name,
-      amount: formatMoney(bill.amountCents, bill.currency),
-      paid: Boolean(paidForOccurrence(bill, occurrence.date)),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** The unit Hydros shows amounts in (its own setting, read only). */
@@ -65,14 +49,4 @@ export function waterDuring(
   const last = since.map((drink) => drink.loggedAt!).sort().pop()!;
   const time = new Date(last).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
   return { line: `Water: ${volume(total, unit)} since work began · last ${time}` };
-}
-
-/** Birthdays and dates from Philia that fall on a day (read only; each opens the person in Philia). */
-export function birthdaysOn(people: readonly Person[], date: string): { id: string; name: string; href: string }[] {
-  // Events with a time show as entries at that time (`app/calendars/philiaCalendar.ts`), not as lines.
-  return comingUp(people, date, 0).filter((entry) => !entry.time).map((entry) => ({
-    id: entry.key,
-    name: entry.label === 'Birthday' ? `${entry.person.name}’s birthday` : `${entry.person.name}: ${entry.label}`,
-    href: `/philia/?open=${encodeURIComponent(`person:${entry.person.id}`)}`,
-  }));
 }

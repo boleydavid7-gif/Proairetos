@@ -85,19 +85,47 @@ function occurrenceDate(bill: Bill, index: number): string {
 
 const endedBy = (bill: Bill, date: string) => bill.endedOn !== undefined && date > bill.endedOn;
 
-export function occurrenceOnOrAfter(bill: Bill, from: string): BillOccurrence | undefined {
-  for (let i = 0; i < 500; i += 1) {
-    const date = occurrenceDate(bill, i);
-    if (endedBy(bill, date)) return undefined;
-    if (date >= from) return { bill, date };
-    if (bill.frequency === 'once') return undefined;
+/** Months a repeat steps by, for the frequencies that count in months. */
+const MONTH_STEP: Partial<Record<BillFrequency, number>> = { monthly: 1, quarterly: 3, yearly: 12 };
+
+/**
+ * The index of the first date on or after `from`, found from the calendar and not by counting from the bill's first
+ * date, so an old bill costs no more than a new one. Dates still come from `occurrenceDate`, which is anchored on the
+ * bill's first date (a bill due on the 31st is the 28th, 29th, 30th or 31st as the month allows), so this only picks
+ * where to start: one period early, then forward until the date is on or after `from`.
+ */
+function firstIndexOnOrAfter(bill: Bill, from: string): number {
+  if (bill.frequency === 'once' || from <= bill.dueDate) return 0;
+  let index: number;
+  if (bill.frequency === 'weekly') {
+    const days = Math.round((parseDate(from).getTime() - parseDate(bill.dueDate).getTime()) / DAY);
+    index = Math.floor(days / 7);
+  } else {
+    const first = parseDate(bill.dueDate);
+    const then = parseDate(from);
+    const months = (then.getFullYear() - first.getFullYear()) * 12 + (then.getMonth() - first.getMonth());
+    index = Math.floor(months / (MONTH_STEP[bill.frequency] ?? 1));
   }
-  return undefined;
+  index = Math.max(0, index - 1);
+  while (occurrenceDate(bill, index) < from) index += 1;
+  return index;
+}
+
+/**
+ * The most dates one call walks: a guard against a range with no end (a year 9999), not a limit anyone reaches. A weekly
+ * bill takes 53 dates a year, so this holds about 190 years of them; every calendar, month, week and history is far inside it.
+ */
+const MAX_DATES = 10_000;
+
+export function occurrenceOnOrAfter(bill: Bill, from: string): BillOccurrence | undefined {
+  const date = occurrenceDate(bill, firstIndexOnOrAfter(bill, from));
+  if (endedBy(bill, date)) return undefined;
+  return date >= from ? { bill, date } : undefined;
 }
 
 export function occurrencesBetween(bill: Bill, from: string, until: string): BillOccurrence[] {
   const result: BillOccurrence[] = [];
-  for (let i = 0; i < 500; i += 1) {
+  for (let i = firstIndexOnOrAfter(bill, from), count = 0; count < MAX_DATES; i += 1, count += 1) {
     const date = occurrenceDate(bill, i);
     if (date > until || endedBy(bill, date)) break;
     if (date >= from) result.push({ bill, date });
@@ -266,15 +294,9 @@ export function standing(bill: Bill, today = localDate()): Standing {
 }
 
 /** The date of the bill's turn just before `date`, if it had one. */
-function occurrenceBefore(bill: Bill, date: string): string | undefined {
-  let last: string | undefined;
-  for (let i = 0; i < 500; i += 1) {
-    const day = occurrenceDate(bill, i);
-    if (day >= date) break;
-    last = day;
-    if (bill.frequency === 'once') break;
-  }
-  return last;
+export function occurrenceBefore(bill: Bill, date: string): string | undefined {
+  const index = firstIndexOnOrAfter(bill, date);
+  return index > 0 ? occurrenceDate(bill, index - 1) : bill.frequency === 'once' && bill.dueDate < date ? bill.dueDate : undefined;
 }
 
 /** The bill with a payment recorded for `date` (replacing one already there). Pure; saving is up to the caller. */

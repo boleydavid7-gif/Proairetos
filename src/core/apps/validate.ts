@@ -73,6 +73,7 @@ export function validateManifest(apps: readonly AppManifest[] = APPS): Findings 
       if (capability === 'search' && !app.search) errors.push(`${at}: it provides search, so it must classify its search fields`);
       if (capability === 'home' && !(app.home?.shows.length && app.home.excludes.length)) errors.push(`${at}: it provides home, so it must say what its lines on Today show and never show`);
       if (capability === 'home' && !app.today?.group) errors.push(`${at}: it provides home, so it needs a Today group`);
+      if (capability === 'calendar' && !(app.calendar?.shows.length && app.calendar.excludes.length && app.calendar.kinds.length)) errors.push(`${at}: it provides calendar, so it must say what its calendar lines show and never show, and which kinds it has`);
     }
     for (const link of app.details?.connects ?? []) {
       if (!apps.some((each) => each.id === link.app)) errors.push(`${at}: connects to ${link.app}, which is not in the manifest`);
