@@ -88,11 +88,7 @@ describe('repeats are expanded inside the range', () => {
     const lines = await run(oikonomiaCalendar, { oikonomiaBills: [bill] }, '2026-10-01', '2026-12-31', '2026-11-20');
     expect(lines.map((line) => [line.day, line.done])).toEqual([['2026-10-08', false], ['2026-11-08', true], ['2026-12-08', false]]);
   });
-  // The expansion counts occurrences from the bill's first date and stops after 500 of them (core/bills.ts
-  // `occurrencesBetween`, used before this change too), so a weekly bill first due more than about ten years ago shows
-  // nothing in the range. It is a defect in code this slice did not change. The test is marked as a known failure so
-  // the day it is fixed the run says so.
-  it.fails('KNOWN DEFECT: a weekly bill first due more than ten years ago still has its dates in a range today', async () => {
+  it('a weekly bill first due more than ten years ago still has its dates in a range today', async () => {
     const bill = { id: 'b1', name: 'Cleaner', amountCents: 100, currency: 'USD', dueDate: '2015-01-05', frequency: 'weekly', autopay: false, reminderDays: 3, payments: [], createdAt: day, updatedAt: day };
     const lines = await run(oikonomiaCalendar, { oikonomiaBills: [bill] }, '2026-11-01', '2026-11-15');
     expect(lines.length).toBeGreaterThan(0);
