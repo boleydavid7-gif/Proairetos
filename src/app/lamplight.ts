@@ -85,6 +85,10 @@ export function pageScheme(appearance: Appearance, mode: Mode, app: string, day?
   return schemeOf(appearance.room, day ? warmedLamp(lamp, day.warmth) : lamp, mode);
 }
 
+/** The edge shade used by companion apps' moving pools of light. Proairetos keeps its wallpaper still. */
+const shadeGradient = (day: DayLight, edge: string) =>
+  `radial-gradient(120% 70% at ${(day.x * 100).toFixed(0)}% 0%, transparent 45%, ${edge} 80%, transparent 125%)`;
+
 /** Day light in the other apps: their pool of light at the top of the page moves, warms and dims with the day, and
  *  shade gathers at the top's edges (identity.css). Their pictures stay as drawn. */
 function familyDayVars(app: string, s: Scheme, day: DayLight): Record<string, string> {
