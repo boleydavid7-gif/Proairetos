@@ -162,7 +162,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   return value;
 }
 
-/** The Today hero fades into the same solid page surface; the wallpaper itself remains behind it. */
+/** The Today hero fades into the solid page surface while the selected scene continues across the shell. */
 export function backgroundFootOf(): string {
   return 'linear-gradient(180deg, transparent 0%, var(--color-bg) 100%)';
 }
