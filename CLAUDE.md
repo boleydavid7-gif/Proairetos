@@ -1010,8 +1010,8 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
 - `supabase/`: migrations (RLS on every table), the `send-reminders`
   edge function (payload-less push), and `calendar-feed` (serves the
   optional calendar subscription by secret token; deployed with
-  --no-verify-jwt; serves only `format = 2` rows, migration `20261111000000_calendar_feed_format.sql`
-  ended every earlier link). The feed is the one thing the server can read, only
+  --no-verify-jwt; serves only `format = 2` rows; needs migration `20261002000000_calendar_feed.sql` and then
+  `20261111000000_calendar_feed_format.sql`, run together, never the first alone). The feed is the one thing the server can read, only
   if the person turns it on, and it holds only the categories switched on in Settings > Calendar
   (never bills, trips, amounts, codes or notes); built on the device by `core/calendar/`
   (ics + what to include, default commitment times titled "Busy") and

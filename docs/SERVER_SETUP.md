@@ -23,8 +23,10 @@ VAPID **private** key in Cloudflare or in this repository.
 2. Paste the whole contents of
    `supabase/migrations/20261001000000_proairetos_sync.sql` and choose **Run**.
 3. It is safe to run again if anything was interrupted.
-4. Do the same with `supabase/migrations/20261002000000_calendar_feed.sql`
-   (only needed for the calendar subscription link, but harmless otherwise).
+4. For the calendar subscription link, run `supabase/migrations/20261002000000_calendar_feed.sql`
+   and then `supabase/migrations/20261111000000_calendar_feed_format.sql`, one after the other in
+   the same session. Never run the first on its own: only the second makes the server accept the
+   corrected file format. Skip both if you do not want the link.
 5. And with `supabase/migrations/20261003000000_askesis_sync.sql`, so Askesis
    (the training app) can sync its workouts and plan with the same account.
    Until it runs, Askesis keeps them on the phone and Proairetos syncs as usual.
@@ -214,10 +216,9 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
    Supabase, can recover it for you.
 4. On a second device, sign in with the same email and enter the passphrase.
 5. Calendar link (optional): **Settings → Calendar subscription → Create
-   link**, then use the Apple, Google, or Outlook button it shows. Migration
-   `20261111000000_calendar_feed_format.sql` ends every link made before it: run it
-   first, then deploy `calendar-feed`, then release the app
-   (`docs/CALENDAR_FEED_FIX.md`).
+   link**, then use the Apple, Google, or Outlook button it shows. Order for a project
+   that has no calendar table yet: both migrations (step 2.4), then deploy `calendar-feed`,
+   then release the app (`docs/CALENDAR_FEED_FIX.md`).
 6. Notifications on **iPhone**: open the site in Safari, **Share → Add to
    Home Screen**, open Proairetos from the Home Screen (iOS 16.4 or newer).
    Then **Settings → Notifications → Allow notifications**, and switch on
