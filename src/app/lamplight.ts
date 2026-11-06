@@ -1,8 +1,8 @@
 import { identityFor } from '../lamplight/identity';
 import { backgroundFootOf, backgroundOf } from './backgrounds';
 import type { Appearance } from '../data/storage/preferences';
-import { materialFootSvg, wallpaperStyleSvg, type WallLamp } from './wallpaper';
-import { SHADE_DARK, SHADE_LIGHT, mixHex, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
+import { materialFootSvg, wallpaperStyleSvg } from './wallpaper';
+import { SHADE_DARK, SHADE_LIGHT, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
 import { currentDayLight } from './dayLightState';
 import { ownHue, type ColorChoice, type LampColor, type Room, type WallStyle } from '../core/look/lamplight';
 import { rgba, triple } from '../lamplight/color';
@@ -47,7 +47,7 @@ export function footOf(room: Room, mode: Mode, wide = false, style: WallStyle = 
 }
 
 /** Proairetos's own color names, from the scheme. Text on every surface passes (scheme.ts checks it). */
-export function proairetosVars(s: Scheme, lamp?: WallLamp, style: WallStyle = 'paper'): Record<string, string> {
+export function proairetosVars(s: Scheme, style: WallStyle = 'paper'): Record<string, string> {
   const dark = s.mode === 'dark';
   return {
     '--color-ink': s.page,
@@ -68,8 +68,9 @@ export function proairetosVars(s: Scheme, lamp?: WallLamp, style: WallStyle = 'p
     '--color-accent-soft': rgba(s.lamp, dark ? 0.15 : 0.12),
     '--color-accent-ink': dark ? s.onLamp : s.card,
     '--color-accent-rgb': triple(s.lamp),
-    '--room-wall': wallpaperStyleSvg(s.art, s.page, !dark, false, lamp, style),
-    '--room-wall-wide': wallpaperStyleSvg(s.art, s.page, !dark, true, lamp, style),
+    // The home wallpaper is a fixed scene. Day light may warm the interface, but never moves its artwork.
+    '--room-wall': wallpaperStyleSvg(s.art, s.page, !dark, false, undefined, style),
+    '--room-wall-wide': wallpaperStyleSvg(s.art, s.page, !dark, true, undefined, style),
     '--room-foot': materialFootSvg(s.art, s.page, !dark, false, style),
     '--room-foot-wide': materialFootSvg(s.art, s.page, !dark, true, style),
   };
@@ -82,21 +83,6 @@ export function pageScheme(appearance: Appearance, mode: Mode, app: string, day?
   if (theme) return makeScheme(theme.room, day ? warmedLamp(theme.lamp, day.warmth) : theme.lamp, mode);
   const lamp = lampSeed(appearance.room, appearance.color);
   return schemeOf(appearance.room, day ? warmedLamp(lamp, day.warmth) : lamp, mode);
-}
-
-/** Shade gathering at the top's edges, away from the lamp; it comes back to nothing before the bottom of its box, so
- *  the room never ends in a line. */
-const shadeGradient = (day: DayLight, edge: string) =>
-  `radial-gradient(120% 70% at ${(day.x * 100).toFixed(0)}% 0%, transparent 45%, ${edge} 80%, transparent 125%)`;
-
-/** Day light's own pieces (Lamplight 2.0, Proairetos): the wallpaper's lamp and the shade at the room's edges. */
-function dayPieces(appearance: Appearance, s: Scheme, day: DayLight): { lamp: WallLamp; shade: string } {
-  const dark = s.mode === 'dark';
-  const pool = poolColor(lampSeed(appearance.room, appearance.color), day.warmth, s.mode);
-  const lamp = { x: day.x, y: day.y, strength: day.pool, glow: mixHex(s.art.glow, pool, 0.55), warmth: day.warmth };
-  const edge = dark ? `rgba(0, 0, 0, ${(SHADE_DARK * day.shade).toFixed(3)})` : rgba(s.ink, SHADE_LIGHT * day.shade);
-  const shade = shadeGradient(day, edge);
-  return { lamp, shade };
 }
 
 /** Day light in the other apps: their pool of light at the top of the page moves, warms and dims with the day, and
@@ -123,8 +109,7 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   const day = appearance.dayLight ? currentDayLight() : undefined;
   const s = pageScheme(appearance, mode, app, day);
   const root = document.documentElement;
-  const pieces = day && app === 'proairetos' ? dayPieces(appearance, s, day) : undefined;
-  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, pieces?.lamp, appearance.wallStyle) : familyVars(s, app)) };
+  const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, appearance.wallStyle) : familyVars(s, app)) };
   if (app === 'proairetos' && appearance.background !== 'lamplight') {
     const scene = backgroundOf(appearance.background, mode, s.page);
     vars['--room-wall'] = scene;
@@ -133,8 +118,8 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
     vars['--room-foot-wide'] = backgroundFootOf();
   }
   if (app === 'proairetos') {
-    if (pieces) root.style.setProperty('--room-shade', pieces.shade);
-    else root.style.removeProperty('--room-shade');
+    // Keep the home wallpaper still; day light is reserved for interface accents and other apps' surfaces.
+    root.style.removeProperty('--room-shade');
   } else if (day) {
     Object.assign(vars, familyDayVars(app, s, day));
   } else {
