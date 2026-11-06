@@ -50,6 +50,10 @@ Added 2026-11-06 at the owner's request. It is **not** part of Release 5B or Rel
 
 **Concern.** After a person signs out, private information may still be reachable on the device. The audit has to find where and why, not assume.
 
+**Status (2026-11-06).** Audit finished (`docs/security-audit/SESSION_SECURITY_AUDIT.md`, merged in #120). Architecture proposal merged and simplified to four stages (`SECURITY_ARCHITECTURE_PROPOSAL.md`; the owner's conditions: Argon2id evaluated before the encryption format is final, the key-wrapping design reviewed before implementation, plaintext never removed until its sealed copy is verified and recoverable). **Stage 1 is built and ready for release as PR #121 (branch `security/stage1-session`), awaiting the owner's approval; it is not merged or deployed.** Its release procedure and rollback are in `docs/security-audit/STAGE1_RELEASE.md`. Stage 2 (encryption foundation), Stage 3 (sealing the records) and Stage 4 (ecosystem integration) are not started.
+
+**Remaining security risks.** (1) Signing out does not yet protect the local records; they stay readable until Stage 3. (2) An access token already issued keeps working on the data API after sign-out until it expires (measured on a real project: one hour). (3) A sign-out the server could not reach leaves that session live on the server. (4) The sign-out scopes were verified on one disposable project; real devices, an installed iPhone app and Safari were not tested. (5) "Sign out" now ends this device only. (6) The published calendar link stays on after sign-out.
+
 **Audit scope**
 
 | Area | What the audit covers |
