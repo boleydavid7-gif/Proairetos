@@ -81,6 +81,11 @@ export type AppManifest = {
    * Present for an app that provides `calendar`. Lines show while the app is added.
    */
   calendar?: { shows: readonly string[]; excludes: readonly string[]; kinds: readonly ('event' | 'deadline' | 'recurring' | 'info')[]; parts?: Partial<Record<'event' | 'deadline' | 'recurring' | 'info', string>> };
+  /**
+   * What the app's entries in the Library (Reflect) may state (`shows`) and never do (`excludes`), and the kinds of entry it has. An
+   * entry is the existing `LifeRecord`; the app's own records stay the authority. Present for an app that provides `library`.
+   */
+  library?: { kinds: readonly string[]; shows: readonly string[]; excludes: readonly string[] };
   /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
   provides?: readonly Capability[];
   declares?: { reads: readonly string[]; writes: readonly string[] };

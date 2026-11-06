@@ -1,4 +1,5 @@
 import type { AppId, Capability, PrivacyClass } from '../apps/manifest';
+import type { LifeRecord } from '../life-records/contract';
 
 export type { Capability, PrivacyClass };
 
@@ -117,7 +118,9 @@ export type OutputOf<C extends Capability> = C extends 'search'
       ? HomeRow[]
       : C extends 'notices'
         ? NoticeLine[]
-        : unknown[];
+        : C extends 'library'
+          ? LifeRecord[]
+          : unknown[];
 
 /**
  * A stretch of the person's committed or protected time, for a notice that follows the day (sleep, waking, work days).

@@ -1,4 +1,5 @@
 import type { AppManifest } from '../apps/manifest';
+import { LIFE_RECORD_APP_LABELS, type LifeRecord } from '../life-records/contract';
 import { placeFor } from '../notify/place';
 import { refKey, type CalendarLine, type HomeRow, type NoticeLine, type Provider, type SearchProjection } from './types';
 
@@ -204,6 +205,49 @@ export function enforceNotices(app: AppManifest, lines: readonly NoticeLine[], r
     if (seen.has(line.key)) { no(`the same notice twice (${line.key})`); continue; }
     seen.add(line.key);
     kept.push(line);
+  }
+  return { kept, rejected };
+}
+
+/** Whether a provider's output may reach the Library at all. */
+export function mayProvideLibrary(app: AppManifest | undefined, provider: Provider<'library'>): Rejection | null {
+  if (!app) return { app: provider.app, reason: 'not in the manifest' };
+  if (app.status === 'retired') return { app: app.id, reason: 'retired apps provide nothing' };
+  if (!app.provides?.includes('library')) return { app: app.id, reason: 'the manifest does not list library for this app' };
+  if (!app.library || app.library.kinds.length === 0) return { app: app.id, reason: 'its Library entries are not classified' };
+  if (!(app.id in LIFE_RECORD_APP_LABELS)) return { app: app.id, reason: 'it is not one of the apps the Library names' };
+  // The person's own Reflect: private never leaves its app, and shared is not built.
+  if (provider.privacy === 'private' || provider.privacy === 'shared') return { app: app.id, reason: `class ${provider.privacy} is not available to the Library` };
+  return null;
+}
+
+const LIBRARY_KEYS = new Set(['key', 'kind', 'sourceApp', 'source', 'sourceId', 'at', 'title', 'detail', 'body', 'searchText', 'valueIds', 'archived']);
+
+/**
+ * Cuts a provider's Library entries down to what an entry may be: the app's own (its id and its label, never another app's), of a
+ * kind the manifest lists, with only the keys of an entry, a key that holds the source id (so it is made of the record, not of
+ * editable text) and that no other entry has, a real time, and text that is text. The owner and the kind are never changed.
+ */
+export function enforceLibrary(app: AppManifest, records: readonly LifeRecord[]): { kept: LifeRecord[]; rejected: Rejection[] } {
+  const kept: LifeRecord[] = [];
+  const rejected: Rejection[] = [];
+  const seen = new Set<string>();
+  const no = (reason: string) => rejected.push({ app: app.id, reason });
+  const label = (LIFE_RECORD_APP_LABELS as Record<string, string>)[app.id];
+  for (const record of records) {
+    const extra = Object.keys(record).filter((name) => !LIBRARY_KEYS.has(name));
+    if (extra.length) { no(`an entry with ${extra.join(', ')}, which an entry may not carry`); continue; }
+    if (record.sourceApp !== app.id) { no(`an entry that belongs to ${String(record.sourceApp)}`); continue; }
+    if (record.source !== label) { no(`an entry whose source is ${String(record.source)}, not ${label}`); continue; }
+    if (typeof record.kind !== 'string' || !app.library?.kinds.includes(record.kind)) { no(`a ${String(record.kind)} entry; the manifest lists ${app.library?.kinds.join(', ')}`); continue; }
+    if (typeof record.key !== 'string' || !record.key || typeof record.sourceId !== 'string' || !record.sourceId || !record.key.includes(record.sourceId)) { no(`an entry whose key does not hold its source id (${String(record.key)})`); continue; }
+    if (typeof record.at !== 'string' || Number.isNaN(new Date(record.at).getTime())) { no(`an entry with no valid time (${record.key})`); continue; }
+    if (typeof record.title !== 'string' || !record.title.trim() || typeof record.searchText !== 'string') { no(`an entry whose words are not text (${record.key})`); continue; }
+    if ((record.detail !== undefined && typeof record.detail !== 'string') || (record.body !== undefined && typeof record.body !== 'string')) { no(`an entry whose words are not text (${record.key})`); continue; }
+    if (!Array.isArray(record.valueIds) || record.valueIds.some((id) => typeof id !== 'string') || typeof record.archived !== 'boolean') { no(`an entry whose values or archive state are not valid (${record.key})`); continue; }
+    if (seen.has(record.key)) { no(`the same entry twice (${record.key})`); continue; }
+    seen.add(record.key);
+    kept.push(record);
   }
   return { kept, rejected };
 }

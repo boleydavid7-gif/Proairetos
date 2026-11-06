@@ -1,5 +1,6 @@
 import type { AppManifest } from '../apps/manifest';
-import { enforceHome, enforceSearch, mayProvideHome, mayProvideCalendar, enforceCalendar, enforceNotices, mayProvideNotices, mayProvideSearch, type Rejection } from './policy';
+import { enforceHome, enforceSearch, mayProvideHome, mayProvideCalendar, enforceCalendar, enforceLibrary, enforceNotices, mayProvideLibrary, mayProvideNotices, mayProvideSearch, type Rejection } from './policy';
+import { LIFE_RECORD_APP_LABELS, type LifeRecord } from '../life-records/contract';
 import type { CalendarLine, HomeRow, NoticeLine, Provider, ProviderContext, SearchProjection } from './types';
 
 /*
@@ -167,4 +168,56 @@ export async function noticeLines(providers: readonly Provider<'notices'>[], man
     return rest;
   });
   return { notices: clean, rejected, timings };
+}
+
+export type LibraryOutcome = { records: LifeRecord[]; rejected: Rejection[]; timings: { app: string; ms: number; rows: number }[] };
+
+/**
+ * The entries the apps put in the Library. A provider runs only for an app that is added and usable and whose Library the person has on,
+ * and only the entries of a Library survive (`enforceLibrary`). The result is derived each time and held by the caller in memory only;
+ * nothing here writes, stores or syncs. An entry another app already gave under the same key is dropped and reported. The order is the
+ * caller's: the Library page sorts the whole list, its own entries included.
+ */
+export async function libraryRecords(providers: readonly Provider<'library'>[], manifest: readonly AppManifest[], ctx: HostContext): Promise<LibraryOutcome> {
+  const records: LifeRecord[] = [];
+  const rejected: Rejection[] = [];
+  const timings: LibraryOutcome['timings'] = [];
+  const taken = new Set<string>();
+  for (const provider of providers) {
+    const app = manifest.find((each) => each.id === provider.app);
+    const refusal = mayProvideLibrary(app, provider);
+    if (refusal) {
+      rejected.push(refusal);
+      continue;
+    }
+    if (!ctx.isUsable(provider.app) || !ctx.enabled(provider.app, 'library')) continue;
+    const started = performance.now();
+    let output: LifeRecord[];
+    try {
+      output = await provider.read(ctx);
+    } catch (error) {
+      rejected.push({ app: provider.app, reason: `its provider could not read: ${error instanceof Error ? error.message : String(error)}` });
+      continue;
+    }
+    const cut = enforceLibrary(app!, output);
+    const fresh = cut.kept.filter((record) => {
+      if (!taken.has(record.key)) return true;
+      rejected.push({ app: provider.app, reason: `a key another app already used (${record.key})` });
+      return false;
+    });
+    fresh.forEach((record) => taken.add(record.key));
+    timings.push({ app: provider.app, ms: Math.round((performance.now() - started) * 100) / 100, rows: fresh.length });
+    records.push(...fresh);
+    rejected.push(...cut.rejected);
+  }
+  return { records, rejected, timings };
+}
+
+/**
+ * Hides, without changing or deleting anything, the entries that carry a companion app's name while that app is not available. That
+ * includes Proairetos's own reflections written from an app's prompt (a line after a run), whose record stays in Proairetos untouched.
+ * Entries of Proairetos and Compass are always shown. The input is not modified and the same entries are returned.
+ */
+export function visibleInLibrary(records: readonly LifeRecord[], available: (app: string) => boolean): LifeRecord[] {
+  return records.filter((record) => record.sourceApp === 'proairetos' || record.sourceApp === 'compass' || !(record.sourceApp in LIFE_RECORD_APP_LABELS) || available(record.sourceApp));
 }
