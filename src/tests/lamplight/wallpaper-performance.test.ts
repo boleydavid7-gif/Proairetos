@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { materialFootSvg, wallpaperStyleSvg, type WallArt } from '../../app/wallpaper';
-import { proairetosVars } from '../../app/lamplight';
+import { materialFootSvg, staticWallpaperStyleSvg, wallpaperStyleSvg, type WallArt } from '../../app/wallpaper';
 import { warmedLamp } from '../../lamplight/daylight';
 import { LAMP_SEEDS, makeScheme, ROOM_SEEDS } from '../../lamplight/scheme';
 
@@ -34,14 +33,13 @@ describe('Lamplight wallpaper rendering', () => {
     const midday = makeScheme(room, warmedLamp(LAMP_SEEDS.Amber, 0.5), 'dark');
     const evening = makeScheme(room, warmedLamp(LAMP_SEEDS.Amber, 0.92), 'dark');
 
-    const morningVars = proairetosVars(morning, 'paper');
-    const middayVars = proairetosVars(midday, 'paper');
-    const eveningVars = proairetosVars(evening, 'paper');
+    const wallAt = (scheme: ReturnType<typeof makeScheme>, wide = false) =>
+      staticWallpaperStyleSvg(scheme.art, scheme.page, false, wide, 'paper');
 
-    expect(middayVars['--room-wall']).toBe(morningVars['--room-wall']);
-    expect(eveningVars['--room-wall']).toBe(morningVars['--room-wall']);
-    expect(middayVars['--room-wall-wide']).toBe(morningVars['--room-wall-wide']);
-    expect(eveningVars['--room-wall-wide']).toBe(morningVars['--room-wall-wide']);
+    expect(wallAt(midday)).toBe(wallAt(morning));
+    expect(wallAt(evening)).toBe(wallAt(morning));
+    expect(wallAt(midday, true)).toBe(wallAt(morning, true));
+    expect(wallAt(evening, true)).toBe(wallAt(morning, true));
   });
 
   it('does not use full-surface SVG turbulence, displacement or blur filters for material walls', () => {
