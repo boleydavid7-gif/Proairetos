@@ -48,7 +48,7 @@ function AppsSheet({ onClose, onStore }: { onClose: () => void; onStore: () => v
                 onStore();
               }}
             >
-              <span className="apps-grid__store" aria-hidden="true"><Sym name="plus" /></span>
+              <span className="apps-grid__store" aria-hidden="true"><Sym name="basket" /></span>
               <span>Store</span>
             </button>
           </li>
@@ -69,7 +69,7 @@ export default function AppsTab() {
       <div className="tab-bar__pinned" aria-label="Pinned apps">
         <span className="tab-bar__section-label">Pinned apps</span>
         {apps.map((app) => <a className="tab-bar__pinned-app" key={app.id} href={app.href}><img src={app.icon} alt="" width={22} height={22} /><span>{app.name}</span></a>)}
-        <a className="tab-bar__pinned-app tab-bar__pinned-store" href="/?open=settings:store"><Sym name="plus" size={20} /><span>App Store</span></a>
+        <a className="tab-bar__pinned-app tab-bar__pinned-store" href="/?open=settings:store"><Sym name="basket" size={20} /><span>App Store</span></a>
       </div>
       <AllAppsTrigger onStore={() => { openSettingsAt('store'); navigate('settings'); }} />
     </>
