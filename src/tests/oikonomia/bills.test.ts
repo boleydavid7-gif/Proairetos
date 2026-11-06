@@ -42,7 +42,9 @@ describe('Oikonomia bill dates', () => {
   it('writes stable all-day calendar events', () => {
     const text = billCalendarText([bill()], '2026-01-01');
     expect(text).toContain('UID:oikonomia-electric-2026-01-31@proairetos');
-    expect(text).toContain('SUMMARY:Electric · $78.24');
+    // The file holds the bill's name and date, never its amount.
+    expect(text).toContain('SUMMARY:Electric');
+    expect(text).not.toMatch(/78\.24|\$|7824|USD/);
   });
 
   it('makes a six-week calendar grid', () => {

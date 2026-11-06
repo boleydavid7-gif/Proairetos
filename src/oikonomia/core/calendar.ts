@@ -1,11 +1,12 @@
 import { buildIcs } from '../../core/calendar/ics';
-import { addDays, formatMoney, localDate, occurrencesBetween, type Bill } from './bills';
+import { addDays, localDate, occurrencesBetween, type Bill } from './bills';
 
 export function billCalendarEvents(bills: readonly Bill[], from: string, until: string) {
   return bills.flatMap((bill) =>
     occurrencesBetween(bill, from, until).map((occurrence) => ({
       uid: 'oikonomia-' + bill.id + '-' + occurrence.date,
-      title: bill.name + ' · ' + formatMoney(bill.amountCents, bill.currency),
+      // The name and the date; the amount stays in Oikonomia.
+      title: bill.name,
       date: occurrence.date,
     })),
   );

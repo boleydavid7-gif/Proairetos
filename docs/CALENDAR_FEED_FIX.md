@@ -12,7 +12,7 @@ served to anyone with the link. The settings page said the file held only "what 
 
 ## What changed
 
-Three commits, each reviewable alone.
+Four commits, each reviewable alone. The fourth (individual downloads) is listed after the third.
 
 1. **Server** (`882e4795`): `supabase/migrations/20261111000000_calendar_feed_format.sql`, `supabase/functions/calendar-feed/index.ts`,
    `supabase/tests/calendar_feed_format.sh`, `src/tests/calendar/feedFunction.test.ts`. These four files are byte-identical to the session branch
@@ -30,11 +30,15 @@ Three commits, each reviewable alone.
 
 Unchanged: the four switches and their defaults (commitments on; names, protected time and things with a day or time off), the 60-day window, the link form, sign-in and encryption.
 
+## Individual downloads (fourth commit)
+
+A trip's "Add to your calendar" file no longer holds confirmation codes or notes (booking, plan and time off notes), and the bill page's "Add to your calendar" file no longer holds the amount.
+Files: `src/poreia/core/calendar.ts`, `src/oikonomia/core/calendar.ts` (byte-identical to the session branch), `src/tests/poreia/core.test.ts`, `src/tests/oikonomia/bills.test.ts`,
+`src/tests/calendar/downloadsPrivacy.test.ts`. Places and addresses stay in a trip's own file; they are not secrets from the person who made it.
+
 ## Not in this fix
 
 - The three new switches. Until the full release, bills and trips are simply not in the file.
-- A trip's own "Add to your calendar" file (it holds confirmation codes and notes) and the bill page's "Add to your calendar" file (it holds the amount). Both are started by the person and go
-  to their own calendar app. The approved correction for them is in the session branch (`poreia/core/calendar.ts`, `oikonomia/core/calendar.ts`); it can be added here as a separate small commit if wanted.
 - The recurring-bill correction (`core/bills.ts`).
 
 ## Deployment
