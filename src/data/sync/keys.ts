@@ -13,14 +13,14 @@ const PBKDF2_ITERATIONS = 600_000;
 const RECOVERY_BYTES = 20; // 160 bits
 const CROCKFORD = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
 
-function toBase64(bytes: Uint8Array): string {
+export function toBase64(bytes: Uint8Array): string {
   const chunks: string[] = [];
   for (let offset = 0; offset < bytes.length; offset += 0x8000) {
     chunks.push(String.fromCharCode(...bytes.subarray(offset, offset + 0x8000)));
   }
   return btoa(chunks.join(''));
 }
-const fromBase64 = (text: string): Uint8Array<ArrayBuffer> => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+export const fromBase64 = (text: string): Uint8Array<ArrayBuffer> => Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
 
 export interface WrappedKey {
   method: 'passphrase' | 'recovery' | 'passkey';
