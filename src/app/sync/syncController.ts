@@ -58,6 +58,7 @@ import {
 } from '../../data/sync/supabase';
 import type { SyncStateStore } from '../../data/sync/types';
 import { createListeners } from '../../services/listeners';
+import { security, vaultExistsHere } from '../security/securityService';
 import {
   compassService,
   decisionService,
@@ -289,6 +290,32 @@ function forgetSecretsInMemory(): void {
   passkeyKey = null;
   passkeyToFinish = null;
   accountPasswordForKeySetup = null;
+  // The vault locks whenever the account key is forgotten (sign-out, a session that ended, a revoked device). No effect without a vault.
+  security.lock();
+}
+
+/** The account key is open: keep it, open the vault with it where there is one, and refresh the copies of the account's wrapped keys. */
+function setDataKey(key: CryptoKey): void {
+  dataKey = key;
+  if (!vaultExistsHere()) return;
+  void security.unlockWithAccountKey(key).catch(() => undefined);
+  void refreshVaultAccount();
+}
+
+/**
+ * Keeps the vault's copies of the account's wrapped keys (password, recovery, passkeys) as the server has them, so the
+ * vault opens offline with the current password. They are encrypted already; nothing secret is stored. No effect without a vault.
+ */
+async function refreshVaultAccount(): Promise<void> {
+  if (!vaultExistsHere() || !userId || !navigator.onLine) return;
+  const [wrapped, passkeys] = await Promise.all([fetchWrappedKeys().catch(() => null), fetchPasskeys().catch(() => null)]);
+  if (!wrapped || !passkeys) return;
+  await security.rememberAccount({
+    userId,
+    passphrase: wrapped.passphrase,
+    recovery: wrapped.recovery,
+    passkeys: passkeys.flatMap((row) => (row.wrap ? [{ credentialId: row.credential_id, wrap: row.wrap }] : [])),
+  });
 }
 
 /** Also removes the keys this device keeps (the data key, and the copy kept for signing in other apps). Records are not touched. */
@@ -382,7 +409,9 @@ async function resolvePhase(): Promise<void> {
     set({ phase: status.phase, email: user.email, error: reason });
   }
   const st = (await localState())!;
-  dataKey = (await st.getMeta<CryptoKey>(KEY_META)) ?? null;
+  const stored = (await st.getMeta<CryptoKey>(KEY_META)) ?? null;
+  if (stored) setDataKey(stored);
+  else dataKey = null;
   const lastSyncedAt = await st.getMeta<string>(LAST_SYNC_META);
   const target = await lastTarget(st);
   const reminders = await remindersPhase();
@@ -395,6 +424,8 @@ const remoteChanges = createListeners();
 
 /** Told when a passkey is added, removed or given what opens the data, so screens that offer one read them again. */
 const passkeyChanges = createListeners();
+// Every passkey added, given a secret or removed notifies here; the vault's copies of the account's wrapped keys follow.
+passkeyChanges.subscribe(() => void refreshVaultAccount());
 
 export function onPasskeysChanged(listener: () => void): () => void {
   return passkeyChanges.subscribe(listener);
@@ -633,6 +664,8 @@ async function syncHere(): Promise<SyncResult | null> {
 export async function startSync(): Promise<void> {
   if (started) return;
   started = true;
+  // Every app learns the vault's state (locked or open, or made in another page) from the start.
+  void security.start();
 
   // Apps served from the same origin share the Supabase session storage.
   // Refresh the local account/key state whenever another app changes that session.
@@ -766,6 +799,7 @@ export async function linkAccountPasswordToEncryption(
     : await unlockWithRecoveryKey(wrapped.recovery, currentSecret, true);
   const nextWrap = await rewrapWithPassphrase(key, accountPassword);
   await savePassphraseWrap(userId, nextWrap);
+  void refreshVaultAccount();
   // The same authenticated device can now create short-lived, single-use
   // handoffs without asking the person for a second encryption secret.
   await (await localState())!.setMeta(HANDOFF_META, key);
@@ -777,7 +811,7 @@ export async function linkAccountPasswordToEncryption(
     ['encrypt', 'decrypt'],
   );
   await (await localState())!.setMeta(KEY_META, localKey);
-  dataKey = localKey;
+  setDataKey(localKey);
   set({ phase: 'ready', error: undefined });
   tellFamily('account');
 }
@@ -938,7 +972,7 @@ export async function confirmEncryption(setup: KeySetup): Promise<void> {
     await (await localState())!.setMeta(HANDOFF_META, handoffKey);
   }
   await (await localState())!.setMeta(KEY_META, setup.dataKey);
-  dataKey = setup.dataKey;
+  setDataKey(setup.dataKey);
   writeAccountPasswordReadyForSetup(false);
   set({ phase: 'ready' });
   tellFamily('account');
@@ -986,7 +1020,7 @@ export async function unlock(secret: string, method: 'passphrase' | 'recovery', 
     key = await crypto.subtle.importKey('raw', await crypto.subtle.exportKey('raw', key), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
   }
   await (await localState())!.setMeta(KEY_META, key);
-  dataKey = key;
+  setDataKey(key);
   set({ phase: 'ready' });
   tellFamily('account');
   await syncNow();
@@ -1005,6 +1039,7 @@ export async function changePassphrase(secret: string, method: 'passphrase' | 'r
       ? await unlockWithPassphrase(passphraseOf(wrapped), secret, true)
       : await unlockWithRecoveryKey(wrapped.recovery, secret, true);
   await savePassphraseWrap(userId, await rewrapWithPassphrase(key, next));
+  void refreshVaultAccount();
 }
 
 // ---------- Passkeys ----------
@@ -1012,7 +1047,7 @@ export async function changePassphrase(secret: string, method: 'passphrase' | 'r
 /** Keeps an opened data key on this device and starts syncing. */
 async function keepKey(key: CryptoKey, email?: string): Promise<void> {
   await (await localState())!.setMeta(KEY_META, key);
-  dataKey = key;
+  setDataKey(key);
   set({ phase: 'ready', ...(email ? { email } : {}) });
   tellFamily('account');
   await syncNow();

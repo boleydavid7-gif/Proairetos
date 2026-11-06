@@ -15,25 +15,26 @@ function Broken(): never {
 }
 
 describe('when a screen breaks', () => {
-  it('shows a calm page with a way forward instead of a blank window', () => {
+  it('shows a calm page with a way forward instead of a blank window', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     render(
       <ErrorBoundary>
         <Broken />
       </ErrorBoundary>,
     );
-    expect(screen.getByRole('alert').textContent).toMatch(/safe on this device/);
+    // The security gate reads the vault's stored copies first (a few milliseconds), then the app, then the calm page.
+    expect((await screen.findByRole('alert')).textContent).toMatch(/safe on this device/);
     expect(screen.getByRole('button', { name: 'Reload' })).toBeTruthy();
     expect(screen.getByRole('button', { name: /Save a copy/ })).toBeTruthy();
   });
 
-  it('shows the page when nothing is wrong', () => {
+  it('shows the page when nothing is wrong', async () => {
     render(
       <ErrorBoundary>
         <p>All well</p>
       </ErrorBoundary>,
     );
-    expect(screen.getByText('All well')).toBeTruthy();
+    expect(await screen.findByText('All well')).toBeTruthy();
   });
 });
 
