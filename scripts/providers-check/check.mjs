@@ -72,7 +72,7 @@ async function find(page, text, scope) {
   const rows = await page.evaluate(() => [...document.querySelectorAll('.search-row')].map((row) => row.innerText.replace(/\s+/g, ' ').trim()));
   return { rows, ms: Date.now() - started };
 }
-const derived = (page) => page.evaluate(() => performance.getEntriesByType('mark').filter((entry) => entry.name.startsWith('provider-derive:')).map((entry) => ({ app: entry.name.slice(16), ms: entry.detail?.ms ?? 0 })));
+const derived = (page) => page.evaluate(() => performance.getEntriesByType('mark').filter((entry) => entry.name.startsWith('provider-derive:') && !entry.name.startsWith('provider-derive:home:')).map((entry) => ({ app: entry.name.slice(16), ms: entry.detail?.ms ?? 0 })));
 
 // ---------------------------------------------------------------- one time zone, everything
 const main = await seeded('America/Los_Angeles');

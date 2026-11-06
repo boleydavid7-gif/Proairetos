@@ -1,8 +1,9 @@
 # Provider contract (design only)
 
 Status: approved design (docs/PHASE3_PLAN.md). Slices 1 and 2 are built: the provider types, host and policy, and search
-providers for Soma, Theoria, Philia, Ergon, Therapeia, Ktema, Poreia, Askesis, Dynamis, Oikonomia and Hydros. Home,
-calendar, notices and library providers do not exist yet. Section 4 below was revised by the owner's decision D1. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
+providers for Soma, Theoria, Philia, Ergon, Therapeia, Ktema, Poreia, Askesis, Dynamis, Oikonomia and Hydros. Slice 3 is
+built: home providers for the 14 apps that put lines on Today (section 6). Calendar, notices and library providers do not
+exist yet. Section 4 below was revised by the owner's decision D1. It builds on the application manifest (`src/core/apps/manifest.ts`, `docs/APP_REGISTRY.md`) and the
 existing read-only `LifeRecordAdapter` (`docs/LIFE_RECORD_INTEGRATION.md`).
 
 The core rule stays: the system records life; it does not interpret life. A provider shows what an app already
@@ -89,3 +90,29 @@ Search rules as built:
 
 Providers are additive. An app with no `provides` behaves as it does today. The manifest validator will gain
 checks (a `search` capability needs a privacy class and `excludes`; a `private` field is never in a projection).
+
+## 6. Home providers (Slice 3)
+
+Today's two groups, Daily practices and Worth your attention, read only providers. The old per-app code
+(`FromYourApps`, `fromApps`, `TodayNewFamily`) is gone; Compass pursuits stay Proairetos's own.
+
+- **Manifest.** An app that provides `home` declares `home: { shows, excludes }` and a `today.group`. The check in
+  `validate.ts` refuses `provides home` without both. The privacy class of a home provider is `own-search`: lines are
+  for the person's own screen, never `private` or `shared`.
+- **Row.** `HomeRow` has only `ref`, `group`, `title`, `detail`, `open`, `icon`, `progress`, `swipe` and `notForMe`.
+  `enforceHome` rejects an extra key, another app's ref, a group other than the manifest's, an `open` outside the app's
+  address or containing `//`, a bad icon or progress, a pull with no id, and duplicates. A rejected result is dropped
+  and reported; the other apps' lines stay.
+- **Marks.** A provider may offer `act(ref, today)`, which does the mark and returns an undo. `markHomeRow` calls it
+  through the store; the provider is the only place that writes, and only on the person's pull.
+- **Warm and age.** `warm()` loads what a derivation needs but cannot fetch at read time (Askesis and Dynamis fit the
+  training week). `maxAgeMs` shortens the five-minute default for time-bound apps (Therapeia, Poreia, Meletē: 60 s).
+- **Sources.** `invalidate.ts` adds `device:<name>` for device-only caches (the weather and frost cache, the
+  training-week fit). A `device:` source is never synced.
+- **Store.** `app/providers/homeStore.ts` holds each app's lines in memory. An app derives only when it is added and
+  usable, and not set aside in Apps on Today. It derives again only when a sync changes one of its sources, its own
+  records change on this device (`watchLocal`), the person's day turns over, or its lines pass their age limit.
+  Nothing derives while Today has no reader. Nothing is stored or synced, and each derivation leaves a
+  `provider-derive:home:<app>` performance mark.
+- **Parity.** `scripts/home-check/` (`npm run home:check`) seeds one record in every contributing app on a fixed clock
+  and compares text, markup and pictures against the pre-migration build (`compare.mjs`), in UTC and Los Angeles.

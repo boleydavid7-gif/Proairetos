@@ -292,7 +292,7 @@ No other app, screen or capability changes in Slice 1.
 1. **Slice 1:** core plus Oikonomia and Hydros search (above).
 2. **Slice 2:** the remaining search loops, one app per commit, each held byte-identical by the parity snapshot
    (after D4).
-3. **Slice 3:** home providers (`TodayAppsOverview`, `fromApps`).
+3. **Slice 3 (built, awaiting review):** home providers (`TodayAppsOverview`, `fromApps`); see PROVIDER_CONTRACT section 6.
 4. **Slice 4:** calendar providers (the five calendar files and `glance.ts`).
 5. **Slice 5:** notice providers (`familyNotices`, `upcoming`). Last because notices reach people when the app is
    closed and the server rows depend on them.

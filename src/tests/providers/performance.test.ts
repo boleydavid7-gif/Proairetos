@@ -2,7 +2,7 @@
 import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
 import { APPS } from '../../core/apps';
-import { searchProjections, type HostContext } from '../../core/providers';
+import { homeRows, searchProjections, type HostContext } from '../../core/providers';
 import { search, type Searchable } from '../../core/search/search';
 import { withCache } from '../../app/providers/cache';
 
@@ -24,8 +24,10 @@ const records: Record<string, unknown[]> = {
   hydrosDrinks: many((i) => ({ id: `d${i}`, kind: 'tea', label: `Tea ${i % 40}`, amountOz: 12, loggedAt: `2026-10-${String(10 + (i % 20)).padStart(2, '0')}T08:00:00.000Z`, createdAt: iso })),
   'local:philia:person:': many((i) => ({ id: `p${i}`, name: `Person ${i}`, notes: [], gifts: [{ id: 'g', text: `gift ${i}` }], times: [], createdAt: iso })),
   'local:ktema:thing:': many((i) => ({ id: `t${i}`, name: `Thing ${i}`, createdAt: iso })),
-  'local:ktema:upkeep:': many((i) => ({ id: `u${i}`, name: `Upkeep ${i}`, createdAt: iso })),
-  'local:poreia:trip:': many((i) => ({ id: `tr${i}`, name: `Trip ${i}`, createdAt: iso })),
+  'local:ktema:upkeep:': many((i) => ({ id: `u${i}`, thingId: `t${i}`, name: `Upkeep ${i}`, every: { count: 3, unit: 'months' }, start: '2026-11-01', history: [], createdAt: iso })),
+  'local:poreia:trip:': many((i) => ({ id: `tr${i}`, name: `Trip ${i}`, place: { label: `Place ${i}` }, start: '2026-11-07', end: '2026-11-12', travelers: 1, stage: 'booked', createdAt: iso, updatedAt: iso })),
+  'local:ergon:chore:': many((i) => ({ id: `c${i}`, name: `Chore ${i}`, room: 'Kitchen', repeat: { kind: 'days', every: 1 }, start: '2026-11-04', history: [], createdAt: iso })),
+  'local:phyton:plant:': many((i) => ({ id: `pl${i}`, name: `Plant ${i}`, place: 'Hall', every: 7, start: '2026-10-25', log: [], createdAt: iso })),
   'local:poreia:booking:': many((i) => ({ id: `bk${i}`, tripId: `tr${i}`, kind: 'stay', title: `Booking ${i}`, createdAt: iso, updatedAt: iso })),
   'local:poreia:plan:': many((i) => ({ id: `pl${i}`, tripId: `tr${i}`, date: '2026-12-01', title: `Plan ${i}`, createdAt: iso, updatedAt: iso })),
   'local:dynamis:workout:': many((i) => ({ id: `w${i}`, date: '2026-10-30', session: 'A', exercises: [], note: `strong ${i}`, createdAt: iso })),
@@ -87,5 +89,24 @@ describe('provider and search time on a large library', () => {
     listeners.forEach((listener) => listener(['preferences'], new Map([['preferences', ['philia:person:p1']]])));
     await searchProjections([soma, philia as never], APPS, ctx);
     expect(derived).toEqual(['philia']);
+  }, 60_000);
+});
+
+describe('Home time on a large library', () => {
+  it('every home provider derives its lines from thousands of records quickly', async () => {
+    const modules = await Promise.all([
+      import('../../oikonomia/providers'), import('../../philia/providers'), import('../../ktema/providers'), import('../../poreia/providers'),
+      import('../../ergon/providers'), import('../../phyton/providers'), import('../../therapeia/providers'), import('../../melete/providers'),
+    ]);
+    const providers = modules.flatMap((module) => module.providers).filter((provider) => provider.capability === 'home') as never[];
+    expect(providers.length).toBeGreaterThan(4);
+    const homeCtx = { ...ctx, day: { today: TODAY, start: new Date(`${TODAY}T00:00:00`), end: new Date(`${TODAY}T23:59:59`) } } as unknown as HostContext;
+    const started = performance.now();
+    const out = await homeRows(providers, APPS, homeCtx);
+    const total = performance.now() - started;
+    console.log(`home: ${Math.round(total)} ms for ${out.rows.length} lines; ${out.timings.map((each) => `${each.app} ${each.ms} ms`).join(', ')}`);
+    expect(out.rejected).toEqual([]);
+    for (const each of out.timings) expect(each.ms, each.app).toBeLessThan(1500);
+    expect(total).toBeLessThan(5000);
   }, 60_000);
 });
