@@ -94,11 +94,77 @@ key) and one worker revision after K1: remove `also` from the four, remove `lega
   keys, none the notice's own, none another notice's key). Nothing sets `also` yet.
   The earlier keys go only into the on-device cache entry. They are not in `wordsOf` (the sealed words), the preview columns, the server
   row id input, the phone shell's payload or any notification text. The worker is stamped with the build time, so it updates with the app.
-- **K1 (done):** the four keys are made of record ids and carry the key they had as `also`:
-  `therapeia:dose:<ms>:<medicine ids>`, `ktema:<day>:<upkeep ids>`, `ergon:<day>:<time>:<chore ids>`,
-  `phyton:<day>:<check ids>|/|<feed ids>` (ids in plain code-unit order, cut at 80 characters). Frost and warranty keys, refills,
-  visits and every other app's keys were already id-based or date-based and are unchanged.
-- **K2:** not started. It waits at least 21 days after K1 reaches devices and a worker revision.
+- **K1 (done, commit `8326e6d1`, on the session branch; not deployed).** The four keys are made of record ids and carry the key they had as
+  `also`:
+
+  | App | New key | Earlier key (kept as `also`) |
+  | --- | --- | --- |
+  | Therapeia dose | `therapeia:dose:<ms>:<medicine ids>` | `therapeia:dose:<ms>:<name, dose>` (cut at 60) |
+  | Ktema upkeep | `ktema:<day>:<upkeep ids>` | `ktema:<day>:<names>` (cut at 80) |
+  | Ergon chores | `ergon:<day>:<time>:<chore ids>` | `ergon:<day>:<time>:<names>` (cut at 80) |
+  | Phyton day notice | `phyton:<day>:<check ids>\|/\|<feed ids>` | `phyton:<day>:<check names>\|/\|<feed names>` (cut at 80) |
+
+  Ids are in plain code-unit order and cut at 80 characters, so every device makes the same key. Warranty, frost, refill and visit
+  keys and every other app's keys were already id-based or date-based and are unchanged. The earlier key is in the on-device cache
+  only; it is not in the sealed words, the lock-screen words, the preview columns, the server row input, the phone shell's payload or
+  any notification text.
+
+  Verified before commit (nothing deployed):
+
+  | Check | Result |
+  | --- | --- |
+  | `src/tests/notify` (13 files) and `provider.test.ts`, UTC | 14 files, 95 of 95 |
+  | The same, America/Los_Angeles | 14 files, 95 of 95 |
+  | `therapeia/core/medicines.test.ts` | 18 of 18 |
+  | Real page (`scripts/notices-check`, against the Vite dev server) | 18 of 18: keys made of ids, the earlier key on the device, keys and earlier keys identical after a reload, and dose, chore, upkeep and plant entries cleared under the old keys cleared under the new ones after the update and after a reload |
+  | TypeScript and lint | clean |
+
+  Not verified: a real push delivery, the phone shell, a worker update window on a real device, a production build.
+
+- **Compatibility risks that remain after K1.**
+  1. A device on a build before K0 ignores `also`. Around the update it can show a notification a second time, once.
+  2. A device on a build before K1 writes the old, guessable row ids until it updates. The newest writer's set replaces the others, so
+     delivery stays single; the old ids are in the server until every device is updated.
+  3. Until K2, the on-device cache still holds the earlier key (with names and dose amounts) beside the new key.
+  4. `replaceSourceReminders` deletes the future unsent rows before it inserts the new ones. An interrupted refresh leaves the next app
+     open or sync to rewrite them. This is existing behavior.
+  5. The worker's copy of the identity rule (`wasShown` in `public/sw.js`) is kept equal to `identity.ts` by a test; a worker that
+     is not yet updated ignores earlier keys.
+  6. Two of the chores or plants that used to share a key (same names) now have two keys, so the set of notices is the same and the
+     number of keys can grow. Nothing is shown twice.
+
+- **K2: not started.** It must not start until the checklist below is complete.
+
+## K2 readiness checklist
+
+K2 removes the earlier keys: the four producers stop setting `also`, `legacyKey` computations go, and a last pass confirms no key in
+the cache, the inbox lists or the sealed input holds a name. The alias handling in the consumers stays (it costs nothing). Nothing
+in K2 starts until every line is checked and you authorize it.
+
+The 21 days start on the day K1 is deployed to production. **K1 is not deployed, so the countdown has not started.** Record the deploy
+date here when it happens: `K1 deployed: ______`.
+
+| # | Condition | How it is confirmed |
+| --- | --- | --- |
+| 1 | At least 21 days since K1 was deployed (longer than the 14-day horizon, so no pending row or shown entry can still use an earlier key) | The recorded deploy date, counted by you |
+| 2 | Supported clients have received K0 and K1 | The oldest build still opening against the account's data is K1 or later; for installed apps, the worker has updated (the build stamps `sw.js`, so it follows the app) and the phone shell, if used, has a store version with K1. Count what can be counted (the Worker's `/api` logs, sign-ins by build); say what cannot |
+| 3 | No reliance on earlier keys | A search of the code for `also`, `legacyKey` and the old key formats shows only K2's own removals; a canary test over the cache, the inbox lists and the sealed input finds no name or dose |
+| 4 | Pending notifications are correct | On a real device with reminders set up: due notices arrive once; the server's `reminders` rows for the four sources all carry new-style ids (no row older than the K1 deploy); a test notice through the server arrives |
+| 5 | Cleared and seen states are correct | A cleared entry stays cleared on two devices after K1; the inbox lists on a long-lived device hold the new keys; run the inbox test with the cleared list as it is on that device |
+| 6 | Service worker compatibility is confirmed | The deployed `sw.js` has `wasShown`; a worker from before K0 is not still controlling a page (a clients check after the update); `swRouting` and the identity test pass against the deployed `sw.js` |
+| 7 | Rollback is documented and ready (below) | This document |
+
+**Rollback implications.**
+
+- Before K2, rollback is safe in both directions. Going back to a build before K1 puts the old keys back; the entries cleared under them
+  are still in the cleared list, because pruning keeps an earlier key while any entry carries it, and the new keys already added stay
+  beside them. The notice moments are unchanged, so pending rows are replaced with the old ids on the next refresh.
+- After K2, going back to a build before K1 cannot rely on the earlier keys. An entry cleared under a new key would reappear on the
+  notifications page once under its old key, and a notification shown under a new key could be shown again on a device that rolls
+  back. K2 therefore ships as its own commit, with the earlier-key code reverted only in that commit, and the K1 build stays available
+  until the first weeks after K2 show nothing unexpected.
+- The provider path for notices has its own rollback (`proairetosNoticeProviders` set to `off` on a device, or a build with
+  `VITE_NOTICE_PROVIDERS=off`) and is independent of the key migration.
 
 ## 4. What this does not change
 
