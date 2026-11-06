@@ -65,13 +65,13 @@ async function open(key: CryptoKey, label: string, id: string, sealed: Sealed): 
   return crypto.subtle.decrypt({ name: 'AES-GCM', iv: fromBase64(sealed.iv), additionalData: aad(label, id) }, key, fromBase64(sealed.ct));
 }
 
-const useLvk = (raw: ArrayBuffer) => crypto.subtle.importKey('raw', raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+const importLvk = (raw: ArrayBuffer) => crypto.subtle.importKey('raw', raw, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
 
 /** A new vault for this device: a fresh random LVK, sealed under the account key. The LVK handed back cannot be exported. */
 export async function createVault(accountKey: CryptoKey, account: AccountEnvelopes, now = new Date()): Promise<{ header: VaultHeader; lvk: CryptoKey }> {
   const id = toBase64(crypto.getRandomValues(new Uint8Array(ID_BYTES)));
   const raw = await crypto.subtle.exportKey('raw', await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt', 'decrypt']));
-  const lvk = await useLvk(raw);
+  const lvk = await importLvk(raw);
   const header: VaultHeader = {
     v: VAULT_VERSION,
     id,
@@ -98,7 +98,7 @@ export async function isVaultKey(header: VaultHeader, key: CryptoKey): Promise<b
 export async function openVault(header: VaultHeader, accountKey: CryptoKey): Promise<CryptoKey> {
   let lvk: CryptoKey;
   try {
-    lvk = await useLvk(await open(accountKey, 'proairetos-vault-lvk', header.id, header.lvk));
+    lvk = await importLvk(await open(accountKey, 'proairetos-vault-lvk', header.id, header.lvk));
   } catch {
     throw new VaultError('cannot-open', 'The data on this device does not open with that key.');
   }

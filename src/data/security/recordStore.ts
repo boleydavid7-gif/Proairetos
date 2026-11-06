@@ -78,7 +78,10 @@ export class SecureRecordStore<T> {
   async counts(): Promise<{ sealed: number; plain: number }> {
     let sealed = 0;
     let plain = 0;
-    for (const id of await this.backend.ids()) (isSealedValue(await this.backend.get(id)) ? sealed++ : plain++);
+    for (const id of await this.backend.ids()) {
+      if (isSealedValue(await this.backend.get(id))) sealed += 1;
+      else plain += 1;
+    }
     return { sealed, plain };
   }
 }
