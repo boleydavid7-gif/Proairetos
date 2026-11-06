@@ -17,17 +17,13 @@ const PLANE = 'M512 196 C544 196 560 234 560 270 V436 L816 574 V638 L560 570 V69
 export const APPS = {
   proairetos: {
     tile: '#18202b',
-    glyph: (w, tint, deep) => `
-      <circle cx="512" cy="512" r="346" fill="none" stroke="${tint}" stroke-width="22" stroke-dasharray="470 76 470 76 470 76 470 76" transform="rotate(-45 512 512)" opacity=".82"/>
-      <path d="M512 126 L512 238" stroke="${w}" stroke-width="30" stroke-linecap="round"/>
-      <path d="M512 238 L424 324 L424 652 Q424 686 458 686 H566 Q600 686 600 652 V324 L512 238Z" fill="none" stroke="${w}" stroke-width="28" stroke-linejoin="round"/>
-      <path d="M398 344 H626 M444 696 H580" stroke="${tint}" stroke-width="28" stroke-linecap="round"/>
-      <path d="M512 418 C512 418 450 492 450 548 A62 62 0 0 0 574 548 C574 492 512 418 512 418Z" fill="${w}"/>
-      <path d="M512 126 L512 42 L548 126Z" fill="${tint}"/>
-      <path d="M512 898 L476 770 L512 790 L548 770Z" fill="${tint}"/>
-      <path d="M126 512 L254 476 L234 512 L254 548Z" fill="${tint}"/>
-      <path d="M898 512 L770 548 L790 512 L770 476Z" fill="${tint}"/>
-      <path d="M454 300 H570" stroke="${deep}" stroke-width="12" stroke-linecap="round" opacity=".45"/>
+    glyph: (w, tint) => `
+      <circle cx="512" cy="512" r="340" fill="none" stroke="${tint}" stroke-width="24" stroke-dasharray="460 74 460 74 460 74 460 74" transform="rotate(-45 512 512)"/>
+      <path d="M512 92 V174 M512 850 V932 M92 512 H174 M850 512 H932" stroke="${tint}" stroke-width="24" stroke-linecap="round"/>
+      <path d="M512 238 L408 338 L448 700 Q452 730 482 730 H542 Q572 730 576 700 L616 338Z" fill="none" stroke="${w}" stroke-width="34" stroke-linejoin="round"/>
+      <path d="M390 344 H634 M454 758 H570" fill="none" stroke="${tint}" stroke-width="28" stroke-linecap="round"/>
+      <path d="M512 410 C480 462 450 502 450 558 A62 62 0 0 0 574 558 C574 506 544 466 512 410Z" fill="${w}"/>
+      <path d="M512 486 C500 514 486 532 488 554 A24 24 0 0 0 536 554 C536 530 524 510 512 486Z" fill="${tint}"/>
     `,
   },
   askesis: {
