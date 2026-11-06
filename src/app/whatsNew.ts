@@ -9,6 +9,7 @@ export const whatsNew: { date: string; lines: string[] }[] = [
       'The calendar file now holds only the categories you switch on in Settings > Calendar. Bills, trips and time off, and bookings and plans with a time are new switches, all off. It never holds bill amounts, confirmation codes, addresses, routes or notes.',
       'Files saved from a trip or a bill no longer hold confirmation codes, notes or amounts.',
       'A weekly bill that was first due more than ten years ago shows its dates again.',
+      'Sign out in Settings > Account now signs out this device only. Sign out everywhere, under Devices & sessions, ends the sign-in on every device.',
     ],
   },
   {

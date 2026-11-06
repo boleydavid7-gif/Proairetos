@@ -13,7 +13,7 @@ import {
   calendarFeedUrl,
   createSupabaseFileStore,
   createSupabaseRemoteStore,
-  currentUser,
+  checkSession,
   listAccountDevices,
   revokeAccountDevice,
   registerAccountDevice,
@@ -41,6 +41,7 @@ import {
   signInWithProvider,
   type SignInProvider,
   signOutRemote,
+  type SignOutScope,
   syncConfig,
   verifySignInCode,
   verifySignInLink,
@@ -282,6 +283,24 @@ function set(changes: Partial<SyncStatus>) {
   listeners.notify();
 }
 
+/** Drops every secret this page holds in memory: the data key, a passkey's key and secret, and a password kept for key setup. */
+function forgetSecretsInMemory(): void {
+  dataKey = null;
+  passkeyKey = null;
+  passkeyToFinish = null;
+  accountPasswordForKeySetup = null;
+}
+
+/** Also removes the keys this device keeps (the data key, and the copy kept for signing in other apps). Records are not touched. */
+async function forgetKeys(): Promise<void> {
+  forgetSecretsInMemory();
+  const local = await localState().catch(() => null);
+  if (!local) return;
+  for (const name of [KEY_META, HANDOFF_META]) {
+    if ((await local.getMeta(name).catch(() => undefined)) !== undefined) await local.removeMeta(name).catch(() => undefined);
+  }
+}
+
 async function handleDeviceRegistrationError(cause: unknown): Promise<void> {
   const reason = cause instanceof Error ? cause.message : 'Could not update this device.';
   if (!reason.includes('device was revoked')) {
@@ -293,8 +312,7 @@ async function handleDeviceRegistrationError(cause: unknown): Promise<void> {
   await (await supabase()).auth.signOut({ scope: 'local' }).catch(() => undefined);
   const local = await localState();
   await local?.clear().catch(() => undefined);
-  dataKey = null;
-  accountPasswordForKeySetup = null;
+  forgetSecretsInMemory();
   accountPasswordSetupPending = false;
   writeAccountPasswordSetupPending(false);
   writeAccountPasswordReadyForSetup(false);
@@ -329,12 +347,16 @@ async function remindersPhase(): Promise<SyncStatus['reminders']> {
 
 async function resolvePhase(): Promise<void> {
   if (!isSyncConfigured || !(await localState())) return set({ phase: 'unavailable', target: undefined });
-  const user = await currentUser().catch(() => null);
+  const { user, ended } = await checkSession().catch(() => ({ user: null, ended: false }));
   // Back from Google or Apple (or the email's link opened here): the tokens are read; tidy the address.
   if (/access_token|refresh_token|error_description/.test(location.hash)) history.replaceState(history.state, '', location.pathname + location.search);
   if (!user) {
     userId = null;
     forgetAccountEmail();
+    // The session is over (ended from another tab or device, or refused by the server), not merely out of reach: this
+    // page and this device stop holding the key. Records stay; signing in again asks for the passphrase, a passkey or
+    // the recovery key. With no connection and an expired token the session is still stored, so nothing is forgotten.
+    if (ended) await forgetKeys();
     return set({ phase: 'signed-out', email: undefined, target: undefined, error: undefined });
   }
   // Another account used this device last: its things are put away here and this account starts clean.
@@ -422,7 +444,7 @@ export async function sealWithAccount(label: string, bytes: ArrayBuffer): Promis
 }
 
 export async function openWithAccount(label: string, sealed: ArrayBuffer): Promise<ArrayBuffer | null> {
-  if (!dataKey) return null;
+  if (!dataKey || !userId) return null;
   return openBytes(dataKey, label, sealed);
 }
 
@@ -1158,22 +1180,32 @@ export async function openDataWithPasskey(rows: readonly PasskeyRow[]): Promise<
   await keepKey(await unlockWithPasskey(row.wrap, used.secret));
 }
 
-/** Signs out and forgets the key on this device. Local data stays. */
-export async function signOut(): Promise<void> {
-  await disableReminders().catch(() => undefined);
-  await signOutRemote().catch(() => undefined);
+/** What a sign-out reported: whether the server ended the session. The device is signed out either way. */
+export type SignOutResult = { endedOnServer: boolean };
+
+const NOT_ENDED_ON_SERVER = 'Signed out on this device. The server could not be reached, so the session there is still active. To end it, sign in and choose Sign out everywhere.';
+
+/**
+ * Signs out and forgets the keys on this device. `local` ends this browser's session only (every app in this browser
+ * shares it); `global` ends the account's sessions on every device. Records stay on the device either way.
+ */
+export async function signOut(scope: SignOutScope): Promise<SignOutResult> {
+  // Everywhere also clears the account's waiting reminders; this device alone leaves other devices' reminders as they are.
+  await disableReminders({ clearRows: scope === 'global' }).catch(() => undefined);
+  let endedOnServer = true;
+  await signOutRemote(scope).catch(() => {
+    endedOnServer = false;
+  });
   await (await localState())?.clear();
-  dataKey = null;
-  accountPasswordForKeySetup = null;
+  forgetSecretsInMemory();
   accountPasswordSetupPending = false;
   clearAccountAuthPending();
   writeAccountPasswordSetupPending(false);
   writeAccountPasswordReadyForSetup(false);
-  passkeyKey = null;
-  passkeyToFinish = null;
   userId = null;
-  set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: undefined });
+  set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: endedOnServer ? undefined : NOT_ENDED_ON_SERVER });
   tellFamily('account');
+  return { endedOnServer };
 }
 
 /**
@@ -1191,7 +1223,7 @@ export async function deleteAccount(): Promise<void> {
     // Storage blocked.
   }
   deviceAccountAtStart = null;
-  await signOut();
+  await signOut('local');
 }
 
 // ---------- Where the data syncs ----------
@@ -1323,7 +1355,7 @@ export async function testReminderThroughServer(): Promise<Date> {
   return at;
 }
 
-export async function disableReminders(): Promise<void> {
+export async function disableReminders({ clearRows = true }: { clearRows?: boolean } = {}): Promise<void> {
   const st = await localState();
   const endpoint = await st?.getMeta<string>(REMINDERS_META);
   if (endpoint) {
@@ -1332,7 +1364,7 @@ export async function disableReminders(): Promise<void> {
     await (await registration?.pushManager.getSubscription())?.unsubscribe();
     await st!.setMeta(REMINDERS_META, null);
   }
-  if (userId) await replaceReminders(userId, []).catch(() => undefined);
+  if (userId && clearRows) await replaceReminders(userId, []).catch(() => undefined);
   accountTakesReminders = undefined;
   set({ reminders: pushSupported() ? 'off' : 'unsupported' });
 }

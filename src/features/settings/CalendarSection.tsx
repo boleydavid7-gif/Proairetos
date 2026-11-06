@@ -96,7 +96,11 @@ export default function CalendarSection({ onOpenAccount }: { onOpenAccount: () =
 
         {!ready ? (
           <>
-            <p className="sheet__hint">The link needs sync turned on.</p>
+            <p className="sheet__hint">
+              {feed.enabled
+                ? 'Your calendar link is still on, and anyone who has it can read the file. Sign in to turn it off.'
+                : 'The link needs sync turned on.'}
+            </p>
             <button type="button" className="chip chip--wide" onClick={onOpenAccount}>
               Account and sync
             </button>

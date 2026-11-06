@@ -156,9 +156,28 @@ export async function currentUser(): Promise<User | null> {
   return data.session?.user ?? null;
 }
 
-/** Revoke every refreshable Supabase session for this account, not only this browser. */
-export async function signOutRemote(): Promise<void> {
-  const { error } = await (await supabase()).auth.signOut({ scope: 'global' });
+/**
+ * The signed-in user, and whether a missing one means the session is really over. With an expired access token and no
+ * connection the client cannot refresh and reports no session while the session is still stored, so "no user" alone
+ * is not enough to forget anything: `ended` is true only when there is no session and the failure was not a network one.
+ */
+export async function checkSession(): Promise<{ user: User | null; ended: boolean }> {
+  const { data, error } = await (await supabase()).auth.getSession();
+  if (data.session) return { user: data.session.user, ended: false };
+  const unreachable = Boolean(error && (isRetryableNetworkError(error) || /fetch|network|offline/i.test(error.message ?? '')));
+  return { user: null, ended: !unreachable };
+}
+
+function isRetryableNetworkError(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && (error as { name?: string }).name === 'AuthRetryableFetchError';
+}
+
+/** `local` ends only this browser's session; `global` ends every session of the account, on every device. */
+export type SignOutScope = 'local' | 'global';
+
+/** Ends a session on the server and removes it from this browser. Throws when the server could not be reached. */
+export async function signOutRemote(scope: SignOutScope): Promise<void> {
+  const { error } = await (await supabase()).auth.signOut({ scope });
   if (error) throw new Error(error.message);
 }
 
