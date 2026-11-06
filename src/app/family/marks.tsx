@@ -51,13 +51,18 @@ const line = (d: string, width: number): Shape['attrs'] => ({
 });
 
 function lanternCompass(): Shape[] {
+  /* The app icon's lantern inside a ring and four compass points (Nov 6). */
   return [
-    { tag: 'circle', attrs: { cx: 512, cy: 512, r: 340, fill: 'none', strokeWidth: 24, strokeDasharray: '460 74 460 74 460 74 460 74' }, level: SECOND },
-    { tag: 'path', attrs: line('M512 92 V174 M512 850 V932 M92 512 H174 M850 512 H932', 24), level: SECOND },
-    { tag: 'path', attrs: path('M512 238 L408 338 L448 700 Q452 730 482 730 H542 Q572 730 576 700 L616 338Z', { fill: 'none', strokeWidth: 34, strokeLinejoin: 'round' }), gap: 12 },
-    { tag: 'path', attrs: line('M390 344 H634 M454 758 H570', 28), level: SECOND },
-    { tag: 'path', attrs: path('M512 410 C480 462 450 502 450 558 A62 62 0 0 0 574 558 C574 506 544 466 512 410Z'), gap: 12 },
-    { tag: 'path', attrs: path('M512 486 C500 514 486 532 488 554 A24 24 0 0 0 536 554 C536 530 524 510 512 486Z'), level: SECOND },
+    { tag: 'path', attrs: path('M512 134 L486 265 H538Z M150 512 L304 486 V538Z M874 512 L720 486 V538Z M512 880 L486 759 H538Z'), level: SECOND },
+    {
+      tag: 'path',
+      attrs: line('M788 559 A280 280 0 0 1 559 788 M465 788 A280 280 0 0 1 236 559 M236 465 A280 280 0 0 1 465 236 M559 236 A280 280 0 0 1 788 465', 20),
+      level: SECOND,
+    },
+    { tag: 'path', attrs: line('M478 351 V335 A34 34 0 0 1 546 335 V351', 24) },
+    { tag: 'path', attrs: line('M470 351 H554 L634 413 H391Z M359 421 H665', 24) },
+    { tag: 'path', attrs: line('M403 428 L428 667 H597 L619 428 M409 669 H614 L630 700 H392Z', 24), gap: 10 },
+    { tag: 'path', attrs: path('M526 468 C516 504 530 520 534 538 C537 550 530 558 521 560 C528 542 518 528 506 514 C490 534 468 552 468 586 A44 44 0 0 0 556 586 C556 540 538 510 526 468Z'), gap: 10 },
   ];
 }
 

@@ -30,7 +30,9 @@ async function png(svg, size, file) {
 }
 
 const requested = process.argv[2];
-const names = requested ? [requested] : Object.keys(APPS);
+/* Proairetos's icon is the owner's supplied artwork (Nov 6), written to public/icons and favicon.svg; never redrawn here. */
+const names = requested ? [requested] : Object.keys(APPS).filter((name) => name !== 'proairetos');
+if (requested === 'proairetos') throw new Error('The Proairetos icon is supplied artwork; see the note above.');
 if (names.some((name) => !Object.hasOwn(APPS, name))) throw new Error('Unknown app icon: ' + requested);
 
 for (const name of names) {
