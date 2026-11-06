@@ -29,7 +29,11 @@ async function png(svg, size, file) {
   writeFileSync(file, await page.screenshot({ omitBackground: true, clip: { x: 0, y: 0, width: size, height: size } }));
 }
 
-for (const name of Object.keys(APPS)) {
+const requested = process.argv[2];
+const names = requested ? [requested] : Object.keys(APPS);
+if (names.some((name) => !Object.hasOwn(APPS, name))) throw new Error('Unknown app icon: ' + requested);
+
+for (const name of names) {
   const { svg, dir } = places(name);
   const rounded = iconSvg(name, 'rounded');
   const square = iconSvg(name, 'square');
