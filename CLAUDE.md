@@ -429,7 +429,7 @@ npx wrangler deploy --dry-run   # validate the Cloudflare Worker config
   (away from the lamp); `screen` in dark, `multiply` of a pale lamp color in light; it glides (translate, size) and
   fades with the light, so even a replaced element's light fades. The layer is `inset: 0` of `html` (made
   `position: relative`) with `overflow: clip`, never adding scroll room; it hides while a pull holds the page and under
-  More contrast, forced colors and print. The lit card has a clear lamp-colored ring all round
+  More contrast, forced colors and print. The lit card has a clear lamp-colored ring all round and no outer halo or spilled pool (Nov 6)
   (`--ll-lit-edge`, 1.5 px) and a wider halo (Nov 6, the owner's screenshot of the stronger look). Glow time 650 ms. Earlier, kept subtle:
   the wash stays in the lamp's corner (0.12 dark, 0.15 light), the halo hugs the card, the pool peaks at 0.13 in dark;
   A field inside a wrapper holding only icons or buttons (Soma's `.soma-search`) lights the wrapper instead (`fieldBox` in

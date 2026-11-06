@@ -90,6 +90,7 @@ html {
 }
 
 .ll-spill-layer {
+  display: none; /* Nov 6: the pool spreading past the lit thing is removed (owner) */
   position: absolute;
   inset: 0;
   overflow: clip;

@@ -24,8 +24,7 @@
 
   --ll-lit-wash: inset -56px 56px 72px -48px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.24), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.22));
   --ll-lit-edge: inset 0 0 0 1.5px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.7), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.62));
-  --ll-lit-halo: 0 0 24px 2px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.26)),
-    0 10px 32px -10px light-dark(rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.34), rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3));
+  --ll-lit-halo: var(--ll-no-shadow), var(--ll-no-shadow);
 
   --ll-halo: 0 0 0 1px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.45), 0 0 26px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.3);
   --ll-focus: 0 0 0 4px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.18), 0 0 22px 2px rgba(var(--ll-lamp-rgb, 230, 179, 102), 0.32);
