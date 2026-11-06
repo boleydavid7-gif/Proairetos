@@ -1,0 +1,9 @@
+.lab { max-width: 34rem; margin: 0 auto; padding: calc(var(--ll-safe-top, 0px) + 1.25rem) var(--ll-gutter, 20px) 6rem; display: grid; gap: var(--ll-section-gap, 28px); }
+.lab h1 { margin: 0; font: 500 var(--text-3xl) / 1.1 var(--ll-serif, serif); }
+.lab h2 { margin: 0 0 var(--ll-label-gap, 8px); font-size: var(--text-sm); font-weight: 600; color: var(--color-text-muted, inherit); }
+.lab section { display: grid; gap: var(--ll-gap, 16px); }
+.lab .card { padding: 20px; display: grid; gap: 10px; }
+.lab .rows { list-style: none; margin: 0; padding: 0; }
+.lab .rows li { padding: 14px 18px; }
+.lab .lab-bar { position: sticky; top: calc(var(--ll-safe-top, 0px) + 6px); z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; }
+.lab .lab-fill { height: 14rem; }

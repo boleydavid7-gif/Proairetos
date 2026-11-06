@@ -1,3 +1,7 @@
+import { APPS } from '../apps/manifest';
+
+const GENERIC = APPS.filter((app) => app.notices.genericTap).map((app) => app.id);
+
 /**
  * Where a notice's `open` leads: the app's page and the address to open. The same rules as `placeFor` in
  * `public/sw.js` (which cannot import this); a test keeps the two in step.
@@ -6,7 +10,7 @@ export function placeFor(open: string): { app: string; url: string } {
   if (open === 'praxis') return { app: '/theoria/', url: '/theoria/?open=pomodoro' };
   if (open === 'askesis') return { app: '/askesis/', url: '/askesis/' };
   if (open.startsWith('oikonomia:')) return { app: '/oikonomia/', url: '/oikonomia/?open=' + encodeURIComponent(open.slice(10)) };
-  for (const app of ['diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'poreia', 'melete']) {
+  for (const app of GENERIC) {
     if (open === app) return { app: '/' + app + '/', url: '/' + app + '/' };
     if (open.startsWith(app + ':')) return { app: '/' + app + '/', url: '/' + app + '/?open=' + encodeURIComponent(open.slice(app.length + 1)) };
   }

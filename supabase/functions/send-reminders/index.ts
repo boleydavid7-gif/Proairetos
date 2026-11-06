@@ -38,15 +38,15 @@ function vapidProblem(): string | null {
   }
 }
 
-const APP_NAMES: Record<string, string> = {
-  proairetos: 'Proairetos', askesis: 'Askesis', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', diaita: 'Diaita',
-  philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton', poreia: 'Poreia', melete: 'Meletē',
-};
+// BEGIN GENERATED REGISTRY (npm run apps:build, from src/core/apps/manifest.ts; a test keeps it current)
+const REGISTRY: { pushNames: Record<string, string>; pushIcons: Record<string, string> } = {"pushNames":{"proairetos":"Proairetos","askesis":"Askesis","hydros":"Hydros","oikonomia":"Oikonomia","poreia":"Poreia","praxis":"Praxis","diaita":"Diaita","philia":"Philia","ergon":"Ergon","therapeia":"Therapeia","dynamis":"Dynamis","ktema":"Ktema","phyton":"Phyton","melete":"Meletē"},"pushIcons":{"proairetos":"/icons/icon-192.png","askesis":"/askesis/icons/icon-192.png","hydros":"/hydros/icons/icon-192.png","oikonomia":"/oikonomia/icons/icon-192.png","poreia":"/poreia/icon.svg","praxis":"/praxis/icons/icon-192.png","diaita":"/diaita/icons/icon-192.png","philia":"/philia/icons/icon-192.png","ergon":"/ergon/icons/icon-192.png","therapeia":"/therapeia/icons/icon-192.png","dynamis":"/dynamis/icons/icon-192.png","ktema":"/ktema/icons/icon-192.png","phyton":"/phyton/icons/icon-192.png","melete":"/melete/icons/icon-192.png"}};
+// END GENERATED REGISTRY
+const APP_NAMES: Record<string, string> = REGISTRY.pushNames;
 
 /** The part an iPhone can show by itself: the app's name, a plain line, and where a tap goes. Nothing personal. */
 function iconFor(source: string, site: string): string {
   const app = APP_NAMES[source] ? source : 'proairetos';
-  return `${site}${app === 'proairetos' ? '/icons/icon-192.png' : app === 'poreia' ? '/poreia/icon.svg' : `/${app}/icons/icon-192.png`}`;
+  return `${site}${REGISTRY.pushIcons[app]}`;
 }
 
 function declarative(source: string, preview?: { title?: string | null; body?: string | null; open?: string | null }) {

@@ -1,3 +1,4 @@
+import { APPS as manifestApps } from '../src/core/apps/manifest';
 import { tooOften } from './safeFetch';
 
 /*
@@ -9,9 +10,7 @@ import { tooOften } from './safeFetch';
 
 export type WaitlistEnv = { SUPABASE_URL?: string; SUPABASE_ANON_KEY?: string };
 
-const APPS = new Set([
-  'proairetos', 'askesis', 'soma', 'oikonomia', 'hydros', 'poreia', 'praxis', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton', 'noesis',
-]);
+const APPS = new Set([...manifestApps.filter((app) => app.surfaces.waitlist).map((app) => app.id as string), 'noesis']);
 
 const back = (request: Request, page: 'thanks' | 'try-again') => Response.redirect(new URL(`/welcome/${page}/`, request.url).toString(), 303);
 

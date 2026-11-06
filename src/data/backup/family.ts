@@ -1,3 +1,4 @@
+import { APPS } from '../../core/apps/manifest';
 import { stores } from '../storage/indexeddb/database';
 
 /**
@@ -23,7 +24,7 @@ export type FamilyData = {
   settings?: Record<string, string>;
 };
 
-const PREFIXES = ['proairetos.', 'askesis:', 'soma:', 'oikonomia:', 'hydros:', 'poreia:', 'theoria:', 'diaita:', 'philia:', 'ergon:', 'therapeia:', 'dynamis:', 'ktema:', 'phyton:', 'mneme:', 'melete:'];
+const PREFIXES = APPS.flatMap((app) => (app.id === 'proairetos' ? ['proairetos.'] : app.data.backupPrefix ? [app.data.backupPrefix] : []));
 const LEFT_OUT = new Set([
   'proairetos.auth',
   'proairetos.lastBackup',

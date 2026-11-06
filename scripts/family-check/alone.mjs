@@ -1,7 +1,10 @@
 import { chromium } from 'playwright';
+import { loadRegistry, surfaceIds } from '../apps/lib.mjs';
 const b = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
-const APPS = ['askesis', 'soma', 'oikonomia', 'theoria', 'diaita', 'philia', 'ergon', 'therapeia', 'dynamis', 'ktema', 'phyton'];
-const NAMES = { askesis: 'Askesis', soma: 'Soma', oikonomia: 'Oikonomia', hydros: 'Hydros', praxis: 'Praxis', theoria: 'Theoria', diaita: 'Diaita', philia: 'Philia', ergon: 'Ergon', therapeia: 'Therapeia', dynamis: 'Dynamis', ktema: 'Ktema', phyton: 'Phyton' };
+// The apps this check covers, and the other apps' names it looks for, come from the manifest (`surfaces.alone`). Proairetos's own name is expected on these pages.
+const APPS = await surfaceIds('alone');
+const { APPS: MANIFEST } = await loadRegistry();
+const NAMES = Object.fromEntries(MANIFEST.filter((app) => app.status !== 'main').map((app) => [app.id, app.name]));
 const report = {};
 for (const app of APPS) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, serviceWorkers: 'block' });

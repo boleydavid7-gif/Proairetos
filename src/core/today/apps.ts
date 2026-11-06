@@ -1,6 +1,12 @@
+import { APPS } from '../apps/manifest';
+
 /** Companion apps surfaced on Proairetos Today. */
-export const DAILY_PRACTICE_APPS = ['hydros', 'askesis', 'dynamis', 'diaita', 'theoria', 'melete'] as const;
-export const WORTH_ATTENTION_APPS = ['ergon', 'ktema', 'oikonomia', 'philia', 'phyton', 'poreia', 'soma', 'therapeia'] as const;
+const inGroup = (group: 'practice' | 'attention') =>
+  APPS.filter((app) => app.today?.group === group)
+    .sort((a, b) => (a.today?.order ?? 0) - (b.today?.order ?? 0))
+    .map((app) => app.id);
+export const DAILY_PRACTICE_APPS = inGroup('practice') as unknown as readonly ['hydros', 'askesis', 'dynamis', 'diaita', 'theoria', 'melete'];
+export const WORTH_ATTENTION_APPS = inGroup('attention') as unknown as readonly ['ergon', 'ktema', 'oikonomia', 'philia', 'phyton', 'poreia', 'soma', 'therapeia'];
 
 export type DailyPracticeApp = (typeof DAILY_PRACTICE_APPS)[number];
 export type AttentionApp = (typeof WORTH_ATTENTION_APPS)[number];
