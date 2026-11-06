@@ -48,3 +48,34 @@ Checks 5 and 6 are the ones Stage 1 depends on: signing out of this device must 
 ## What this does not cover
 
 The app's own handling (covered by the unit and browser tests), what an installed iPhone app does, and Supabase behavior under outages. The failed-sign-out path, where the server cannot be reached, is tested in the app: the device signs out, and the screen says which sessions are still active.
+
+## Result of the first real run (2026-11-06)
+
+Run against a disposable Supabase project and a throwaway user, with the script as committed (`scope-check.mjs`), from the repository root, `supabase-js` 2.117.2. No credentials are recorded here; the project is not production and holds none of the app's tables.
+
+**Output: 12 of 12 passed.**
+
+| Check | Result |
+| --- | --- |
+| Two sign-ins are two different sessions | pass |
+| Both sessions accepted before any sign-out | pass |
+| `signOut({ scope: 'local' })` on device A returns no error | pass |
+| Device A: the auth server no longer accepts its access token | pass |
+| Device A: its refresh token no longer works | pass |
+| Device B: its access token is still accepted | pass |
+| Device B: its refresh token still works | pass |
+| A third device signs in; device B still signed in | pass |
+| `signOut({ scope: 'global' })` on device C returns no error | pass |
+| Device C: access token no longer accepted | pass |
+| Device B: access token no longer accepted | pass |
+| Device B: refresh token no longer works | pass |
+
+**What this confirms.** `scope: 'local'` ends the session it is called from and no other: device B stayed signed in and could refresh. `scope: 'global'` ended every session. A refresh token from a signed-out session is refused, and the auth server refuses its access token (a request to `/auth/v1/user` with it returns 403).
+
+**Settings that bear on session behavior.**
+- Access token lifetime: **3600 seconds** (read from the token's `iat` and `exp`).
+- Two simultaneous sessions for one user were allowed, so a single-session limit is not on.
+- Public auth settings: email sign-in is the only method enabled, no external providers, anonymous users off, sign-up open, email confirmation required.
+- Not readable from outside the dashboard and **not recorded**: "Time-box user sessions" and "Inactivity timeout" (Authentication > Sessions). Nothing in this run depended on them, but they were not seen.
+
+**Not answered by this run.** Whether the data API keeps accepting a signed-out session's access token until it expires. The project has no tables, and the data API's root endpoint answered 401 for a valid token as well as a signed-out one, so it could not tell them apart (the script's note reported 404 for the same reason). To measure it, repeat the check against a table that a signed-in user can read (the app's migrations on the test project), or a small table made for the purpose. Until then the one-hour access-token lifetime is the upper bound that should be assumed for a copied token, which is the reason the design does not rely on instant revocation.
