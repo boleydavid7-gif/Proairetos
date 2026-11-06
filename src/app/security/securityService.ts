@@ -45,6 +45,8 @@ export type SecurityDeps = {
   /** One page at a time for creating the vault (Web Locks); a plain call where the browser has none. */
   exclusive: <T>(task: () => Promise<T>) => Promise<T>;
   now: () => Date;
+  /** Whether a vault is known to exist before anything has loaded (read synchronously), so a page never shows private screens first. */
+  vaultKnown: () => boolean;
 };
 
 export function createSecurityService(deps: SecurityDeps) {
@@ -54,10 +56,12 @@ export function createSecurityService(deps: SecurityDeps) {
   let phase: SecurityPhase = 'none';
   let channel: BroadcastChannel | null = null;
   let starting: Promise<void> | null = null;
+  // Until the stored header has been read, a page that knows a vault exists counts as locked.
+  let loading = deps.vaultKnown();
   let snapshot: SecurityStatus = { phase: 'none', passkeys: [], hasPassphrase: false };
 
   function publish() {
-    phase = lvk ? 'unlocked' : phase === 'corrupt' ? 'corrupt' : header ? 'locked' : 'none';
+    phase = lvk ? 'unlocked' : phase === 'corrupt' ? 'corrupt' : header || loading ? 'locked' : 'none';
     snapshot = {
       phase,
       userId: header?.account.userId,
@@ -66,6 +70,9 @@ export function createSecurityService(deps: SecurityDeps) {
     };
     listeners.notify();
   }
+
+  // The first snapshot already says locked when a vault is known to exist: no page paints a private screen first.
+  publish();
 
   function post(message: Message) {
     try {
@@ -83,6 +90,7 @@ export function createSecurityService(deps: SecurityDeps) {
 
   async function reload() {
     const loaded = await deps.storage.load();
+    loading = false;
     if (loaded.state === 'ok') {
       header = loaded.header;
       if (phase === 'corrupt') phase = 'none';
@@ -227,6 +235,7 @@ function defaultDeps(): SecurityDeps {
     openChannel: () => (typeof BroadcastChannel === 'function' ? new BroadcastChannel('proairetos-security') : null),
     exclusive: (task) => (typeof navigator !== 'undefined' && navigator.locks ? navigator.locks.request('proairetos-vault', task) : task()),
     now: () => new Date(),
+    vaultKnown: () => localStorageHeader().exists(),
   };
 }
 

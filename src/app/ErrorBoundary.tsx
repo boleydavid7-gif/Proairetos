@@ -1,6 +1,7 @@
 import { localDayKey } from '../data/storage/preferences';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { backupService } from './services';
+import SecurityGate from './security/SecurityGate';
 
 // Self-contained styling: every app in the family uses this page, and not all share one stylesheet.
 const page = { display: 'grid', gap: 16, maxWidth: '28rem', margin: '18vh auto 0', padding: '0 24px', color: 'inherit' } as const;
@@ -42,7 +43,7 @@ export default class ErrorBoundary extends Component<{ children: ReactNode }, St
   };
 
   render() {
-    if (!this.state.broken) return this.props.children;
+    if (!this.state.broken) return <SecurityGate>{this.props.children}</SecurityGate>;
     return (
       <main className="error-page" role="alert" style={page}>
         <h1 style={{ margin: 0, fontFamily: 'var(--font-serif, var(--serif, Georgia, serif))', fontWeight: 500 }}>That didn’t open</h1>

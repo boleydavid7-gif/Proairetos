@@ -56,6 +56,7 @@ const channelFor = (failToPost = false) => new FakeChannel(channelName, failToPo
 let primary: ReturnType<typeof memory>;
 let secondary: ReturnType<typeof memory>;
 let open: SecurityService[];
+let known = false;
 let channelName: string;
 
 /** A page: its own service over the shared storage and channel. */
@@ -65,6 +66,7 @@ function page(overrides: { channel?: () => BroadcastChannel | null } = {}): Secu
     openChannel: overrides.channel ?? (() => channelFor()),
     exclusive: (task) => task(),
     now: () => new Date(),
+    vaultKnown: () => known,
   });
   open.push(service);
   return service;
@@ -85,6 +87,7 @@ beforeEach(() => {
   primary = memory();
   secondary = memory();
   open = [];
+  known = false;
   channelName = `test-${Math.random()}`;
 });
 afterEach(() => open.forEach((service) => service.close()));
