@@ -61,6 +61,8 @@ export function createSyncEngine(deps: {
   state: SyncStateStore;
   remote: RemoteStore;
   key: CryptoKey;
+  /** Told which collections a sync changed here (for caches that derive from them). Nothing changes if it is absent. */
+  onChanged?: (collections: readonly SyncCollection[], ids: ReadonlyMap<string, readonly string[]>) => void;
 }) {
   const { local, state, remote, key } = deps;
   let running: Promise<SyncResult> | null = null;
@@ -82,6 +84,14 @@ export function createSyncEngine(deps: {
     let after = Math.max(0, cursor - OVERLAP);
     let applied = 0;
     let kept = 0;
+    const changed = new Set<SyncCollection>();
+    const changedIds = new Map<string, string[]>();
+    const mark = (collection: SyncCollection, id: string) => {
+      changed.add(collection);
+      const list = changedIds.get(collection) ?? [];
+      list.push(id);
+      changedIds.set(collection, list);
+    };
     const known = await state.fingerprints();
     const current = await snapshot();
 
@@ -102,6 +112,7 @@ export function createSyncEngine(deps: {
             if (here) {
               await local.remove(incoming.collection, incoming.id);
               applied++;
+              mark(incoming.collection, incoming.id);
             }
             await state.removeFingerprint(k);
             known.delete(k);
@@ -114,6 +125,7 @@ export function createSyncEngine(deps: {
             if (fp !== here?.fp) {
               await local.put(incoming.collection, record);
               applied++;
+              mark(incoming.collection, incoming.id);
             }
             await state.setFingerprint(k, fp);
             known.set(k, fp);
@@ -137,7 +149,10 @@ export function createSyncEngine(deps: {
       }
       if (page.length > 0) after = Math.max(after, page[page.length - 1].seq);
       await state.setMeta(CURSOR, cursor);
-      if (page.length < PAGE) return { applied, kept };
+      if (page.length < PAGE) {
+        if (changed.size) deps.onChanged?.([...changed], changedIds);
+        return { applied, kept };
+      }
     }
   }
 

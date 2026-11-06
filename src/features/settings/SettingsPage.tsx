@@ -97,6 +97,7 @@ import { dayName, useDailyCopies } from '../../app/family/useDailyCopies';
 import { Waiting } from '../../lamplight/Waiting';
 import PwaInstallSection from './PwaInstallSection';
 import TodayAppsSettings from './TodayAppsSettings';
+import SearchAppsSettings from './SearchAppsSettings';
 
 function download(text: string) {
   return downloadBackup(text, localDayKey(new Date()));
@@ -805,6 +806,7 @@ function TodaySection() {
   return (
     <div className="settings-sections" aria-label="What’s included">
       <TodayAppsSettings />
+      <SearchAppsSettings />
       {appParts.filter(({ app }) => app === 'Proairetos' || addedNow.includes(app.toLowerCase() as AddOn)).flatMap(({ app, sections }) =>
         sections.map((section) => {
           const main = section.parts.filter((entry) => !entry.rare);

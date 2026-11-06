@@ -405,6 +405,7 @@ family?.addEventListener('message', (event: MessageEvent<FamilyNote>) => {
   }
   if (event.data?.kind === 'changed') {
     applyingRemote = true;
+    emitChanged(['*']);
     refreshScreens();
     applyingRemote = false;
   }
@@ -430,6 +431,22 @@ export async function ownBackupStorage(): Promise<{ name: string; folder: CloudF
   if (status.phase !== 'ready' || !dataKey || !userId || !navigator.onLine) return null;
   const own = await ownFolder(userId, dataKey).catch(() => null);
   return own ? { name: storageName(own.provider), folder: own.folder } : null;
+}
+
+type ChangedListener = (collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) => void;
+const changedListeners = new Set<ChangedListener>();
+
+/**
+ * Which collections a sync (or another open window) changed on this device, `'*'` when that is not known, and which
+ * record ids in each (a setting's id is its storage key). For caches derived from records.
+ */
+export function onChangedCollections(listener: ChangedListener): () => void {
+  changedListeners.add(listener);
+  return () => changedListeners.delete(listener);
+}
+
+function emitChanged(collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) {
+  changedListeners.forEach((listener) => listener(collections, ids));
 }
 
 export function onRemoteChanges(listener: () => void): () => void {
@@ -555,6 +572,7 @@ async function syncHere(): Promise<SyncResult | null> {
       state: (await localState())!,
       remote: own?.remote ?? createSupabaseRemoteStore(userId),
       key: dataKey,
+      onChanged: (collections, ids) => emitChanged(collections, ids),
     });
     const result = await engine.sync();
     await own?.remote.finish();

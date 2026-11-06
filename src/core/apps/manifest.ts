@@ -15,6 +15,9 @@ export type AppId =
   | 'proairetos' | 'askesis' | 'hydros' | 'soma' | 'oikonomia' | 'poreia' | 'theoria' | 'praxis' | 'diaita' | 'philia'
   | 'ergon' | 'therapeia' | 'dynamis' | 'ktema' | 'phyton' | 'mneme' | 'melete';
 
+/** What an app may offer Proairetos (docs/PROVIDER_CONTRACT.md). */
+export type Capability = 'library' | 'search' | 'calendar' | 'notices' | 'home';
+
 /** private: never leaves the owning app. own-search: a minimal encrypted projection for the person's own search only. shared: explicitly authorized for other apps. */
 export type PrivacyClass = 'private' | 'own-search' | 'shared';
 
@@ -57,7 +60,14 @@ export type AppManifest = {
     mainWrites: boolean;
   };
   today?: { group?: 'practice' | 'attention'; order?: number; parts: readonly string[] };
-  search?: { privacy: PrivacyClass; windowDays?: number; indexes: readonly string[]; excludes: readonly string[] };
+  /**
+   * What universal search may hold from this app. `indexes` are the only field names a search result may carry and
+   * `excludes` are fields that never appear; a field in neither is rejected. No entry means the app is not classified
+   * and nothing new is indexed for it.
+   */
+  search?: { privacy: PrivacyClass; windowDays?: number; defaultOn?: boolean; indexes: readonly string[]; excludes: readonly string[] };
+  /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
+  provides?: readonly Capability[];
   declares?: { reads: readonly string[]; writes: readonly string[] };
   /** What the Store shows: what the app adds to Proairetos, how it connects, how many screenshots it has. */
   details?: { adds: string; connects: readonly { app: AppId; text: string }[]; shots: number };
@@ -77,6 +87,7 @@ export const APPS: readonly AppManifest[] = [
     urls: { href: '/', scope: '/', entry: 'index.html' },
     data: { backupPrefix: 'proairetos.', syncKnown: false },
     notices: { source: 'proairetos', kinds: [], switches: [], mainWrites: false },
+    search: { privacy: 'own-search', indexes: ['item title', 'notes', 'next step', 'where', 'list', 'up to you', 'not up to you', 'if something gets in the way', 'reflection text', 'decision question', 'chose', 'options', 'why', 'compass statements', 'values and meanings', 'pursuits'], excludes: ['photos and files'] },
     surfaces: { noticeWindow: false, waitlist: true, prefetch: false, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
@@ -99,6 +110,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'dynamis', text: 'Runs and strength sessions are scheduled around each other and around your workdays.' }, { app: 'diaita', text: 'Runs are kept out of your planned sleep time.' }, { app: 'hydros', text: 'On run days, Hydros can add to your daily water amount.' }],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['workout title', 'workout notes', 'went well', 'next time', 'intention'], excludes: ['heart rate', 'health data brought in', 'distance by GPS'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -115,7 +128,8 @@ export const APPS: readonly AppManifest[] = [
     data: { backupPrefix: 'hydros:', syncKnown: true },
     notices: { source: 'hydros', kinds: ['hydration'], switches: [], mainWrites: true },
     today: { group: 'practice', order: 1, parts: ['water'] },
-    search: { privacy: 'own-search', windowDays: 30, indexes: ['named drink types', 'day summaries'], excludes: ['individual drinks beyond the window'] },
+    search: { privacy: 'own-search', windowDays: 30, defaultOn: false, indexes: ['named drink types', 'day summaries'], excludes: ['individual drinks beyond the window', 'drink times', 'caffeine, sugar and electrolytes', 'daily amount'] },
+    provides: ['search'],
     details: {
       adds: 'Today shows what you’ve logged for the day.',
       connects: [{ app: 'askesis', text: 'On run days, Hydros can add to your daily amount.' }, { app: 'diaita', text: 'Caffeine after your cutoff time shows next to your sleep.' }],
@@ -142,6 +156,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'diaita', text: 'The last big meal time in Diaita opens Soma.' }],
       shots: 1,
     },
+    search: { privacy: 'own-search', indexes: ['recipe title', 'ingredients', 'recipe notes', 'tags'], excludes: ['grocery lists', 'nutrition'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -158,7 +174,8 @@ export const APPS: readonly AppManifest[] = [
     data: { backupPrefix: 'oikonomia:', syncKnown: true },
     notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true },
     today: { group: 'attention', order: 3, parts: ['bills', 'bill-dates'] },
-    search: { privacy: 'own-search', indexes: ['bill name', 'payee', 'due date', 'paid status'], excludes: ['amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
+    search: { privacy: 'own-search', indexes: ['bill name', 'due date', 'paid status'], excludes: ['bill amounts', 'amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
+    provides: ['search'],
     details: {
       adds: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.',
       connects: [{ app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' }, { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
@@ -185,6 +202,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'oikonomia', text: 'Trip spending is added to the month’s totals.' }, { app: 'phyton', text: 'Plant reminders pause while you’re away.' }, { app: 'therapeia', text: 'The medicines you need can be added to the packing list.' }, { app: 'diaita', text: 'Suggests how to adjust your sleep for a new time zone.' }],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['trip name', 'place', 'trip notes', 'booking name', 'booking provider', 'booking place', 'booking notes', 'plan title', 'plan place', 'plan note'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
@@ -206,6 +225,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 1,
     },
+    search: { privacy: 'own-search', indexes: ['book title', 'author', 'highlights', 'reading notes'], excludes: ['book text', 'book files'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -221,6 +242,7 @@ export const APPS: readonly AppManifest[] = [
     data: { syncKnown: true },
     notices: { source: 'praxis', kinds: ['study'], switches: [], mainWrites: false },
     today: { parts: ['praxis'] },
+    search: { privacy: 'private', indexes: [], excludes: ['study blocks', 'cards'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: false, layout: false, visual: false, smoke: true, alone: false },
   },
   {
@@ -242,6 +264,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'therapeia', text: 'Medicine reminders can follow when you wake and sleep.' }, { app: 'askesis', text: 'Runs are kept out of your sleep time.' }, { app: 'hydros', text: 'Caffeine after your cutoff time shows next to your sleep.' }, { app: 'melete', text: 'Study sessions are scheduled around your sleep.' }],
       shots: 2,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['sleep and naps', 'check-ins', 'worries'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -263,6 +286,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['person name', 'relation', 'remember lines', 'gift ideas', 'times together'], excludes: ['phone number', 'email address', 'birthdays and dates'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -285,6 +310,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['chore name', 'room'], excludes: ['chore note', 'who it is assigned to', 'steps'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -306,6 +333,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'diaita', text: 'Doses follow when you wake and sleep, including after night shifts.' }, { app: 'poreia', text: 'Medicines for a trip can be added to its packing list.' }],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['medicine name', 'visit contact', 'visit place'], excludes: ['medication doses', 'medicine notes', 'visit notes', 'questions for the doctor', 'health card', 'readings'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -327,6 +356,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'askesis', text: 'Strength sessions and runs are scheduled around each other and around your workdays.' }, { app: 'diaita', text: 'Sessions are kept out of your sleep time.' }],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['session title', 'session note'], excludes: ['weights and reps', 'heart rate'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -348,6 +379,8 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'oikonomia', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
       shots: 2,
     },
+    search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
+    provides: ['search'],
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -369,6 +402,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'poreia', text: 'Plant reminders pause while you’re away on a trip.' }],
       shots: 2,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['plant names', 'plant types', 'places', 'notes', 'photos'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -390,6 +424,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [],
       shots: 0,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['note titles', 'note text', 'voice note transcripts', 'ideas'] },
     surfaces: { noticeWindow: false, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
   {
@@ -412,6 +447,7 @@ export const APPS: readonly AppManifest[] = [
       connects: [{ app: 'diaita', text: 'Free time is worked out around your sleep.' }, { app: 'askesis', text: 'A run scheduled for a day shows next to it in the week.' }, { app: 'dynamis', text: 'A strength session scheduled for a day shows next to it in the week.' }],
       shots: 2,
     },
+    search: { privacy: 'private', indexes: [], excludes: ['subject names', 'dates', 'materials', 'if-then lines'] },
     surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
 ];

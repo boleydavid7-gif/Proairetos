@@ -10,6 +10,14 @@ export const whatsNew: { date: string; lines: string[] }[] = [
   {
     date: '2026-11-05',
     lines: [
+      'Search no longer finds plants in Phyton, subjects in Meletē or notes in Mneme, and leaves out medicine doses and notes, serial numbers, booking confirmation codes and chore notes.',
+      'Search no longer looks inside a bill’s notes. It finds a bill by name, with its due date and whether it is paid.',
+      'Search can find the drinks you logged in Hydros in the last 30 days, and each day’s total. It is off until you turn it on in What’s included.',
+    ],
+  },
+  {
+    date: '2026-11-05',
+    lines: [
       'Meletē: subjects with their dates, and a week that shows when you are free. You schedule the study sessions; everything comes from your own materials.',
       'Exam and due dates from Meletē appear on their day in Days ahead, today’s study time shows under Daily practices, and search finds your subjects.',
       'Meletē can remind you when a study session starts and the morning before an exam or due date. It is off until you turn it on in Notifications.',
