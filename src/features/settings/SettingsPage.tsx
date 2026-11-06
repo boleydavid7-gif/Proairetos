@@ -670,7 +670,7 @@ function AppearanceSection() {
         ))}
       </div>
       <p className="sheet__label">Background</p>
-      <p className="section-description">Choose a quiet scene for the pages behind your work. Cards and controls stay solid and readable.</p>
+      <p className="section-description">Choose a quiet scene for Proairetos. Cards and controls stay solid and readable.</p>
       <div className="background-grid" role="radiogroup" aria-label="Background">
         {BACKGROUND_OPTIONS.map((background) => (
           <button
