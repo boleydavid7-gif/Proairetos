@@ -1,0 +1,451 @@
+diff --git a/src/app/providers/library.ts b/src/app/providers/library.ts
+index b683b710..9eff3d5a 100644
+--- a/src/app/providers/library.ts
++++ b/src/app/providers/library.ts
+@@ -6,7 +6,7 @@ import { subscribePreferences } from '../../data/storage/preferences';
+ import { subscribeAdded, isAdded } from '../family/added';
+ import { onChangedCollections } from '../sync/syncController';
+ import { hostContext, providerEnabled } from './context';
+-import { libraryProvidersOn } from './libraryPath';
++import { libraryProvidersOn, providedLibraryApps } from './libraryPath';
+ import { createLibraryStore } from './libraryStore';
+ import { providerModules } from './registry';
+ 
+@@ -43,3 +43,18 @@ export function useLibraryRecords(own: readonly LifeRecord[]): readonly LifeReco
+   const version = useSyncExternalStore(on ? libraryStore.subscribe : noSubscription, on ? libraryStore.version : () => 0);
+   return useMemo(() => (on ? libraryStore.visible(own) : own), [on, version, own]);
+ }
++
++/**
++ * What the Library page lists. `build` gathers the page's own records the way it always has; given a set of apps, it leaves those apps out
++ * (their entries come through their providers). With the device switch off nothing is left out and the list is exactly what `build` gives.
++ * On, the apps that provide `library` are left out of the page's own gathering, so no entry is listed twice, and their entries come from the
++ * store, an app that is not added and usable hidden together with the reflections written from its prompts. The store runs only while the
++ * page that uses this hook is shown, so nothing is derived while the Library is locked or left. `inputs` are what `build` reads.
++ */
++export function useLibrarySource(build: (skip: ReadonlySet<string> | undefined) => LifeRecord[], inputs: readonly unknown[]): readonly LifeRecord[] {
++  const on = libraryProvidersOn();
++  const skip = useMemo(() => (on ? new Set<string>(providedLibraryApps()) : undefined), [on]);
++  // eslint-disable-next-line react-hooks/exhaustive-deps
++  const own = useMemo(() => build(skip), [skip, ...inputs]);
++  return useLibraryRecords(own);
++}
+diff --git a/src/app/providers/libraryStore.ts b/src/app/providers/libraryStore.ts
+index 0c4d7c14..9c5a5b65 100644
+--- a/src/app/providers/libraryStore.ts
++++ b/src/app/providers/libraryStore.ts
+@@ -1,5 +1,6 @@
+ import type { AppId, AppManifest } from '../../core/apps/manifest';
+ import type { LifeRecord } from '../../core/life-records/contract';
++import { orderLifeRecords } from '../../core/life-records';
+ import { libraryRecords, sourceChanged, visibleInLibrary, type HostContext, type Provider } from '../../core/providers';
+ import { toLocalDate } from '../../core/scheduling/dates';
+ 
+@@ -171,7 +172,7 @@ export function createLibraryStore(deps: LibraryDeps) {
+      * `own` (what Proairetos itself lists, including reflections written from an app's prompt) and the apps' entries together, with
+      * the entries of an app that is not added and usable left out. Nothing is changed or deleted; they return with the app.
+      */
+-    visible: (own: readonly LifeRecord[]) => visibleInLibrary([...own, ...all], (app) => deps.usable(app) && deps.enabled(app)),
++    visible: (own: readonly LifeRecord[]) => orderLifeRecords(visibleInLibrary([...own, ...all], (app) => deps.usable(app) && deps.enabled(app))),
+     /** For a test or a measurement: waits until the store has caught up. */
+     settled: async () => {
+       schedule();
+diff --git a/src/features/connections/ConnectionsPage.tsx b/src/features/connections/ConnectionsPage.tsx
+index 41702c1b..e343c995 100644
+--- a/src/features/connections/ConnectionsPage.tsx
++++ b/src/features/connections/ConnectionsPage.tsx
+@@ -16,6 +16,7 @@ import { libraryValueConnections, setLibraryValueConnection } from '../../app/li
+ import { loadLibraryTimelineExpansion, saveLibraryTimelineExpansion } from '../../app/library/timeline';
+ import { expireLibraryTrash, libraryTrash, moveToLibraryTrash, permanentlyRemoveFromLibraryTrash, restoreFromLibraryTrash, LIBRARY_TRASH_RETENTION_DAYS, type LibraryTrashEntry } from '../../app/library/trash';
+ import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
++import { useLibrarySource } from '../../app/providers/library';
+ import { canArchiveLifeRecord, groupLifeRecords, groupLifeRecordsByYear, isLibraryTrashExpired, matchesLifeRecordQuery, mergeLibraryValueConnections, relatedLifeRecords, type LifeRecordGroupBy } from '../../core/life-records/library';
+ import type { ChosenValue } from '../../core/values/types';
+ import PageHero from '../../components/layout/PageHero';
+@@ -118,7 +119,9 @@ export default function ConnectionsPage() {
+   const favoriteKeys = useMemo(() => new Set(favorites.map((favorite) => favorite.id)), [favorites]);
+   const valueOptions = useMemo(() => values.map((value: ChosenValue) => ({ id: value.id, name: value.name })), [values]);
+   const valueConnectionByRecord = useMemo(() => new Map(valueConnections.map((connection) => [connection.id, connection])), [valueConnections]);
+-  const sourceRecords = useMemo(() => buildLifeRecords({
++  // The page's own gathering, which leaves out the apps that give their entries through providers when the device switch is on
++  // (off, by default: nothing is left out and this is exactly the list it has always been).
++  const sourceRecords = useLibrarySource((skip) => buildLifeRecords({
+     reflections,
+     decisions,
+     pursuits: allPursuits,
+@@ -135,7 +138,7 @@ export default function ConnectionsPage() {
+     poreiaJournal: journal,
+     poreiaToday: tripToday,
+     oikonomiaMilestones: financialMilestones,
+-  }), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
++  }, skip), [reflections, decisions, allPursuits, items, runs, strengthWorkouts, strengthPlan.unit, recipes, study, notes, ideas, trips, journal, tripToday, financialMilestones]);
+   const sourceRecordByKey = useMemo(() => new Map(sourceRecords.map((record) => [record.key, record])), [sourceRecords]);
+ 
+   const trashByRecord = useMemo(() => new Map(trashEntries.map((entry) => [entry.id, entry])), [trashEntries]);
+diff --git a/src/tests/life-records/libraryFixtures.ts b/src/tests/life-records/libraryFixtures.ts
+index e351c204..c2f199ca 100644
+--- a/src/tests/life-records/libraryFixtures.ts
++++ b/src/tests/life-records/libraryFixtures.ts
+@@ -1,4 +1,4 @@
+-import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
++import { buildLifeRecords, type LifeRecord, type LifeRecordInput } from '../../core/life-records';
+ 
+ /*
+  * The records the Library tests share (Slice 6): companion records in the stores the page reads, Proairetos's own records and the study
+@@ -59,7 +59,7 @@ export const NATIVE = {
+ };
+ 
+ /** `study`: the raw study sessions (the baseline gives plain values; a test that takes them from the timer's blocks and events gives those). */
+-export async function gather(skip: ReadonlySet<string> = new Set(), study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecord[]> {
++export async function gatherInput(study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecordInput> {
+   const { readRuns } = await import('../../app/askesis/runs');
+   const { readRecipes } = await import('../../app/soma/meals');
+   const { combineReadingSessions } = await import('../../app/praxis/study');
+@@ -68,7 +68,7 @@ export async function gather(skip: ReadonlySet<string> = new Set(), study: reado
+   const { trips, journal } = await import('../../poreia/app/state');
+   const { reflectMilestones } = await import('../../oikonomia/data/reflect');
+   const runs = await readRuns();
+-  return buildLifeRecords({
++  return {
+     reflections: NATIVE.reflections as never,
+     decisions: NATIVE.decisions as never,
+     pursuits: NATIVE.pursuits as never,
+@@ -85,7 +85,11 @@ export async function gather(skip: ReadonlySet<string> = new Set(), study: reado
+     poreiaJournal: journal.list(),
+     poreiaToday: TODAY,
+     oikonomiaMilestones: reflectMilestones.list(),
+-  }, skip);
++  };
++}
++
++export async function gather(skip: ReadonlySet<string> = new Set(), study: readonly (typeof NATIVE.study)[number][] = NATIVE.study): Promise<LifeRecord[]> {
++  return buildLifeRecords(await gatherInput(study), skip);
+ }
+ 
+ export const STATES = {
+diff --git a/scripts/library-check/check.mjs b/scripts/library-check/check.mjs
+new file mode 100644
+index 00000000..1d879d63
+--- /dev/null
++++ b/scripts/library-check/check.mjs
+@@ -0,0 +1,118 @@
++// Checks the Library page in a real browser, at 390 and 1440 pixels: the page with the provider switch off (the default) and on lists the same
++// entries in the same order and looks the same, and with the apps removed the providers' entries are not listed.
++//   BASE=http://localhost:4181 OUT=/some/dir CHROMIUM=... node scripts/library-check/check.mjs   (against `vite` or `vite preview`)
++import { createRequire } from 'node:module';
++import { execSync } from 'node:child_process';
++import { mkdirSync } from 'node:fs';
++import sharp from 'sharp';
++
++const BASE = process.env.BASE || 'http://localhost:4173';
++const OUT = process.env.OUT || '.visual/library';
++mkdirSync(OUT, { recursive: true });
++const { chromium } = await import('playwright').catch(() => createRequire(import.meta.url)(`${execSync('npm root -g').toString().trim()}/playwright`));
++const browser = await chromium.launch({ executablePath: process.env.CHROMIUM || undefined });
++const results = [];
++const check = (name, ok, detail = '') => { results.push(Boolean(ok)); console.log(`${ok ? 'pass' : 'FAIL'}  ${name}${detail ? '  ' + detail : ''}`); };
++const stamp = '2026-09-01T10:00:00.000Z';
++const COMPANIONS = ['askesis', 'dynamis', 'soma', 'theoria', 'mneme', 'poreia', 'oikonomia'];
++
++async function load({ width, height, on, removed }) {
++  const context = await browser.newContext({ viewport: { width, height }, serviceWorkers: 'block', timezoneId: 'UTC', reducedMotion: 'reduce', deviceScaleFactor: 1 });
++  const page = await context.newPage();
++  const errors = [];
++  page.on('pageerror', (error) => errors.push(String(error).slice(0, 200)));
++  await page.clock.install({ time: new Date('2026-11-05T12:00:00') });
++  await page.goto(`${BASE}/welcome/`);
++  await page.evaluate(([on, removed, companions, stamp]) => {
++    const put = (key, value) => localStorage.setItem(key, JSON.stringify(value));
++    localStorage.setItem('proairetos.onboarded', 'yes');
++    put('proairetosOwned', { apps: ['core'], owner: true, account: true });
++    put('proairetos.apps', { added: removed ? [] : companions });
++    put('proairetos.appearance', { theme: 'dark', textSize: 'default' });
++    if (on) localStorage.setItem('proairetosLibraryProviders', on === 'junk' ? 'junk' : 'on');
++    put('dynamis:settings', { started: true });
++    put('dynamis:setup', { aim: 'strength', place: 'gym', isNew: false, days: [1, 3, 5], sets: 3, setsSince: '2026-09-01', unit: 'lb', startedOn: '2026-09-01', steps: {}, at: '17:30' });
++    put('dynamis:workout:w1', { id: 'w1', date: '2026-10-12', session: 'A', createdAt: '2026-10-12T18:30:00.000Z', minutes: 48, felt: 'good', note: 'Right knee felt fine.', exercises: [{ exercise: 'squat', name: 'Back squat', sets: [{ reps: 5, weight: 135 }, { reps: 5, weight: 145 }] }] });
++    put('mneme:note:n1', { id: 'n1', title: 'Chosen note', body: 'A note chosen for Reflect.', pinned: false, inReflect: true, archived: false, createdAt: '2026-10-20T08:00:00.000Z', updatedAt: stamp });
++    put('mneme:note:n3', { id: 'n3', title: 'Not chosen', body: 'CANARY-unselected-note', pinned: false, inReflect: false, archived: false, createdAt: '2026-10-21T08:00:00.000Z', updatedAt: stamp });
++    put('mneme:idea:i1', { id: 'i1', text: 'An idea chosen for Reflect', stage: 'shape', inReflect: true, createdAt: '2026-10-25T08:00:00.000Z', updatedAt: stamp });
++    put('poreia:trip:r1', { id: 'r1', name: 'Lisbon', place: { name: 'Lisbon', label: 'Lisbon, Portugal', country: 'Portugal', countryCode: 'PT' }, start: '2026-09-10', end: '2026-09-16', travelers: 1, stage: 'booked', createdAt: stamp, updatedAt: stamp });
++    put('poreia:trip:r2', { id: 'r2', name: 'Porto (upcoming)', place: { name: 'Porto', label: 'Porto, Portugal' }, start: '2026-12-10', end: '2026-12-12', travelers: 1, stage: 'booked', createdAt: stamp, updatedAt: stamp });
++    put('poreia:journal:j1', { id: 'j1', tripId: 'r1', date: '2026-09-12', kind: 'memory', title: 'Tram 28', text: 'Rode the tram up the hill.', place: 'Alfama', createdAt: stamp, updatedAt: stamp });
++    put('poreia:booking:b1', { id: 'b1', tripId: 'r1', kind: 'flight', title: 'TP 237', confirmation: 'CANARYCODE', address: 'CANARY-street', startDate: '2026-09-10', createdAt: stamp, updatedAt: stamp });
++    put('oikonomia:reflect-milestone:m1', { id: 'm1', title: 'Paid off the card', body: 'Wrote this down for myself.', date: '2026-10-30', inReflect: true, createdAt: stamp, updatedAt: stamp });
++  }, [on, removed, COMPANIONS, stamp]);
++  // The first look makes the device database; then the records that live in it are written.
++  await page.goto(`${BASE}/`);
++  await page.waitForTimeout(2500);
++  await page.evaluate(async (stamp) => {
++    const db = await new Promise((resolve, reject) => { const request = indexedDB.open('proairetos'); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error); });
++    const write = (store, record) => new Promise((resolve, reject) => { const request = db.transaction(store, 'readwrite').objectStore(store).put(record); request.onsuccess = () => resolve(); request.onerror = () => reject(request.error); });
++    await write('askesisWorkouts', { id: 'a1', date: '2026-10-14', activity: 'run', meters: 5230, seconds: 1750, avgHr: 151, felt: 'easy', notes: 'River loop.', shoeId: 'CANARY-shoe', workoutTitle: 'Easy run', createdAt: '2026-10-14T07:10:00.000Z' });
++    await write('somaRecipes', { id: 'rc1', title: 'Lentil soup', notes: 'Less salt next time.', tags: ['soup'], ingredients: ['lentils'], source: 'Grandma', cookedFor: { '2026-10-10': ['Mia', 'Tomas'] }, createdAt: stamp, updatedAt: stamp });
++    await write('reflections', { id: 'rf1', userId: 'local', kind: 'FREE', body: 'A reflection from the journal.', createdAt: '2026-10-28T20:00:00.000Z', updatedAt: '2026-10-28T20:00:00.000Z' });
++    await write('reflections', { id: 'rf2', userId: 'local', kind: 'FREE', promptKey: 'after-run', body: 'A line after the run.', createdAt: '2026-10-14T08:00:00.000Z', updatedAt: '2026-10-14T08:00:00.000Z' });
++    db.close();
++  }, stamp);
++  await page.goto(`${BASE}/connections`);
++  await page.waitForTimeout(Number(process.env.WAIT || 5000));
++  const titles = await page.evaluate(() => [...document.querySelectorAll('.connections-record')].map((node) => (node.querySelector('.connections-record__source')?.textContent ?? '') + ' | ' + (node.querySelector('.connections-record__title')?.textContent ?? node.querySelector('h2,h3')?.textContent ?? '')));
++  const hrefs = await page.evaluate(() => [...document.querySelectorAll('.connections-record__title[href]')].map((node) => node.getAttribute('href')));
++  const text = await page.evaluate(() => document.body.innerText);
++  const shot = await page.screenshot();
++  await context.close();
++  return { titles, hrefs, text, shot, errors };
++}
++
++async function diff(a, b) {
++  const [x, y] = await Promise.all([sharp(a).raw().toBuffer({ resolveWithObject: true }), sharp(b).raw().toBuffer({ resolveWithObject: true })]);
++  if (x.info.width !== y.info.width || x.info.height !== y.info.height) return { same: false, pixels: -1 };
++  let pixels = 0;
++  let max = 0;
++  let box = [Infinity, Infinity, -1, -1];
++  for (let i = 0; i < x.data.length; i += x.info.channels) {
++    if (x.data[i] !== y.data[i] || x.data[i + 1] !== y.data[i + 1] || x.data[i + 2] !== y.data[i + 2]) {
++      pixels += 1;
++      max = Math.max(max, Math.abs(x.data[i] - y.data[i]), Math.abs(x.data[i + 1] - y.data[i + 1]), Math.abs(x.data[i + 2] - y.data[i + 2]));
++      const at = i / x.info.channels;
++      const px = at % x.info.width;
++      const py = Math.floor(at / x.info.width);
++      box = [Math.min(box[0], px), Math.min(box[1], py), Math.max(box[2], px), Math.max(box[3], py)];
++    }
++  }
++  return { same: pixels === 0, pixels, max, box: pixels ? box.join(',') : '' };
++}
++
++const SIZES = (process.env.SIZES || '390x844,1440x900').split(',').map((size) => size.split('x').map(Number));
++for (const [width, height] of SIZES) {
++  const off = await load({ width, height, on: false, removed: false });
++  const on = await load({ width, height, on: true, removed: false });
++  const again = await load({ width, height, on: false, removed: false });
++  const junk = process.env.JUNK ? await load({ width, height, on: 'junk', removed: false }) : undefined;
++  const onAgain = process.env.JUNK ? await load({ width, height, on: true, removed: false }) : undefined;
++  const gone = await load({ width, height, on: true, removed: true });
++  await sharp(off.shot).toFile(`${OUT}/library-${width}-off.png`);
++  await sharp(on.shot).toFile(`${OUT}/library-${width}-on.png`);
++  await sharp(gone.shot).toFile(`${OUT}/library-${width}-on-apps-removed.png`);
++  console.log(`  ${width} titles (off): ${off.titles.join(' ; ')}`);
++  check(`${width}: the Library lists entries`, off.titles.length >= 5, `${off.titles.length} entries`);
++  check(`${width}: switch on lists the same entries in the same order as switch off`, JSON.stringify(on.titles) === JSON.stringify(off.titles), `${on.titles.length} vs ${off.titles.length}`);
++  check(`${width}: the links into the apps are the same`, JSON.stringify(on.hrefs) === JSON.stringify(off.hrefs), `${on.hrefs.length} links`);
++  const d = await diff(off.shot, on.shot);
++  const noise = await diff(off.shot, again.shot);
++  console.log(`  ${width}: off vs on ${d.pixels} pixels, largest channel difference ${d.max ?? 0} of 255 ${d.box ?? ''}; off vs off again ${noise.pixels} pixels ${noise.box ?? ''}`);
++  if (junk) {
++    const j = await diff(off.shot, junk.shot);
++    const o = await diff(on.shot, onAgain.shot);
++    console.log(`  ${width}: off vs the key set to something else (still off) ${j.pixels} pixels; on vs on again ${o.pixels} pixels`);
++  }
++  // Two loads with the switch off are identical, so any difference is the switch's. A difference of two levels of 255 in a few pixels is reported and allowed; more is a failure.
++  check(`${width}: the page looks the same (no pixel differs by more than 2 of 255)`, d.same || (d.max <= 2 && d.pixels < 1000), d.same ? 'identical' : `${d.pixels} pixels differ, by at most ${d.max} of 255, in the rail (${d.box}); two loads with it off differ by ${noise.pixels}`);
++  check(`${width}: nothing that was not chosen or must not be carried is on the page`, !/CANARY|Porto|TP 237/.test(on.text + off.text));
++  check(`${width}: with the apps removed, their entries are not listed and your own are`, gone.titles.length < on.titles.length && gone.titles.some((title) => /Proairetos|Compass/.test(title)) && !gone.titles.some((title) => /Askesis|Dynamis|Soma|Mneme|Poreia|Oikonomia/.test(title)), gone.titles.join(' ; '));
++  check(`${width}: no page errors`, off.errors.length + on.errors.length + gone.errors.length === 0, [...off.errors, ...on.errors, ...gone.errors].join(' | '));
++  console.log(`  ${width}: off ${off.titles.length} entries, on ${on.titles.length}, apps removed ${gone.titles.length}`);
++}
++await browser.close();
++console.log(results.every(Boolean) ? `\nLibrary check: ${results.length} of ${results.length} passed.` : `\nLibrary check: ${results.filter((ok) => !ok).length} of ${results.length} FAILED.`);
++process.exit(results.every(Boolean) ? 0 : 1);
+diff --git a/src/tests/life-records/libraryIntegration.test.tsx b/src/tests/life-records/libraryIntegration.test.tsx
+new file mode 100644
+index 00000000..0e52e1a0
+--- /dev/null
++++ b/src/tests/life-records/libraryIntegration.test.tsx
+@@ -0,0 +1,196 @@
++// @vitest-environment jsdom
++import 'fake-indexeddb/auto';
++import { act, cleanup, renderHook } from '@testing-library/react';
++import { readFileSync } from 'node:fs';
++import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
++import { buildLifeRecords, type LifeRecord } from '../../core/life-records';
++import { mergeLibraryValueConnections } from '../../core/life-records/library';
++import { libraryStore, useLibrarySource } from '../../app/providers/library';
++import { providedLibraryApps, setLibraryProviders } from '../../app/providers/libraryPath';
++import { moveToLibraryTrash, libraryTrash } from '../../app/library/trash';
++import { notes } from '../../mneme/app/state';
++import { COMPANIONS, STATES, gatherInput, put, seedCompanions } from './libraryFixtures';
++
++/*
++ * The Library page's integration (Slice 6, commit 4): the page asks `useLibrarySource`, which gathers its own records as ever, leaves out the
++ * seven apps that give their entries through providers when the device switch is on, and lists theirs from the store. These tests use that
++ * same hook, with the page's own function (`buildLifeRecords`) and the same records, so what they show is what the page lists.
++ */
++type Input = Awaited<ReturnType<typeof gatherInput>>;
++let study: Awaited<ReturnType<typeof realStudy>> = [];
++async function realStudy() {
++  const { lifeService } = await import('../../app/services');
++  const { studySessions } = await import('../../app/praxis/study');
++  const make = async (title: string, minutes: number) => {
++    const block = await lifeService.capture(title, 'MAKE_TIME_FOR', { source: 'MANUAL', app: 'praxis' });
++    await lifeService.recordFocus(block.id, minutes, { app: 'praxis' });
++    return block;
++  };
++  await make('Biology', 40);
++  const reading = await make('Read: Meditations', 20);
++  await lifeService.recordFocus(reading.id, 15, { app: 'praxis' });
++  const [blocks, events] = await Promise.all([lifeService.listForApp('praxis'), lifeService.historyForAll(true)]);
++  return studySessions(blocks, events);
++}
++beforeAll(async () => { study = await realStudy(); }, 30_000);
++beforeEach(async () => {
++  await seedCompanions();
++  STATES['every app added (the owner)']();
++});
++afterEach(() => { cleanup(); localStorage.clear(); });
++
++const page = async () => {
++  const input: Input = await gatherInput(study);
++  const hook = renderHook(({ input }) => useLibrarySource((skip) => buildLifeRecords(input, skip), [input]), { initialProps: { input } });
++  await act(async () => { await libraryStore.settled(); });
++  hook.rerender({ input });
++  return hook;
++};
++const keys = (records: readonly LifeRecord[]) => records.map((record) => record.key);
++const COMPANION_KINDS = (record: LifeRecord) => (COMPANIONS as readonly string[]).includes(record.sourceApp);
++
++describe('with the switch off, which is the default', () => {
++  it('lists exactly what the page’s own gathering gives, and starts no store', async () => {
++    const input = await gatherInput(study);
++    const { result } = await page();
++    expect(JSON.stringify(result.current)).toBe(JSON.stringify(buildLifeRecords(input)));
++    expect(result.current).toHaveLength(19);
++    expect(libraryStore.derivations()).toEqual([]);
++    expect(libraryStore.records()).toEqual([]);
++  });
++});
++
++describe('with the switch on', () => {
++  beforeEach(() => setLibraryProviders(true));
++
++  it('lists the same entries in the same order as the page’s own gathering', async () => {
++    const input = await gatherInput(study);
++    const { result } = await page();
++    expect(JSON.stringify(result.current)).toBe(JSON.stringify(buildLifeRecords(input)));
++  });
++  it('leaves all seven providers’ apps out of the page’s own gathering, so no entry is listed twice', async () => {
++    expect(providedLibraryApps().sort()).toEqual([...COMPANIONS].sort());
++    const input = await gatherInput(study);
++    expect(buildLifeRecords(input, new Set(providedLibraryApps())).filter((record) => COMPANION_KINDS(record) && record.kind !== 'reflection')).toEqual([]);
++    const derived = libraryStore.derivations().length;
++    const { result } = await page();
++    expect(new Set(keys(result.current)).size).toBe(result.current.length);
++    // The store is shared by the tests in this file, so only what this page made is counted.
++    expect(libraryStore.derivations().slice(derived).map((each) => each.app).sort()).toEqual([...COMPANIONS].sort());
++  });
++  it('keeps saved items, value connections and Recently Deleted as they are: they are the Library’s, by key', async () => {
++    const input = await gatherInput(study);
++    const { result } = await page();
++    const connections = [{ id: 'workout:a1', valueIds: ['v1'] }, { id: 'mneme:note:n1', valueIds: ['v2'] }];
++    expect(JSON.stringify(mergeLibraryValueConnections(result.current, connections))).toBe(JSON.stringify(mergeLibraryValueConnections(buildLifeRecords(input), connections)));
++    moveToLibraryTrash('workout:a1');
++    expect(libraryTrash.get('workout:a1')).toBeTruthy();
++    expect(keys(result.current)).toContain('workout:a1');
++  });
++  it('lists the same entries after a record changes in an app, once the store has caught up', async () => {
++    const hook = await page();
++    const before = keys(hook.result.current);
++    put('dynamis:workout:w2', { id: 'w2', date: '2026-10-30', session: 'B', createdAt: '2026-10-30T18:00:00.000Z', minutes: 30, exercises: [{ exercise: 'row', name: 'Row', sets: [{ reps: 8 }] }] });
++    await act(async () => { libraryStore.invalidate('dynamis'); await libraryStore.settled(); });
++    hook.rerender({ input: await gatherInput(study) });
++    expect(keys(hook.result.current)).toHaveLength(before.length + 1);
++    expect(keys(hook.result.current)).toContain('dynamis-workout:w2');
++  });
++});
++
++describe('Mneme’s archive, restore and deletion', () => {
++  beforeEach(() => setLibraryProviders(true));
++
++  it('archive and restore are the page’s own writes to the note, and the Library follows them', async () => {
++    const hook = await page();
++    const note = notes.get('n1')!;
++    await act(async () => { notes.put({ ...note, archived: true, updatedAt: '2026-11-05T09:00:00.000Z' }); await libraryStore.settled(); });
++    hook.rerender({ input: await gatherInput(study) });
++    expect(hook.result.current.find((record) => record.key === 'mneme:note:n1')!.archived).toBe(true);
++    await act(async () => { notes.put({ ...notes.get('n1')!, archived: false, updatedAt: '2026-11-05T09:10:00.000Z' }); await libraryStore.settled(); });
++    hook.rerender({ input: await gatherInput(study) });
++    expect(hook.result.current.find((record) => record.key === 'mneme:note:n1')!.archived).toBe(false);
++  });
++  it('"Remove from Reflect" marks the Library’s own row and leaves the note itself, which is still listed for the page to filter', async () => {
++    const hook = await page();
++    const before = JSON.stringify(notes.get('n1'));
++    moveToLibraryTrash('mneme:note:n1');
++    expect(libraryTrash.get('mneme:note:n1')).toBeTruthy();
++    expect(JSON.stringify(notes.get('n1'))).toBe(before);
++    expect(keys(hook.result.current)).toContain('mneme:note:n1');
++  });
++  it('a note deleted in Mneme leaves the Library, and its Recently Deleted row stays', async () => {
++    const hook = await page();
++    moveToLibraryTrash('mneme:note:n1');
++    await act(async () => { notes.remove('n1'); await libraryStore.settled(); });
++    hook.rerender({ input: await gatherInput(study) });
++    expect(keys(hook.result.current)).not.toContain('mneme:note:n1');
++    expect(libraryTrash.get('mneme:note:n1')).toBeTruthy();
++  });
++});
++
++describe('an app that is removed, not bought, past its trial, or later available again', () => {
++  beforeEach(() => setLibraryProviders(true));
++  const owned = (trialUntil?: string) => put('proairetosOwned', { apps: [], account: true, ...(trialUntil ? { trialUntil } : {}) });
++  const onlyOwn = (records: readonly LifeRecord[]) => records.filter((record) => !COMPANION_KINDS(record) || (record.kind === 'reflection' && record.sourceApp === 'proairetos'));
++
++  it('contributes nothing when removed, when not bought with no trial left, and when the trial has ended', async () => {
++    for (const apply of [
++      () => STATES['every app removed (the owner)'](),
++      () => STATES['apps added, not bought and no trial left'](),
++      () => { put('proairetos.apps', { added: COMPANIONS }); owned('2026-01-01T00:00:00.000Z'); },
++    ]) {
++      apply();
++      const { result, unmount } = await page();
++      expect(result.current.filter(COMPANION_KINDS), JSON.stringify(result.current.filter(COMPANION_KINDS).map((r) => r.key))).toEqual([]);
++      expect(keys(result.current)).not.toContain('reflection:rf2');
++      expect(keys(result.current)).toContain('reflection:rf1');
++      expect(keys(result.current)).toContain('decision:d1');
++      expect(result.current.length).toBe(onlyOwn(result.current).length);
++      unmount();
++    }
++  });
++  it('is listed during a trial that is running', async () => {
++    put('proairetos.apps', { added: COMPANIONS });
++    owned(new Date(Date.now() + 5 * 86_400_000).toISOString());
++    const { result } = await page();
++    expect(result.current).toHaveLength(19);
++  });
++  it('comes back, with its reflections, when the app is added again, and no source record was touched', async () => {
++    STATES['every app removed (the owner)']();
++    const hook = await page();
++    const gone = hook.result.current.length;
++    const before = JSON.stringify(Object.entries(localStorage));
++    expect(gone).toBeLessThan(19);
++    const { addApp } = await import('../../app/family/added');
++    await act(async () => { for (const app of COMPANIONS) addApp(app); await libraryStore.settled(); });
++    hook.rerender({ input: await gatherInput(study) });
++    expect(hook.result.current).toHaveLength(19);
++    expect(keys(hook.result.current)).toContain('reflection:rf2');
++    expect(JSON.stringify(Object.entries(localStorage).filter(([name]) => !name.startsWith('proairetos.apps')))).toBe(JSON.stringify(JSON.parse(before).filter(([name]: [string, string]) => !name.startsWith('proairetos.apps'))));
++  });
++});
++
++describe('the lock', () => {
++  it('shows the page only when unlocked, and the store runs only while the page is shown', async () => {
++    const app = readFileSync('src/app/App.tsx', 'utf8');
++    expect(app).toMatch(/route === 'connections' && !locked && <ConnectionsPage \/>/);
++    setLibraryProviders(true);
++    const idle = libraryStore.derivations().length;
++    await libraryStore.settled();
++    expect(libraryStore.derivations().length).toBe(idle);
++    const hook = await page();
++    expect(libraryStore.derivations().length).toBeGreaterThan(idle);
++    const before = libraryStore.derivations().length;
++    hook.unmount();
++    expect(libraryStore.records()).toEqual([]);
++    await libraryStore.settled();
++    put('mneme:note:n9', { id: 'n9', title: 'New', body: 'x', pinned: true, archived: false, createdAt: '2026-11-05T10:00:00.000Z', updatedAt: '2026-11-05T10:00:00.000Z' });
++    libraryStore.invalidate();
++    await libraryStore.settled();
++    expect(libraryStore.derivations().length).toBe(before);
++  });
++  it('is not touched by the page: the lock still guards the route, as the baseline records', () => {
++    expect(readFileSync('src/app/lock/lock.ts', 'utf8')).toContain("export const lockedRoutes: readonly string[] = ['reflect', 'journal', 'insights', 'review'];");
++  });
++});
