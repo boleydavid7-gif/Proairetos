@@ -17,19 +17,18 @@ const PLANE = 'M512 196 C544 196 560 234 560 270 V436 L816 574 V638 L560 570 V69
 export const APPS = {
   proairetos: {
     tile: '#18202b',
-    glyph: () => {
-      const light = '#f2d7a5', mid = '#d2a868', dark = '#a77c45';
-      const point = (angle, length, width, a, b) => `
-        <g transform="rotate(${angle} 512 512)">
-          <path d="M512 ${512 - length} L512 512 L${512 - width} ${512 - width}Z" fill="${a}"/>
-          <path d="M512 ${512 - length} L${512 + width} ${512 - width} L512 512Z" fill="${b}"/>
-        </g>`;
-      return `
-        <circle cx="512" cy="512" r="336" fill="none" stroke="${mid}" stroke-width="18" opacity=".6"/>
-        ${[45, 135, 225, 315].map((a) => point(a, 230, 52, dark, mid)).join('')}
-        ${[0, 90, 180, 270].map((a) => point(a, 372, 74, mid, light)).join('')}
-        <circle cx="512" cy="512" r="26" fill="${light}"/>`;
-    },
+    glyph: (w, tint, deep) => `
+      <circle cx="512" cy="512" r="346" fill="none" stroke="${tint}" stroke-width="22" stroke-dasharray="470 76 470 76 470 76 470 76" transform="rotate(-45 512 512)" opacity=".82"/>
+      <path d="M512 126 L512 238" stroke="${w}" stroke-width="30" stroke-linecap="round"/>
+      <path d="M512 238 L424 324 L424 652 Q424 686 458 686 H566 Q600 686 600 652 V324 L512 238Z" fill="none" stroke="${w}" stroke-width="28" stroke-linejoin="round"/>
+      <path d="M398 344 H626 M444 696 H580" stroke="${tint}" stroke-width="28" stroke-linecap="round"/>
+      <path d="M512 418 C512 418 450 492 450 548 A62 62 0 0 0 574 548 C574 492 512 418 512 418Z" fill="${w}"/>
+      <path d="M512 126 L512 42 L548 126Z" fill="${tint}"/>
+      <path d="M512 898 L476 770 L512 790 L548 770Z" fill="${tint}"/>
+      <path d="M126 512 L254 476 L234 512 L254 548Z" fill="${tint}"/>
+      <path d="M898 512 L770 548 L790 512 L770 476Z" fill="${tint}"/>
+      <path d="M454 300 H570" stroke="${deep}" stroke-width="12" stroke-linecap="round" opacity=".45"/>
+    `,
   },
   askesis: {
     tile: '#167a64',
