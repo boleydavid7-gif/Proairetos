@@ -1,21 +1,11 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
-import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
-import { philiaCalendar } from '../../app/calendars/philiaCalendar';
-import { therapeiaCalendar } from '../../app/calendars/therapeiaCalendar';
-import { meleteCalendar } from '../../app/calendars/meleteCalendar';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { billsOn, birthdaysOn } from '../../app/family/glance';
-import { useStoredRecords } from '../../app/family/storedRecords';
-import { ktemaDatesOn } from '../../app/calendars/ktemaDates';
-import type { Thing as KtemaThing, Upkeep as KtemaUpkeep } from '../../ktema/core/things';
-import { studyDatesOn, useMeleteSubjects } from '../../app/calendars/meleteCalendar';
-import { people } from '../../philia/app/state';
+import { calendarStore } from '../../app/providers/calendar';
+import { eventsFromLines, isAppOwned, quietLinesByDay, type QuietLine } from '../../app/providers/calendarView';
 import MiniMonth from './MiniMonth';
-import { useStore } from '../../app/family/read';
-import type { Bill } from '../../oikonomia/core/bills';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -29,7 +19,9 @@ import {
   ListIcon,
   PinIcon,
   PlusIcon,
+  RepeatIcon,
   ShieldIcon,
+  TargetIcon,
   TrashIcon,
 } from '../../components/icons/Icons';
 import { itemSpan } from '../../core/rhythm/openTime';
@@ -39,6 +31,7 @@ import type { LifeItem } from '../../core/life-items/types';
 import { formatLocalDay, formatTimeOf } from '../schedule/format';
 import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
 import { buildDayTimeline, dayTitle } from '../today/timeline';
+import AllDayRow from './AllDayRow';
 import { planFor } from '../plan/planView';
 import AddEventSheet from './AddEventSheet';
 import DayPlan from './DayPlan';
@@ -109,7 +102,7 @@ const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
 };
 
 function subscribeAll(listener: () => void) {
-  const off = [lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), philiaCalendar.subscribe(listener), therapeiaCalendar.subscribe(listener), meleteCalendar.subscribe(listener), compassService.subscribe(listener)];
+  const off = [calendarStore.subscribe(listener), lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), compassService.subscribe(listener)];
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
@@ -124,22 +117,29 @@ const hhmm = (date: Date) => `${pad(date.getHours())}:${pad(date.getMinutes())}`
  * there and lets the person add something with a day and time. Colors are
  * the person's own labels.
  */
-/** Bills with a date on one day: a quiet line each, opening Oikonomia. A paid one says so. */
-type FamilyLine = { id: string; name: string; amount?: string; paid?: boolean; href: string; color: string };
+/**
+ * Deadlines and dates that come round, one quiet line each under their day, opening the record in its app: a target for what
+ * is due, a repeat for what comes round every year, the list glyph for any other date. A met deadline says Paid at its end.
+ */
+type FamilyLine = QuietLine;
 
-function BillLines({ lines }: { lines: FamilyLine[] }) {
+function QuietLines({ lines }: { lines: FamilyLine[] }) {
   if (lines.length === 0) return null;
   return (
     <>
-      {lines.map((line) => (
-        <a key={line.id} className="days-bills" href={line.href}>
-          <ListIcon size={18} />
-          <span>
-            {line.amount ? `${line.name} · ${line.amount}` : line.name}
-          </span>
-          {line.paid && <span className="days-bills__paid">paid</span>}
-        </a>
-      ))}
+      {lines.map((line) => {
+        const Glyph = line.kind === 'deadline' ? TargetIcon : line.kind === 'recurring' ? RepeatIcon : ListIcon;
+        return (
+          <a key={line.id} className="days-bills" href={line.href}>
+            <Glyph size={18} />
+            <span>
+              {line.name}
+              {line.word && <span className="days-bills__word"> · {line.word}</span>}
+            </span>
+            {line.paid && <span className="days-bills__paid">Paid</span>}
+          </a>
+        );
+      })}
     </>
   );
 }
@@ -166,18 +166,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const nowMinutes = clock.getHours() * 60 + clock.getMinutes();
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
-  const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
-  const everyone = people.use();
-  const studySubjects = useMeleteSubjects(shows('study-dates'));
-  const ktemaThings = useStoredRecords<KtemaThing>('ktema:thing:', shows('ktema-dates'));
-  const ktemaUpkeeps = useStoredRecords<KtemaUpkeep>('ktema:upkeep:', shows('ktema-dates'));
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
-  const billsFor = (date: string): FamilyLine[] => [
-    ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
-    ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
-    ...(shows('ktema-dates') ? ktemaDatesOn(ktemaThings, ktemaUpkeeps, date).map((line) => ({ ...line, color: 'sky' })) : []),
-    ...(shows('study-dates') ? studyDatesOn(studySubjects, date).map((line) => ({ ...line, color: 'sage' })) : []),
-  ];
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
   const [mode, setMode] = useState<CalendarMode>('week');
@@ -295,19 +284,24 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         compassService.statements(),
       ]);
       const goals = statements.filter((statement) => statement.type === 'GOAL');
-      const [otherEvents, travelEvents, peopleEvents, visitEvents, studyEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until), philiaCalendar.eventsBetween(from, until), therapeiaCalendar.eventsBetween(from, until), meleteCalendar.eventsBetween(from, until)]);
-      const events = [...otherEvents, ...travelEvents, ...peopleEvents, ...visitEvents, ...studyEvents];
+      const lines = await calendarStore.lines({ from, until });
+      const events = [...otherCalendars.eventsBetween(from, until), ...eventsFromLines(lines)];
       const sources = calendarSources();
       return {
         items,
         patterns,
         sources,
+        lines,
         goals: { goals, lines: goalLines(goals, items, patterns) },
         days: days.map((date) => ({ date, entries: buildDayTimeline(date, occurrences, items, patterns, events) })),
       };
     },
     [first, span],
   );
+  const quietByDay = useMemo(() => quietLinesByDay(data?.lines ?? []), [data?.lines]);
+  const billsFor = (date: string): FamilyLine[] => [
+    ...(quietByDay.get(date) ?? []),
+  ];
 
   const focused = useRef<HTMLElement | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -492,23 +486,13 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               </h2>
               <ul className="days-list ll-plain">
                 {allDay.map((entry) => (
-                  <li key={entry.key} className="days-allday">
-                    <span className="days-allday__text">All day · {entry.event.title}</span>
-                    <button
-                      type="button"
-                      className="days-allday__remove"
-                      aria-label={`Delete ${entry.event.title}`}
-                      disabled={removing === `event:${entry.event.key}`}
-                      onClick={() => removeCalendarEvent(entry.event)}
-                    >
-                      <TrashIcon size={18} />
-                    </button>
-                  </li>
+                  <AllDayRow key={entry.key} event={entry.event} busy={removing === `event:${entry.event.key}`} onRemove={() => removeCalendarEvent(entry.event)} />
                 ))}
                 {timed.map((entry) => {
                   const look = entryLook(entry, data.patterns, data.sources, data.goals);
                   const Icon = icons[look.icon];
-                  const tappable = entry.kind !== 'event';
+                  const owned = entry.kind === 'event' && isAppOwned(entry.event);
+                  const tappable = entry.kind !== 'event' || owned;
                   const body = (
                     <>
                       <span className="days-row__time">
@@ -536,35 +520,38 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       key={entry.key}
                       frontRef={markRef(entry.key)}
                       className={`days-row tag--${look.color ?? 'none'}${entry.key === focusKey ? ' days-row--focus' : ''}`}
-                      label="Delete"
-                      tone="remove"
-                      off={removing === entry.key}
-                      onSwipe={() => void remove(entry)}
+                      {...(owned ? {} : { label: 'Delete', tone: 'remove' as const, off: removing === entry.key, onSwipe: () => void remove(entry) })}
                     >
-                      {tappable ? (
+                      {owned ? (
+                        <a className="days-row__button" href={entry.event.open}>
+                          {body}
+                        </a>
+                      ) : tappable ? (
                         <button type="button" className="days-row__button" onClick={() => open(entry)}>
                           {body}
                         </button>
                       ) : (
                         <div className="days-row__button">{body}</div>
                       )}
-                      <button
-                        type="button"
-                        className="days-row__remove"
-                        aria-label={`Delete ${look.title}`}
-                        disabled={removing === entry.key}
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          void remove(entry);
-                        }}
-                      >
-                        <TrashIcon size={18} />
-                      </button>
+                      {!owned && (
+                        <button
+                          type="button"
+                          className="days-row__remove"
+                          aria-label={`Delete ${look.title}`}
+                          disabled={removing === entry.key}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void remove(entry);
+                          }}
+                        >
+                          <TrashIcon size={18} />
+                        </button>
+                      )}
                     </SwipeItem>
                   );
                 })}
               </ul>
-              <BillLines lines={billsFor(date)} />
+              <QuietLines lines={billsFor(date)} />
               <DayPlan date={date} today={today} items={data.items} range={rangeOf(date)} allowDelete />
             </section>
           );
@@ -615,7 +602,7 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
               {(narrow ? data.days.filter((day) => day.date === focusDay) : data.days).map(({ date }) => (
                 <span key={date} className="cal-bills__day">
                   {billsFor(date).map((line) => (
-                    <a key={line.id} href={line.href} className={`cal-bills__chip${line.paid ? ' cal-bills__chip--paid' : ''}`} title={[line.name, line.amount, line.paid ? 'paid' : ''].filter(Boolean).join(' · ')}>
+                    <a key={line.id} href={line.href} className={`cal-bills__chip${line.paid ? ' cal-bills__chip--paid' : ''}`} title={[line.name, line.word, line.paid ? 'Paid' : ''].filter(Boolean).join(' · ')}>
                       {line.name}
                     </a>
                   ))}
@@ -701,7 +688,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                         : style;
                       const className = `cal-entry cal-entry--${layer} tag--${look.color ?? 'none'}${entry.key === focusKey ? ' cal-entry--focus' : ''}${movable ? ' cal-entry--movable' : ''}${dragged ? ' cal-entry--dragging' : ''}`;
                       const label = `${look.title}, ${formatTimeOf(entry.start)}`;
-                      const tappable = entry.kind !== 'event';
+                      const owned = entry.kind === 'event' && isAppOwned(entry.event);
+                      const tappable = entry.kind !== 'event' || owned;
                       const shownTime = dragged && movable && dragged.mode === 'move' ? formatTimeOf(new Date(shiftedStart(entry.item.scheduledAt as string, dragged.minutes))) : formatTimeOf(entry.start);
                       const draggedLength = dragged && movable && dragged.mode === 'resize' ? ` · ${lengthMinutes(entry.item.scheduledAt as string, entry.item.endsAt, entry.item.plannedMinutes) + dragged.minutes} min` : '';
                       return (
@@ -717,7 +705,12 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                           onPointerUp={movable ? (event) => void endDrag(event) : undefined}
                           onPointerCancel={movable ? () => { dragStart.current = null; dragNow.current = null; setDrag(null); } : undefined}
                         >
-                          {tappable ? (
+                          {owned ? (
+                            <a className="cal-entry__open" href={entry.event.open}>
+                              <span className="cal-entry__title">{look.title}</span>
+                              {until - from >= 40 * 60_000 && <span className="cal-entry__time">{formatTimeOf(entry.start)}</span>}
+                            </a>
+                          ) : tappable ? (
                             <button
                               type="button"
                               className="cal-entry__open"
@@ -748,18 +741,20 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                               }}
                             />
                           )}
-                          <button
-                            type="button"
-                            className="cal-entry__remove"
-                            aria-label={`Delete ${look.title}`}
-                            disabled={removing === entry.key}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              void remove(entry);
-                            }}
-                          >
-                            <TrashIcon size={16} />
-                          </button>
+                          {!owned && (
+                            <button
+                              type="button"
+                              className="cal-entry__remove"
+                              aria-label={`Delete ${look.title}`}
+                              disabled={removing === entry.key}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                void remove(entry);
+                              }}
+                            >
+                              <TrashIcon size={16} />
+                            </button>
+                          )}
                         </div>
                       );
                     })}
@@ -849,23 +844,13 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                 {count === 0 && !hasPlan(start) && billsFor(start).length === 0 && <p className="days-day__empty">Nothing set.</p>}
                 <ul className="days-list ll-plain">
                   {allDay.map((entry) => (
-                    <li key={entry.key} className="days-allday">
-                      <span className="days-allday__text">All day · {entry.event.title}</span>
-                      <button
-                        type="button"
-                        className="days-allday__remove"
-                        aria-label={`Delete ${entry.event.title}`}
-                        disabled={removing === `event:${entry.event.key}`}
-                        onClick={() => removeCalendarEvent(entry.event)}
-                      >
-                        <TrashIcon size={18} />
-                      </button>
-                    </li>
-                  ))}
+                  <AllDayRow key={entry.key} event={entry.event} busy={removing === `event:${entry.event.key}`} onRemove={() => removeCalendarEvent(entry.event)} />
+                ))}
                   {timed.map((entry) => {
                     const look = entryLook(entry, data.patterns, data.sources, data.goals);
                     const Icon = icons[look.icon];
-                    const tappable = entry.kind !== 'event';
+                    const owned = entry.kind === 'event' && isAppOwned(entry.event);
+                    const tappable = entry.kind !== 'event' || owned;
                     const body = (
                       <>
                         <span className="days-row__icon">
@@ -893,35 +878,38 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
                       <SwipeItem
                         key={entry.key}
                         className={`days-row month-row tag--${look.color ?? 'none'}`}
-                        label="Delete"
-                        tone="remove"
-                        off={removing === entry.key}
-                        onSwipe={() => void remove(entry)}
+                        {...(owned ? {} : { label: 'Delete', tone: 'remove' as const, off: removing === entry.key, onSwipe: () => void remove(entry) })}
                       >
-                        {tappable ? (
+                        {owned ? (
+                          <a className="days-row__button" href={entry.event.open}>
+                            {body}
+                          </a>
+                        ) : tappable ? (
                           <button type="button" className="days-row__button" onClick={() => open(entry)}>
                             {body}
                           </button>
                         ) : (
                           <div className="days-row__button">{body}</div>
                         )}
-                        <button
-                          type="button"
-                          className="days-row__remove"
-                          aria-label={`Delete ${look.title}`}
-                          disabled={removing === entry.key}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            void remove(entry);
-                          }}
-                        >
-                          <TrashIcon size={18} />
-                        </button>
+                        {!owned && (
+                          <button
+                            type="button"
+                            className="days-row__remove"
+                            aria-label={`Delete ${look.title}`}
+                            disabled={removing === entry.key}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              void remove(entry);
+                            }}
+                          >
+                            <TrashIcon size={18} />
+                          </button>
+                        )}
                       </SwipeItem>
                     );
                   })}
                 </ul>
-                <BillLines lines={billsFor(start)} />
+                <QuietLines lines={billsFor(start)} />
                 <DayPlan date={start} today={today} items={data.items} range={rangeOf(start)} allowDelete />
               </section>
             );

@@ -65,7 +65,7 @@ describe('what goes in the feed', () => {
     const events = feedEvents(
       [night, { ...night, kind: 'PROTECTED', patternId: 'p2' }],
       [item({ plannedFor: '2026-10-02' }), item({ id: 'i2', title: 'Dentist', scheduledAt: night.start.toISOString() }), item({ id: 'i3', status: 'DONE', plannedFor: '2026-10-02' })],
-      { shifts: true, shiftLabels: true, protectedTime: true, tasks: true },
+      { shifts: true, shiftLabels: true, protectedTime: true, tasks: true, bills: false, trips: false, tripTimes: false },
     );
     expect(events.map((e) => e.title)).toEqual(['Nights', 'Protected time', 'Call family', 'Dentist']);
     expect(events[2]).toMatchObject({ date: '2026-10-02' });

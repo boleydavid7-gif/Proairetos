@@ -1,5 +1,6 @@
 import type { Provider } from '../../core/providers';
+import { oikonomiaCalendar } from './calendar';
 import { oikonomiaHome } from './home';
 import { oikonomiaSearch } from './search';
 
-export const providers: readonly Provider[] = [oikonomiaSearch, oikonomiaHome];
+export const providers: readonly Provider[] = [oikonomiaSearch, oikonomiaHome, oikonomiaCalendar];

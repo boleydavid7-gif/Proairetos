@@ -796,6 +796,41 @@
   font-size: var(--text-sm);
 }
 
+/* The muted word after a name: Due, Every year. */
+.days-bills__word {
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+}
+
+/* What an app owns opens in that app: the row is a link with the look of the button it replaces. */
+a.days-row__button,
+a.cal-entry__open,
+.days-allday__text:is(a) {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+a.days-row__button:hover .days-row__chevron,
+a.days-row__button:focus-visible .days-row__chevron,
+.days-allday__text:is(a):hover .days-row__chevron,
+.days-allday__text:is(a):focus-visible .days-row__chevron {
+  color: var(--color-text-muted);
+}
+
+/* An all-day span an app owns: the whole line is the link, 44px to touch. */
+.days-allday--link {
+  padding: 0;
+}
+
+.days-allday--link .days-allday__text {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: 44px;
+}
+
 .cal-bills {
   align-items: start;
   margin-bottom: 4px;

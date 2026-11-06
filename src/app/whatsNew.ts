@@ -4,7 +4,9 @@ export const whatsNew: { date: string; lines: string[] }[] = [
     date: '2026-11-06',
     lines: [
       'Calendar subscriptions: Settings > Calendar can make a link that Apple Calendar, Google Calendar and Outlook subscribe to. The file is not encrypted. It holds only what you switch on there (commitments, protected time, things with a day or time), and never bill amounts, confirmation codes, addresses, routes or notes.',
+      'The calendar file now holds only the categories you switch on in Settings > Calendar. Bills, trips and time off, and bookings and plans with a time are new switches, all off. It never holds bill amounts, confirmation codes, addresses, routes or notes.',
       'Files saved from a trip or a bill no longer hold confirmation codes, notes or amounts.',
+      'A weekly bill that was first due more than ten years ago shows its dates again.',
     ],
   },
   {

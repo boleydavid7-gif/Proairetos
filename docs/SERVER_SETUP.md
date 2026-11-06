@@ -43,7 +43,7 @@ These migrations create the sync tables and account device registry, each locked
 | `user_keys` | Your data key, locked by your passphrase and by your recovery key | No: encrypted |
 | `push_subscriptions` | Where to deliver notifications to your devices | Yes (an address, no content) |
 | `reminders` | When to remind you, as times and hashed ids | Times only |
-| `calendar_feeds` | Only if you turn on the calendar link: the calendar file with what you switched on (format 2; never bill amounts, confirmation codes, addresses or notes) | Yes, by your choice |
+| `calendar_feeds` | Only if you turn on the calendar link: the calendar file with the categories you switched on (format 2; never bill amounts, confirmation codes, addresses or notes) | Yes, by your choice |
 | `account_devices` | Device label, platform, connected app IDs, last active time and revocation status | Yes (metadata only) |
 
 ## 3. Sign-in emails
@@ -241,8 +241,9 @@ To stop it later: `select cron.unschedule('proairetos-reminders');`
   Notifications → On the lock screen can hide the details there too.
 - **Calendar link, only if you turn it on:** the calendar file you chose to
   publish is readable by the server and by anyone with the link. It holds only
-  what you switch on (commitments titled "Busy" by default, protected time, to-dos with a day or time),
-  never bill amounts, confirmation codes, addresses, routes or notes. Turning it off deletes it.
+  the categories you switch on (commitments titled "Busy" by default; bill names and due dates, trips, and bookings
+  and plans with a time when chosen), never bill amounts, confirmation codes, addresses, routes or notes.
+  Turning it off deletes it.
 
 ## Good to know
 

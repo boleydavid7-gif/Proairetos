@@ -16,3 +16,13 @@ export function homeDayText(date: string, today: string): string {
 
 /** The same, with nothing for today (a line that is due today does not say so). */
 export const sinceText = (text: string) => (text === 'Today' ? '' : text);
+
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const dayOf = (value: Date) => `${value.getFullYear()}-${pad2(value.getMonth() + 1)}-${pad2(value.getDate())}`;
+/** The local calendar day a time falls on. */
+export const localDayOf = dayOf;
+
+/** The first and last local calendar day a range touches (`until` is exclusive, so a range ending at midnight stops the day before). */
+export function rangeDays(range: { from: Date; until: Date }): { first: string; last: string } {
+  return { first: dayOf(range.from), last: dayOf(new Date(Math.max(range.from.getTime(), range.until.getTime() - 1))) };
+}

@@ -16,6 +16,9 @@ const choices: { key: keyof StoredFeedOptions; label: string; hint?: string }[] 
   { key: 'shiftLabels', label: 'Use the names from my schedule' },
   { key: 'protectedTime', label: 'Protected time' },
   { key: 'tasks', label: 'Things with a day or time' },
+  { key: 'bills', label: 'Bill names and due dates' },
+  { key: 'trips', label: 'Trips and time off' },
+  { key: 'tripTimes', label: 'Bookings and plans with a time' },
 ];
 
 /** Calendar apps keep what they fetched. */

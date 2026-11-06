@@ -33,7 +33,11 @@ export type CalendarSource = {
 export type CalendarRole = 'show' | 'commitment' | 'protected';
 
 type StoredEvent = Omit<ExternalEvent, 'start' | 'end'> & { start: string; end: string };
-export type CalendarEvent = ExternalEvent & { source: string; sourceId: string };
+/**
+ * `open` is set only for an entry an app owns (a visit, a booking, a birthday): where it opens inside that app, and a sign
+ * that the calendar cannot remove it, since the record stays in its app. An imported calendar's event has none.
+ */
+export type CalendarEvent = ExternalEvent & { source: string; sourceId: string; open?: string };
 
 const SOURCES_KEY = 'proairetos.otherCalendars';
 const eventsKey = (id: string) => `proairetos.otherCalendars.${id}`;

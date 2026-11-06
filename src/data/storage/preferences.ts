@@ -315,7 +315,7 @@ export function acceptDictation(): void {
 
 const FEED_KEY = 'proairetos.calendarFeed';
 
-export type StoredFeedOptions = { shifts: boolean; shiftLabels: boolean; protectedTime: boolean; tasks: boolean };
+export type StoredFeedOptions = { shifts: boolean; shiftLabels: boolean; protectedTime: boolean; tasks: boolean; bills: boolean; trips: boolean; tripTimes: boolean };
 
 /** `linkEnded`: the link was turned off elsewhere or by an update; the page says so until a new link is made. */
 export type StoredFeed = { enabled: boolean; options: StoredFeedOptions; linkEnded?: boolean };
@@ -324,7 +324,8 @@ export function loadCalendarFeed(): StoredFeed {
   const stored = readJson<Partial<StoredFeed>>(FEED_KEY);
   return {
     enabled: stored?.enabled === true,
-    options: { shifts: true, shiftLabels: false, protectedTime: false, tasks: false, ...stored?.options },
+    // A category the person has not switched on is off, including one added after they last chose.
+    options: { shifts: true, shiftLabels: false, protectedTime: false, tasks: false, bills: false, trips: false, tripTimes: false, ...stored?.options },
     ...(stored?.linkEnded ? { linkEnded: true } : {}),
   };
 }

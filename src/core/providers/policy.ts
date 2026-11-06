@@ -1,5 +1,5 @@
 import type { AppManifest } from '../apps/manifest';
-import { refKey, type HomeRow, type Provider, type SearchProjection } from './types';
+import { refKey, type CalendarLine, type HomeRow, type Provider, type SearchProjection } from './types';
 
 /*
  * The enforcement. A provider is not trusted: whatever it returns is cut down to what the manifest allows for its app
@@ -101,6 +101,64 @@ export function enforceHome(app: AppManifest, rows: readonly HomeRow[]): { kept:
     if (seen.has(key)) { no(`the same line twice (${key})`); continue; }
     seen.add(key);
     kept.push(row);
+  }
+  return { kept, rejected };
+}
+
+/** Whether a provider's output may reach the calendar at all. */
+export function mayProvideCalendar(app: AppManifest | undefined, provider: Provider<'calendar'>): Rejection | null {
+  if (!app) return { app: provider.app, reason: 'not in the manifest' };
+  if (app.status === 'retired') return { app: app.id, reason: 'retired apps provide nothing' };
+  if (!app.provides?.includes('calendar')) return { app: app.id, reason: 'the manifest does not list calendar for this app' };
+  if (!app.calendar) return { app: app.id, reason: 'its calendar lines are not classified' };
+  // The person's own calendar: private never leaves its app, and shared is not built.
+  if (provider.privacy === 'private' || provider.privacy === 'shared') return { app: app.id, reason: `class ${provider.privacy} is not available to the calendar` };
+  return null;
+}
+
+const CALENDAR_KEYS = new Set(['ref', 'kind', 'title', 'detail', 'open', 'day', 'until', 'start', 'end', 'location', 'done', 'color']);
+const KINDS = new Set(['event', 'deadline', 'recurring', 'info']);
+const COLORS = new Set(['amber', 'violet', 'sage', 'sky', 'rose', 'slate']);
+const DAY_FORM = /^\d{4}-\d{2}-\d{2}$/;
+const localDay = (value: Date) => `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
+
+/**
+ * Cuts a provider's lines for the calendar down to what a line may be: the app's own, of a kind the manifest lists,
+ * with only the keys of a line, real days (a span ends after it starts), a time only on an event, a way in that stays
+ * inside the app, and no repeat of another line, so a record shows once. A line outside the visible range is dropped.
+ */
+export function enforceCalendar(app: AppManifest, lines: readonly CalendarLine[], range?: { from: Date; until: Date }): { kept: CalendarLine[]; rejected: Rejection[] } {
+  const kept: CalendarLine[] = [];
+  const rejected: Rejection[] = [];
+  const seen = new Set<string>();
+  const no = (reason: string) => rejected.push({ app: app.id, reason });
+  const fromDay = range && localDay(range.from);
+  const untilDay = range && localDay(range.until);
+  for (const line of lines) {
+    const extra = Object.keys(line).filter((key) => !CALENDAR_KEYS.has(key));
+    if (extra.length) { no(`a line with ${extra.join(', ')}, which a calendar line may not carry`); continue; }
+    if (line.ref.app !== app.id) { no(`a line about ${line.ref.app}`); continue; }
+    if (!KINDS.has(line.kind) || !app.calendar?.kinds.includes(line.kind)) { no(`a ${String(line.kind)} line; the manifest lists ${app.calendar?.kinds.join(', ')}`); continue; }
+    if (typeof line.title !== 'string' || !line.title || (line.detail !== undefined && typeof line.detail !== 'string') || (line.location !== undefined && typeof line.location !== 'string')) { no('a line whose words are not text'); continue; }
+    if (typeof line.open !== 'string' || !line.open.startsWith(app.urls.href) || line.open.includes('//')) { no(`a line that opens ${String(line.open)}, outside ${app.urls.href}`); continue; }
+    if (typeof line.day !== 'string' || !DAY_FORM.test(line.day)) { no(`a line on ${String(line.day)}, which is not a day`); continue; }
+    if (line.until !== undefined && (typeof line.until !== 'string' || !DAY_FORM.test(line.until) || line.until <= line.day)) { no('a span that does not end after it starts'); continue; }
+    if (line.kind === 'event') {
+      const timed = line.start instanceof Date && line.end instanceof Date && !Number.isNaN(line.start.getTime()) && !Number.isNaN(line.end.getTime()) && line.end > line.start;
+      if (!timed) { no('an event with no valid time'); continue; }
+      if (localDay(line.start!) !== line.day || line.until !== undefined) { no('an event whose day is not the day it starts'); continue; }
+    } else if (line.start !== undefined || line.end !== undefined) { no(`a ${line.kind} line with a time`); continue; }
+    if (line.done !== undefined && typeof line.done !== 'boolean') { no('a line whose met state is not yes or no'); continue; }
+    if (line.color !== undefined && !COLORS.has(line.color)) { no(`a color ${String(line.color)}`); continue; }
+    const key = `${refKey(line.ref)}|${line.day}`;
+    if (seen.has(key)) { no(`the same line twice (${key})`); continue; }
+    seen.add(key);
+    if (range && fromDay && untilDay) {
+      const last = line.start && line.end ? localDay(new Date(line.end.getTime() - 1)) : line.until ? line.until : line.day;
+      const inside = line.start && line.end ? line.start < range.until && line.end > range.from : line.until ? line.day < untilDay && last > fromDay : line.day >= fromDay && line.day < untilDay;
+      if (!inside) continue;
+    }
+    kept.push(line);
   }
   return { kept, rejected };
 }
