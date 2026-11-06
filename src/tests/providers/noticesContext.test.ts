@@ -45,9 +45,9 @@ describe('the notice adapter', () => {
     localStorage.setItem('proairetosNoticeProviders', 'yes');
     expect(noticeProvidersOn()).toBe(false);
   });
-  it('asks no one while no app provides notices, so switching it on changes nothing yet', async () => {
-    expect(providedNoticeApps()).toEqual([]);
-    expect(await providerNotices(range.from, range.until, defaultNoticeSettings)).toEqual([]);
+  it('asks only the apps the manifest says provide notices, and none when every switch is off', async () => {
+    expect(providedNoticeApps().sort()).toEqual(['ergon', 'ktema', 'melete', 'philia']);
+    expect(await providerNotices(range.from, range.until, { ...defaultNoticeSettings, people: false, chores: false, upkeep: false, melete: false })).toEqual([]);
   });
   it('follows the person’s own notice switch, the first switch the manifest lists for the app', () => {
     expect(noticeSwitchOn('ergon', { ...defaultNoticeSettings, chores: true })).toBe(true);

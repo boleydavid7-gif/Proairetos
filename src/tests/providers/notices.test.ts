@@ -32,6 +32,11 @@ describe('what may reach notices', () => {
     expect(out.kept).toEqual([]);
     expect(out.rejected).toHaveLength(3);
   });
+  it('keeps a time earlier today, which quiet hours can still carry forward, and rejects an earlier day', () => {
+    const out = enforceNotices(app('ergon'), [notice('a', { at: new Date('2026-11-05T06:30:00') }), notice('b', { at: new Date('2026-11-04T23:30:00') })], range);
+    expect(out.kept.map((line) => line.key)).toEqual(['ergon:a']);
+    expect(out.rejected).toHaveLength(1);
+  });
   it('rejects a time that is not a time or falls outside the range asked for', () => {
     const out = enforceNotices(app('ergon'), [notice('a', { at: new Date('nope') }), notice('b', { at: new Date('2026-11-04T09:00:00') }), notice('c', { at: new Date('2026-12-01T09:00:00') })], range);
     expect(out.kept).toEqual([]);
@@ -52,7 +57,7 @@ describe('what may reach notices', () => {
 describe('who may put notices forward', () => {
   it('needs the manifest to list notices, classify the fields, and name a source and kinds', () => {
     expect(mayProvideNotices(undefined, provider(() => []))?.reason).toMatch(/manifest/);
-    expect(mayProvideNotices(APPS.find((each) => each.id === 'ergon'), provider(() => []))?.reason).toMatch(/does not list notices/);
+    expect(mayProvideNotices(APPS.find((each) => each.id === 'soma'), provider(() => [], { app: 'soma' }))?.reason).toMatch(/does not list notices/);
     const unclassified = { ...app('ergon'), notices: { ...app('ergon').notices, fields: undefined } };
     expect(mayProvideNotices(unclassified, provider(() => []))?.reason).toMatch(/not classified/);
     const noSource = { ...app('ergon'), notices: { ...app('ergon').notices, source: undefined } };
@@ -64,9 +69,17 @@ describe('who may put notices forward', () => {
     expect(mayProvideNotices(app('ergon'), provider(() => [], { privacy: 'shared' }))?.reason).toMatch(/class shared/);
     expect(mayProvideNotices({ ...app('ergon'), status: 'retired' }, provider(() => []))?.reason).toMatch(/retired/);
   });
-  it('declares no app as a provider of notices yet', () => {
-    expect(APPS.filter((each) => each.provides?.includes('notices'))).toEqual([]);
-    expect(APPS.filter((each) => each.notices.fields)).toEqual([]);
+  it('classifies the fields of every app that provides notices, and only those', () => {
+    const providing = APPS.filter((each) => each.provides?.includes('notices'));
+    expect(providing.map((each) => each.id).sort()).toEqual(['ergon', 'ktema', 'melete', 'philia']);
+    expect(APPS.filter((each) => each.notices.fields).map((each) => each.id).sort()).toEqual(['ergon', 'ktema', 'melete', 'philia']);
+    for (const each of providing) {
+      const fields = each.notices.fields!;
+      expect(fields.shows.length, each.id).toBeGreaterThan(0);
+      expect(fields.excludes.length, each.id).toBeGreaterThan(0);
+      const stated = new Set([...fields.shows, ...fields.detailsOnly]);
+      expect(fields.excludes.filter((field) => stated.has(field)), each.id).toEqual([]);
+    }
   });
 });
 

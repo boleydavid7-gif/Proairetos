@@ -5,3 +5,4 @@ export * from './invalidate';
 export * from './rows';
 export * from './dayText';
 export * from './blocks';
+export * from './noticeLine';

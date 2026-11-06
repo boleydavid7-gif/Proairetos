@@ -31,8 +31,11 @@ import { scheduleService } from '../services';
 import { isAdded } from '../family/added';
 import { householdActor } from '../household/household';
 
-/** The newer apps' notices (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton), from what they keep on this device (Proairetos sends them all). */
-export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
+/**
+ * The newer apps' notices (Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Meletē, Phyton, Poreia), from what they keep on this
+ * device (Proairetos sends them all). An app named in `skip` is left out: its notices come through its provider instead.
+ */
+export async function familyNotices(now: Date, until: Date, skip: ReadonlySet<string> = new Set()): Promise<Notice[]> {
   const today = toLocalDate(now);
   const horizon = Math.ceil((until.getTime() - now.getTime()) / 86_400_000);
   const notices: Notice[] = [];
@@ -52,10 +55,10 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
   }
 
   const everyone = people.list();
-  if (everyone.length && isAdded('philia')) notices.push(...peopleNotices(everyone, philiaSettings.load().notices, today, horizon));
+  if (everyone.length && isAdded('philia') && !skip.has('philia')) notices.push(...peopleNotices(everyone, philiaSettings.load().notices, today, horizon));
 
   const chores = allChores();
-  if (chores.length && isAdded('ergon')) {
+  if (chores.length && isAdded('ergon') && !skip.has('ergon')) {
     const ergon = ergonSettings.load();
     const actor = householdActor('ergon');
     notices.push(...choreNotices(chores, ergon.notices, ergonName(ergon) || undefined, today, horizon, await ergonDaysOff().catch(() => undefined), actor?.id));
@@ -76,9 +79,9 @@ export async function familyNotices(now: Date, until: Date): Promise<Notice[]> {
 
   const upkeep = ktemaUpkeeps.list();
   const owned = ktemaThings.list();
-  if ((upkeep.length || owned.length) && isAdded('ktema')) notices.push(...upkeepNotices(upkeep, owned, ktemaSettings.load().notices, today, horizon, now));
+  if ((upkeep.length || owned.length) && isAdded('ktema') && !skip.has('ktema')) notices.push(...upkeepNotices(upkeep, owned, ktemaSettings.load().notices, today, horizon, now));
 
-  if (isAdded('melete')) notices.push(...studyNotices(meleteSubjects.list(), meleteSessions.list(), today, horizon, now));
+  if (isAdded('melete') && !skip.has('melete')) notices.push(...studyNotices(meleteSubjects.list(), meleteSessions.list(), today, horizon, now));
 
   const plants = allPlants();
   if (plants.length && isAdded('phyton')) {

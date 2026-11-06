@@ -180,7 +180,7 @@ const NOTICE_KEYS = new Set(['ref', 'kind', 'key', 'at', 'title', 'body', 'open'
 
 /**
  * Cuts a provider's notices down to what a notice may be: the app's own, of a kind the manifest lists (which fixes the
- * reminder source), with only the keys of a notice, a real time inside the range asked for, a key no other notice has,
+ * reminder source), with only the keys of a notice, a real time from the start of today to the end of the range asked for, a key no other notice has,
  * and a way in that stays inside the app. The words are not shortened or reworded here (the sender caps their length).
  */
 export function enforceNotices(app: AppManifest, lines: readonly NoticeLine[], range: { from: Date; until: Date }): { kept: NoticeLine[]; rejected: Rejection[] } {
@@ -188,6 +188,8 @@ export function enforceNotices(app: AppManifest, lines: readonly NoticeLine[], r
   const rejected: Rejection[] = [];
   const seen = new Set<string>();
   const no = (reason: string) => rejected.push({ app: app.id, reason });
+  // Earlier today still counts: a morning notice is carried to the end of quiet hours when the day has already begun.
+  const dayStart = new Date(range.from.getFullYear(), range.from.getMonth(), range.from.getDate());
   for (const line of lines) {
     const extra = Object.keys(line).filter((key) => !NOTICE_KEYS.has(key));
     if (extra.length) { no(`a notice with ${extra.join(', ')}, which a notice may not carry`); continue; }
@@ -195,7 +197,7 @@ export function enforceNotices(app: AppManifest, lines: readonly NoticeLine[], r
     if (typeof line.kind !== 'string' || !app.notices.kinds.includes(line.kind)) { no(`a ${String(line.kind)} notice; the manifest lists ${app.notices.kinds.join(', ')}`); continue; }
     if (typeof line.key !== 'string' || !line.key) { no('a notice with no key'); continue; }
     if (!(line.at instanceof Date) || Number.isNaN(line.at.getTime())) { no(`a notice with no valid time (${line.key})`); continue; }
-    if (line.at < range.from || line.at > range.until) { no(`a notice outside the range asked for (${line.key})`); continue; }
+    if (line.at < dayStart || line.at > range.until) { no(`a notice outside the range asked for (${line.key})`); continue; }
     if (typeof line.title !== 'string' || !line.title || typeof line.body !== 'string') { no(`a notice whose words are not text (${line.key})`); continue; }
     if (typeof line.open !== 'string' || line.open.includes('//') || placeFor(line.open).app !== app.urls.href) { no(`a notice that opens ${String(line.open)}, outside ${app.urls.href}`); continue; }
     if (seen.has(line.key)) { no(`the same notice twice (${line.key})`); continue; }

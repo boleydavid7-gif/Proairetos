@@ -1,19 +1,17 @@
-import { APPS, type AppId, type AppManifest } from '../../core/apps/manifest';
+import { APPS, type AppManifest } from '../../core/apps/manifest';
 import { noticeLines, toNoticeBlocks, type HostContext, type Provider } from '../../core/providers';
 import type { Notice, NoticeKind, NoticeSettings } from '../../core/notify/notices';
 import { hostContext } from './context';
+import { providedNoticeApps } from './noticePath';
 import { providerModules } from './registry';
+
+export { providedNoticeApps };
 
 /*
  * Notices through the provider host. The apps that provide `notices` (the manifest says which) are asked for what is due
  * between now and the end of the horizon; everything else is still gathered by `familyNotices` and `upcomingNotices`.
  * Delivery, timing, wording and sync are downstream of the `Notice[]` and do not know which way it was made.
  */
-
-/** The apps whose notices come through providers. */
-export function providedNoticeApps(manifest: readonly AppManifest[] = APPS): AppId[] {
-  return manifest.filter((app) => app.status !== 'retired' && app.provides?.includes('notices')).map((app) => app.id);
-}
 
 /** The person's own switch for an app's notices: the first of its switches in Settings > Notifications. There is no other. */
 export function noticeSwitchOn(app: string, settings: NoticeSettings, manifest: readonly AppManifest[] = APPS): boolean {

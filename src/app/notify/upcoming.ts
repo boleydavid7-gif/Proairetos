@@ -15,7 +15,7 @@ import { isAdded } from '../family/added';
 import { fitAhead } from '../family/trainingWeek';
 import { pursuits } from '../pursuits';
 import { pursuitNotices } from '../../core/notify/pursuits';
-import { noticeProvidersOn } from '../providers/noticePath';
+import { noticeProvidersOn, providedNoticeApps } from '../providers/noticePath';
 
 const HORIZON_DAYS = 14;
 
@@ -23,17 +23,21 @@ const HORIZON_DAYS = 14;
 export async function upcomingNotices(now = new Date(), settings: NoticeSettings = loadNotify()): Promise<Notice[]> {
   const until = new Date(now.getTime() + HORIZON_DAYS * 86_400_000);
   await fitAhead(now).catch(() => undefined);
-  const [items, decisions, own, runs, bills, study, family] = await Promise.all([
+  // Off unless this device is switched on (providers/noticePath.ts): the apps' own functions are the default. On, the apps that
+  // provide notices are asked through the host and left out of `familyNotices`; what they return joins `family`, so the person's
+  // switches and quiet hours act on it exactly as on the rest.
+  const viaProviders = noticeProvidersOn();
+  const skip = viaProviders ? new Set<string>(providedNoticeApps()) : undefined;
+  const [items, decisions, own, runs, bills, study, family, provided] = await Promise.all([
     lifeService.list(),
     decisionService.list(),
     scheduleService.occurrencesBetween(now, until),
     settings.runs && isAdded('askesis') ? readRuns() : undefined,
     settings.bills && isAdded('oikonomia') ? readStore<Bill>('oikonomiaBills') : [],
     settings.study && isAdded('praxis') ? studyEnd() : undefined,
-    settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants || settings.trips ? familyNotices(now, until).catch(() => []) : [],
+    settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants || settings.trips ? familyNotices(now, until, skip).catch(() => []) : [],
+    viaProviders ? import('../providers/notices').then((module) => module.providerNotices(now, until, settings)).catch(() => []) : [],
   ]);
-  // Off unless this device is switched on (providers/noticePath.ts): the apps' own functions above are the default.
-  const provided = noticeProvidersOn() ? await import('../providers/notices').then((module) => module.providerNotices(now, until, settings)).catch(() => []) : [];
   const today = toLocalDate(now);
   const notices = noticesBetween({
     items,
@@ -44,13 +48,13 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     runs: runs ? runTimes(runs, now, until) : [],
     bills: billReminders(bills, today, addDays(today, HORIZON_DAYS)),
     study,
-    family,
+    family: [...family, ...provided],
     settings,
     quiet: loadQuietHours(),
     now,
     until,
   });
-  return [...notices, ...pursuitNotices(pursuits.list(), now, until), ...provided].sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
+  return [...notices, ...pursuitNotices(pursuits.list(), now, until)].sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
 }
 
 /** When the Praxis block running now ends (none while paused, or for Proairetos's own focus timer). */
