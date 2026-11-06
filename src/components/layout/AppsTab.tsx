@@ -80,9 +80,9 @@ export function AllAppsTrigger({ onStore = () => window.location.assign('/?open=
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className={`tab-bar__item tab-bar__apps-trigger${desktopOnly ? ' tab-bar__desktop-only' : ''}`} data-to-header="" aria-label="Manage dock" title="Manage dock" aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
-        <Sym name="plus" size={24} />
-        <span>Manage dock</span>
+      <button type="button" className={`tab-bar__item tab-bar__apps-trigger${desktopOnly ? ' tab-bar__desktop-only' : ''}`} data-to-header="" aria-label={desktopOnly ? 'Manage dock' : 'Apps'} title={desktopOnly ? 'Manage dock' : 'Apps'} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
+        {desktopOnly ? <Sym name="plus" size={24} /> : <AppsIcon size={24} />}
+        {desktopOnly && <span>Manage dock</span>}
       </button>
       {open && <AppsSheet onClose={() => setOpen(false)} onStore={onStore} />}
     </>
