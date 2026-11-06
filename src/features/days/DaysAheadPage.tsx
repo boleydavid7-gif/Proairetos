@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentType } from 'react';
 import { calendarSources, otherCalendars } from '../../app/calendars/otherCalendars';
-import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
@@ -100,7 +99,7 @@ const icons: Record<EntryIcon, ComponentType<{ size?: number }>> = {
 };
 
 function subscribeAll(listener: () => void) {
-  const off = [calendarStore.subscribe(listener), lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), poreiaCalendar.subscribe(listener), compassService.subscribe(listener)];
+  const off = [calendarStore.subscribe(listener), lifeService.subscribe(listener), scheduleService.subscribe(listener), otherCalendars.subscribe(listener), compassService.subscribe(listener)];
   return () => off.forEach((unsubscribe) => unsubscribe());
 }
 
@@ -275,9 +274,8 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
         compassService.statements(),
       ]);
       const goals = statements.filter((statement) => statement.type === 'GOAL');
-      const [otherEvents, travelEvents] = await Promise.all([Promise.resolve(otherCalendars.eventsBetween(from, until)), poreiaCalendar.eventsBetween(from, until)]);
       const lines = await calendarStore.lines({ from, until });
-      const events = [...otherEvents, ...travelEvents, ...eventsFromLines(lines)];
+      const events = [...otherCalendars.eventsBetween(from, until), ...eventsFromLines(lines)];
       const sources = calendarSources();
       return {
         items,

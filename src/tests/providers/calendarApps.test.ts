@@ -136,6 +136,20 @@ const specs: Spec[] = [
     kinds: ['deadline', 'deadline'],
     provider: load(() => import('../../oikonomia/providers/calendar'), 'oikonomiaCalendar'),
   },
+  {
+    app: 'poreia',
+    create: [
+      pref('poreia:trip:tr1', { id: 'tr1', name: 'Lisbon', place: { label: 'Lisbon' }, start: '2026-11-07', end: '2026-11-12', travelers: 1, stage: 'booked', notes: 'CANARY-NOTE', createdAt: day, updatedAt: day }),
+      pref('poreia:booking:b1', { id: 'b1', tripId: 'tr1', kind: 'flight', title: 'TP 123', startDate: '2026-11-07', startTime: '08:15', endTime: '10:30', confirmation: 'CANARY-CODE', provider: 'CANARY-PROVIDER', createdAt: day, updatedAt: day }),
+      pref('poreia:plan:pn1', { id: 'pn1', tripId: 'tr1', date: '2026-11-07', time: '09:00', title: 'Tram 28', note: 'CANARY-PLAN', createdAt: day, updatedAt: day }),
+      pref('poreia:off:o1', { id: 'o1', title: 'CANARY-OFF', start: '2026-11-16', end: '2026-11-17', status: 'approved', hours: 16, createdAt: day, updatedAt: day }),
+    ],
+    edit: [pref('poreia:trip:tr1', { id: 'tr1', name: 'Oporto', place: { label: 'Oporto' }, start: '2026-11-07', end: '2026-11-12', travelers: 1, stage: 'booked', notes: 'CANARY-NOTE', createdAt: day, updatedAt: day })],
+    titles: ['Flight: TP 123', 'Lisbon', 'Time off', 'Tram 28'],
+    edited: ['Flight: TP 123', 'Oporto', 'Time off', 'Tram 28'],
+    kinds: ['event', 'event', 'info', 'info'],
+    provider: load(() => import('../../poreia/providers/calendar'), 'poreiaCalendar'),
+  },
 ];
 
 const CANARY = /CANARY|99\b|98765|987,654|USD|\$/;

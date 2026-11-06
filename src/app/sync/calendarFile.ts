@@ -3,7 +3,7 @@ import { buildIcs } from '../../core/calendar/ics';
 import { lifeService, scheduleService } from '../services';
 import { addDays, localDate } from '../../oikonomia/core/bills';
 import { billCalendarEvents } from '../../oikonomia/core/calendar';
-import { poreiaCalendar } from '../calendars/poreiaCalendar';
+import { poreiaFeed } from '../calendars/poreiaFeed';
 
 /** A week back and two months ahead: enough for a calendar, small enough to publish often. */
 const DAYS_BACK = 7;
@@ -19,7 +19,7 @@ export async function buildCalendarFile(options: FeedOptions, now = new Date()):
     scheduleService.occurrencesBetween(fromDate, untilDate),
     lifeService.list(),
     import('../../oikonomia/data/store').then(({ listBills }) => listBills()).catch(() => []),
-    poreiaCalendar.feedEvents(fromDate, untilDate),
+    poreiaFeed.feedEvents(fromDate, untilDate),
   ]);
   return buildIcs(feedEvents(occurrences, items, options).concat(billCalendarEvents(bills, from, until), poreia), { name: 'Proairetos', now });
 }

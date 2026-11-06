@@ -218,8 +218,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['trip name', 'place', 'trip notes', 'booking name', 'booking provider', 'booking place', 'booking notes', 'plan title', 'plan place', 'plan note'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['trip name and where it stands', 'the next thing on it', 'how many things are left to pack'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes'] },
+    calendar: { shows: ['a trip and time off as spans of days', 'a booking or plan with a time, by title, time and place'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes', 'booking providers'], kinds: ['event', 'info'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
