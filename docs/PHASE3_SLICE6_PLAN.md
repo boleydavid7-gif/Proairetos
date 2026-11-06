@@ -74,7 +74,7 @@ gating, `Capability 'library'` in the manifest, and the parity method used for H
 **F5. Packaging for iOS and Android.**
 
 - The phone apps are the same web bundle in a native web view (`docs/NATIVE.md`: one app holds the family; `dist-native`; web-first, native
-  features additive behind `isNativeApp()`). Providers are pure TypeScript that read the device's own storage; they use no network, no
+  features additive and guarded by `isNativeApp()`). Providers are pure TypeScript that read the device's own storage; they use no network, no
   native bridge and no permission, so they are compatible with the packaged apps and need no native code.
 - Because nothing derived is stored, a packaged app and the website cannot differ by a stale projection.
 - **Not done in the shell: widgets.** A home-screen widget would need a projection exported to the system, which means storing a derived
@@ -140,7 +140,7 @@ Excluded entirely (D4): Hydros, Philia, Therapeia, Ktema, Phyton, Meletē, Ergon
   into the providers unchanged.
 - **D3 (decided).** Weights, distances and notes in Dynamis and Askesis entries stay as displayed.
 - **D4 (decided).** Hydros, Philia, Therapeia, Ktema, Phyton, Meletē, Ergon and Diaita stay out.
-- **D5 (proposed).** The Mneme note archive stays a write in the page, as today. Moving it behind a provider action (as Home has one)
+- **D5 (proposed).** The Mneme note archive stays a write in the page, as today. Moving it into a provider action (as Home has one)
   can be a later, separate change. Recommendation: leave it.
 - **D6 (proposed).** Widgets or any exported projection are out of this slice (F5).
 
