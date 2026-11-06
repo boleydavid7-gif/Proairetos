@@ -1,0 +1,91 @@
+// @vitest-environment jsdom
+import 'fake-indexeddb/auto';
+import { describe, expect, it } from 'vitest';
+import { APPS } from '../../core/apps';
+import { searchProjections, type HostContext } from '../../core/providers';
+import { search, type Searchable } from '../../core/search/search';
+import { withCache } from '../../app/providers/cache';
+
+/*
+ * How long providers and a search take on a large library. The sizes are several times what one person is likely to
+ * hold (thousands of recipes, drinks and chores), and the limits are generous so the test says "no cliff", not "this
+ * machine". The measured times are printed so a change that makes them worse shows in the run.
+ */
+const TODAY = '2026-11-05';
+const iso = '2026-11-01T09:00:00.000Z';
+const N = 3000;
+const many = <T,>(make: (index: number) => T) => Array.from({ length: N }, (_, index) => make(index));
+
+const records: Record<string, unknown[]> = {
+  somaRecipes: many((i) => ({ id: `r${i}`, title: `Recipe ${i} lentil`, ingredients: ['1 cup lentils', 'carrot', `item ${i}`], notes: `note ${i}`, tags: ['soup'], createdAt: iso })),
+  theoriaBooks: many((i) => ({ id: `b${i}`, title: `Book ${i}`, author: 'Author', highlights: [{ id: 'h', text: `highlight ${i}` }], notes: [], updatedAt: iso })),
+  askesisWorkouts: many((i) => ({ id: `e${i}`, activity: 'run', date: '2026-10-20', notes: `felt ${i}`, createdAt: iso })),
+  oikonomiaBills: many((i) => ({ id: `bill${i}`, name: `Bill ${i}`, amountCents: 1000, currency: 'USD', dueDate: '2026-11-10', frequency: 'monthly', autopay: false, reminderDays: 3, payments: [], createdAt: iso, updatedAt: iso })),
+  hydrosDrinks: many((i) => ({ id: `d${i}`, kind: 'tea', label: `Tea ${i % 40}`, amountOz: 12, loggedAt: `2026-10-${String(10 + (i % 20)).padStart(2, '0')}T08:00:00.000Z`, createdAt: iso })),
+  'local:philia:person:': many((i) => ({ id: `p${i}`, name: `Person ${i}`, notes: [], gifts: [{ id: 'g', text: `gift ${i}` }], times: [], createdAt: iso })),
+  'local:ktema:thing:': many((i) => ({ id: `t${i}`, name: `Thing ${i}`, createdAt: iso })),
+  'local:ktema:upkeep:': many((i) => ({ id: `u${i}`, name: `Upkeep ${i}`, createdAt: iso })),
+  'local:poreia:trip:': many((i) => ({ id: `tr${i}`, name: `Trip ${i}`, createdAt: iso })),
+  'local:poreia:booking:': many((i) => ({ id: `bk${i}`, tripId: `tr${i}`, kind: 'stay', title: `Booking ${i}`, createdAt: iso, updatedAt: iso })),
+  'local:poreia:plan:': many((i) => ({ id: `pl${i}`, tripId: `tr${i}`, date: '2026-12-01', title: `Plan ${i}`, createdAt: iso, updatedAt: iso })),
+  'local:dynamis:workout:': many((i) => ({ id: `w${i}`, date: '2026-10-30', session: 'A', exercises: [], note: `strong ${i}`, createdAt: iso })),
+};
+const ctx: HostContext = {
+  today: TODAY,
+  now: new Date(`${TODAY}T12:00:00`),
+  records: async <T,>(source: string) => (records[source] ?? []) as T[],
+  setting: () => null,
+  isUsable: () => true,
+  enabled: () => true,
+};
+
+describe('provider and search time on a large library', () => {
+  it('every provider derives thousands of rows quickly, and a search over all of them answers at once', async () => {
+    const modules = await Promise.all([
+      import('../../soma/providers'), import('../../theoria/providers'), import('../../askesis/providers'), import('../../oikonomia/providers'),
+      import('../../hydros/providers'), import('../../philia/providers'), import('../../ktema/providers'), import('../../poreia/providers'), import('../../dynamis/providers'),
+    ]);
+    const providers = modules.flatMap((module) => module.providers).filter((provider) => provider.capability === 'search') as never[];
+    const started = performance.now();
+    const out = await searchProjections(providers, APPS, ctx);
+    const derive = performance.now() - started;
+    const table = out.timings.map((each) => `${each.app} ${each.ms} ms (${each.rows} rows)`).join(', ');
+    console.log(`providers: ${Math.round(derive)} ms for ${out.results.length} rows; ${table}`);
+    expect(out.rejected).toEqual([]);
+    expect(out.results.length).toBeGreaterThan(10 * N);
+    for (const each of out.timings) expect(each.ms, each.app).toBeLessThan(1500);
+    expect(derive).toBeLessThan(5000);
+
+    const things: Searchable[] = out.results.map((row) => ({ id: row.ref.id, kind: 'app', title: row.title, fields: row.fields, at: row.at, href: row.open }));
+    const times: number[] = [];
+    for (const query of ['lentil', 'person 1', 'strong 2999', 'zzz nothing']) {
+      const at = performance.now();
+      search(query, things);
+      times.push(Math.round((performance.now() - at) * 10) / 10);
+    }
+    console.log(`search over ${things.length} rows: ${times.join(', ')} ms for four queries (first builds the word index)`);
+    for (const time of times) expect(time).toBeLessThan(1500);
+  }, 60_000);
+
+  it('a cached provider costs nothing the second time, and one change rebuilds only its own app', async () => {
+    const { somaSearch } = await import('../../soma/providers/search');
+    const { philiaSearch } = await import('../../philia/providers/search');
+    const listeners = new Set<(collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) => void>();
+    const subscribe = (listener: (collections: readonly string[], ids?: ReadonlyMap<string, readonly string[]>) => void) => { listeners.add(listener); return () => listeners.delete(listener); };
+    let derived: string[] = [];
+    const counted = (provider: typeof somaSearch) => withCache({ ...provider, read: async (c) => { derived.push(provider.app); return provider.read(c); } }, subscribe);
+    const soma = counted(somaSearch);
+    const philia = counted(philiaSearch as never);
+    await searchProjections([soma, philia as never], APPS, ctx);
+    expect(derived.sort()).toEqual(['philia', 'soma']);
+    derived = [];
+    const again = performance.now();
+    await searchProjections([soma, philia as never], APPS, ctx);
+    const reused = performance.now() - again;
+    expect(derived).toEqual([]);
+    console.log(`second run, both cached: ${Math.round(reused * 10) / 10} ms (policy checks only)`);
+    listeners.forEach((listener) => listener(['preferences'], new Map([['preferences', ['philia:person:p1']]])));
+    await searchProjections([soma, philia as never], APPS, ctx);
+    expect(derived).toEqual(['philia']);
+  }, 60_000);
+});

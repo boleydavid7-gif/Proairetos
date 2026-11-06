@@ -1,0 +1,16 @@
+{
+  "name": "Meletē storage diagnostic",
+  "short_name": "Meletē diag",
+  "start_url": "/lab/diag/melete/",
+  "scope": "/lab/diag/melete/",
+  "display": "standalone",
+  "background_color": "#14170f",
+  "theme_color": "#14170f",
+  "icons": [
+    {
+      "src": "/melete/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

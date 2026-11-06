@@ -1,3 +1,4 @@
+import { announceLocal } from './localChanges';
 import { UndoBar } from '../../lamplight/undo';
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import ProairetosTab from './ProairetosTab';
@@ -111,6 +112,7 @@ export function collection<T extends { id: string }>(prefix: string): Collection
   };
   const changed = () => {
     listeners.forEach((listener) => listener());
+    announceLocal(prefix);
     syncSoon();
   };
   const subscribe = (listener: () => void) => {
