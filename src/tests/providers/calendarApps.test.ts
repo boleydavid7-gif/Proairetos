@@ -99,6 +99,19 @@ const specs: Spec[] = [
     kinds: ['event', 'event'],
     provider: load(() => import('../../therapeia/providers/calendar'), 'therapeiaCalendar'),
   },
+  {
+    app: 'ktema',
+    create: [
+      pref('ktema:thing:t1', { id: 't1', name: 'Dishwasher', category: 'Appliance', serial: 'CANARY-SERIAL', price: 'CANARY-PRICE', note: 'CANARY-NOTE', warrantyUntil: '2026-11-20', createdAt: day }),
+      pref('ktema:thing:t2', { id: 't2', name: 'Passport', category: 'Documents', serial: 'CANARY-SERIAL', warrantyUntil: '2026-11-10', createdAt: day }),
+      pref('ktema:upkeep:u1', { id: 'u1', thingId: 't1', name: 'Clean the filter', note: 'CANARY-UPKEEP', every: { count: 1, unit: 'months' }, start: '2026-11-12', history: [], createdAt: day }),
+    ],
+    edit: [pref('ktema:upkeep:u1', { id: 'u1', thingId: 't1', name: 'Clean the coil', note: 'CANARY-UPKEEP', every: { count: 1, unit: 'months' }, start: '2026-11-12', history: [], createdAt: day })],
+    titles: ['Clean the filter · Dishwasher', 'Dishwasher: warranty ends', 'Passport: ends'],
+    edited: ['Clean the coil · Dishwasher', 'Dishwasher: warranty ends', 'Passport: ends'],
+    kinds: ['deadline', 'deadline', 'recurring'],
+    provider: load(() => import('../../ktema/providers/calendar'), 'ktemaCalendar'),
+  },
 ];
 
 const CANARY = /CANARY|99\b/;

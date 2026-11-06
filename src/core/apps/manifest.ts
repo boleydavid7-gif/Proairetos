@@ -403,8 +403,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['upkeep name', 'the thing it is for', 'since when'], excludes: ['serial numbers', 'prices', 'warranty details', 'notes', 'photos and files'] },
+    calendar: { shows: ['a warranty or document end, by name', 'an upkeep and the thing it is for, on the day it is next due'], excludes: ['serial numbers', 'prices and stores', 'manual links', 'notes', 'odometer readings', 'photos and files'], kinds: ['deadline', 'recurring'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

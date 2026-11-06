@@ -6,11 +6,8 @@ import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { billsOn, birthdaysOn } from '../../app/family/glance';
-import { useStoredRecords } from '../../app/family/storedRecords';
 import { calendarStore } from '../../app/providers/calendar';
 import { eventsFromLines, quietLinesByDay } from '../../app/providers/calendarView';
-import { ktemaDatesOn } from '../../app/calendars/ktemaDates';
-import type { Thing as KtemaThing, Upkeep as KtemaUpkeep } from '../../ktema/core/things';
 import { people } from '../../philia/app/state';
 import MiniMonth from './MiniMonth';
 import { useStore } from '../../app/family/read';
@@ -167,8 +164,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const shows = useTodayParts();
   const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
   const everyone = people.use();
-  const ktemaThings = useStoredRecords<KtemaThing>('ktema:thing:', shows('ktema-dates'));
-  const ktemaUpkeeps = useStoredRecords<KtemaUpkeep>('ktema:upkeep:', shows('ktema-dates'));
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
@@ -306,7 +301,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const billsFor = (date: string): FamilyLine[] => [
     ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
     ...(shows('birthday-dates') ? birthdaysOn(everyone, date).map((line) => ({ ...line, color: 'rose' })) : []),
-    ...(shows('ktema-dates') ? ktemaDatesOn(ktemaThings, ktemaUpkeeps, date).map((line) => ({ ...line, color: 'sky' })) : []),
     ...(quietByDay.get(date) ?? []),
   ];
 
