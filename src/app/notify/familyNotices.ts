@@ -66,7 +66,7 @@ export async function familyNotices(now: Date, until: Date, skip: ReadonlySet<st
 
   const meds = allMedicines();
   const visits = appointments.list();
-  if ((meds.length || visits.length) && isAdded('therapeia')) {
+  if ((meds.length || visits.length) && isAdded('therapeia') && !skip.has('therapeia')) {
     // Times after waking and before sleep follow the schedule, as Diaita plans the person's sleep.
     const anchors = anchorsFrom(mainSleeps(addDays(today, -2), addDays(today, horizon + 1), await blocks(), diaita));
     notices.push(...careNotices(meds, visits, therapeiaSettings.load().notices, now, until, anchors));
@@ -84,7 +84,7 @@ export async function familyNotices(now: Date, until: Date, skip: ReadonlySet<st
   if (isAdded('melete') && !skip.has('melete')) notices.push(...studyNotices(meleteSubjects.list(), meleteSessions.list(), today, horizon, now));
 
   const plants = allPlants();
-  if (plants.length && isAdded('phyton')) {
+  if (plants.length && isAdded('phyton') && !skip.has('phyton')) {
     const phyton = phytonSettings.load();
     notices.push(
       ...plantNotices(plants, phyton.notices, phytonName(phyton) || undefined, today, horizon, now, {
@@ -98,6 +98,6 @@ export async function familyNotices(now: Date, until: Date, skip: ReadonlySet<st
   }
 
   const trips = poreiaTrips.list();
-  if (trips.length && isAdded('poreia')) notices.push(...tripNotices(trips, poreiaBookings.list(), poreiaPlans.list(), poreiaPacking.list(), poreiaSettings.load().notices, now, until));
+  if (trips.length && isAdded('poreia') && !skip.has('poreia')) notices.push(...tripNotices(trips, poreiaBookings.list(), poreiaPlans.list(), poreiaPacking.list(), poreiaSettings.load().notices, now, until));
   return notices;
 }

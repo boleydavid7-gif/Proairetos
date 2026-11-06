@@ -129,7 +129,12 @@ describe('notices', () => {
     const notices = careNotices([], [{ id: 'a1', with: 'Dr Patel', at: '2026-10-07T10:30', where: 'Health center', questions: [], createdAt: '' }], defaultCareNotices, atTime('2026-10-07', '06:00'), atTime('2026-10-08', '06:00'));
     expect(notices).toHaveLength(1);
     expect(clock(notices[0].at)).toBe('08:30');
-    expect(notices[0].body).toMatch(/Health center/);
+    // Without names a visit says only that it is a visit and when; with names it says who with and where.
+    expect(notices[0].title).toBe('A visit');
+    expect(notices[0].body).not.toMatch(/Health center|Patel/);
+    const named = careNotices([], [{ id: 'a1', with: 'Dr Patel', at: '2026-10-07T10:30', where: 'Health center', questions: [], createdAt: '' }], { ...defaultCareNotices, names: true }, atTime('2026-10-07', '06:00'), atTime('2026-10-08', '06:00'));
+    expect(named[0].title).toBe('Dr Patel');
+    expect(named[0].body).toMatch(/Health center/);
   });
 });
 

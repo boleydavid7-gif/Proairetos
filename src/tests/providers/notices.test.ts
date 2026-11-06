@@ -71,8 +71,9 @@ describe('who may put notices forward', () => {
   });
   it('classifies the fields of every app that provides notices, and only those', () => {
     const providing = APPS.filter((each) => each.provides?.includes('notices'));
-    expect(providing.map((each) => each.id).sort()).toEqual(['ergon', 'ktema', 'melete', 'philia']);
-    expect(APPS.filter((each) => each.notices.fields).map((each) => each.id).sort()).toEqual(['ergon', 'ktema', 'melete', 'philia']);
+    const moved = ['ergon', 'ktema', 'melete', 'philia', 'phyton', 'poreia', 'therapeia'];
+    expect(providing.map((each) => each.id).sort()).toEqual(moved);
+    expect(APPS.filter((each) => each.notices.fields).map((each) => each.id).sort()).toEqual(moved);
     for (const each of providing) {
       const fields = each.notices.fields!;
       expect(fields.shows.length, each.id).toBeGreaterThan(0);

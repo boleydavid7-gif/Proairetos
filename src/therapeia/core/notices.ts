@@ -75,8 +75,9 @@ export function careNotices(medicines: readonly Medicine[], appointments: readon
         key: `therapeia:visit:${appointment.id}:${appointment.at}`,
         kind: 'care',
         at,
-        title: withWho(appointment, appointment.with),
-        body: [starts.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }), appointment.where].filter(Boolean).join(' · '),
+        // Without names, only whose, as for a dose or a refill: who the visit is with and where stay in the app.
+        title: choices.names ? withWho(appointment, appointment.with) : whoOf(appointment) ? `A visit for ${whoOf(appointment)}` : 'A visit',
+        body: [starts.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }), choices.names ? appointment.where : undefined].filter(Boolean).join(' · '),
         open: `therapeia:visit:${appointment.id}`,
       });
     }
