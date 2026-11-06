@@ -86,6 +86,16 @@ The method is expand, switch, contract, with the old key carried as an alias whi
 key) and one worker revision after K1: remove `also` from the four, remove `legacyKey`, keep the alias handling in the consumers
 (it costs nothing). A last pass confirms no key in the cache, the inbox lists or the sealed input holds a name.
 
+### Status
+
+- **K0 (written, tests not yet run):** `Notice.also`; `src/core/notify/identity.ts` (`identitiesOf`, `remembers`, `carryOver`); `shown` and `catchUp`
+  in `notifications.ts`; the notifications page (seen and cleared sets, the bell's count, pruning, carry-over); `public/sw.js` (`wasShown`,
+  with the earlier keys read from the on-device cache, never from the sealed words); `NoticeLine.also` in the contract (up to four other
+  keys, none the notice's own, none another notice's key). Nothing sets `also` yet.
+  The earlier keys go only into the on-device cache entry. They are not in `wordsOf` (the sealed words), the preview columns, the server
+  row id input, the phone shell's payload or any notification text. The worker is stamped with the build time, so it updates with the app.
+- **K1, K2:** not started.
+
 ## 4. What this does not change
 
 - Wording, times, quiet hours, switches, sources, delivery, permissions, the lock-screen setting, or sync.

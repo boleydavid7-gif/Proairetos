@@ -158,5 +158,13 @@ export async function noticeLines(providers: readonly Provider<'notices'>[], man
     notices.push(...fresh);
     rejected.push(...cut.rejected);
   }
-  return { notices, rejected, timings };
+  // An earlier key that is another notice's key would hide that notice, so such a notice loses its earlier keys and keeps its own.
+  const current = new Set(notices.map((line) => line.key));
+  const clean = notices.map((line) => {
+    if (!line.also?.some((earlier) => current.has(earlier))) return line;
+    rejected.push({ app: line.ref.app, reason: `an earlier key that is another notice\u2019s key (${line.key})` });
+    const { also: _also, ...rest } = line;
+    return rest;
+  });
+  return { notices: clean, rejected, timings };
 }

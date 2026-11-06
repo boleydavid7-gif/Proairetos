@@ -176,7 +176,7 @@ export function mayProvideNotices(app: AppManifest | undefined, provider: Provid
   return null;
 }
 
-const NOTICE_KEYS = new Set(['ref', 'kind', 'key', 'at', 'title', 'body', 'open']);
+const NOTICE_KEYS = new Set(['ref', 'kind', 'key', 'at', 'title', 'body', 'open', 'also']);
 
 /**
  * Cuts a provider's notices down to what a notice may be: the app's own, of a kind the manifest lists (which fixes the
@@ -200,6 +200,7 @@ export function enforceNotices(app: AppManifest, lines: readonly NoticeLine[], r
     if (line.at < dayStart || line.at > range.until) { no(`a notice outside the range asked for (${line.key})`); continue; }
     if (typeof line.title !== 'string' || !line.title || typeof line.body !== 'string') { no(`a notice whose words are not text (${line.key})`); continue; }
     if (typeof line.open !== 'string' || line.open.includes('//') || placeFor(line.open).app !== app.urls.href) { no(`a notice that opens ${String(line.open)}, outside ${app.urls.href}`); continue; }
+    if (line.also !== undefined && (!Array.isArray(line.also) || line.also.length > 4 || line.also.some((earlier) => typeof earlier !== 'string' || !earlier || earlier === line.key))) { no(`earlier keys that are not up to four other keys (${line.key})`); continue; }
     if (seen.has(line.key)) { no(`the same notice twice (${line.key})`); continue; }
     seen.add(line.key);
     kept.push(line);

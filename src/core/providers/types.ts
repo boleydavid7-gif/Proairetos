@@ -103,6 +103,8 @@ export type NoticeLine = {
   at: Date;
   title: string;
   body: string;
+  /** Earlier keys of this same notice while its key is being changed. Kept on the device only. */
+  also?: readonly string[];
   /** Where a tap opens, in the form notices use (`app:record` or the app's bare name), which `placeFor` resolves to a page inside the owning app. */
   open: string;
 };

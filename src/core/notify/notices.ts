@@ -23,6 +23,11 @@ export type Notice = {
   body: string;
   /** Where a tap opens the app: an item, Days ahead, or Today. */
   open: string;
+  /**
+   * Earlier keys for this same notice, while its key is being changed (docs/PHASE3_SLICE5_KEY_MIGRATION.md). Whatever asks whether a
+   * notice was shown, seen or cleared asks for the key or any of these. Kept on this device; never sealed, sent or shown.
+   */
+  also?: readonly string[];
 };
 
 /** Minutes before a time; 0 is at the time itself. */

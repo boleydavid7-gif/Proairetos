@@ -206,6 +206,11 @@ async function openSealed(sealed) {
   return opened;
 }
 
+// A notice is known by its key and, while a key is being changed, by the earlier keys the app wrote beside it in the cache (`also`).
+// The same rule as identitiesOf and remembers in src/core/notify/identity.ts (a test keeps the two together). The earlier keys come
+// from the cache on this device; the sealed words and the server's rows never carry them.
+const wasShown = (shown, notice) => shown.has(notice.key) || (Array.isArray(notice.also) && notice.also.some((key) => shown.has(key)));
+
 async function showDue(sealed, fallback) {
   const cache = await caches.open(NOTIFY_CACHE);
   const upcoming = await readJson(cache, UPCOMING, []);
@@ -216,8 +221,9 @@ async function showDue(sealed, fallback) {
     return at <= now + 90_000 && at >= now - 60 * 60_000;
   });
   const due = [];
-  for (const notice of [...stored, ...(await openSealed(sealed))]) {
-    if (shown.has(notice.key) || due.some((each) => each.key === notice.key)) continue;
+  const earlier = new Map(upcoming.filter((notice) => Array.isArray(notice.also)).map((notice) => [notice.key, notice.also]));
+  for (const notice of [...stored, ...(await openSealed(sealed)).map((each) => ({ ...each, also: earlier.get(each.key) }))]) {
+    if (wasShown(shown, notice) || due.some((each) => each.key === notice.key)) continue;
     due.push(notice);
   }
   if (due.length === 0 && stored.length > 0) {
@@ -237,7 +243,7 @@ async function showDue(sealed, fallback) {
     return;
   }
   // Only notices not shown before add to the icon's count (one the open app showed already is in its own count).
-  const fresh = due.filter((notice) => !shown.has(notice.key)).length;
+  const fresh = due.filter((notice) => !wasShown(shown, notice)).length;
   for (const notice of due) {
     await self.registration.showNotification(appNameFor(notice.open), {
       body: bodyFor(notice),
