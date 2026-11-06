@@ -79,3 +79,39 @@ Run against a disposable Supabase project and a throwaway user, with the script 
 - Not readable from outside the dashboard and **not recorded**: "Time-box user sessions" and "Inactivity timeout" (Authentication > Sessions). Nothing in this run depended on them, but they were not seen.
 
 **Not answered by this run.** Whether the data API keeps accepting a signed-out session's access token until it expires. The project has no tables, and the data API's root endpoint answered 401 for a valid token as well as a signed-out one, so it could not tell them apart (the script's note reported 404 for the same reason). To measure it, repeat the check against a table that a signed-in user can read (the app's migrations on the test project), or a small table made for the purpose. Until then the one-hour access-token lifetime is the upper bound that should be assumed for a copied token, which is the reason the design does not rely on instant revocation.
+
+## Probe: does a signed-out access token still work on the data API?
+
+The first run could not answer this (no tables). `scripts/session-check/token-after-signout.mjs` answers it against a table made for the purpose. It needs privileged access once, to create the table; the script itself uses only the publishable key and the test user.
+
+**1. Create the table** (Supabase dashboard > SQL editor, on the disposable project only):
+
+```sql
+create table public.security_session_probe (
+  id integer primary key,
+  note text not null
+);
+alter table public.security_session_probe enable row level security;
+revoke all on table public.security_session_probe from anon, authenticated;
+grant select on table public.security_session_probe to authenticated;
+create policy "authenticated users can read the probe"
+  on public.security_session_probe for select to authenticated using (true);
+insert into public.security_session_probe (id, note) values (1, 'harmless test row');
+```
+
+The anonymous role has no privilege and no policy. The signed-in role can read, and nothing else.
+
+**2. Run** (environment variables only; the script prints status codes, row counts and seconds left, never a password or a token):
+
+```
+SUPABASE_URL=... SUPABASE_ANON_KEY=... TEST_EMAIL=... TEST_PASSWORD=... ALLOW_TEST_PROJECT=yes \
+  node scripts/session-check/token-after-signout.mjs
+```
+
+It signs in two devices; confirms an anonymous read is refused and both devices read the row; signs device A out with `scope: 'local'`; then reads with A's original token and with B's token immediately and again after 5, 30 and 120 seconds (`DELAYS=5,30,120` changes this), and asks the auth server whether it still accepts A's token. It exits with 2 and signs both devices out if the table is missing or the first reads fail.
+
+**3. Tidy** after the results are recorded:
+
+```sql
+drop table public.security_session_probe;
+```
