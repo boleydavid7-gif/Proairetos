@@ -256,9 +256,9 @@ pages rising out of the shade (`ll-enter` in `motion.css`).
 Lamplight's own idea is light that means something, in place of borrowed surfaces:
 
 - **Day light** (`src/lamplight/daylight.ts`): the lamp follows the person's day, waking to sleep (`dayPosition`, across
-  midnight for night work), not the clock. Early it hangs high, cool and bright; late, low, warm and dimmer, with shade at
-  the room's edges (`dayLight`). The lamp turns toward amber while keeping most of its own hue (`warmedLamp`); the pool is
-  mixed straight between a cool white and the warmed lamp (`poolColor`). Text and surfaces keep the scheme's contrast.
+  midnight for night work), not the clock. It warms the interface accents and, in companion apps, moves the pool of
+  light across the top of the page. Proairetos's home wallpaper stays static: its artwork and lighting do not move or change
+  with the time of day. Text and surfaces keep the scheme's contrast.
 - **Three levels of light**: at rest (no surface, in shade), near (a vellum surface) and lit (the one thing that matters
   now, with a halo of the pool). One lit thing per page; it moves to what is being typed in. A fallback lit thing
   (`data-ll-lit="fallback"`) takes the light only when nothing else has it. While something is lit, context marked
