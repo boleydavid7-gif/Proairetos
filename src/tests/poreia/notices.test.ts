@@ -21,8 +21,8 @@ describe('trip reminders', () => {
 
   it('says when travel leaves, ahead of time, and the check-in a day before', () => {
     expect(at(byKey('poreia:leave:f'))).toBe('11/10 05:10');
-    expect(byKey('poreia:leave:f').body).toContain('from JFK');
-    expect(byKey('poreia:leave:f').body).toContain('Confirmation ABC123');
+    expect(byKey('poreia:leave:f').body).not.toMatch(/JFK|ABC123|Confirmation/);
+    expect(byKey('poreia:start:s').body).not.toContain('Rua A 1');
     expect(at(byKey('poreia:checkin:f'))).toBe('11/9 08:10');
     expect(byKey('poreia:leave:f').open).toBe('poreia:booked:f');
   });

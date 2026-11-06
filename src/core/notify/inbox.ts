@@ -11,7 +11,7 @@ import { appFromOpen, type FamilyApp } from './sources';
  */
 export type InboxKind = NoticeKind | 'schedule-change' | 'milestone' | 'household';
 
-export type InboxEntry = { key: string; kind: InboxKind; at: Date; title: string; body: string; open: string };
+export type InboxEntry = { key: string; kind: InboxKind; at: Date; title: string; body: string; open: string; /** Earlier keys of the same notice (see identity.ts). */ also?: readonly string[] };
 
 /** How far back the page looks. */
 export const INBOX_DAYS = 3;
@@ -29,7 +29,7 @@ export function cameDue(notices: readonly Notice[], now: Date): InboxEntry[] {
   const since = now.getTime() - INBOX_DAYS * 86_400_000;
   return notices
     .filter((notice) => KEPT.has(notice.kind) && notice.at.getTime() <= now.getTime() && notice.at.getTime() >= since)
-    .map(({ key, kind, at, title, body, open }) => ({ key, kind, at, title, body, open }));
+    .map(({ key, kind, at, title, body, open, also }) => ({ key, kind, at, title, body, open, ...(also?.length ? { also } : {}) }));
 }
 
 /** Newest first, one per key, only the last few days. */

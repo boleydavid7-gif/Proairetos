@@ -1,3 +1,4 @@
+import { carryOver, identitiesOf, remembers } from '../../core/notify/identity';
 import { useSyncExternalStore } from 'react';
 import { arrangeInbox, cameDue, INBOX_DAYS, isImportant, runMilestones, scheduleChanges, strengthMilestones, type InboxEntry, type SeenBlock } from '../../core/notify/inbox';
 import type { Workout as StrengthWorkout } from '../../dynamis/core/plan';
@@ -52,7 +53,7 @@ const changed = () => {
 /** The count on the app's icon follows the bell's on every page, not only while Today is open. */
 function badgeIcon(): void {
   if (!started) return;
-  const unseen = entries.filter((entry) => !clearedKeys.has(entry.key) && !seenKeys.has(entry.key)).length;
+  const unseen = entries.filter((entry) => !remembers(clearedKeys, entry) && !remembers(seenKeys, entry)).length;
   showIconBadge(attention().bell === 'off' ? 0 : unseen);
 }
 
@@ -108,8 +109,13 @@ export async function refreshInbox(now = new Date()): Promise<void> {
     // Nothing kept.
   }
   entries = arrangeInbox(found, now);
-  // What was seen or cleared and has since left the list is forgotten.
-  const keys = new Set(entries.map((entry) => entry.key));
+  // An entry seen or cleared under an earlier key is remembered under its current one too, so the earlier one can go in time.
+  for (const entry of entries) {
+    carryOver(clearedKeys, entry);
+    carryOver(seenKeys, entry);
+  }
+  // What was seen or cleared and has since left the list is forgotten (an entry is known by its key and its earlier keys).
+  const keys = new Set(entries.flatMap((entry) => identitiesOf(entry)));
   seenKeys = new Set([...seenKeys].filter((key) => keys.has(key)));
   clearedKeys = new Set([...clearedKeys].filter((key) => keys.has(key)));
   write(SEEN_KEYS, [...seenKeys]);
@@ -200,8 +206,8 @@ let snapshot: { version: number; inbox: Inbox } | undefined;
 
 function current(): Inbox {
   if (snapshot?.version === version) return snapshot.inbox;
-  const shown = entries.filter((entry) => !clearedKeys.has(entry.key));
-  const inbox = { entries: shown, unseen: shown.filter((entry) => !seenKeys.has(entry.key)), important: shown.filter(isImportant) };
+  const shown = entries.filter((entry) => !remembers(clearedKeys, entry));
+  const inbox = { entries: shown, unseen: shown.filter((entry) => !remembers(seenKeys, entry)), important: shown.filter(isImportant) };
   snapshot = { version, inbox };
   return inbox;
 }

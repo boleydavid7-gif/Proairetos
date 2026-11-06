@@ -88,7 +88,7 @@ key) and one worker revision after K1: remove `also` from the four, remove `lega
 
 ### Status
 
-- **K0 (written, tests not yet run):** `Notice.also`; `src/core/notify/identity.ts` (`identitiesOf`, `remembers`, `carryOver`); `shown` and `catchUp`
+- **K0 (done, commit `f322667d`; released with the notice providers as Release 5A; tests passed in UTC and Los Angeles before release; 5A deployed: ______):** `Notice.also`; `src/core/notify/identity.ts` (`identitiesOf`, `remembers`, `carryOver`); `shown` and `catchUp`
   in `notifications.ts`; the notifications page (seen and cleared sets, the bell's count, pruning, carry-over); `public/sw.js` (`wasShown`,
   with the earlier keys read from the on-device cache, never from the sealed words); `NoticeLine.also` in the contract (up to four other
   keys, none the notice's own, none another notice's key). Nothing sets `also` yet.
@@ -134,6 +134,18 @@ key) and one worker revision after K1: remove `also` from the four, remove `lega
      number of keys can grow. Nothing is shown twice.
 
 - **K2: not started.** It must not start until the checklist below is complete.
+
+### Release 5B gate (K1 reaches production)
+
+K1 changes four apps' notice keys, so it must not reach a device before K0's compatibility code has. K0 ships in Release 5A. The owner's conditions for starting Release 5B, in full:
+
+1. At least seven full days have passed since 5A reached production. The seven days count from the day the deployment went live (the `sw.js` build stamp on the live site), not from the day the pull request was merged. Record it on the line above (`5A deployed:`).
+2. The owner's active devices have loaded the updated app.
+3. No K0-era worker is still controlling an active page on those devices (a clients check after the update; row 6 of the checklist below).
+4. The K0 compatibility tests pass (`src/tests/notify/noticeIdentity.test.ts` and the notify folder).
+5. No unexpected duplicate or missing notification has been observed.
+
+**Limit.** Seven days does not guarantee that a dormant device has updated: a device that was not opened in that time still has the build from before K0, ignores `also`, and can show one notice a second time when it next opens after K1 (risk 1 under "Compatibility risks"). The app keeps no record of which build each device runs, so this cannot be measured. It is accepted, and K2 waits at least 21 days from K1's deployment for the same reason.
 
 ## K2 readiness checklist
 
