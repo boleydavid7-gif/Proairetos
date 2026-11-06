@@ -1,3 +1,4 @@
+import { sortedIds, withEarlierKey } from '../../core/notify/identity';
 import type { Notice } from '../../core/notify/notices';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { growing, nextCheck, nextFeed, type Hemisphere, type Plant, type Rain } from './plants';
@@ -23,10 +24,11 @@ export function plantNotices(plants: readonly Plant[], choices: PlantNoticeChoic
   const { hemisphere = 'north', rain = {}, forecast = {}, unit = 'C', away } = context;
   const hot = hotDays(forecast);
   const mine = plants.filter((plant) => !(choices.onlyMine && me && plant.who && plant.who !== me));
-  const byDay = new Map<string, { check: string[]; feed: string[] }>();
-  const add = (day: string, what: 'check' | 'feed', name: string) => {
-    const entry = byDay.get(day) ?? { check: [], feed: [] };
+  const byDay = new Map<string, { check: string[]; feed: string[]; checkIds: string[]; feedIds: string[] }>();
+  const add = (day: string, what: 'check' | 'feed', name: string, id: string) => {
+    const entry = byDay.get(day) ?? { check: [], feed: [], checkIds: [], feedIds: [] };
     entry[what].push(name);
+    entry[what === 'check' ? 'checkIds' : 'feedIds'].push(id);
     byDay.set(day, entry);
   };
   const back = away ? addDays(away.to, 1) : undefined;
@@ -34,27 +36,28 @@ export function plantNotices(plants: readonly Plant[], choices: PlantNoticeChoic
     let day = nextCheck(plant, today, hemisphere, rain, hot);
     // Came around while away: said once, the day after coming home.
     if (back && day <= away!.to && back >= today && (day >= away!.from || isAway(away, today))) day = back;
-    if (day >= today && day <= addDays(today, horizon)) add(day, 'check', plant.name);
+    if (day >= today && day <= addDays(today, horizon)) add(day, 'check', plant.name, plant.id);
     if (choices.feed) {
       const fed = nextFeed(plant, today, hemisphere);
-      if (fed && fed >= today && fed <= addDays(today, horizon) && growing(fed, hemisphere) && !isAway(away, fed)) add(fed, 'feed', plant.name);
+      if (fed && fed >= today && fed <= addDays(today, horizon) && growing(fed, hemisphere) && !isAway(away, fed)) add(fed, 'feed', plant.name, plant.id);
     }
   }
   const notices: Notice[] = [];
-  for (const [day, { check, feed }] of byDay) {
+  for (const [day, { check, feed, checkIds, feedIds }] of byDay) {
     const at = atTime(day, choices.at);
     if (at < now) continue;
     const sorted = (list: string[]) => [...list].sort((a, b) => a.localeCompare(b));
     const lines = [check.length ? `Check the soil: ${sorted(check).join(', ')}` : '', feed.length ? `Feed: ${sorted(feed).join(', ')}` : ''].filter(Boolean);
     const one = check.length + feed.length === 1;
-    notices.push({
-      key: `phyton:${day}:${[...sorted(check), '/', ...sorted(feed)].join('|').slice(0, 80)}`,
+    // Made of the plants' ids, never their names; the key it had before is carried as an earlier key.
+    notices.push(withEarlierKey({
+      key: `phyton:${day}:${[...sortedIds(checkIds), '/', ...sortedIds(feedIds)].join('|').slice(0, 80)}`,
       kind: 'plant',
       at,
       title: day === back ? 'Back home' : one ? (check[0] ?? feed[0]) : check.length ? `${check.length} ${check.length === 1 ? 'plant' : 'plants'} to check` : `${feed.length} plants to feed`,
       body: one && day !== back ? (check.length ? 'Check the soil.' : 'Feed today.') : lines.join('. ') + '.',
       open: 'phyton:today',
-    });
+    }, `phyton:${day}:${[...sorted(check), '/', ...sorted(feed)].join('|').slice(0, 80)}`));
   }
   // Frost tonight and tomorrow night, as far as the forecast goes.
   for (const day of [today, addDays(today, 1)]) {

@@ -41,7 +41,10 @@ async function capture(names: boolean) {
   const { privateNotice } = await import('../../core/notify/notices');
   const { sourceOf, wordsOf } = await import('../../core/notify/sources');
   const { reminderTimes } = await import('../../app/sync/reminders');
-  const list = (await familyNotices(now, until)).sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
+  // Four apps' keys are made of record ids now (key migration K1) and carry the key they had as an earlier key. The baseline is what the
+  // notices were, so each is read under the key it had; noticeKeys.test.ts holds the new keys.
+  const asBefore = (await familyNotices(now, until)).map(({ also, ...notice }) => (also?.length ? { ...notice, key: also[0] } : notice));
+  const list = asBefore.sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
   const bad = list.filter((notice) => Number.isNaN(notice.at.getTime()));
   if (bad.length) throw new Error(`invalid time: ${bad.map((notice) => notice.key).join(', ')}`);
   const times = await reminderTimes(list);

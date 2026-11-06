@@ -1,3 +1,4 @@
+import { idKey, withEarlierKey } from '../../core/notify/identity';
 import type { Notice } from '../../core/notify/notices';
 import { atTime, toLocalDate } from '../../core/scheduling/dates';
 import { daysLeft, dosesBetween, refillDay, whoOf, withWho, type Anchors, type Appointment, type Medicine } from './medicines';
@@ -25,12 +26,12 @@ export function careNotices(medicines: readonly Medicine[], appointments: readon
   if (choices.doses) {
     // `named` is what the key is made of and is never shown (it keeps the dose, so a notification's tag and a server row's id stay
     // what they were); `shown` is what the words may say, the name alone and never an amount.
-    const byTime = new Map<number, { named: string; shown: string }[]>();
+    const byTime = new Map<number, { named: string; shown: string; id: string }[]>();
     const whoAt = new Map<number, string[]>();
     for (const dose of dosesBetween(medicines, today, last, anchors)) {
       if (dose.taken || dose.at < now || dose.at > until) continue;
       const named = withWho(dose.medicine, dose.medicine.dose ? `${dose.medicine.name}, ${dose.medicine.dose}` : dose.medicine.name);
-      byTime.set(dose.at.getTime(), [...(byTime.get(dose.at.getTime()) ?? []), { named, shown: withWho(dose.medicine, dose.medicine.name) }]);
+      byTime.set(dose.at.getTime(), [...(byTime.get(dose.at.getTime()) ?? []), { named, shown: withWho(dose.medicine, dose.medicine.name), id: dose.medicine.id }]);
       whoAt.set(dose.at.getTime(), [...(whoAt.get(dose.at.getTime()) ?? []), whoOf(dose.medicine)]);
     }
     for (const [time, names] of byTime) {
@@ -41,14 +42,15 @@ export function careNotices(medicines: readonly Medicine[], appointments: readon
       const whos = new Set(whoAt.get(time));
       const only = whos.size === 1 ? [...whos][0] : '';
       const unnamed = sorted.length === 1 ? 'A medicine' : `${sorted.length} medicines`;
-      notices.push({
-        key: `therapeia:dose:${time}:${sorted.join('|').slice(0, 60)}`,
+      // The key is made of the medicines' ids, never their names or doses; the key it had before is carried as an earlier key.
+      notices.push(withEarlierKey({
+        key: idKey(`therapeia:dose:${time}:`, names.map((each) => each.id)),
         kind: 'dose',
         at: new Date(time),
         title: choices.names && sorted.length === 1 ? shown[0] : only ? `${unnamed} for ${only}` : unnamed,
         body: choices.names && sorted.length > 1 ? shown.join(' · ') : 'Now.',
         open: 'therapeia:today',
-      });
+      }, `therapeia:dose:${time}:${sorted.join('|').slice(0, 60)}`));
     }
   }
 

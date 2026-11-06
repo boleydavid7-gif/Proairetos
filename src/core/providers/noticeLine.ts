@@ -15,6 +15,7 @@ export const noticeLine = (app: AppId, notice: Notice): NoticeLine => ({
   title: notice.title,
   body: notice.body,
   open: notice.open,
+  ...(notice.also?.length ? { also: notice.also } : {}),
 });
 
 /** The whole days from now to the end of the range, as the apps' notice functions count their horizon. */

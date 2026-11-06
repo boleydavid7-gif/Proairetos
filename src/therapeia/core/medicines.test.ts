@@ -122,9 +122,10 @@ describe('notices', () => {
     expect(plain.map((notice) => notice.title)).toEqual(['2 medicines', '2 medicines']);
     const named = careNotices([marked, two], [], { ...defaultCareNotices, names: true }, now, until);
     expect(named.map((notice) => notice.title)).toEqual(['2 medicines', 'Vitamin D']);
-    // The names show; the amount never does. The key still holds it, so the tag and the server row stay as they were.
+    // The names show; the amount never does. The key is made of the medicines' ids, and the key it had before is its earlier key.
     expect(named[0].body).toBe('Sertraline · Vitamin D');
-    expect(named[0].key).toContain('Sertraline, 50 mg');
+    expect(named[0].key).not.toMatch(/Sertraline|50 mg|Vitamin/);
+    expect(named[0].also?.[0]).toContain('Sertraline, 50 mg');
   });
 
   it('reminds before an appointment', () => {

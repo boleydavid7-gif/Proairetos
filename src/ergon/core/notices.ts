@@ -1,3 +1,4 @@
+import { idKey, withEarlierKey } from '../../core/notify/identity';
 import type { Notice } from '../../core/notify/notices';
 import { addDays, atTime } from '../../core/scheduling/dates';
 import { nextDay, type Chore, type DaysOff } from './chores';
@@ -24,13 +25,14 @@ export function choreNotices(chores: readonly Chore[], choices: ChoreNoticeChoic
   return [...byDay].map(([slot, list]) => {
     const [day, at] = slot.split(' ');
     const names = list.map((chore) => chore.name).sort((a, b) => a.localeCompare(b));
-    return {
-      key: `ergon:${day}:${at}:${names.join('|').slice(0, 80)}`,
+    // Made of the chores' ids, never their names; the key it had before is carried as an earlier key.
+    return withEarlierKey({
+      key: idKey(`ergon:${day}:${at}:`, list.map((chore) => chore.id)),
       kind: 'chore' as const,
       at: atTime(day, at),
       title: names.length === 1 ? names[0] : `${names.length} chores`,
       body: names.length === 1 ? 'Today.' : names.join(', '),
       open: 'ergon',
-    };
+    }, `ergon:${day}:${at}:${names.join('|').slice(0, 80)}`);
   });
 }

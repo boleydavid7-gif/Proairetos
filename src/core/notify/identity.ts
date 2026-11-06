@@ -16,3 +16,12 @@ export function carryOver(keys: Set<string>, notice: Pick<Notice, 'key' | 'also'
   keys.add(notice.key);
   return true;
 }
+
+/** Record ids in one fixed order, the same on every device (plain code-unit order, never a locale's). */
+export const sortedIds = (ids: readonly string[]): string[] => [...ids].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+
+/** A key made of record ids, cut to the length the sealed words keep. Ids are random and synced, so every device makes the same one. */
+export const idKey = (prefix: string, ids: readonly string[], limit = 80): string => `${prefix}${sortedIds(ids).join('|').slice(0, limit)}`;
+
+/** A notice with the key it used to have as its alias (none when the two are the same). */
+export const withEarlierKey = (notice: Notice, earlier: string): Notice => (earlier && earlier !== notice.key ? { ...notice, also: [earlier] } : notice);

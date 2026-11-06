@@ -172,7 +172,7 @@ describe('the one place the schedule reaches Therapeia differently', () => {
     localStorage.setItem('proairetos.otherCalendars.cal1', JSON.stringify(events));
     localStorage.setItem('therapeia:medicine:m2', JSON.stringify({ id: 'm2', name: 'Vitamin D', times: [{ kind: 'wake', after: 30 }], days: { kind: 'daily' }, start: '2026-09-25', taken: [], createdAt: '2026-09-01T00:00:00.000Z' }));
   };
-  const doses = (notices: readonly Notice[]) => notices.filter((notice) => notice.key.includes('Vitamin D')).map((notice) => notice.at.toISOString());
+  const doses = (notices: readonly Notice[]) => notices.filter((notice) => notice.key.endsWith(':m2')).map((notice) => notice.at.toISOString());
   it('is the same when the other calendar\u2019s event is not named like a shift', async () => {
     night('Evening');
     const { legacy, provided } = await both({ ...defaultNoticeSettings });

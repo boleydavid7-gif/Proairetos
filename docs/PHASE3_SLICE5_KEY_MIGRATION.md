@@ -94,7 +94,11 @@ key) and one worker revision after K1: remove `also` from the four, remove `lega
   keys, none the notice's own, none another notice's key). Nothing sets `also` yet.
   The earlier keys go only into the on-device cache entry. They are not in `wordsOf` (the sealed words), the preview columns, the server
   row id input, the phone shell's payload or any notification text. The worker is stamped with the build time, so it updates with the app.
-- **K1, K2:** not started.
+- **K1 (done):** the four keys are made of record ids and carry the key they had as `also`:
+  `therapeia:dose:<ms>:<medicine ids>`, `ktema:<day>:<upkeep ids>`, `ergon:<day>:<time>:<chore ids>`,
+  `phyton:<day>:<check ids>|/|<feed ids>` (ids in plain code-unit order, cut at 80 characters). Frost and warranty keys, refills,
+  visits and every other app's keys were already id-based or date-based and are unchanged.
+- **K2:** not started. It waits at least 21 days after K1 reaches devices and a worker revision.
 
 ## 4. What this does not change
 
