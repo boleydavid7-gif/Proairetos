@@ -164,5 +164,5 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
 
 /** The Today hero fades into the same solid page surface; the wallpaper itself remains behind it. */
 export function backgroundFootOf(): string {
-  return 'linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--color-bg) 42%, transparent) 48%, var(--color-bg) 100%)';
+  return 'linear-gradient(180deg, transparent 0%, var(--color-bg) 100%)';
 }
