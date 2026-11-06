@@ -694,7 +694,8 @@ function AppearanceSection() {
           </button>
         ))}
       </div>
-      <p className="sheet__label">Room</p>
+      <p className="sheet__label">Room tone</p>
+      <p className="section-description">Sets the color of the page, surfaces and accents.</p>
       <div className="room-grid" role="radiogroup" aria-label="Room">
         {ROOMS.map((room) => (
           <button
