@@ -113,6 +113,14 @@ export function wallpaperStyleSvg(art: WallArt, page: string, light: boolean, wi
       : `<rect width="${w}" height="${h}" fill="${paperBase}" opacity="${light ? 0.2 : 0.34}"/><g filter="url(#paper-soft)">${paperFibers(w, h, paperFiber, paperShadow)}</g>`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
 <defs>
+<linearGradient id="material-strength" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+  <stop offset="55%" stop-color="#fff" stop-opacity="0.85"/>
+  <stop offset="100%" stop-color="#fff" stop-opacity="0.7"/>
+</linearGradient>
+<mask id="material-fade" maskUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+  <rect width="${w}" height="${h}" fill="url(#material-strength)"/>
+</mask>
 <linearGradient id="base" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${art.sky}"/><stop offset=".58" stop-color="${page}" stop-opacity=".86"/><stop offset="1" stop-color="${page}"/></linearGradient>
 <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${art.b1}" stop-opacity="${washOpacity}"/><stop offset=".52" stop-color="${art.b2}" stop-opacity="${(washOpacity * 0.55).toFixed(3)}"/><stop offset="1" stop-color="${art.b3}" stop-opacity="${(washOpacity * 0.25).toFixed(3)}"/></linearGradient>
 ${style === 'ink' ? '<filter id="ink-texture" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".018 .07" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .7 0"/></filter><filter id="ink-bleed" x="-25%" y="-25%" width="150%" height="150%"><feTurbulence type="fractalNoise" baseFrequency=".006 .014" numOctaves="3" seed="7" stitchTiles="stitch" result="pigment"/><feDisplacementMap in="SourceGraphic" in2="pigment" scale="42" xChannelSelector="R" yChannelSelector="G" result="edge"/><feGaussianBlur in="edge" stdDeviation="15"/></filter>' : ''}
@@ -125,7 +133,7 @@ ${style === 'paper' ? '<filter id="paper-soft" x="-2%" y="-2%" width="104%" heig
 <rect width="${w}" height="${h}" fill="url(#base)"/>
 <rect width="${w}" height="${h}" fill="url(#wash)"/>
 <rect width="${w}" height="${h}" fill="url(#pool)"/>
-${styleLayer}
+<g mask="url(#material-fade)">${styleLayer}</g>
 <rect width="${w}" height="${h}" filter="url(#grain)" opacity="${grainOpacity}"/>
 </svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
