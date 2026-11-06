@@ -65,6 +65,8 @@ try {
   const sessionA = await signIn(a);
   const sessionB = await signIn(b);
   check('two sign-ins are two different sessions', claims(sessionA.access_token).session_id !== claims(sessionB.access_token).session_id);
+  const lifetime = claims(sessionA.access_token).exp - claims(sessionA.access_token).iat;
+  note(`access token lifetime: ${lifetime} s (the project's JWT expiry); session timeouts or a single-session limit would show up as failures below`);
   check('both sessions are accepted before anything is signed out', (await serverAccepts(sessionA.access_token)) && (await serverAccepts(sessionB.access_token)));
 
   const { error: localError } = await a.auth.signOut({ scope: 'local' });
