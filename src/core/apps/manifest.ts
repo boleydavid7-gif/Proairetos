@@ -354,7 +354,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/therapeia/', scope: '/therapeia/', entry: 'therapeia/index.html' },
     data: { backupPrefix: 'therapeia:', syncKnown: true },
-    notices: { source: 'therapeia', kinds: ['dose', 'care'], switches: [{ key: 'medicines', label: 'Medicines and visits' }], page: 7, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a medicine\u2019s name and dose, only when names are chosen', 'who the visit is with and where, only when names are chosen', 'whose medicine or visit it is', 'days of supply left'], excludes: ['visit notes and questions', 'medicine notes', 'readings', 'the health card (allergies, conditions, contacts)', 'how a dose is taken'] } },
+    notices: { source: 'therapeia', kinds: ['dose', 'care'], switches: [{ key: 'medicines', label: 'Medicines and visits' }], page: 7, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['a medicine\u2019s name, only when names are chosen', 'who the visit is with and where, only when names are chosen', 'whose medicine or visit it is', 'days of supply left'], excludes: ['dose amounts','visit notes and questions', 'medicine notes', 'readings', 'the health card (allergies, conditions, contacts)', 'how a dose is taken'] } },
     today: { group: 'attention', order: 8, parts: ['medicines'] },
     details: {
       adds: 'Doses and visits you haven’t marked show on Today.',

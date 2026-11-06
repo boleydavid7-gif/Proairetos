@@ -20,7 +20,8 @@ import { now, seed, until } from './noticeFixtures';
  * The differences from the recorded baseline that the privacy decisions call for, and no others. Each lists the words the
  * baseline holds (checked, so this table cannot drift from the file) and the words now. The baseline files are not edited.
  *   Poreia: no confirmation code, no stay address, no place a trip leaves from.
- *   Therapeia: a visit follows the names choice (off: "A visit", the time only).
+ *   Therapeia: a visit follows the names choice (off: "A visit", the time only); a dose never states its amount (with names on,
+ *   "Amoxicillin, 500 mg" is "Amoxicillin"). The dose notice's key still holds the amount, so it is not in this table.
  */
 const CHANGES: Record<string, { scenarios: string[]; was: { title: string; body: string }; now: { title: string; body: string } }> = {
   'poreia:leave:b1:2026-10-02T07:40': { scenarios: ['defaults', 'therapeia names on'], was: { title: 'TP 237', body: 'Leaves 7:40 AM · from CANARY-JFK · Confirmation CANARYCODE' }, now: { title: 'TP 237', body: 'Leaves 7:40 AM' } },
@@ -28,6 +29,9 @@ const CHANGES: Record<string, { scenarios: string[]; was: { title: string; body:
   'therapeia:visit:v1:2026-10-06T14:30': { scenarios: ['defaults'], was: { title: 'Dr Patel', body: '2:30 PM · Clinic CANARY-where' }, now: { title: 'A visit', body: '2:30 PM' } },
 };
 const CHANGED_ROWS = 5; // three keys, the first two in both scenarios
+const DOSE_WAS = 'Amoxicillin, 500 mg';
+const DOSE_NOW = 'Amoxicillin';
+const DOSE_ROWS = 14; // names on: one a day for the two weeks
 type Row = { key: string; kind: string; at: string; title: string; body: string; open: string };
 const rowOf = (notice: { key: string; kind: string; at: Date; title: string; body: string; open: string }): Row => ({ key: notice.key, kind: notice.kind, at: notice.at.toISOString(), title: notice.title, body: notice.body, open: notice.open });
 
@@ -81,8 +85,15 @@ describe('notice baseline', () => {
     expect(existsSync(FILE), `no baseline for ${zone}`).toBe(true);
     const recorded = JSON.parse(readFileSync(FILE, 'utf8')) as typeof result;
     let changed = 0;
+    let doses = 0;
     for (const [scenario, value] of Object.entries(recorded)) {
       for (const row of value.notices) {
+        if (scenario === 'therapeia names on' && row.kind === 'dose') {
+          expect({ title: row.title, body: row.body }, row.key).toEqual({ title: DOSE_WAS, body: 'Now.' });
+          row.title = DOSE_NOW;
+          doses += 1;
+          continue;
+        }
         const change = CHANGES[row.key];
         if (!change?.scenarios.includes(scenario)) continue;
         // The table says what the baseline holds; if the file differs, the table is wrong, not the app.
@@ -92,6 +103,11 @@ describe('notice baseline', () => {
         changed += 1;
       }
       for (const row of value.delivery) {
+        if (scenario === 'therapeia names on' && row.key.startsWith('therapeia:dose:')) {
+          expect({ t: row.details.t, b: row.details.b }, row.key).toEqual({ t: DOSE_WAS, b: 'Now.' });
+          row.details.t = DOSE_NOW;
+          continue;
+        }
         const change = CHANGES[row.key];
         if (!change?.scenarios.includes(scenario)) continue;
         expect({ t: row.details.t, b: row.details.b }, row.key).toEqual({ t: change.was.title, b: change.was.body });
@@ -100,6 +116,7 @@ describe('notice baseline', () => {
       }
     }
     expect(changed).toBe(CHANGED_ROWS);
+    expect(doses).toBe(DOSE_ROWS);
     expect(JSON.parse(JSON.stringify(result))).toEqual(recorded);
   });
 });

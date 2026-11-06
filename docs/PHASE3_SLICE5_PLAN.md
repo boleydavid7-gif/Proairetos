@@ -235,6 +235,7 @@ person's own words and are not provider output. They are unchanged and not class
 | --- | --- | --- |
 | Poreia confirmation code, booking address, departure place (`from`) | Excluded | A flight reads "Leaves 7:40 AM"; a stay reads "Check-in today"; a start-of-booking notice drops the address. Titles, kind words, times, plan titles and a plan's place stay. |
 | Oikonomia amount | Excluded from the title and the preview | The title is the bill's name; the body keeps the due wording and "paid automatically". Amounts also stay out of the cache, the sealed words, the preview and the notifications page. |
+| Therapeia dose amount | Never in a title, body or preview, with names on or off | Names on shows the medicine's name only ("Amoxicillin", "Mia: Amoxicillin"); the amount stays in the app. |
 | Therapeia clinician and place | Follow the `names` choice (off by default) | With names off a visit reads "A visit" (for someone else: "A visit for Mia") with the time only; with names on it reads as today. Doses and refills already follow `names`. |
 | Plain preview columns | Mechanism kept | They are still written only with Details on the lock screen, still hold the same words the sealed copy holds, and now cannot hold an excluded field because the provider never produces one. |
 
@@ -246,6 +247,24 @@ and any reading are treated as one class for this slice: they appear only when t
 notice switch and Details on the lock screen (for medicines and visits, also the `names` choice), they are never in the
 server's readable columns when details are off, and the canary tests cover them in every output listed below. Readings,
 measurements, notes, questions, the health card, sleep logs and heart rate stay excluded entirely.
+
+### Notice keys: what they hold and how they are handled
+
+A notice's key is the notification's tag, the input of the server row's id, and the `k` field of the sealed words. Some keys
+contain words the notice itself does not show. They are kept exactly as they were, because changing a key makes a second
+notification and a second server row for the same reminder.
+
+| Key | Contains | Where it can be read | Handling |
+| --- | --- | --- | --- |
+| `therapeia:dose:<time>:<name, dose>` | Medicine names and dose amounts (cut at 60 characters) | Cache Storage `proairetos-notify` on this device; sealed with the account key in the reminder row; as a hash in the row id; as a notification tag (never drawn) | Never in a title, body or preview. Not in the server's readable columns: the row id is a SHA-256 of key and time. |
+| `ktema:<day>:<names>` | Upkeep names | Same | Same |
+| `philia:<date key>`, `philia:touch:<id>:<date>` | A person's id and dates | Same | Same |
+| `poreia:*:<booking id>:<date>T<time>` | Record ids, dates and times; no code, address or place | Same | Same |
+| `ergon:<day>:<time>:<chore names>` | Chore names | Same | Same |
+
+Rules: a key is never shown, never sent in plain, and never logged; the server receives only its hash. A later change
+that wants keys without words should add a second, opaque key as a migration with a one-time replace of the pending rows,
+not rename these. Tests assert that a dose's key keeps its amount while its words do not.
 
 ### Rules this slice enforces
 

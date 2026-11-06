@@ -23,16 +23,20 @@ export function careNotices(medicines: readonly Medicine[], appointments: readon
   const last = toLocalDate(until);
 
   if (choices.doses) {
-    const byTime = new Map<number, string[]>();
+    // `named` is what the key is made of and is never shown (it keeps the dose, so a notification's tag and a server row's id stay
+    // what they were); `shown` is what the words may say, the name alone and never an amount.
+    const byTime = new Map<number, { named: string; shown: string }[]>();
     const whoAt = new Map<number, string[]>();
     for (const dose of dosesBetween(medicines, today, last, anchors)) {
       if (dose.taken || dose.at < now || dose.at > until) continue;
-      const name = withWho(dose.medicine, dose.medicine.dose ? `${dose.medicine.name}, ${dose.medicine.dose}` : dose.medicine.name);
-      byTime.set(dose.at.getTime(), [...(byTime.get(dose.at.getTime()) ?? []), name]);
+      const named = withWho(dose.medicine, dose.medicine.dose ? `${dose.medicine.name}, ${dose.medicine.dose}` : dose.medicine.name);
+      byTime.set(dose.at.getTime(), [...(byTime.get(dose.at.getTime()) ?? []), { named, shown: withWho(dose.medicine, dose.medicine.name) }]);
       whoAt.set(dose.at.getTime(), [...(whoAt.get(dose.at.getTime()) ?? []), whoOf(dose.medicine)]);
     }
     for (const [time, names] of byTime) {
-      const sorted = [...names].sort((a, b) => a.localeCompare(b));
+      const ordered = [...names].sort((a, b) => a.named.localeCompare(b.named));
+      const sorted = ordered.map((each) => each.named);
+      const shown = ordered.map((each) => each.shown);
       // Without names, only whose: "A medicine for Mia".
       const whos = new Set(whoAt.get(time));
       const only = whos.size === 1 ? [...whos][0] : '';
@@ -41,8 +45,8 @@ export function careNotices(medicines: readonly Medicine[], appointments: readon
         key: `therapeia:dose:${time}:${sorted.join('|').slice(0, 60)}`,
         kind: 'dose',
         at: new Date(time),
-        title: choices.names && sorted.length === 1 ? sorted[0] : only ? `${unnamed} for ${only}` : unnamed,
-        body: choices.names && sorted.length > 1 ? sorted.join(' · ') : 'Now.',
+        title: choices.names && sorted.length === 1 ? shown[0] : only ? `${unnamed} for ${only}` : unnamed,
+        body: choices.names && sorted.length > 1 ? shown.join(' · ') : 'Now.',
         open: 'therapeia:today',
       });
     }
