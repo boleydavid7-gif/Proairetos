@@ -736,10 +736,10 @@ function AppearanceSection() {
             </button>
           ))}
         </div>
-        <p className="sheet__label">Color</p>
         </>
       )}
 
+      <p className="sheet__label">Color</p>
       <div className="lamp-colors" role="radiogroup" aria-label="Color">
         <button
           type="button"
