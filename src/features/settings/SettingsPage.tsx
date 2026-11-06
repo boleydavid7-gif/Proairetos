@@ -34,7 +34,7 @@ import { useLeave, useNavigate, useReturnRoute } from '../../app/navigationConte
 import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
-import { LAMP_COLORS, ROOMS, WALL_STYLES, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
+import { BACKGROUND_OPTIONS, LAMP_COLORS, ROOMS, WALL_STYLES, backgroundOf, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
 import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { feedbackLink } from '../../app/family/feedback';
@@ -668,6 +668,32 @@ function AppearanceSection() {
           </button>
         ))}
       </div>
+      <p className="sheet__label">Background</p>
+      <p className="section-description">Choose a quiet scene for the pages behind your work. Cards and controls stay solid and readable.</p>
+      <div className="background-grid" role="radiogroup" aria-label="Background">
+        {BACKGROUND_OPTIONS.map((background) => (
+          <button
+            key={background.id}
+            type="button"
+            role="radio"
+            className="background-tile"
+            aria-checked={appearance.background === background.id}
+            onClick={() => update({ ...appearance, background: background.id })}
+          >
+            <span
+              className="background-tile__art"
+              style={{
+                backgroundImage: background.id === 'lamplight'
+                  ? wallpaperOf(appearance.room, mode, false, appearance.wallStyle)
+                  : backgroundOf(background.id, mode),
+              }}
+              aria-hidden="true"
+            />
+            <span className="background-tile__name">{background.name}</span>
+            <span className="background-tile__description">{background.description}</span>
+          </button>
+        ))}
+      </div>
       <p className="sheet__label">Room</p>
       <div className="room-grid" role="radiogroup" aria-label="Room">
         {ROOMS.map((room) => (
@@ -688,27 +714,32 @@ function AppearanceSection() {
           </button>
         ))}
       </div>
-      <p className="sheet__label">Wall style</p>
-      <div className="wall-style-grid" role="radiogroup" aria-label="Wall style">
-        {WALL_STYLES.map((style) => (
-          <button
-            key={style}
-            type="button"
-            role="radio"
-            className="wall-style-tile"
-            aria-checked={appearance.wallStyle === style}
-            onClick={() => update({ ...appearance, wallStyle: style })}
-          >
-            <span
-              className="wall-style-tile__art"
-              style={{ backgroundImage: wallpaperOf(appearance.room, mode, false, style) }}
-              aria-hidden="true"
-            />
-            <span className="wall-style-tile__name">{wallStyleLabels[style]}</span>
-          </button>
-        ))}
-      </div>
-      <p className="sheet__label">Color</p>
+      {appearance.background === 'lamplight' && (
+        <>
+        <p className="sheet__label">Wall style</p>
+        <div className="wall-style-grid" role="radiogroup" aria-label="Wall style">
+          {WALL_STYLES.map((style) => (
+            <button
+              key={style}
+              type="button"
+              role="radio"
+              className="wall-style-tile"
+              aria-checked={appearance.wallStyle === style}
+              onClick={() => update({ ...appearance, wallStyle: style })}
+            >
+              <span
+                className="wall-style-tile__art"
+                style={{ backgroundImage: wallpaperOf(appearance.room, mode, false, style) }}
+                aria-hidden="true"
+              />
+              <span className="wall-style-tile__name">{wallStyleLabels[style]}</span>
+            </button>
+          ))}
+        </div>
+        <p className="sheet__label">Color</p>
+        </>
+      )}
+
       <div className="lamp-colors" role="radiogroup" aria-label="Color">
         <button
           type="button"
