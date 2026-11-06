@@ -1288,3 +1288,116 @@ blockquote.daily-line {
 .today-app-overview--attention:not(:has(.today-app > .today-group:not(:empty))):not(:has(.quiet-row)) {
   display: none;
 }
+
+
+/* ---------- Light-mode icon tiles ----------
+   Keep the familiar category colors, but make the tile a quiet tint and let the glyph carry the color.
+   Dark mode retains its existing stronger treatment. */
+:root[data-theme='light'] {
+  --tile-gold-bg: #f2eadc;
+  --tile-gold-ink: #89652f;
+  --tile-blue-bg: #e2edf6;
+  --tile-blue-ink: #356f9f;
+  --tile-indigo-bg: #e9e8f6;
+  --tile-indigo-ink: #5c58a5;
+  --tile-teal-bg: #e0efed;
+  --tile-teal-ink: #287c78;
+  --tile-green-bg: #e4efe5;
+  --tile-green-ink: #39764b;
+  --tile-orange-bg: #f4e9dc;
+  --tile-orange-ink: #a7652c;
+  --tile-red-bg: #f4e5e3;
+  --tile-red-ink: #ad4b45;
+  --tile-pink-bg: #f3e5eb;
+  --tile-pink-ink: #a34c70;
+  --tile-gray-bg: #e9e9e9;
+  --tile-gray-ink: #626b73;
+}
+
+:root[data-theme='light'] .settings-tile {
+  color: var(--tile-gray-ink);
+  background: var(--tile-gray-bg);
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: none;
+}
+:root[data-theme='light'] .settings-tile--gold { color: var(--tile-gold-ink); background: var(--tile-gold-bg); }
+:root[data-theme='light'] .settings-tile--blue { color: var(--tile-blue-ink); background: var(--tile-blue-bg); }
+:root[data-theme='light'] .settings-tile--indigo { color: var(--tile-indigo-ink); background: var(--tile-indigo-bg); }
+:root[data-theme='light'] .settings-tile--teal { color: var(--tile-teal-ink); background: var(--tile-teal-bg); }
+:root[data-theme='light'] .settings-tile--green { color: var(--tile-green-ink); background: var(--tile-green-bg); }
+:root[data-theme='light'] .settings-tile--orange { color: var(--tile-orange-ink); background: var(--tile-orange-bg); }
+:root[data-theme='light'] .settings-tile--red { color: var(--tile-red-ink); background: var(--tile-red-bg); }
+:root[data-theme='light'] .settings-tile--pink { color: var(--tile-pink-ink); background: var(--tile-pink-bg); }
+:root[data-theme='light'] .settings-tile--app { background: none; border: 0; }
+
+/* The same tonal treatment for settings rows in the other family apps. */
+:root[data-theme='light'] .rows:not(.rows--plain) .row__icon {
+  color: var(--tile-blue-ink);
+  background: var(--tile-blue-bg);
+  border: 1px solid color-mix(in srgb, var(--tile-blue-ink) 12%, transparent);
+  box-shadow: none;
+}
+:root[data-theme='light'] .rows:not(.rows--plain) li:nth-child(6n + 2) .row__icon { color: var(--tile-teal-ink); background: var(--tile-teal-bg); border-color: color-mix(in srgb, var(--tile-teal-ink) 12%, transparent); }
+:root[data-theme='light'] .rows:not(.rows--plain) li:nth-child(6n + 3) .row__icon { color: var(--tile-orange-ink); background: var(--tile-orange-bg); border-color: color-mix(in srgb, var(--tile-orange-ink) 12%, transparent); }
+:root[data-theme='light'] .rows:not(.rows--plain) li:nth-child(6n + 4) .row__icon { color: var(--tile-indigo-ink); background: var(--tile-indigo-bg); border-color: color-mix(in srgb, var(--tile-indigo-ink) 12%, transparent); }
+:root[data-theme='light'] .rows:not(.rows--plain) li:nth-child(6n + 5) .row__icon { color: var(--tile-green-ink); background: var(--tile-green-bg); border-color: color-mix(in srgb, var(--tile-green-ink) 12%, transparent); }
+:root[data-theme='light'] .rows:not(.rows--plain) li:nth-child(6n + 6) .row__icon { color: var(--tile-pink-ink); background: var(--tile-pink-bg); border-color: color-mix(in srgb, var(--tile-pink-ink) 12%, transparent); }
+:root[data-theme='light'] .rows:not(.rows--plain) .row__icon:has(.row__app, img) {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='system'] {
+    --tile-gold-bg: #f2eadc;
+    --tile-gold-ink: #89652f;
+    --tile-blue-bg: #e2edf6;
+    --tile-blue-ink: #356f9f;
+    --tile-indigo-bg: #e9e8f6;
+    --tile-indigo-ink: #5c58a5;
+    --tile-teal-bg: #e0efed;
+    --tile-teal-ink: #287c78;
+    --tile-green-bg: #e4efe5;
+    --tile-green-ink: #39764b;
+    --tile-orange-bg: #f4e9dc;
+    --tile-orange-ink: #a7652c;
+    --tile-red-bg: #f4e5e3;
+    --tile-red-ink: #ad4b45;
+    --tile-pink-bg: #f3e5eb;
+    --tile-pink-ink: #a34c70;
+    --tile-gray-bg: #e9e9e9;
+    --tile-gray-ink: #626b73;
+  }
+  :root[data-theme='system'] .settings-tile {
+    color: var(--tile-gray-ink);
+    background: var(--tile-gray-bg);
+    border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    box-shadow: none;
+  }
+  :root[data-theme='system'] .settings-tile--gold { color: var(--tile-gold-ink); background: var(--tile-gold-bg); }
+  :root[data-theme='system'] .settings-tile--blue { color: var(--tile-blue-ink); background: var(--tile-blue-bg); }
+  :root[data-theme='system'] .settings-tile--indigo { color: var(--tile-indigo-ink); background: var(--tile-indigo-bg); }
+  :root[data-theme='system'] .settings-tile--teal { color: var(--tile-teal-ink); background: var(--tile-teal-bg); }
+  :root[data-theme='system'] .settings-tile--green { color: var(--tile-green-ink); background: var(--tile-green-bg); }
+  :root[data-theme='system'] .settings-tile--orange { color: var(--tile-orange-ink); background: var(--tile-orange-bg); }
+  :root[data-theme='system'] .settings-tile--red { color: var(--tile-red-ink); background: var(--tile-red-bg); }
+  :root[data-theme='system'] .settings-tile--pink { color: var(--tile-pink-ink); background: var(--tile-pink-bg); }
+  :root[data-theme='system'] .settings-tile--app { background: none; border: 0; }
+  :root[data-theme='system'] .rows:not(.rows--plain) .row__icon {
+    color: var(--tile-blue-ink);
+    background: var(--tile-blue-bg);
+    border: 1px solid color-mix(in srgb, var(--tile-blue-ink) 12%, transparent);
+    box-shadow: none;
+  }
+  :root[data-theme='system'] .rows:not(.rows--plain) li:nth-child(6n + 2) .row__icon { color: var(--tile-teal-ink); background: var(--tile-teal-bg); border-color: color-mix(in srgb, var(--tile-teal-ink) 12%, transparent); }
+  :root[data-theme='system'] .rows:not(.rows--plain) li:nth-child(6n + 3) .row__icon { color: var(--tile-orange-ink); background: var(--tile-orange-bg); border-color: color-mix(in srgb, var(--tile-orange-ink) 12%, transparent); }
+  :root[data-theme='system'] .rows:not(.rows--plain) li:nth-child(6n + 4) .row__icon { color: var(--tile-indigo-ink); background: var(--tile-indigo-bg); border-color: color-mix(in srgb, var(--tile-indigo-ink) 12%, transparent); }
+  :root[data-theme='system'] .rows:not(.rows--plain) li:nth-child(6n + 5) .row__icon { color: var(--tile-green-ink); background: var(--tile-green-bg); border-color: color-mix(in srgb, var(--tile-green-ink) 12%, transparent); }
+  :root[data-theme='system'] .rows:not(.rows--plain) li:nth-child(6n + 6) .row__icon { color: var(--tile-pink-ink); background: var(--tile-pink-bg); border-color: color-mix(in srgb, var(--tile-pink-ink) 12%, transparent); }
+  :root[data-theme='system'] .rows:not(.rows--plain) .row__icon:has(.row__app, img) {
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+}
