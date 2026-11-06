@@ -1,6 +1,6 @@
 /**
- * Where the vault header is kept: two independent places on the device, so that losing one (a cleared key, a failed
- * write, a damaged store) never loses the only copy of the sealed Local Vault Key, which is the one thing that cannot
+ * Where the vault header is kept: two independent places on the device, so that losing one (a cleared key, a write
+ * that did not finish, a damaged store) never loses the only copy of the sealed Local Vault Key, which is the one thing that cannot
  * be re-made. Reading takes whichever valid copy is newer and repairs the other. Both are device-only and are not part
  * of backups or sync (the key `proairetosVault` is outside the `proairetos.` prefix).
  */
@@ -39,10 +39,13 @@ export function localStorageHeader(key = HEADER_KEY): HeaderStore & { exists(): 
 }
 
 /** A small database of its own, so the main database and its version are not touched. */
-export function indexedDbHeader(factory: IDBFactory = indexedDB, name = DB): HeaderStore {
+export function indexedDbHeader(factory?: IDBFactory, name = DB): HeaderStore {
+  // Looked up when used, not when this is made: places with no IndexedDB (a test, a blocked browser) simply have no second copy.
   const open = () =>
     new Promise<IDBDatabase>((resolve, reject) => {
-      const request = factory.open(name, 1);
+      const where = factory ?? (typeof indexedDB === 'undefined' ? undefined : indexedDB);
+      if (!where) return reject(new Error('No IndexedDB here.'));
+      const request = where.open(name, 1);
       request.onupgradeneeded = () => request.result.createObjectStore(STORE);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
