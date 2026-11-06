@@ -113,6 +113,8 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   const day = appearance.dayLight ? currentDayLight() : undefined;
   const s = pageScheme(appearance, mode, app, day);
   const root = document.documentElement;
+  if (app === 'proairetos') root.dataset.llStaticWallpaper = 'true';
+  else delete root.dataset.llStaticWallpaper;
   const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, appearance.wallStyle) : familyVars(s, app)) };
   if (app === 'proairetos' && appearance.background !== 'lamplight') {
     const scene = backgroundOf(appearance.background, mode, s.page);

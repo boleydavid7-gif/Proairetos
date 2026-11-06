@@ -9,8 +9,8 @@
 }
 
 /* The selected material is one continuous surface across the whole page.
-   Keep its texture present to the bottom; do not fade it into a flat page-color block. */
-:root[data-room] .app-shell {
+   Companion apps retain their existing page-bound lighting. Proairetos uses the fixed viewport layer below. */
+:root[data-room]:not([data-ll-static-wallpaper]) .app-shell {
   background:
     var(--room-shade, linear-gradient(transparent, transparent)),
     var(--room-wall) top / 100% 100% no-repeat,
@@ -18,10 +18,37 @@
 }
 
 @media (min-width: 62rem) {
-  :root[data-room] .app-shell {
+  :root[data-room]:not([data-ll-static-wallpaper]) .app-shell {
     background:
       var(--room-shade, linear-gradient(transparent, transparent)) top / 100% 100% no-repeat,
       var(--room-wall-wide) top / 100% 100% no-repeat,
+      var(--color-bg);
+  }
+}
+
+/* A wallpaper should not be tied to the height or scroll position of the page.
+   Keep it in a fixed viewport layer; the content scrolls independently above it. */
+:root[data-ll-static-wallpaper] .app-shell {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+
+:root[data-ll-static-wallpaper] .app-shell::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    var(--room-wall) top center / 100% 100% no-repeat,
+    var(--color-bg);
+}
+
+@media (min-width: 62rem) {
+  :root[data-ll-static-wallpaper] .app-shell::before {
+    background:
+      var(--room-wall-wide) top center / 100% 100% no-repeat,
       var(--color-bg);
   }
 }
