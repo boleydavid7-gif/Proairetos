@@ -354,8 +354,9 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['medicine name', 'visit contact', 'visit place'], excludes: ['medication doses', 'medicine notes', 'visit notes', 'questions for the doctor', 'health card', 'readings'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['medicine name', 'dose time', 'refill day', 'visit contact, time and place'], excludes: ['dose amounts', 'medicine and visit notes', 'questions for the doctor', 'readings', 'the health card', 'supply counts'] },
+    calendar: { shows: ['visit contact, time and place', 'who the visit is for'], excludes: ['visit notes', 'questions for the doctor', 'medicines and doses', 'readings', 'the health card'], kinds: ['event'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {

@@ -86,6 +86,19 @@ const specs: Spec[] = [
     kinds: ['deadline', 'event'],
     provider: load(() => import('../../melete/providers/calendar'), 'meleteCalendar'),
   },
+  {
+    app: 'therapeia',
+    create: [
+      pref('therapeia:visit:v1', { id: 'v1', with: 'Dr Lee', where: 'Clinic', notes: 'CANARY-VISITNOTE', questions: [{ id: 'q', text: 'CANARY-QUESTION' }], at: '2026-11-05T15:00', createdAt: day }),
+      pref('therapeia:visit:v2', { id: 'v2', with: 'Dr Okafor', who: 'Mia', at: '2026-11-06T10:30', notes: 'CANARY-VISITNOTE', questions: [], createdAt: day }),
+      pref('therapeia:medicine:m1', { id: 'm1', name: 'Sertraline', dose: 'CANARY-DOSE 50 mg', times: [{ kind: 'clock', at: '20:00' }], days: { kind: 'daily' }, start: '2026-10-01', taken: [], createdAt: day }),
+    ],
+    edit: [pref('therapeia:visit:v1', { id: 'v1', with: 'Dr Patel', where: 'Clinic', notes: 'CANARY-VISITNOTE', questions: [], at: '2026-11-05T15:00', createdAt: day })],
+    titles: ['Dr Lee', 'Mia: Dr Okafor'],
+    edited: ['Dr Patel', 'Mia: Dr Okafor'],
+    kinds: ['event', 'event'],
+    provider: load(() => import('../../therapeia/providers/calendar'), 'therapeiaCalendar'),
+  },
 ];
 
 const CANARY = /CANARY|99\b/;
