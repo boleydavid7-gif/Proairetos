@@ -357,7 +357,7 @@ async function resolvePhase(): Promise<void> {
     // page and this device stop holding the key. Records stay; signing in again asks for the passphrase, a passkey or
     // the recovery key. With no connection and an expired token the session is still stored, so nothing is forgotten.
     if (ended) await forgetKeys();
-    return set({ phase: 'signed-out', email: undefined, target: undefined, error: undefined });
+    return set({ phase: 'signed-out', email: undefined, target: undefined, error: readSignOutNote() });
   }
   // Another account used this device last: its things are put away here and this account starts clean.
   if (deviceAccountAtStart !== user.id) {
@@ -368,6 +368,7 @@ async function resolvePhase(): Promise<void> {
     }
     deviceAccountAtStart = user.id;
   }
+  writeSignOutNote(undefined);
   rememberAccountEmail(user.email ?? '');
   userId = user.id;
   try {
@@ -1183,7 +1184,34 @@ export async function openDataWithPasskey(rows: readonly PasskeyRow[]): Promise<
 /** What a sign-out reported: whether the server ended the session. The device is signed out either way. */
 export type SignOutResult = { endedOnServer: boolean };
 
-const NOT_ENDED_ON_SERVER = 'Signed out on this device. The server could not be reached, so the session there is still active. To end it, sign in and choose Sign out everywhere.';
+/**
+ * What the sign-out reported, kept on this device (a plain sentence, no secret, outside the `proairetos.` prefix so it is
+ * not backed up or synced) until the next sign-in. Every status refresh after the sign-out would otherwise wipe it.
+ */
+const SIGN_OUT_NOTE = 'proairetosSignOutNote';
+
+function readSignOutNote(): string | undefined {
+  try {
+    return localStorage.getItem(SIGN_OUT_NOTE) ?? undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function writeSignOutNote(note: string | undefined): void {
+  try {
+    if (note) localStorage.setItem(SIGN_OUT_NOTE, note);
+    else localStorage.removeItem(SIGN_OUT_NOTE);
+  } catch {
+    // Storage blocked: the message is shown once, not kept.
+  }
+}
+
+/** What the screen says when the server could not be reached: never that more was signed out than was. */
+const NOT_ENDED_ON_SERVER: Record<SignOutScope, string> = {
+  local: 'Signed out on this device. The server could not be reached, so it still counts this device as signed in. To end that, sign in when you are online and choose Sign out everywhere.',
+  global: 'Signed out on this device only. The server could not be reached, so your other devices are still signed in. To end them, sign in when you are online and choose Sign out everywhere.',
+};
 
 /**
  * Signs out and forgets the keys on this device. `local` ends this browser's session only (every app in this browser
@@ -1203,7 +1231,8 @@ export async function signOut(scope: SignOutScope): Promise<SignOutResult> {
   writeAccountPasswordSetupPending(false);
   writeAccountPasswordReadyForSetup(false);
   userId = null;
-  set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: endedOnServer ? undefined : NOT_ENDED_ON_SERVER });
+  writeSignOutNote(endedOnServer ? undefined : NOT_ENDED_ON_SERVER[scope]);
+  set({ phase: 'signed-out', email: undefined, lastSyncedAt: undefined, error: readSignOutNote() });
   tellFamily('account');
   return { endedOnServer };
 }

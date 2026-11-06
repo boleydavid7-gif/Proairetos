@@ -110,17 +110,55 @@ describe('signing out', () => {
     const controller = await open();
     net.online = false;
     const result = await controller.signOut('local');
+    await wait(500);
     expect(result.endedOnServer).toBe(false);
     expect(controller.syncStatus.get().phase).toBe('signed-out');
-    expect(controller.syncStatus.get().error).toMatch(/session there is still active/);
+    // Still there after the sign-out's own status refresh, which used to wipe it.
+    expect(controller.syncStatus.get().error).toMatch(/still counts this device as signed in/);
+    expect(controller.syncStatus.get().error).not.toMatch(/other devices/);
     expect(localStorage.getItem('proairetos.auth')).toBeNull();
     expect(await state.getMeta('dataKey')).toBeUndefined();
+  });
+
+  it('asked to sign out everywhere with no connection, it says only this device was signed out and that the others are still signed in', async () => {
+    const state = await seedSignedIn();
+    const controller = await open();
+    net.online = false;
+    const result = await controller.signOut('global');
+    await wait(500);
+    expect(result.endedOnServer).toBe(false);
+    expect(controller.syncStatus.get().phase).toBe('signed-out');
+    const message = controller.syncStatus.get().error ?? '';
+    expect(message).toMatch(/Signed out on this device only/);
+    expect(message).toMatch(/other devices are still signed in/);
+    expect(message).not.toMatch(/signed out everywhere/i);
+    expect(await state.getMeta('dataKey')).toBeUndefined();
+    // Back online, signing in and asking again ends them: the message names that next step.
+    expect(message).toMatch(/sign in when you are online and choose Sign out everywhere/);
+  });
+
+  it('keeps that message across a reload and clears it when the person signs in again', async () => {
+    await seedSignedIn();
+    const first = await open();
+    net.online = false;
+    await first.signOut('local');
+    net.online = true;
+    await wait(300);
+    const reloaded = await open();
+    expect(reloaded.syncStatus.get().error).toMatch(/still counts this device as signed in/);
+    await seedSignedIn();
+    const { supabase } = await import('../../data/sync/supabase');
+    await (await supabase()).auth.setSession({ access_token: jwt(), refresh_token: 'r2' });
+    await wait(600);
+    expect(reloaded.syncStatus.get().error ?? '').not.toMatch(/still counts this device as signed in/);
+    expect(localStorage.getItem('proairetosSignOutNote')).toBeNull();
   });
 
   it('reports nothing when the server ended the session', async () => {
     await seedSignedIn();
     const controller = await open();
     const result = await controller.signOut('local');
+    await wait(500);
     expect(result.endedOnServer).toBe(true);
     expect(controller.syncStatus.get().error).toBeUndefined();
   });

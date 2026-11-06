@@ -53,6 +53,11 @@ export default function AccountCard({ app, what, waiting }: { app: string; what:
           )}
         </div>
       </div>
+      {account.phase === 'signed-out' && account.error && (
+        <p className="hint" role="status">
+          {account.error}
+        </p>
+      )}
       {account.phase === 'signed-out' && <PasskeySignIn className="button-main account__link" />}
 
       {account.phase === 'signed-out' && <SignIn />}

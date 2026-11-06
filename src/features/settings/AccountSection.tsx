@@ -135,6 +135,7 @@ function SignIn() {
 
   return (
     <>
+      {sync.phase === 'signed-out' && sync.error && <p className="sheet__hint" role="status">{sync.error}</p>}
       <PasskeySignIn className="button-accent account-wide" errorClass="form-error" />
       <form className="stack-tight" onSubmit={(event: FormEvent) => {
         event.preventDefault();
