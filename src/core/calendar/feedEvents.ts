@@ -44,3 +44,15 @@ export function feedEvents(occurrences: readonly ScheduleOccurrence[], items: re
   }
   return events;
 }
+
+/** What the file holds for the switches that are on, in the words the settings page uses. Empty when nothing is on. */
+export function describeFeed(options: FeedOptions): string[] {
+  const parts: string[] = [];
+  if (options.shifts) parts.push(options.shiftLabels ? 'your commitments, with the names from your schedule' : 'your commitments, titled “Busy”');
+  if (options.protectedTime) parts.push('protected time, titled “Protected time”');
+  if (options.tasks) parts.push('the titles and times of to-dos that have a day or time');
+  return parts;
+}
+
+/** The line about what a calendar file never holds, whatever is switched on. */
+export const FEED_NEVER = 'It never holds bill amounts, confirmation codes, addresses, routes or notes.';

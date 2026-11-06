@@ -293,7 +293,8 @@ describe('the order of a day and the trip as a calendar file', () => {
     expect(titles).toEqual(['Check-out: Casa Azul', 'Fado night', 'Flight: TP 210', 'Lisbon', 'Pastéis', 'Stay: Casa Azul']);
     const text = buildIcs(events, { name: 'Lisbon', now: new Date('2026-10-22T00:00:00Z') });
     expect(text).toContain('SUMMARY:Flight: TP 210');
-    expect(text).toContain('DESCRIPTION:Confirmation ABC123');
+    // A trip's file holds no confirmation code and no note.
+    expect(text).not.toMatch(/ABC123|Confirmation|DESCRIPTION/);
     expect(text.match(/BEGIN:VEVENT/g)).toHaveLength(6);
   });
 });

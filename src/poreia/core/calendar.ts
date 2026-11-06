@@ -4,8 +4,9 @@ import { kindLabel, type Booking, type PlanItem, type Trip } from './model';
 import type { TimeOff } from './timeOff';
 
 /*
- * What Proairetos shows from Poreia, in the calendar shape its Today, Days ahead and published feed share: each trip
- * as an all-day span, time off (marked "planned" until approved), and timed bookings at their times.
+ * What Poreia puts in a calendar file, in the calendar shape: each trip as an all-day span, time off (marked "planned"
+ * until approved), and timed bookings and plans at their times. No confirmation code and no note goes into any of it,
+ * so a file made from it holds neither.
  */
 
 const overlaps = (from: string, until: string, start: string, endExclusive: string) => start < until && endExclusive > from;
@@ -28,7 +29,7 @@ export function poreiaEvents(trips: readonly Trip[], offs: readonly TimeOff[], b
     const endExclusive = addDays(off.end, 1);
     if (!overlaps(fromDay, untilDay, off.start, endExclusive)) continue;
     const title = off.status === 'approved' ? 'Time off' : `Time off (${off.status})`;
-    events.push({ uid: `poreia-off-${off.id}`, title, date: off.start, dateEnd: endExclusive, notes: off.title });
+    events.push({ uid: `poreia-off-${off.id}`, title, date: off.start, dateEnd: endExclusive });
   }
 
   for (const booking of bookings) {
@@ -40,7 +41,7 @@ export function poreiaEvents(trips: readonly Trip[], offs: readonly TimeOff[], b
       let end = sameDayEnd ? atTime(booking.startDate, booking.endTime!) : booking.endDate && booking.endTime && booking.kind !== 'stay' && booking.kind !== 'car' && booking.kind !== 'cruise' ? atTime(booking.endDate, booking.endTime) : new Date(start.getTime() + 60 * 60_000);
       if (end <= start) end = new Date(start.getTime() + 60 * 60_000);
       if (start >= until || end <= from) continue;
-      events.push({ uid: `poreia-booking-${booking.id}`, title: `${kindLabel(booking.kind)}: ${booking.title}`, start, end, ...(where ? { location: where } : {}), ...(booking.confirmation ? { notes: `Confirmation ${booking.confirmation}` } : {}) });
+      events.push({ uid: `poreia-booking-${booking.id}`, title: `${kindLabel(booking.kind)}: ${booking.title}`, start, end, ...(where ? { location: where } : {}) });
     }
   }
 
@@ -50,7 +51,7 @@ export function poreiaEvents(trips: readonly Trip[], offs: readonly TimeOff[], b
     const start = atTime(item.date, item.time);
     const end = new Date(start.getTime() + 60 * 60_000);
     if (start >= until || end <= from) continue;
-    events.push({ uid: `poreia-plan-${item.id}`, title: item.title, start, end, ...(item.where ? { location: item.where } : {}), ...(item.note ? { notes: item.note } : {}) });
+    events.push({ uid: `poreia-plan-${item.id}`, title: item.title, start, end, ...(item.where ? { location: item.where } : {}) });
   }
   return events;
 }
@@ -68,14 +69,13 @@ export function tripEvents(trip: Trip, bookings: readonly Booking[], plans: read
   const until = atTime(addDays(dates[dates.length - 1], 2), '00:00');
   const events = poreiaEvents([trip], [], mine, from, until, theirs);
   for (const booking of mine) {
-    const code = booking.confirmation ? `Confirmation ${booking.confirmation}` : undefined;
-    if (booking.startDate && !booking.startTime) events.push({ uid: `poreia-booking-${booking.id}`, title: `${kindLabel(booking.kind)}: ${booking.title}`, date: booking.startDate, ...(booking.address ? { location: booking.address } : {}), ...(code ? { notes: code } : {}) });
+    if (booking.startDate && !booking.startTime) events.push({ uid: `poreia-booking-${booking.id}`, title: `${kindLabel(booking.kind)}: ${booking.title}`, date: booking.startDate, ...(booking.address ? { location: booking.address } : {}) });
     if (booking.kind === 'stay' && booking.endDate && booking.endDate !== booking.startDate) {
       const end = booking.endTime ? { start: atTime(booking.endDate, booking.endTime), end: new Date(atTime(booking.endDate, booking.endTime).getTime() + 30 * 60_000) } : { date: booking.endDate };
       events.push({ uid: `poreia-checkout-${booking.id}`, title: `Check-out: ${booking.title}`, ...end, ...(booking.address ? { location: booking.address } : {}) });
     }
   }
-  for (const item of theirs) if (!item.time) events.push({ uid: `poreia-plan-${item.id}`, title: item.title, date: item.date, ...(item.where ? { location: item.where } : {}), ...(item.note ? { notes: item.note } : {}) });
+  for (const item of theirs) if (!item.time) events.push({ uid: `poreia-plan-${item.id}`, title: item.title, date: item.date, ...(item.where ? { location: item.where } : {}) });
   return events;
 }
 

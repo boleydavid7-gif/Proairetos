@@ -68,8 +68,4 @@ export const poreiaCalendar = {
   async eventsBetween(from: Date, until: Date): Promise<DisplayCalendarEvent[]> {
     return displayEvents(events(from, until));
   },
-
-  async feedEvents(from: Date, until: Date): Promise<FeedCalendarEvent[]> {
-    return events(from, until);
-  },
 };

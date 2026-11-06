@@ -448,6 +448,9 @@ export async function hasPushSubscription(): Promise<boolean> {
 
 // ---------- Calendar feed (optional, readable by choice) ----------
 
+/** Rows written by this version carry 2. The server serves and accepts only these (migration 20261111000000), so a file made by an older version is neither served nor written back. */
+const FEED_FORMAT = 2;
+
 /** The link calendar apps subscribe to. */
 export function calendarFeedUrl(token: string): string {
   return `${syncConfig.url}/functions/v1/calendar-feed?token=${token}`;
@@ -455,7 +458,7 @@ export function calendarFeedUrl(token: string): string {
 
 /** The token already in use, so another device keeps the same link. */
 export async function fetchCalendarFeedToken(): Promise<string | null> {
-  const { data, error } = await (await supabase()).from('calendar_feeds').select('token').maybeSingle();
+  const { data, error } = await (await supabase()).from('calendar_feeds').select('token').eq('format', FEED_FORMAT).maybeSingle();
   if (error) throw new Error(error.message);
   return (data?.token as string | undefined) ?? null;
 }
@@ -463,7 +466,7 @@ export async function fetchCalendarFeedToken(): Promise<string | null> {
 export async function publishCalendarFeed(userId: string, token: string, ics: string): Promise<void> {
   const { error } = await (await supabase())
     .from('calendar_feeds')
-    .upsert({ user_id: userId, token, ics, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+    .upsert({ user_id: userId, token, ics, format: FEED_FORMAT, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
   if (error) throw new Error(error.message);
 }
 
@@ -480,9 +483,10 @@ export async function deleteCalendarFeed(userId: string): Promise<void> {
 export async function updateCalendarFeed(userId: string, token: string, ics: string): Promise<boolean> {
   const { data, error } = await (await supabase())
     .from('calendar_feeds')
-    .update({ ics, updated_at: new Date().toISOString() })
+    .update({ ics, format: FEED_FORMAT, updated_at: new Date().toISOString() })
     .eq('user_id', userId)
     .eq('token', token)
+    .eq('format', FEED_FORMAT)
     .select('token');
   if (error) throw new Error(error.message);
   return (data?.length ?? 0) > 0;
