@@ -1,6 +1,13 @@
 /** What changed lately across the family, newest first, in plain words. Add a line when something new ships. */
 export const whatsNew: { date: string; lines: string[] }[] = [
   {
+    date: '2026-11-06',
+    lines: [
+      'The calendar file now holds only what you switch on in Settings > Calendar. Bills and trips are no longer added to it, and it never holds bill amounts, confirmation codes, addresses, routes or notes.',
+      'Calendar links made before this were ended. Create a new link in Settings > Calendar and remove the old subscription in your calendar app.',
+    ],
+  },
+  {
     date: '2026-11-05',
     lines: [
       'Meletē: subjects with their dates, and a week that shows when you are free. You schedule the study sessions; everything comes from your own materials.',
