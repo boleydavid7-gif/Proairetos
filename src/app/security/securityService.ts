@@ -19,9 +19,14 @@ import { createListeners } from '../../services/listeners';
 import { KeyError, unlockWithPasskey, unlockWithPassphrase, unlockWithRecoveryKey } from '../../data/sync/keys';
 import { LockedError } from '../../data/security/locked';
 import { createVault, isVaultKey, openVault, VaultError, withAccount, type AccountEnvelopes, type VaultHeader } from '../../data/security/vault';
-import { createVaultStorage, indexedDbHeader, localStorageHeader, type VaultStorage } from '../../data/security/vaultStorage';
+import { createVaultStorage, indexedDbHeader, localStorageHeader, type VaultLoad, type VaultStorage } from '../../data/security/vaultStorage';
 
-export type SecurityPhase = 'none' | 'locked' | 'unlocked' | 'corrupt';
+/**
+ * - `checking`: the stored copies have not been read yet. Nothing private is shown.
+ * - `none`: both places were read and there is no vault.
+ * - `unverified`: a vault may exist but storage could not be read to tell. Fails closed: nothing private is shown.
+ */
+export type SecurityPhase = 'checking' | 'none' | 'unverified' | 'locked' | 'unlocked' | 'corrupt';
 
 export type SecurityStatus = {
   phase: SecurityPhase;
@@ -45,23 +50,26 @@ export type SecurityDeps = {
   /** One page at a time for creating the vault (Web Locks); a plain call where the browser has none. */
   exclusive: <T>(task: () => Promise<T>) => Promise<T>;
   now: () => Date;
-  /** Whether a vault is known to exist before anything has loaded (read synchronously), so a page never shows private screens first. */
+  /** Whether a vault is known to exist before anything has loaded (read synchronously). Only ever speeds up showing the locked screen. */
   vaultKnown: () => boolean;
+  /** How long reading the stored copies may take before the answer is "could not verify". */
+  checkTimeoutMs: number;
 };
 
 export function createSecurityService(deps: SecurityDeps) {
   const listeners = createListeners();
   let header: VaultHeader | null = null;
   let lvk: CryptoKey | null = null;
-  let phase: SecurityPhase = 'none';
   let channel: BroadcastChannel | null = null;
   let starting: Promise<void> | null = null;
-  // Until the stored header has been read, a page that knows a vault exists counts as locked.
-  let loading = deps.vaultKnown();
-  let snapshot: SecurityStatus = { phase: 'none', passkeys: [], hasPassphrase: false };
+  // What the stored copies say. Until both have been read it is `checking` (or `vault`, if one is already known to exist):
+  // an empty browser-storage copy never proves there is no vault, so a page is never `none` before it has looked at both.
+  let verdict: 'checking' | 'none' | 'unverified' | 'corrupt' | 'vault' = deps.vaultKnown() ? 'vault' : 'checking';
+  let phase: SecurityPhase = 'checking';
+  let snapshot: SecurityStatus = { phase: 'checking', passkeys: [], hasPassphrase: false };
 
   function publish() {
-    phase = lvk ? 'unlocked' : phase === 'corrupt' ? 'corrupt' : header || loading ? 'locked' : 'none';
+    phase = lvk ? 'unlocked' : verdict === 'corrupt' ? 'corrupt' : header || verdict === 'vault' ? 'locked' : verdict;
     snapshot = {
       phase,
       userId: header?.account.userId,
@@ -71,7 +79,7 @@ export function createSecurityService(deps: SecurityDeps) {
     listeners.notify();
   }
 
-  // The first snapshot already says locked when a vault is known to exist: no page paints a private screen first.
+  // The first snapshot already says `locked` or `checking`: no page paints a private screen first.
   publish();
 
   function post(message: Message) {
@@ -88,20 +96,34 @@ export function createSecurityService(deps: SecurityDeps) {
     if (share && header) post({ t: 'key', vault: header.id, key });
   }
 
+  /** Reads both stored copies. Not being able to tell is `unverified`, and a read that takes too long counts as not being able to tell. */
   async function reload() {
-    const loaded = await deps.storage.load();
-    loading = false;
+    let loaded: VaultLoad;
+    try {
+      loaded = await Promise.race([
+        deps.storage.load(),
+        new Promise<VaultLoad>((resolve) => setTimeout(() => resolve({ state: 'unverified' }), deps.checkTimeoutMs)),
+      ]);
+    } catch {
+      loaded = { state: 'unverified' };
+    }
     if (loaded.state === 'ok') {
       header = loaded.header;
-      if (phase === 'corrupt') phase = 'none';
+      verdict = 'vault';
+    } else if (loaded.state === 'unverified') {
+      // A page that already knows its vault keeps what it knows; one that has no answer fails closed.
+      if (!header) {
+        lvk = null;
+        verdict = 'unverified';
+      }
     } else if (loaded.state === 'corrupt') {
       header = null;
       lvk = null;
-      phase = 'corrupt';
+      verdict = 'corrupt';
     } else {
       header = null;
       lvk = null;
-      phase = 'none';
+      verdict = 'none';
     }
     publish();
   }
@@ -143,7 +165,7 @@ export function createSecurityService(deps: SecurityDeps) {
       await adopt(await openVault(current, accountKey), true);
     } catch (cause) {
       if (cause instanceof VaultError && cause.code === 'corrupt') {
-        phase = 'corrupt';
+        verdict = 'corrupt';
         publish();
       }
       throw cause;
@@ -166,6 +188,9 @@ export function createSecurityService(deps: SecurityDeps) {
       await start();
       await deps.exclusive(async () => {
         await reload();
+        // Never make a vault over something that could not be read or is damaged: a vault may already be there.
+        if (phase === 'unverified') throw new VaultError('unverified', 'The security data on this device cannot be checked right now.');
+        if (phase === 'corrupt') throw new VaultError('corrupt', 'The security data on this device could not be read.');
         if (header) return unlockWith(accountKey);
         const made = await createVault(accountKey, account, deps.now());
         await deps.storage.save(made.header);
@@ -219,6 +244,13 @@ export function createSecurityService(deps: SecurityDeps) {
       publish();
     },
 
+    /** Looks at the stored copies again (after the screen that says they could not be checked). */
+    async retry(): Promise<void> {
+      await start();
+      await reload();
+      if (phase === 'locked' && !lvk) post({ t: 'ask' });
+    },
+
     /** For tests and shutdown. */
     close(): void {
       channel?.close();
@@ -236,6 +268,7 @@ function defaultDeps(): SecurityDeps {
     exclusive: (task) => (typeof navigator !== 'undefined' && navigator.locks ? navigator.locks.request('proairetos-vault', task) : task()),
     now: () => new Date(),
     vaultKnown: () => localStorageHeader().exists(),
+    checkTimeoutMs: 4000,
   };
 }
 

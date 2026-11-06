@@ -6,9 +6,20 @@
  */
 import { VaultError, parseHeader, type VaultHeader } from './vault';
 
+/**
+ * `read` returns what is stored, `null` when nothing is, and **throws when it cannot tell** (storage blocked or failing).
+ * `StoreUnavailable` means the browser has no such storage at all, so it cannot hold a vault.
+ */
 export interface HeaderStore {
   read(): Promise<string | null>;
   write(text: string): Promise<void>;
+}
+
+export class StoreUnavailable extends Error {
+  constructor() {
+    super('This storage does not exist here.');
+    this.name = 'StoreUnavailable';
+  }
 }
 
 export const HEADER_KEY = 'proairetosVault';
@@ -19,11 +30,9 @@ const STORE = 'header';
 export function localStorageHeader(key = HEADER_KEY): HeaderStore & { exists(): boolean } {
   return {
     async read() {
-      try {
-        return localStorage.getItem(key);
-      } catch {
-        return null;
-      }
+      // Reading a blocked store throws; that is "cannot tell", not "nothing there".
+      if (typeof localStorage === 'undefined') throw new StoreUnavailable();
+      return localStorage.getItem(key);
     },
     async write(text) {
       localStorage.setItem(key, text);
@@ -47,14 +56,16 @@ export function indexedDbHeader(factory?: IDBFactory, name = DB): HeaderStore {
   const open = (create: boolean) =>
     new Promise<IDBDatabase | null>((resolve, reject) => {
       const idb = where();
-      if (!idb) return reject(new Error('No IndexedDB here.'));
+      if (!idb) return reject(new StoreUnavailable());
       const request = idb.open(name);
       request.onupgradeneeded = () => {
         if (create) request.result.createObjectStore(STORE);
         else request.transaction?.abort();
       };
       request.onsuccess = () => resolve(request.result);
-      request.onerror = () => (create ? reject(request.error) : resolve(null));
+      // Reading: the database not being there is an abort of the upgrade we asked for (`AbortError`): nothing stored.
+      // Anything else is an error we cannot read past.
+      request.onerror = () => (!create && request.error?.name === 'AbortError' ? resolve(null) : reject(request.error ?? new Error('Could not open the vault copy.')));
     });
 
   return {
@@ -91,12 +102,26 @@ export function indexedDbHeader(factory?: IDBFactory, name = DB): HeaderStore {
 
 export type VaultLoad =
   | { state: 'none' }
+  /** Neither copy was found, and at least one place could not be read: a vault may exist. Fail closed. */
+  | { state: 'unverified' }
   | { state: 'ok'; header: VaultHeader; repaired: boolean }
   | { state: 'corrupt' };
 
 export type VaultStorage = {
   load(): Promise<VaultLoad>;
   save(header: VaultHeader): Promise<void>;
+};
+
+type Read = { kind: 'text'; text: string } | { kind: 'empty' } | { kind: 'unavailable' } | { kind: 'error' };
+
+/** One place read, in a way that keeps "nothing there" apart from "could not tell". */
+const readPlace = async (store: HeaderStore): Promise<Read> => {
+  try {
+    const text = await store.read();
+    return text === null ? { kind: 'empty' } : { kind: 'text', text };
+  } catch (cause) {
+    return cause instanceof StoreUnavailable ? { kind: 'unavailable' } : { kind: 'error' };
+  }
 };
 
 const attempt = async <T>(task: () => Promise<T>): Promise<{ ok: true; value: T } | { ok: false }> => {
@@ -110,8 +135,8 @@ const attempt = async <T>(task: () => Promise<T>): Promise<{ ok: true; value: T 
 export function createVaultStorage(primary: HeaderStore, secondary: HeaderStore): VaultStorage {
   return {
     async load() {
-      const texts = await Promise.all([attempt(() => primary.read()), attempt(() => secondary.read())]);
-      const found = texts.map((each) => (each.ok ? each.value : null));
+      const reads = await Promise.all([readPlace(primary), readPlace(secondary)]);
+      const found = reads.map((read) => (read.kind === 'text' ? read.text : null));
       const valid: (VaultHeader | null)[] = found.map((text) => {
         if (text === null) return null;
         try {
@@ -122,11 +147,16 @@ export function createVaultStorage(primary: HeaderStore, secondary: HeaderStore)
         }
       });
       const best = valid.filter((each): each is VaultHeader => each !== null).sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))[0];
-      if (!best) return found.some((text) => text !== null) ? { state: 'corrupt' } : { state: 'none' };
-      // A copy that is missing, damaged or older is written again from the newest valid one.
+      if (!best) {
+        if (found.some((text) => text !== null)) return { state: 'corrupt' };
+        // Nothing found. That means "no vault" only if every place that exists could be read; a place that errored might hold one.
+        return reads.some((read) => read.kind === 'error') ? { state: 'unverified' } : { state: 'none' };
+      }
+      // A copy that is missing, damaged or older is written again from the newest valid one. A place that could not be read is left alone.
       const text = JSON.stringify(best);
       let repaired = false;
       for (const [index, store] of [primary, secondary].entries()) {
+        if (reads[index].kind === 'error' || reads[index].kind === 'unavailable') continue;
         if (found[index] !== text) {
           repaired = true;
           await attempt(() => store.write(text));

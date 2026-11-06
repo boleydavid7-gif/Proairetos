@@ -67,6 +67,7 @@ function page(overrides: { channel?: () => BroadcastChannel | null } = {}): Secu
     exclusive: (task) => task(),
     now: () => new Date(),
     vaultKnown: () => known,
+    checkTimeoutMs: 400,
   });
   open.push(service);
   return service;
@@ -335,4 +336,80 @@ describe('a damaged vault', () => {
     expect(b.status().phase).toBe('corrupt');
     expect(() => b.key()).toThrow(LockedError);
   });
+
+describe('when storage cannot be verified', () => {
+  const refuses = (): HeaderStore => ({ read: async () => Promise.reject(new Error('blocked')), write: async () => Promise.reject(new Error('blocked')) });
+
+  function blockedPage(first: HeaderStore, second: HeaderStore): SecurityService {
+    const service = createSecurityService({
+      storage: createVaultStorage(first, second),
+      openChannel: () => channelFor(),
+      exclusive: (task) => task(),
+      now: () => new Date(),
+      vaultKnown: () => false,
+      checkTimeoutMs: 150,
+    });
+    open.push(service);
+    return service;
+  }
+
+  it('starts out checking, never none, and is none only once both places have been read', async () => {
+    const service = page();
+    expect(service.status().phase).toBe('checking');
+    await service.start();
+    expect(service.status().phase).toBe('none');
+  });
+
+  it('fails closed: unverified, with no key, when a place cannot be read and none is found', async () => {
+    const service = blockedPage(memory(), refuses());
+    expect(service.status().phase).toBe('checking');
+    await service.start();
+    expect(service.status().phase).toBe('unverified');
+    expect(() => service.key()).toThrow(LockedError);
+  });
+
+  it('counts a read that never finishes as unverified', async () => {
+    const hangs: HeaderStore = { read: () => new Promise(() => undefined), write: async () => undefined };
+    const service = blockedPage(memory(), hangs);
+    await service.start();
+    expect(service.status().phase).toBe('unverified');
+  });
+
+  it('never makes a vault over a place that could not be read, or over damaged data', async () => {
+    const { setup, envelopes } = await account();
+    const unreadable = blockedPage(memory(), refuses());
+    await expect(unreadable.createFromAccountKey(setup.dataKey, envelopes)).rejects.toMatchObject({ code: 'unverified' });
+    expect(unreadable.status().phase).toBe('unverified');
+
+    const damaged = memory();
+    damaged.text = 'garbage';
+    const broken = blockedPage(damaged, memory());
+    await expect(broken.createFromAccountKey(setup.dataKey, envelopes)).rejects.toMatchObject({ code: 'corrupt' });
+    expect(damaged.text).toBe('garbage');
+  });
+
+  it('answers properly when the place can be read again', async () => {
+    let blocked = true;
+    const flaky: HeaderStore = { read: async () => (blocked ? Promise.reject(new Error('blocked')) : null), write: async () => undefined };
+    const service = blockedPage(memory(), flaky);
+    await service.start();
+    expect(service.status().phase).toBe('unverified');
+    blocked = false;
+    await service.retry();
+    expect(service.status().phase).toBe('none');
+  });
+
+  it('a page that has no answer yet and finds the vault in the second place only is locked, not none', async () => {
+    const { setup, envelopes } = await account();
+    const maker = page();
+    await maker.createFromAccountKey(setup.dataKey, envelopes);
+    maker.lock();
+    primary.text = null; // the browser-storage copy is gone
+    const late = page();
+    expect(late.status().phase).toBe('checking');
+    await late.start();
+    expect(late.status().phase).toBe('locked');
+    expect(primary.text).toBe(secondary.text);
+  });
+});
 });

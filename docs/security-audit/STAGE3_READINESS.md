@@ -20,6 +20,8 @@ What the foundation gives Stage 3, what is still missing, and the rules Stage 3 
 4. **On-demand opening**, per store and per screen, never everything at unlock (17,000 records take 1 to 8 s on desktop to a slowed phone CPU; a screen needs hundreds).
 5. **A notice cache while locked:** the worker shows the app's name and the time only (the existing private form); sealed push payloads show the generic line.
 6. **A header safety net** (section 5).
+7. **Refresh the cached account envelopes at every successful sync**, not only when the account key is opened or passkeys change, so an old password stops opening a device's vault soon after it comes online (`STAGE2_FOUNDATION.md`, cached password wraps).
+8. **The fail-closed gate** shows "cannot be checked" where storage is blocked; decide whether that is acceptable for every browser the apps support before any store is sealed.
 
 ## 3. Migration requirements (the owner's conditions, restated as rules)
 

@@ -19,10 +19,13 @@ const IV_BYTES = 12;
 const ID_BYTES = 16;
 const CHECK_TEXT = 'proairetos-vault-check';
 
-/** Why the vault could not be opened: the header is not valid (`corrupt`), or it does not open with this key (`cannot-open`). */
+/**
+ * Why the vault could not be opened: the header is not valid (`corrupt`), it does not open with this key (`cannot-open`),
+ * or storage could not be read to tell whether there is one (`unverified`).
+ */
 export class VaultError extends Error {
   constructor(
-    readonly code: 'corrupt' | 'cannot-open',
+    readonly code: 'corrupt' | 'cannot-open' | 'unverified',
     message: string,
   ) {
     super(message);

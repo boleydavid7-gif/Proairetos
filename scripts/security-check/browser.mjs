@@ -181,6 +181,97 @@ const damaged = await text(copy);
 check('both copies damaged: the page says so and shows no app, and removes nothing', damaged.includes('could not be read') && (await copy.evaluate(() => localStorage.getItem('proairetosVault'))) === 'garbage');
 await copy.close();
 
+// ---- 9. Reload: the gate decides from both copies, and never shows the app while it is unsure ----
+// An observer installed before the app starts records whether the app was ever in the page (the root has content and no lock screen).
+const WATCH = () => {
+  window.__appShown = false;
+  window.__firstAppAt = null;
+  const look = () => {
+    const root = document.getElementById('root');
+    if (root && root.childElementCount > 0 && !root.querySelector('.locked-screen')) {
+      if (!window.__appShown) window.__firstAppAt = Math.round(performance.now());
+      window.__appShown = true;
+    }
+  };
+  new MutationObserver(look).observe(document, { childList: true, subtree: true });
+};
+const watched = async (ctx, path, extra) => {
+  const page = await ctx.newPage();
+  await page.addInitScript(WATCH);
+  if (extra) await page.addInitScript(extra);
+  page.on('pageerror', (error) => errors.push(`${path}: ${String(error).slice(0, 120)}`));
+  await page.goto(`${BASE}/${path}/`);
+  await page.waitForTimeout(2200);
+  return page;
+};
+const state = (page) => page.evaluate(() => ({ appEverShown: window.__appShown, locked: document.body.innerText.includes('Locked'), cannotCheck: document.body.innerText.includes('cannot be checked'), unreadable: document.body.innerText.includes('could not be read'), at: window.__firstAppAt }));
+
+// 9a. The vault exists; the browser-storage copy is gone; the database copy is valid. A reload must show locked, never the app.
+await home.evaluate(async () => (await import('/src/app/security/securityService.ts')).security.lock());
+await settle(home, 400);
+// (Section 8 left both copies damaged, so a valid database copy is put back first.)
+await home.evaluate(async (good) => {
+  const db = await new Promise((res) => { const r = indexedDB.open('proairetos-vault'); r.onsuccess = () => res(r.result); });
+  await new Promise((res) => { const tx = db.transaction('header', 'readwrite'); tx.objectStore('header').put(good, 'header'); tx.oncomplete = res; });
+  db.close();
+  localStorage.removeItem('proairetosVault');
+}, good);
+{
+  const page = await watched(context, 'ergon');
+  const st = await state(page);
+  check('reload with the browser-storage copy missing and the database copy valid: locked, and the app was never shown', st.locked && !st.appEverShown, JSON.stringify(st));
+  check('and the missing copy is written back', (await page.evaluate(() => localStorage.getItem('proairetosVault'))) === good);
+  await page.close();
+}
+
+// 9b. Storage that cannot be read: fails closed, then opens once it can.
+for (const [name, script] of [
+  ['browser storage refuses the read', () => { const get = Storage.prototype.getItem; Storage.prototype.getItem = function (key) { if (key === 'proairetosVault' && !window.__unblocked) throw new DOMException('denied', 'SecurityError'); return get.call(this, key); }; }],
+  ['the vault database fails to open', () => { const open = IDBFactory.prototype.open; IDBFactory.prototype.open = function (dbName, version) { if (dbName === 'proairetos-vault' && !window.__unblocked) { const request = {}; setTimeout(() => { Object.defineProperty(request, 'error', { value: new DOMException('blocked', 'UnknownError') }); request.onerror && request.onerror(new Event('error')); }, 0); return request; } return open.call(this, dbName, version); }; }],
+]) {
+  const fresh = await browser.newContext({ viewport: { width: 1100, height: 800 }, serviceWorkers: 'block' });
+  await seed(fresh);
+  const page = await watched(fresh, 'ergon', script);
+  const st = await state(page);
+  check(`${name}, with no vault: fails closed, says it cannot check, and the app was never shown`, st.cannotCheck && !st.appEverShown, JSON.stringify(st));
+  await page.evaluate(() => { window.__unblocked = true; });
+  await page.getByRole('button', { name: 'Try again' }).click();
+  await page.waitForTimeout(1500);
+  const after = await state(page);
+  check(`${name}: Try again opens the app once the storage can be read`, after.appEverShown && !after.cannotCheck, JSON.stringify(after));
+  await page.close();
+  await fresh.close();
+}
+
+// 9c. Both copies damaged, on a reload.
+{
+  const page = await context.newPage();
+  await page.goto(`${BASE}/ergon/`);
+  await page.waitForTimeout(800);
+  await page.evaluate(async () => {
+    localStorage.setItem('proairetosVault', 'garbage');
+    const db = await new Promise((res) => { const r = indexedDB.open('proairetos-vault'); r.onsuccess = () => res(r.result); });
+    await new Promise((res) => { const tx = db.transaction('header', 'readwrite'); tx.objectStore('header').put('also garbage', 'header'); tx.oncomplete = res; });
+    db.close();
+  });
+  await page.close();
+  const again = await watched(context, 'ergon');
+  const st = await state(again);
+  check('reload with both copies damaged: says so, the app was never shown, nothing removed', st.unreadable && !st.appEverShown && (await again.evaluate(() => localStorage.getItem('proairetosVault'))) === 'garbage', JSON.stringify(st));
+  await again.close();
+}
+
+// 9d. No vault at all: the app appears after the check, and how long that took.
+{
+  const fresh = await browser.newContext({ viewport: { width: 1100, height: 800 }, serviceWorkers: 'block' });
+  await seed(fresh);
+  const page = await watched(fresh, 'ergon');
+  const st = await state(page);
+  check('reload with no vault anywhere: the app opens, nothing is stored for a vault', st.appEverShown && !st.locked && (await page.evaluate(async () => localStorage.getItem('proairetosVault') === null && !(await indexedDB.databases()).some((db) => db.name === 'proairetos-vault'))), `app first in the page at ${st.at} ms`);
+  await page.close();
+  await fresh.close();
+}
+
 check('no page errors in any app', errors.length === 0, errors.slice(0, 3).join(' | '));
 await browser.close();
 const passed = results.filter(Boolean).length;
