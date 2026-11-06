@@ -15,6 +15,7 @@ import { isAdded } from '../family/added';
 import { fitAhead } from '../family/trainingWeek';
 import { pursuits } from '../pursuits';
 import { pursuitNotices } from '../../core/notify/pursuits';
+import { noticeProvidersOn } from '../providers/noticePath';
 
 const HORIZON_DAYS = 14;
 
@@ -31,6 +32,8 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     settings.study && isAdded('praxis') ? studyEnd() : undefined,
     settings.rhythm || settings.people || settings.chores || settings.medicines || settings.training || settings.upkeep || settings.plants || settings.trips ? familyNotices(now, until).catch(() => []) : [],
   ]);
+  // Off unless this device is switched on (providers/noticePath.ts): the apps' own functions above are the default.
+  const provided = noticeProvidersOn() ? await import('../providers/notices').then((module) => module.providerNotices(now, until, settings)).catch(() => []) : [];
   const today = toLocalDate(now);
   const notices = noticesBetween({
     items,
@@ -47,7 +50,7 @@ export async function upcomingNotices(now = new Date(), settings: NoticeSettings
     now,
     until,
   });
-  return [...notices, ...pursuitNotices(pursuits.list(), now, until)].sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
+  return [...notices, ...pursuitNotices(pursuits.list(), now, until), ...provided].sort((a, b) => a.at.getTime() - b.at.getTime() || a.key.localeCompare(b.key));
 }
 
 /** When the Praxis block running now ends (none while paused, or for Proairetos's own focus timer). */
