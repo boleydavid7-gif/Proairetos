@@ -94,7 +94,7 @@ function dayPieces(appearance: Appearance, s: Scheme, day: DayLight): { lamp: Wa
   const pool = poolColor(lampSeed(appearance.room, appearance.color), day.warmth, s.mode);
   const lamp = { x: day.x, y: day.y, strength: day.pool, glow: mixHex(s.art.glow, pool, 0.55), warmth: day.warmth };
   const edge = dark ? `rgba(0, 0, 0, ${(SHADE_DARK * day.shade).toFixed(3)})` : rgba(s.ink, SHADE_LIGHT * day.shade);
-  const shade = `${shadeGradient(day, edge)} top / 100% var(--room-height) no-repeat`;
+  const shade = shadeGradient(day, edge);
   return { lamp, shade };
 }
 
