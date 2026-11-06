@@ -4,7 +4,7 @@ import { homeRows, sourceChanged, type HomeRow, type HostContext, type Provider 
 /*
  * What the apps put on Today, kept per app. An app's lines are derived when Today starts (only for an app that is added,
  * usable and not set aside), and again only when something that app reads changes, its own records change here, the
- * person's day turns over, or its result is older than it should be. One app's change never derives another's lines.
+ * person's day turns over, or its result is older than its age limit. One app's change never derives another's lines.
  * Nothing is stored: the lines are held in memory and rebuilt from the records already on the device.
  */
 export const HOME_MAX_AGE_MS = 5 * 60_000;
