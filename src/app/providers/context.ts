@@ -1,7 +1,7 @@
 import { APPS } from '../../core/apps/manifest';
 import type { HostContext } from '../../core/providers';
 import { toLocalDate } from '../../core/scheduling/dates';
-import { providerSwitches } from '../../data/storage/preferences';
+import { providerSwitches, todayAppsHidden } from '../../data/storage/preferences';
 import type { stores } from '../../data/storage/indexeddb/database';
 import { isAdded } from '../family/added';
 import { readStore } from '../family/read';
@@ -9,6 +9,8 @@ import { readRecords } from '../family/storedRecords';
 
 /** Whether an app's capability is on: what the person chose, else the manifest's default (search is on unless `defaultOn` is false). */
 export function providerEnabled(app: string, capability: string, switches = providerSwitches()): boolean {
+  // Today's own choice, "Apps on Today" in What's included, is the switch for an app's lines on Today.
+  if (capability === 'home') return !todayAppsHidden().includes(app);
   const key = `${app}:${capability}`;
   if (switches.on.includes(key)) return true;
   if (switches.off.includes(key)) return false;

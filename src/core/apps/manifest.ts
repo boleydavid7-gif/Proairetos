@@ -66,6 +66,11 @@ export type AppManifest = {
    * and nothing new is indexed for it.
    */
   search?: { privacy: PrivacyClass; windowDays?: number; defaultOn?: boolean; indexes: readonly string[]; excludes: readonly string[] };
+  /**
+   * What the app's lines on Today may state (`shows`) and never do (`excludes`). A line is a summary and a way into the app,
+   * not the record. Present for an app that provides `home`.
+   */
+  home?: { shows: readonly string[]; excludes: readonly string[] };
   /** The capabilities this app has a provider for. The validator ties it to the registered providers. */
   provides?: readonly Capability[];
   declares?: { reads: readonly string[]; writes: readonly string[] };
@@ -111,7 +116,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['workout title', 'workout notes', 'went well', 'next time', 'intention'], excludes: ['heart rate', 'health data brought in', 'distance by GPS'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['today\u2019s session title and length', 'the run done today, with its distance and time', 'whether a plan exists'], excludes: ['heart rate', 'notes', 'the log', 'health data brought in', 'distance by GPS'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -129,7 +135,8 @@ export const APPS: readonly AppManifest[] = [
     notices: { source: 'hydros', kinds: ['hydration'], switches: [], mainWrites: true },
     today: { group: 'practice', order: 1, parts: ['water'] },
     search: { privacy: 'own-search', windowDays: 30, defaultOn: false, indexes: ['named drink types', 'day summaries'], excludes: ['individual drinks beyond the window', 'drink times', 'caffeine, sugar and electrolytes', 'daily amount'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['the amount drunk today', 'the daily amount, when one was chosen'], excludes: ['individual drinks', 'drink times', 'caffeine, sugar and electrolytes', 'drinks on other days'] },
     details: {
       adds: 'Today shows what you’ve logged for the day.',
       connects: [{ app: 'askesis', text: 'On run days, Hydros can add to your daily amount.' }, { app: 'diaita', text: 'Caffeine after your cutoff time shows next to your sleep.' }],
@@ -157,7 +164,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 1,
     },
     search: { privacy: 'own-search', indexes: ['recipe title', 'ingredients', 'recipe notes', 'tags'], excludes: ['grocery lists', 'nutrition'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['recipe titles planned for today'], excludes: ['ingredients', 'notes', 'nutrition', 'grocery lists', 'tags'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -175,7 +183,8 @@ export const APPS: readonly AppManifest[] = [
     notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true },
     today: { group: 'attention', order: 3, parts: ['bills', 'bill-dates'] },
     search: { privacy: 'own-search', indexes: ['bill name', 'due date', 'paid status'], excludes: ['bill amounts', 'amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['bill names', 'the first due date'], excludes: ['bill amounts', 'account numbers', 'balances', 'notes', 'payment history'] },
     details: {
       adds: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.',
       connects: [{ app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' }, { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
@@ -203,7 +212,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['trip name', 'place', 'trip notes', 'booking name', 'booking provider', 'booking place', 'booking notes', 'plan title', 'plan place', 'plan note'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['trip name and where it stands', 'the next thing on it', 'how many things are left to pack'], excludes: ['confirmation codes', 'travel documents', 'spending', 'loyalty numbers', 'notes'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: false },
   },
   {
@@ -226,7 +236,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 1,
     },
     search: { privacy: 'own-search', indexes: ['book title', 'author', 'highlights', 'reading notes'], excludes: ['book text', 'book files'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['minutes read today'], excludes: ['book titles', 'highlights', 'notes', 'book text'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -265,6 +276,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['sleep and naps', 'check-ins', 'worries'] },
+    provides: ['home'],
+    home: { shows: ['whether sleep tracking is set up', 'hours slept last night'], excludes: ['how it was', 'notes', 'signs the person recorded', 'bed and wake times'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -287,7 +300,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['person name', 'relation', 'remember lines', 'gift ideas', 'times together'], excludes: ['phone number', 'email address', 'birthdays and dates'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['who it is for and what it is', 'when it comes'], excludes: ['phone number', 'email address', 'notes and gift ideas', 'dates beyond the next week'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -311,7 +325,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['chore name', 'room'], excludes: ['chore note', 'who it is assigned to', 'steps'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['chore name', 'since when', 'who has it'], excludes: ['notes', 'steps', 'history', 'the rest of the household'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -334,7 +349,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['medicine name', 'visit contact', 'visit place'], excludes: ['medication doses', 'medicine notes', 'visit notes', 'questions for the doctor', 'health card', 'readings'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['medicine name', 'dose time', 'refill day', 'visit contact, time and place'], excludes: ['dose amounts', 'medicine and visit notes', 'questions for the doctor', 'readings', 'the health card', 'supply counts'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -357,7 +373,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['session title', 'session note'], excludes: ['weights and reps', 'heart rate'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['whether strength training is set up', 'today\u2019s session name or that it is done or a rest day'], excludes: ['weights and reps', 'notes', 'heart rate', 'the log'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -380,7 +397,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
-    provides: ['search'],
+    provides: ['search', 'home'],
+    home: { shows: ['upkeep name', 'the thing it is for', 'since when'], excludes: ['serial numbers', 'prices', 'warranty details', 'notes', 'photos and files'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -403,6 +421,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['plant names', 'plant types', 'places', 'notes', 'photos'] },
+    provides: ['home'],
+    home: { shows: ['plant name', 'since when'], excludes: ['notes', 'places', 'photos', 'care history'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
@@ -448,6 +468,8 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['subject names', 'dates', 'materials', 'if-then lines'] },
+    provides: ['home'],
+    home: { shows: ['minutes studied today or the next session', 'the nearest date within a week, by subject name and title'], excludes: ['materials', 'if-then lines', 'hours estimates', 'the rest of the week'] },
     surfaces: { noticeWindow: true, waitlist: false, prefetch: false, speed: true, layout: false, visual: false, smoke: false, alone: false },
   },
 ];

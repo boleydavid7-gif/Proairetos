@@ -29,23 +29,31 @@ const bill = (extra: Record<string, unknown> = {}) => ({
 });
 
 describe('the manifest and the registered providers agree', () => {
-  it('lists search for exactly the apps that have a provider module', () => {
-    const declared = APPS.filter((each) => each.provides?.includes('search')).map((each) => each.id).sort();
+  it('lists each capability for exactly the apps whose provider module has it', async () => {
+    const declared = APPS.filter((each) => each.provides?.length).map((each) => each.id).sort();
     expect(Object.keys(providerModules).sort()).toEqual(declared);
-    expect(declared).toEqual(['askesis', 'dynamis', 'ergon', 'hydros', 'ktema', 'oikonomia', 'philia', 'poreia', 'soma', 'theoria', 'therapeia']);
+    for (const [id, load] of Object.entries(providerModules)) {
+      const have = [...new Set((await load!()).providers.map((provider) => provider.capability))].sort();
+      expect(have, id).toEqual([...(app(id).provides ?? [])].sort());
+    }
+    expect(APPS.filter((each) => each.provides?.includes('search')).map((each) => each.id).sort()).toEqual(['askesis', 'dynamis', 'ergon', 'hydros', 'ktema', 'oikonomia', 'philia', 'poreia', 'soma', 'theoria', 'therapeia']);
   });
   it('every provider belongs to its manifest app, has a class the manifest allows and reads only what syncs', async () => {
     for (const [id, load] of Object.entries(providerModules)) {
       for (const provider of (await load!()).providers) {
         expect(provider.app).toBe(id);
         expect(app(id).provides).toContain(provider.capability);
-        expect(provider.privacy).toBe(app(id).search?.privacy);
+        // Search holds to the app's own search class; the lines on Today are for the person's own screen, never private or shared.
+        if (provider.capability === 'search') expect(provider.privacy).toBe(app(id).search?.privacy);
+        else expect(provider.privacy).toBe('own-search');
         for (const source of provider.sources) {
           if (source.startsWith('setting:')) expect(syncedSetting(source.slice(8)), source).toBe(true);
           // Records kept one per storage key sync as settings, so the prefix must be one that does.
           else if (source.startsWith('local:')) expect(syncedSetting(`${source.slice(6)}x`), source).toBe(true);
           // A list shared with a household travels by its own sharing, not the account's sync; only these apps keep one.
-          else if (source.startsWith('shared:')) expect(['ergon', 'therapeia'], source).toContain(source.slice(7));
+          else if (source.startsWith('shared:')) expect(['ergon', 'therapeia', 'phyton'], source).toContain(source.slice(7));
+          // A cache kept only on this device (a forecast) is never synced, so no other install could differ by it.
+          else if (source.startsWith('device:')) expect(syncedSetting(source.slice(7)), source).toBe(false);
           else expect(syncCollections as readonly string[], source).toContain(source);
         }
       }

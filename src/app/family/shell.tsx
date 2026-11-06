@@ -54,6 +54,7 @@ export function stored<T extends object>(key: string, defaults: () => T): Stored
       cache = { raw: null, value: next };
     }
     listeners.forEach((listener) => listener());
+    announceLocal(key);
     syncSoon();
   };
   const subscribe = (listener: () => void) => {

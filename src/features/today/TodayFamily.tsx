@@ -1,10 +1,5 @@
-import type { Bill } from '../../oikonomia/core/bills';
-import { billsSoon } from '../../app/family/glance';
-import { useStore } from '../../app/family/read';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { ChevronRightIcon, ListIcon } from '../../components/icons/Icons';
-import { formatLocalDay } from '../schedule/format';
-import NotForMe from './NotForMe';
+import { ChevronRightIcon } from '../../components/icons/Icons';
 import SwipeLine from './SwipeLine';
 import { BookIcon } from '../../components/icons/Icons';
 import { ideas, notes } from '../../mneme/app/state';
@@ -12,37 +7,6 @@ import { needsPursuitCheckIn, pursuits } from '../../app/pursuits';
 import { useNavigate } from '../../app/navigationContext';
 import { openCompassTab } from '../compass/CompassPage';
 import { openPursuit } from '../compass/PursuitsSection';
-
-/**
- * Bills with a date in the next few days and no payment recorded (Settings > What's included can set them aside),
- * only when there is one. It opens Oikonomia. Nothing here counts, scores
- * or advises.
- */
-export default function TodayFamily({ today }: { today: string }) {
-  const shows = useTodayParts();
-  const bills = useStore<Bill>('oikonomiaBills', shows('bills'));
-  if (!shows('bills')) return null;
-  const soon = billsSoon(bills, today);
-  if (soon.length === 0) return null;
-  return (
-    <SwipeLine id={`bills:${soon.map((bill) => `${bill.id}@${bill.date}`).join(',')}`} title={soon.slice(0, 2).map((bill) => bill.name).join(', ')}>
-      <a className="quiet-row" href={new Set(soon.map((bill) => bill.id)).size === 1 ? `/oikonomia/?open=bill:${encodeURIComponent(soon[0].id)}` : '/oikonomia/'}>
-        <span className="quiet-row__icon" aria-hidden="true">
-          <ListIcon size={20} />
-        </span>
-        <span className="quiet-row__text">
-          <span>
-            {soon.slice(0, 2).map((bill) => bill.name).join(', ')}
-            {soon.length > 2 ? ` +${soon.length - 2}` : ''}
-          </span>
-          <span className="quiet-row__detail">Due {formatLocalDay(soon[0].date, { month: 'short', day: 'numeric' })}</span>
-        </span>
-        <ChevronRightIcon size={18} className="quiet-row__chevron" />
-      </a>
-      <NotForMe part="bills" />
-    </SwipeLine>
-  );
-}
 
 /** A small, actionable signal from Mneme: ideas ready for a next step, or a pinned note to revisit. */
 export function TodayMneme() {

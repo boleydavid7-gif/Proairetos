@@ -79,6 +79,11 @@ export function trainingTimeOn(app: TrainingApp, date: string, id?: string): str
 
 type Kept = { monday: string; from: string; fit: Fit };
 const listeners = new Set<() => void>();
+/** Told when the placed week kept on this device changes (for a result derived from it). */
+export function watchTrainingWeek(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
 let keptCache: { raw: string | null; value: Kept[] } | undefined;
 
 function readKept(): Kept[] {
