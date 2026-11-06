@@ -280,7 +280,7 @@ export const APPS: readonly AppManifest[] = [
     install: { addable: true, coreBundle: true, worker: 'own' },
     urls: { href: '/diaita/', scope: '/diaita/', entry: 'diaita/index.html' },
     data: { backupPrefix: 'diaita:', syncKnown: true },
-    notices: { source: 'diaita', kinds: ['rhythm'], switches: [{ key: 'rhythm', label: 'Sleep and naps' }], page: 4, genericTap: true, mainWrites: true },
+    notices: { source: 'diaita', kinds: ['rhythm'], switches: [{ key: 'rhythm', label: 'Sleep and naps' }], page: 4, genericTap: true, mainWrites: true, fields: { shows: ['the time of the reminder'], detailsOnly: ['planned bedtime and nap end times', 'the name of the reminder (wind down, worry time, nap, morning daylight, last caffeine)'], excludes: ['sleep log', 'check-in answers', 'worry text', 'light and meal advice', 'sleep sources', 'sleep adjustments', 'experiments'] } },
     today: { group: 'practice', order: 4, parts: ['diaita'] },
     details: {
       adds: 'Today shows your sleep record, and Proairetos adjusts its lighting through the day to match your waking hours.',
@@ -288,7 +288,7 @@ export const APPS: readonly AppManifest[] = [
       shots: 2,
     },
     search: { privacy: 'private', indexes: [], excludes: ['sleep and naps', 'check-ins', 'worries'] },
-    provides: ['home'],
+    provides: ['home', 'notices'],
     home: { shows: ['whether sleep tracking is set up', 'hours slept last night'], excludes: ['how it was', 'notes', 'signs the person recorded', 'bed and wake times'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },

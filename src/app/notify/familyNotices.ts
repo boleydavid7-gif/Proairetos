@@ -49,7 +49,7 @@ export async function familyNotices(now: Date, until: Date, skip: ReadonlySet<st
       kind: block.kind,
       label: block.label || block.patternName,
     }));
-  if (diaita.started && isAdded('diaita')) {
+  if (diaita.started && isAdded('diaita') && !skip.has('diaita')) {
     const entries = planBetween(addDays(today, -1), addDays(today, horizon), await blocks(), { ...diaita, place: sunPlace() });
     notices.push(...rhythmNotices(entries, diaita.notices, now, until));
   }

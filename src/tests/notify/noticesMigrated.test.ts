@@ -9,17 +9,18 @@ import { saveQuietHours } from '../../data/storage/preferences';
 import { providerModules } from '../../app/providers/registry';
 import { hostContext } from '../../app/providers/context';
 import { setNoticeProviders } from '../../app/providers/noticePath';
+import { scheduleTemplates } from '../../core/scheduling/templates';
 import { now, seed, until } from './noticeFixtures';
 
 /*
- * Philia, Ergon, Ktema, Meletē, Phyton, Poreia and Therapeia, old way and new way. The same records and the same choices are gathered once by the
+ * Philia, Ergon, Ktema, Meletē, Phyton, Poreia, Therapeia and Diaita, old way and new way. The same records and the same choices are gathered once by the
  * apps' own functions (the default) and once through their providers (the device switch), both through `upcomingNotices`, so the
  * person's switches and quiet hours act on each as they do in the app. What they say must be identical, field for field.
  */
 vi.mock('../../app/family/added', () => ({ isAdded: () => true, addedApps: () => [], useAddedApps: () => [] }));
 
-const APPS_MOVED = ['philia', 'ergon', 'ktema', 'melete', 'phyton', 'poreia', 'therapeia'] as const;
-const KINDS = new Set(['person', 'chore', 'upkeep', 'melete', 'plant', 'trip', 'dose', 'care']);
+const APPS_MOVED = ['philia', 'ergon', 'ktema', 'melete', 'phyton', 'poreia', 'therapeia', 'diaita'] as const;
+const KINDS = new Set(['person', 'chore', 'upkeep', 'melete', 'plant', 'trip', 'dose', 'care', 'rhythm']);
 const rows = (notices: readonly Notice[]) => notices.filter((notice) => KINDS.has(notice.kind)).map(({ key, kind, at, title, body, open }) => ({ key, kind, at: at.toISOString(), title, body, open }));
 const FAMILY_OFF = { rhythm: false, people: false, chores: false, medicines: false, training: false, upkeep: false, plants: false, trips: false, melete: false };
 
@@ -40,7 +41,7 @@ beforeEach(() => {
 });
 afterEach(() => localStorage.clear());
 
-describe('the seven apps, old way and new way', () => {
+describe('the eight apps, old way and new way', () => {
   it('say the same, field for field, with every switch on', async () => {
     const { legacy, provided } = await both({ ...defaultNoticeSettings, melete: true });
     expect(rows(legacy).length).toBeGreaterThan(0);
@@ -62,7 +63,7 @@ describe('the seven apps, old way and new way', () => {
     expect(rows(provided)).toEqual(rows(legacy));
   });
   it('say the same with one switch on at a time, and nothing for a switch that is off', async () => {
-    for (const [key, kind] of [['people', ['person']], ['chores', ['chore']], ['upkeep', ['upkeep']], ['plants', ['plant']], ['trips', ['trip']], ['medicines', ['dose', 'care']]] as const) {
+    for (const [key, kind] of [['people', ['person']], ['chores', ['chore']], ['upkeep', ['upkeep']], ['plants', ['plant']], ['trips', ['trip']], ['medicines', ['dose', 'care']], ['rhythm', ['rhythm']]] as const) {
       const { legacy, provided } = await both({ ...defaultNoticeSettings, ...FAMILY_OFF, [key]: true });
       expect(new Set(rows(legacy).map((row) => row.kind)), key).toEqual(new Set(kind));
       expect(rows(provided), key).toEqual(rows(legacy));
@@ -76,7 +77,7 @@ describe('the seven apps, old way and new way', () => {
     const delivery = (notices: readonly Notice[]) => notices.filter((notice) => KINDS.has(notice.kind)).map((notice) => ({ key: notice.key, at: notice.at.toISOString(), details: wordsOf(notice), private: wordsOf(privateNotice(notice)) }));
     expect(delivery(provided)).toEqual(delivery(legacy));
   });
-  it('show each notice once: the legacy gather leaves the seven out when they come through providers', async () => {
+  it('show each notice once: the legacy gather leaves the eight out when they come through providers', async () => {
     const { provided } = await both({ ...defaultNoticeSettings, melete: true });
     const keys = rows(provided).map((row) => row.key);
     expect(new Set(keys).size).toBe(keys.length);
@@ -94,11 +95,11 @@ describe('the seven apps, old way and new way', () => {
   });
 });
 
-describe('what the seven providers keep out', () => {
+describe('what the eight providers keep out', () => {
   it('lets no marked value into a notice, its words with details on or off, or what the host rejects', async () => {
     const ctx = { ...hostContext(now), range: { from: now, until }, noticeSwitch: () => true, blocks: async () => [] };
     const providers = (await Promise.all(APPS_MOVED.map((app) => providerModules[app]!()))).flatMap((module) => module.providers).filter((provider) => provider.capability === 'notices');
-    expect(providers).toHaveLength(7);
+    expect(providers).toHaveLength(8);
     const out = await noticeLines(providers as never, APPS, ctx);
     expect(out.rejected).toEqual([]);
     expect(out.notices.length).toBeGreaterThan(0);
@@ -124,6 +125,19 @@ describe('what the seven providers keep out', () => {
     const named = (await both({ ...defaultNoticeSettings })).provided.find((notice) => notice.key.startsWith('therapeia:visit:v1'))!;
     expect(named).toMatchObject({ title: 'Dr Patel' });
     expect(named.body).toMatch(/2:30 PM · Clinic/);
+  });
+  it('keeps the sleep log, check-in answers, worry text and the rest of Diaita out of every reminder and preview', async () => {
+    localStorage.setItem('diaita:sleep:2026-10-01', JSON.stringify({ id: '2026-10-01', date: '2026-10-01', hours: 6, feel: 'CANARY-feel', notes: 'CANARY-sleep-note', bed: '23:15', up: '07:05' }));
+    localStorage.setItem('diaita:worry:w1', JSON.stringify({ id: 'w1', text: 'CANARY-worry', day: '2026-10-01', createdAt: '2026-10-01T10:00:00.000Z' }));
+    localStorage.setItem('diaita:experiment', JSON.stringify({ current: { id: 'x', kind: 'wake', note: 'CANARY-experiment' } }));
+    const { provided } = await both({ ...defaultNoticeSettings, ...FAMILY_OFF, rhythm: true });
+    const rhythm = provided.filter((notice) => notice.kind === 'rhythm');
+    expect(rhythm.length).toBeGreaterThan(0);
+    expect(new Set(rhythm.map((notice) => notice.title))).toEqual(new Set(['Wind down', 'Worry time']));
+    expect(JSON.stringify([rhythm, rhythm.map((notice) => wordsOf(notice)), rhythm.map((notice) => wordsOf(privateNotice(notice)))])).not.toMatch(/CANARY/i);
+    // With the lock screen private, a sleep time does not appear either.
+    expect(JSON.stringify(rhythm.map((notice) => wordsOf(privateNotice(notice))))).not.toMatch(/Sleep at/);
+    expect(JSON.stringify(rhythm.map((notice) => wordsOf(notice)))).toMatch(/Sleep at 10:30 PM/);
   });
   it('reads no more than it has classified: every excluded field is named in the manifest', () => {
     for (const id of APPS_MOVED) {
@@ -156,5 +170,52 @@ describe('the one place the schedule reaches Therapeia differently', () => {
     const { legacy, provided } = await both({ ...defaultNoticeSettings });
     expect(doses(legacy).length).toBeGreaterThan(0);
     expect(doses(provided)).not.toEqual(doses(legacy));
+  });
+});
+
+describe('the shift name that moves a sleep', () => {
+  // The planner moves a sleep by the name of the shift before it (`shiftAdjust`). The person's own schedule names its shifts; the
+  // old gather also gave it every other calendar's event titles, so an event that shared a shift's name moved a sleep too. A
+  // provider is given a name only from the person's own schedule.
+  const rotation = scheduleTemplates.find((template) => template.id === 'three-shift-rotation')!;
+  const rhythm = (notices: readonly Notice[]) => notices.filter((notice) => notice.kind === 'rhythm').map((notice) => `${notice.key}@${notice.at.toISOString()}`);
+  const settings = { ...defaultNoticeSettings, ...FAMILY_OFF, rhythm: true };
+  const adjust = (name: string | undefined) =>
+    localStorage.setItem('diaita:settings', JSON.stringify({ started: true, ...(name ? { shiftAdjust: { [name]: { sleep: 90, wake: 90 } } } : {}) }));
+  const nightName = async () => {
+    const { scheduleService } = await import('../../app/services');
+    const occurrences = await scheduleService.occurrencesBetween(now, until);
+    return occurrences.find((block) => block.start.toDateString() !== block.end.toDateString())?.label ?? occurrences[0]?.label;
+  };
+  it('is the same, and is moved, when the shift is in the person\u2019s own schedule', async () => {
+    const { scheduleService } = await import('../../app/services');
+    await scheduleService.createPattern({ name: 'Work', kind: 'COMMITTED', layout: 'CYCLE', anchorDate: '2026-09-29', segments: rotation.segments });
+    const name = (await nightName())!;
+    expect(name).toBeTruthy();
+    adjust(undefined);
+    const plain = await both(settings);
+    adjust(name);
+    const moved = await both(settings);
+    expect(rhythm(moved.legacy)).not.toEqual(rhythm(plain.legacy));
+    expect(rhythm(moved.provided)).toEqual(rhythm(moved.legacy));
+  });
+  it('differs when only another calendar\u2019s event has the shift\u2019s name: the old gather moved the sleep, a provider does not', async () => {
+    const { scheduleService } = await import('../../app/services');
+    await scheduleService.createPattern({ name: 'Work', kind: 'COMMITTED', layout: 'CYCLE', anchorDate: '2026-09-29', segments: rotation.segments });
+    const name = (await nightName())!;
+    // Take the person\u2019s own shifts away again and bring them back as another calendar\u2019s events with the same names.
+    const events = (await scheduleService.occurrencesBetween(new Date(now.getTime() - 3 * 86_400_000), until)).map((block, index) => ({ key: `e${index}`, title: block.label ?? name, start: block.start.toISOString(), end: block.end.toISOString(), allDay: false }));
+    for (const pattern of await scheduleService.patterns()) await scheduleService.removePattern(pattern.id);
+    localStorage.setItem('proairetos.otherCalendars', JSON.stringify([{ id: 'cal1', name: 'Hospital', shown: true, role: 'commitment' }]));
+    localStorage.setItem('proairetos.otherCalendars.cal1', JSON.stringify(events));
+    adjust(undefined);
+    const plain = await both(settings);
+    adjust(name);
+    const named = await both(settings);
+    expect(rhythm(plain.legacy).length).toBeGreaterThan(0);
+    // Old: the event's title matched the shift's name and moved the sleep. New: no name arrives, so nothing moves.
+    expect(rhythm(named.legacy)).not.toEqual(rhythm(plain.legacy));
+    expect(rhythm(named.provided)).toEqual(rhythm(plain.provided));
+    expect(rhythm(named.provided)).not.toEqual(rhythm(named.legacy));
   });
 });
