@@ -5,7 +5,7 @@ import { nextDue, type Thing, type Upkeep } from '../core/things';
 const open = (what: string) => `/ktema/?open=${encodeURIComponent(what)}`;
 
 /*
- * A warranty or a document that ends is a deadline on its day; an upkeep that comes round is a date on the day it is next
+ * A warranty or a document that ends is a deadline on its day; an upkeep is a deadline on the day it is next
  * due (and, for a car, by distance, the day the readings estimate). Never serial numbers, prices, stores, manual links,
  * notes, readings or files (manifest, ktema.calendar). The thing stays in Ktema; the line opens it there.
  */
@@ -40,7 +40,7 @@ export const ktemaCalendar: Provider<'calendar'> = {
       if (!date || date < first || date > last) continue;
       lines.push({
         ref: { app: 'ktema', kind: 'upkeep', id: upkeep.id, occurrence: date },
-        kind: 'recurring',
+        kind: 'deadline',
         title: thing ? `${upkeep.name} · ${thing.name}` : upkeep.name,
         open: open(`upkeep:${upkeep.id}`),
         day: date,

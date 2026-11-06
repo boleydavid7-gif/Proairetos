@@ -4,12 +4,9 @@ import { poreiaCalendar } from '../../app/calendars/poreiaCalendar';
 import { useClock } from '../../app/hooks/useClock';
 import { usePersonalDay } from '../../app/hooks/usePersonalDay';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
-import { billsOn } from '../../app/family/glance';
 import { calendarStore } from '../../app/providers/calendar';
 import { eventsFromLines, quietLinesByDay } from '../../app/providers/calendarView';
 import MiniMonth from './MiniMonth';
-import { useStore } from '../../app/family/read';
-import type { Bill } from '../../oikonomia/core/bills';
 import { useServiceData } from '../../app/hooks/useServiceData';
 import { useNavigate } from '../../app/navigationContext';
 import { useOverlays } from '../../app/overlays/OverlayContext';
@@ -160,7 +157,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   const nowMinutes = clock.getHours() * 60 + clock.getMinutes();
   const [sorting, setSorting] = useState(false);
   const shows = useTodayParts();
-  const bills = useStore<Bill>('oikonomiaBills', shows('bill-dates'));
   // Bill dates from Oikonomia and birthdays from Philia, each as the person chose in What's included.
   const [opening] = useState(takeDaysAheadOpening);
   const [start, setStart] = useState(opening.start ?? today);
@@ -296,7 +292,6 @@ export default function DaysAheadPage({ view }: { view: DaysView }) {
   );
   const quietByDay = useMemo(() => quietLinesByDay(data?.lines ?? []), [data?.lines]);
   const billsFor = (date: string): FamilyLine[] => [
-    ...(shows('bill-dates') ? billsOn(bills, date).map((bill) => ({ ...bill, href: `/oikonomia/?open=bill:${encodeURIComponent(bill.id)}`, color: 'amber' })) : []),
     ...(quietByDay.get(date) ?? []),
   ];
 

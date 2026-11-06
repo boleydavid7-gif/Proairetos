@@ -109,7 +109,7 @@ const specs: Spec[] = [
     edit: [pref('ktema:upkeep:u1', { id: 'u1', thingId: 't1', name: 'Clean the coil', note: 'CANARY-UPKEEP', every: { count: 1, unit: 'months' }, start: '2026-11-12', history: [], createdAt: day })],
     titles: ['Clean the filter · Dishwasher', 'Dishwasher: warranty ends', 'Passport: ends'],
     edited: ['Clean the coil · Dishwasher', 'Dishwasher: warranty ends', 'Passport: ends'],
-    kinds: ['deadline', 'deadline', 'recurring'],
+    kinds: ['deadline', 'deadline', 'deadline'],
     provider: load(() => import('../../ktema/providers/calendar'), 'ktemaCalendar'),
   },
   {
@@ -124,9 +124,21 @@ const specs: Spec[] = [
     kinds: ['event', 'info', 'recurring', 'recurring'],
     provider: load(() => import('../../philia/providers/calendar'), 'philiaCalendar'),
   },
+  {
+    app: 'oikonomia',
+    create: [
+      { collection: 'oikonomiaBills', value: { id: 'b1', name: 'Internet', amountCents: 98765432, currency: 'USD', dueDate: '2026-11-07', frequency: 'monthly', category: 'CANARY-AREA', autopay: false, reminderDays: 3, notes: 'CANARY-NOTE', payments: [], createdAt: day, updatedAt: day } },
+      { collection: 'oikonomiaBills', value: { id: 'b2', name: 'Rent', amountCents: 98765432, currency: 'USD', dueDate: '2026-11-08', frequency: 'monthly', category: 'CANARY-AREA', autopay: false, reminderDays: 3, notes: 'CANARY-NOTE', payments: [{ id: 'p', date: '2026-11-08', amountCents: 98765432, note: 'CANARY-PAYMENT' }], createdAt: day, updatedAt: day } },
+    ],
+    edit: [{ collection: 'oikonomiaBills', value: { id: 'b1', name: 'Fiber', amountCents: 98765432, currency: 'USD', dueDate: '2026-11-07', frequency: 'monthly', category: 'CANARY-AREA', autopay: false, reminderDays: 3, notes: 'CANARY-NOTE', payments: [], createdAt: day, updatedAt: day } }],
+    titles: ['Internet', 'Rent'],
+    edited: ['Fiber', 'Rent'],
+    kinds: ['deadline', 'deadline'],
+    provider: load(() => import('../../oikonomia/providers/calendar'), 'oikonomiaCalendar'),
+  },
 ];
 
-const CANARY = /CANARY|99\b/;
+const CANARY = /CANARY|99\b|98765|987,654|USD|\$/;
 
 describe.each(specs)('Calendar across installs: $app', (spec) => {
   it('creation, editing and deletion made on one install reach the other, with excluded fields kept out', async () => {

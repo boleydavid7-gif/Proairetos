@@ -1,5 +1,5 @@
 import { comingUp, type Person } from '../../philia/core/people';
-import { addDays, formatMoney, occurrencesBetween, paidForOccurrence, type Bill } from '../../oikonomia/core/bills';
+import { addDays, occurrencesBetween, paidForOccurrence, type Bill } from '../../oikonomia/core/bills';
 
 /**
  * Quiet facts from the other apps for Today, worked out from their own records. Only what was recorded:
@@ -14,21 +14,6 @@ export function billsSoon(bills: readonly Bill[], today: string, days = 3): Bill
     .flatMap((bill) => occurrencesBetween(bill, today, last).filter((occurrence) => !paidForOccurrence(bill, occurrence.date)))
     .map(({ bill, date }) => ({ id: bill.id, name: bill.name, date }))
     .sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name));
-}
-
-export type BillOnDay = { id: string; name: string; amount: string; paid: boolean };
-
-/** The bills with a date on one day, for the calendar. Read only; paid ones are marked, not hidden. */
-export function billsOn(bills: readonly Bill[], date: string): BillOnDay[] {
-  return bills
-    .flatMap((bill) => occurrencesBetween(bill, date, date).map((occurrence) => ({ bill, occurrence })))
-    .map(({ bill, occurrence }) => ({
-      id: bill.id,
-      name: bill.name,
-      amount: formatMoney(bill.amountCents, bill.currency),
-      paid: Boolean(paidForOccurrence(bill, occurrence.date)),
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /** The unit Hydros shows amounts in (its own setting, read only). */

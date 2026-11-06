@@ -37,6 +37,7 @@ export function createCalendarStore(deps: CalendarDeps) {
   const derivations: { app: string; ms: number }[] = [];
   let started: (() => void)[] = [];
   let version = 0;
+  let running = false;
 
   const order = (id: AppId) => deps.manifest.findIndex((app) => app.id === id);
   const eligible = () => deps.manifest.filter((app) => app.status !== 'retired' && app.provides?.includes('calendar') && deps.usable(app.id) && deps.enabled(app.id)).map((app) => app.id);
@@ -54,8 +55,8 @@ export function createCalendarStore(deps: CalendarDeps) {
     if (!providers.length) return undefined;
     if (entries.has(app)) return entries.get(app);
     const entry: Entry = { providers, ranges: new Map(), offs: [] };
-    // Only while someone is watching does an app's own record change reach the calendar.
-    if (listeners.size > 0) watch(entry);
+    // Once the calendar is being read, an app's own record changes reach it.
+    if (running) watch(entry);
     entries.set(app, entry);
     return entry;
   }
@@ -128,12 +129,22 @@ export function createCalendarStore(deps: CalendarDeps) {
   return {
     /** Tells the calendar's reader when any app's lines may have changed; the reader asks `lines` again. */
     subscribe(listener: () => void) {
-      if (listeners.size === 0) start();
+      // Once started, the store keeps watching what its apps read, so moving between Today and Days ahead reuses what it holds.
+      if (!running) {
+        running = true;
+        start();
+      }
       listeners.add(listener);
       return () => {
         listeners.delete(listener);
-        if (listeners.size === 0) stop();
       };
+    },
+    /** For a test: stops watching and forgets what is held. */
+    dispose() {
+      stop();
+      running = false;
+      entries.clear();
+      listeners.clear();
     },
     version: () => version,
     /** Every eligible app's lines inside a range, in the manifest's order; only what is missing or out of date is derived. */

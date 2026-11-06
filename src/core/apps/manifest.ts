@@ -188,8 +188,9 @@ export const APPS: readonly AppManifest[] = [
     notices: { source: 'oikonomia', kinds: ['bill'], switches: [{ key: 'bills', label: 'Bills' }], page: 2, mainWrites: true },
     today: { group: 'attention', order: 3, parts: ['bills', 'bill-dates'] },
     search: { privacy: 'own-search', indexes: ['bill name', 'due date', 'paid status'], excludes: ['bill amounts', 'amounts', 'account numbers', 'balances', 'statement lines', 'notes', 'transaction details'] },
-    provides: ['search', 'home'],
+    provides: ['search', 'home', 'calendar'],
     home: { shows: ['bill names', 'the first due date'], excludes: ['bill amounts', 'account numbers', 'balances', 'notes', 'payment history'] },
+    calendar: { shows: ['a bill’s name and each due date', 'whether a payment is recorded for that date'], excludes: ['amounts and currency', 'payments and their amounts', 'accounts and balances', 'notes', 'bill types'], kinds: ['deadline'] },
     details: {
       adds: 'Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.',
       connects: [{ app: 'poreia', text: 'Trip spending is added to the month’s totals, and each trip can have its own envelope.' }, { app: 'ktema', text: 'You can add the cost of an upkeep task to the month’s spending.' }],
@@ -406,7 +407,7 @@ export const APPS: readonly AppManifest[] = [
     search: { privacy: 'own-search', indexes: ['thing name', 'make and model', 'place', 'thing note', 'upkeep name', 'upkeep note'], excludes: ['serial numbers', 'prices', 'warranty details'] },
     provides: ['search', 'home', 'calendar'],
     home: { shows: ['upkeep name', 'the thing it is for', 'since when'], excludes: ['serial numbers', 'prices', 'warranty details', 'notes', 'photos and files'] },
-    calendar: { shows: ['a warranty or document end, by name', 'an upkeep and the thing it is for, on the day it is next due'], excludes: ['serial numbers', 'prices and stores', 'manual links', 'notes', 'odometer readings', 'photos and files'], kinds: ['deadline', 'recurring'] },
+    calendar: { shows: ['a warranty or document end, by name', 'an upkeep and the thing it is for, on the day it is next due'], excludes: ['serial numbers', 'prices and stores', 'manual links', 'notes', 'odometer readings', 'photos and files'], kinds: ['deadline'] },
     surfaces: { noticeWindow: true, waitlist: true, prefetch: true, speed: true, layout: true, visual: true, smoke: true, alone: true },
   },
   {
