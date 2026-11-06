@@ -1,17 +1,19 @@
 -- Calendar feed, format 2 (the calendar privacy correction).
 --
--- Files published before this held more than the person chose: bill amounts, booking confirmation codes and notes.
--- Every existing link is ended and its file removed, and from now on the server accepts and serves only files made by
--- the corrected version (format 2), so an older version of the app cannot write the old content back.
+-- REQUIRES 20261002000000_calendar_feed.sql, which creates public.calendar_feeds and its row-level security. Run that
+-- file first, in the same session. On a project where that table does not exist this file fails on its first statement
+-- (42P01) and, being one transaction, changes nothing. Never run 20261002000000 on its own: it has no format rule, so
+-- an app that predates this correction could publish a calendar file with more in it than the person chose.
 --
--- Run this FIRST, then deploy the calendar-feed function, then release the corrected app (docs/CALENDAR_CORRECTIONS_PLAN.md,
--- "Deployment runbook"). The function and the app both read the `format` column this adds, so they need it to exist; and
--- running it first ends every old link at once. It is one transaction: it all happens or none of it does. Safe to run more
--- than once: it only removes rows that are not format 2.
+-- What this adds: a `format` column, and a write rule that accepts only format 2, so the server holds and serves only
+-- files made by the corrected app. It also removes any row that is not format 2. On a project where the calendar link
+-- was never set up there is none, and that delete changes nothing.
+--
+-- Run it before the calendar-feed function and the corrected app are released (docs/CALENDAR_FEED_FIX.md, "Deployment").
+-- It is one transaction: it all happens or none of it does. Safe to run more than once.
 --
 -- What it cannot undo: rows removed here are gone (there is no copy to restore, by design), and database backups or
--- point-in-time recovery may hold earlier rows until their retention ends. Calendar apps that already fetched a file
--- keep their own copy.
+-- point-in-time recovery may hold earlier rows until their retention ends.
 
 begin;
 
