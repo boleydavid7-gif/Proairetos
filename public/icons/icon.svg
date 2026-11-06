@@ -1,49 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-  <defs>
-    <linearGradient id="proairetos-tile" x1="1" y1="0" x2="0.2" y2="1"><stop offset="0" stop-color="#2f3640"/><stop offset="1" stop-color="#151c25"/></linearGradient>
-    <radialGradient id="proairetos-light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#d1c7b4" stop-opacity="0.32"/><stop offset=".45" stop-color="#d1c7b4" stop-opacity="0.096"/><stop offset="1" stop-color="#d1c7b4" stop-opacity="0"/></radialGradient>
-    <filter id="proairetos-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#000000" flood-opacity="0.24"/></filter>
-    <clipPath id="proairetos-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
-  </defs>
-  <rect width="1024" height="1024" rx="229" fill="url(#proairetos-tile)"/>
-  <g clip-path="url(#proairetos-clip)">
-    <rect width="1024" height="1024" fill="url(#proairetos-light)"/>
-  </g>
-  <g filter="url(#proairetos-lift)"><g transform="translate(512 512) scale(1) translate(-512 -512)">
-        <circle cx="512" cy="512" r="336" fill="none" stroke="#d2a868" stroke-width="18" opacity=".6"/>
-        
-        <g transform="rotate(45 512 512)">
-          <path d="M512 282 L512 512 L460 460Z" fill="#a77c45"/>
-          <path d="M512 282 L564 460 L512 512Z" fill="#d2a868"/>
-        </g>
-        <g transform="rotate(135 512 512)">
-          <path d="M512 282 L512 512 L460 460Z" fill="#a77c45"/>
-          <path d="M512 282 L564 460 L512 512Z" fill="#d2a868"/>
-        </g>
-        <g transform="rotate(225 512 512)">
-          <path d="M512 282 L512 512 L460 460Z" fill="#a77c45"/>
-          <path d="M512 282 L564 460 L512 512Z" fill="#d2a868"/>
-        </g>
-        <g transform="rotate(315 512 512)">
-          <path d="M512 282 L512 512 L460 460Z" fill="#a77c45"/>
-          <path d="M512 282 L564 460 L512 512Z" fill="#d2a868"/>
-        </g>
-        
-        <g transform="rotate(0 512 512)">
-          <path d="M512 140 L512 512 L438 438Z" fill="#d2a868"/>
-          <path d="M512 140 L586 438 L512 512Z" fill="#f2d7a5"/>
-        </g>
-        <g transform="rotate(90 512 512)">
-          <path d="M512 140 L512 512 L438 438Z" fill="#d2a868"/>
-          <path d="M512 140 L586 438 L512 512Z" fill="#f2d7a5"/>
-        </g>
-        <g transform="rotate(180 512 512)">
-          <path d="M512 140 L512 512 L438 438Z" fill="#d2a868"/>
-          <path d="M512 140 L586 438 L512 512Z" fill="#f2d7a5"/>
-        </g>
-        <g transform="rotate(270 512 512)">
-          <path d="M512 140 L512 512 L438 438Z" fill="#d2a868"/>
-          <path d="M512 140 L586 438 L512 512Z" fill="#f2d7a5"/>
-        </g>
-        <circle cx="512" cy="512" r="26" fill="#f2d7a5"/></g></g>
-</svg>
+<defs><clipPath id="clip"><rect width="1024" height="1024" rx="229"/></clipPath></defs>
+<rect width="1024" height="1024" rx="229" fill="#18202b"/>
+<g clip-path="url(#clip)">
+<circle cx="512" cy="512" r="346" fill="none" stroke="#d8b47d" stroke-width="22" stroke-dasharray="470 76" transform="rotate(-45 512 512)"/>
+<path d="M512 126 L512 238" stroke="#fbf3e4" stroke-width="30" stroke-linecap="round"/>
+<path d="M512 238 L424 324 L424 652 Q424 686 458 686 H566 Q600 686 600 652 V324 L512 238Z" fill="none" stroke="#fbf3e4" stroke-width="28" stroke-linejoin="round"/>
+<path d="M398 344 H626 M444 696 H580" stroke="#d8b47d" stroke-width="28" stroke-linecap="round"/>
+<path d="M512 418 C512 418 450 492 450 548 A62 62 0 0 0 574 548 C574 492 512 418 512 418Z" fill="#fbf3e4"/>
+<path d="M512 126 L512 42 L548 126Z M512 898 L476 770 L512 790 L548 770Z M126 512 L254 476 L234 512 L254 548Z M898 512 L770 548 L790 512 L770 476Z" fill="#d8b47d"/>
+</g></svg>
