@@ -78,7 +78,7 @@ Run against a disposable Supabase project and a throwaway user, with the script 
 - Public auth settings: email sign-in is the only method enabled, no external providers, anonymous users off, sign-up open, email confirmation required.
 - Not readable from outside the dashboard and **not recorded**: "Time-box user sessions" and "Inactivity timeout" (Authentication > Sessions). Nothing in this run depended on them, but they were not seen.
 
-**Not answered by this run.** Whether the data API keeps accepting a signed-out session's access token until it expires. The project has no tables, and the data API's root endpoint answered 401 for a valid token as well as a signed-out one, so it could not tell them apart (the script's note reported 404 for the same reason). To measure it, repeat the check against a table that a signed-in user can read (the app's migrations on the test project), or a small table made for the purpose. Until then the one-hour access-token lifetime is the upper bound that should be assumed for a copied token, which is the reason the design does not rely on instant revocation.
+**Not answered by this run (answered by the probe below).** Whether the data API keeps accepting a signed-out session's access token until it expires. The project has no tables, and the data API's root endpoint answered 401 for a valid token as well as a signed-out one, so it could not tell them apart (the script's note reported 404 for the same reason). To measure it, repeat the check against a table that a signed-in user can read (the app's migrations on the test project), or a small table made for the purpose. Until then the one-hour access-token lifetime is the upper bound that should be assumed for a copied token, which is the reason the design does not rely on instant revocation.
 
 ## Probe: does a signed-out access token still work on the data API?
 
@@ -115,3 +115,30 @@ It signs in two devices; confirms an anonymous read is refused and both devices 
 ```sql
 drop table public.security_session_probe;
 ```
+
+## Result of the data-API probe (2026-11-06)
+
+Run on the disposable project with `token-after-signout.mjs` after the table was created with the SQL above. Row level security on; one SELECT policy for `authenticated`; no privilege for `anon`; one harmless row. Two devices signed in independently. No password or token was printed or committed.
+
+Access token lifetime 3600 s; the tokens expired at 16:43:56 UTC (issued 15:43:56 UTC).
+
+| Moment | Device A, its original token (signed out) | Device B, its token | Auth server with A's token |
+| --- | --- | --- | --- |
+| Before any sign-out: anonymous, no user token | data API **401** | | |
+| Before any sign-out | data API **200**, 1 row (3600 s left) | data API **200**, 1 row (3599 s left) | |
+| A signs out with `scope: local` | no error | | |
+| Immediately after | data API **200**, 1 row (3599 s left) | 200, 1 row | **403** |
+| 5 s after | **200**, 1 row (3594 s left) | 200, 1 row | **403** |
+| 30 s after | **200**, 1 row (3568 s left) | 200, 1 row | **403** |
+| 120 s after | **200**, 1 row (3477 s left) | 200, 1 row | **403** |
+
+**Finding.** A revoked access token is **not rejected by the data API**. For the whole time observed (two minutes, with 3477 seconds still to run) device A's original token read the protected row, while the auth server refused the same token with 403 from the first moment and A's refresh token no longer worked. The token stays usable on the data API until it expires; it was not run through to expiry, but a signed token is checked for signature and expiry only, so nothing in the observed behavior suggests an earlier end. The anonymous role was refused (401), so the table was not exposed.
+
+**What it means for Proairetos.**
+- Signing out ends the ability to get new access tokens (the refresh token) and ends the session at the auth server. It does not end an access token that is already issued. A copy of a token taken before the sign-out keeps working on the data API for up to its remaining life, here one hour at most. The app removes its own copy at sign-out; the exposure is to a copy someone else holds.
+- What a stale token can reach is limited by the design: synced records are sealed with the account key, so a token yields ciphertext, not records. What the server can read in plaintext (the calendar file the person chose to publish; device and reminder metadata) is what a stale token could read for that time.
+- The architecture does not and cannot rely on instant revocation. Signing out protects the device by removing keys from it (Stage 1) and by sealing its records (Stage 3), not by ending server access at once. "Sign out everywhere" ends every session and refresh token; access tokens already issued run out within the hour.
+
+**Ways to narrow the window (not built; to be evaluated):** a shorter access token lifetime (a project setting; it increases refresh traffic); row policies that also require the token's `session_id` to exist (a function that reads the auth schema, with the cost of one lookup per request); both only if the exposure matters for something the server can read in plaintext.
+
+**Test table.** `security_session_probe` is left in place on the disposable project until the owner says the results are recorded; remove it with `drop table public.security_session_probe;`.
