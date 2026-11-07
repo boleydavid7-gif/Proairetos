@@ -19,6 +19,10 @@ import mountainsDarkMobile from '../assets/backgrounds/mountains-dark-mobile.avi
 import mountainsLightMobile from '../assets/backgrounds/mountains-light-mobile.avif';
 import mountainsDarkDesktop from '../assets/backgrounds/mountains-dark-desktop.avif';
 import mountainsLightDesktop from '../assets/backgrounds/mountains-light-desktop.avif';
+import oceanDarkMobile from '../assets/backgrounds/ocean-dark-mobile.avif';
+import oceanLightMobile from '../assets/backgrounds/ocean-light-mobile.avif';
+import oceanDarkDesktop from '../assets/backgrounds/ocean-dark-desktop.avif';
+import oceanLightDesktop from '../assets/backgrounds/ocean-light-desktop.avif';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -63,10 +67,18 @@ const mountainsDesktopAssets: Record<Mode, string> = {
   dark: mountainsDarkDesktop,
   light: mountainsLightDesktop,
 };
+const oceanMobileAssets: Record<Mode, string> = {
+  dark: oceanDarkMobile,
+  light: oceanLightMobile,
+};
+const oceanDesktopAssets: Record<Mode, string> = {
+  dark: oceanDarkDesktop,
+  light: oceanLightDesktop,
+};
 
 /** Raster wallpaper files must retain their native proportions; vector scenes use the full viewport. */
 export function backgroundSizeOf(background: SceneId): 'cover' | '100% 100%' {
-  return background === 'dawn' || background === 'twilight' || background === 'night' || background === 'forest' || background === 'mountains'
+  return background === 'dawn' || background === 'twilight' || background === 'night' || background === 'forest' || background === 'mountains' || background === 'ocean'
     ? 'cover'
     : '100% 100%';
 }
@@ -248,6 +260,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   if (background === 'night') return 'url("' + nightDesktopAssets[mode] + '")';
   if (background === 'forest') return 'url("' + forestDesktopAssets[mode] + '")';
   if (background === 'mountains') return 'url("' + mountainsDesktopAssets[mode] + '")';
+  if (background === 'ocean') return 'url("' + oceanDesktopAssets[mode] + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -288,6 +301,10 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   if (background === 'mountains') {
     const mountainsPage = pageColor ?? palettes.mountains[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + mountainsPage + ' 100%), url("' + mountainsMobileAssets[mode] + '")';
+  }
+  if (background === 'ocean') {
+    const oceanPage = pageColor ?? palettes.ocean[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + oceanPage + ' 100%), url("' + oceanMobileAssets[mode] + '")';
   }
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
@@ -331,6 +348,10 @@ export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: st
   if (background === 'mountains') {
     const mountainsPage = pageColor ?? palettes.mountains[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + mountainsPage + ' 100%), url("' + mountainsDesktopAssets[mode] + '")';
+  }
+  if (background === 'ocean') {
+    const oceanPage = pageColor ?? palettes.ocean[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + oceanPage + ' 100%), url("' + oceanDesktopAssets[mode] + '")';
   }
   return backgroundOf(background, mode, pageColor);
 }

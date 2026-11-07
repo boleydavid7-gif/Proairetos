@@ -33,6 +33,7 @@ describe('Lamplight backgrounds', () => {
     expect(backgroundSizeOf('night')).toBe('cover');
     expect(backgroundSizeOf('forest')).toBe('cover');
     expect(backgroundSizeOf('mountains')).toBe('cover');
+    expect(backgroundSizeOf('ocean')).toBe('cover');
     for (const background of BACKGROUND_OPTIONS) {
       if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight' || background.id === 'night' || background.id === 'forest' || background.id === 'mountains') continue;
       expect(backgroundSizeOf(background.id)).toBe('100% 100%');
@@ -63,6 +64,10 @@ describe('Lamplight backgrounds', () => {
       } else if (background.id === 'mountains') {
         expect(dark).toContain('mountains-dark-mobile.avif');
         expect(light).toContain('mountains-light-mobile.avif');
+        expect(dark).not.toBe(light);
+      } else if (background.id === 'ocean') {
+        expect(dark).toContain('ocean-dark-mobile.avif');
+        expect(light).toContain('ocean-light-mobile.avif');
         expect(dark).not.toBe(light);
       } else {
         expect(dark.startsWith('url("data:image/svg+xml,')).toBe(true);
@@ -109,6 +114,13 @@ describe('Lamplight backgrounds', () => {
     expect(lightMountains).toContain('mountains-light-desktop.avif');
     expect(darkMountains).toContain('linear-gradient');
     expect(lightMountains).toContain('linear-gradient');
+
+    const darkOcean = backgroundWideOf('ocean', 'dark', '#101820');
+    const lightOcean = backgroundWideOf('ocean', 'light', '#F4F0E9');
+    expect(darkOcean).toContain('ocean-dark-desktop.avif');
+    expect(lightOcean).toContain('ocean-light-desktop.avif');
+    expect(darkOcean).toContain('linear-gradient');
+    expect(lightOcean).toContain('linear-gradient');
   });
 
   it('renders landscape previews that show the actual scene rather than cropping the portrait wallpaper', () => {
@@ -135,6 +147,10 @@ describe('Lamplight backgrounds', () => {
         expect(preview).toContain('mountains-dark-desktop.avif');
         expect(backgroundPreviewOf('mountains', 'light')).toContain('mountains-light-desktop.avif');
         expect(preview).not.toBe(backgroundPreviewOf('mountains', 'light'));
+      } else if (background.id === 'ocean') {
+        expect(preview).toContain('ocean-dark-desktop.avif');
+        expect(backgroundPreviewOf('ocean', 'light')).toContain('ocean-light-desktop.avif');
+        expect(preview).not.toBe(backgroundPreviewOf('ocean', 'light'));
       } else {
         expect(preview.startsWith('url("data:image/svg+xml,')).toBe(true);
         const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
@@ -199,6 +215,15 @@ describe('Lamplight backgrounds', () => {
         expect(full).toContain('mountains-dark-mobile.avif');
         expect(wide).toContain('mountains-dark-desktop.avif');
         expect(preview).toContain('mountains-dark-desktop.avif');
+        continue;
+      }
+      if (background.id === 'ocean') {
+        const full = backgroundOf('ocean', 'dark', '#101820');
+        const wide = backgroundWideOf('ocean', 'dark', '#101820');
+        const preview = backgroundPreviewOf('ocean', 'dark');
+        expect(full).toContain('ocean-dark-mobile.avif');
+        expect(wide).toContain('ocean-dark-desktop.avif');
+        expect(preview).toContain('ocean-dark-desktop.avif');
         continue;
       }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));
