@@ -17,6 +17,7 @@ jobs:
           for image in src/assets/backgrounds/{dawn,night,forest}-dark-mobile.avif; do
             echo "--- $image"
             ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,pix_fmt -of default=noprint_wrappers=1 "$image"
+            ffmpeg -v error -i "$image" -f null -
           done
       - uses: actions/setup-node@v4
         with:
