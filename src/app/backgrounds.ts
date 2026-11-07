@@ -199,7 +199,6 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
     '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
     '</defs>' +
     '<rect width="1200" height="1600" fill="url(#sky)"/>' +
-    '<ellipse cx="850" cy="520" rx="540" ry="430" fill="url(#glow)"/>' +
     sceneShapes(background, p) +
     '<rect width="1200" height="1600" fill="url(#fade)"/>' +
     '</svg>';
