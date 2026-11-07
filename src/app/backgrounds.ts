@@ -198,7 +198,7 @@ const cache = new Map<string, string>();
 /** A quiet, locally drawn scene. No remote request, animation, canvas, filter or external image asset. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   // The full Dawn wallpaper uses the exact same local image as its Settings preview.
-  if (background === 'dawn') return 'url("/backgrounds/dawn.webp")';
+  if (background === 'dawn') return DAWN_WALLPAPER;
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
   const key = background + ':' + mode + ':' + page;
