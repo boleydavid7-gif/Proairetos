@@ -264,7 +264,7 @@ function forestWallpaperSvg(mode: Mode, wide: boolean, page: string, fade = true
   <linearGradient id="ridgeMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.midTop}"/><stop offset="1" stop-color="${c.midBottom}"/></linearGradient>
   <linearGradient id="ridgeNear" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.nearTop}"/><stop offset="1" stop-color="${c.nearBottom}"/></linearGradient>
   <linearGradient id="ridgeFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.frontTop}"/><stop offset="1" stop-color="${c.frontBottom}"/></linearGradient>
-  ${fade ? `<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".84" stop-color="${page}" stop-opacity="0"/><stop offset="1" stop-color="${page}" stop-opacity="1"/></linearGradient>` : ''}
+  ${fade ? `<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="${page}" stop-opacity="0"/><stop offset="1" stop-color="${page}" stop-opacity="1"/></linearGradient>` : ''}
 </defs>
 <rect width="${w}" height="${h}" fill="url(#sky)"/>
 <ellipse cx="${sunX}" cy="${sunY}" rx="${h * .31}" ry="${h * .21}" fill="url(#sun-halo)"/>
