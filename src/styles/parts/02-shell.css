@@ -38,11 +38,11 @@
   content: "";
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
-  /* Keep the image layers separate from the fallback color. Some wallpapers contain
-     both a fade gradient and a raster image; a shorthand with a trailing color can
-     invalidate the whole declaration on mobile browsers. */
+  /* Paint the wallpaper inside the shell's stacking context, above its transparent
+     background and below the app content. A negative layer can disappear behind
+     the page/root backgrounds in mobile browser compositing. */
   background-color: var(--color-bg);
   background-image: var(--room-wall);
   background-position: top center;
@@ -54,6 +54,11 @@
   :root[data-ll-static-wallpaper] .app-shell::before {
     background-image: var(--room-wall-wide);
   }
+}
+
+:root[data-ll-static-wallpaper] .app-shell__content {
+  position: relative;
+  z-index: 1;
 }
 
 .app-shell__content {
