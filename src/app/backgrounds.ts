@@ -209,7 +209,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
     '<defs>' +
     '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
     '<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="' + p.glow + '" stop-opacity=".66"/><stop offset=".48" stop-color="' + p.glow + '" stop-opacity=".2"/><stop offset="1" stop-color="' + p.glow + '" stop-opacity="0"/></radialGradient>' +
-    '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".42" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
+    '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
     '</defs>' +
     '<rect width="1200" height="1600" fill="url(#sky)"/>' +
     '<ellipse cx="850" cy="520" rx="540" ry="430" fill="url(#glow)"/>' +
