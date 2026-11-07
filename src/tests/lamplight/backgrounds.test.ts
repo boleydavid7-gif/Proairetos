@@ -41,8 +41,8 @@ describe('Lamplight backgrounds', () => {
         expect(light).toContain('twilight-light-mobile.avif');
         expect(dark).not.toBe(light);
       } else {
-        expect(dark).toMatch(/^url\\("data:image\\/svg\\+xml,/);
-        expect(light).toMatch(/^url\\("data:image\\/svg\\+xml,/);
+        expect(dark.startsWith('url("data:image/svg+xml,')).toBe(true);
+        expect(light.startsWith('url("data:image/svg+xml,')).toBe(true);
         expect(dark).not.toBe(light);
       }
       expect(dark).not.toContain('https://');
@@ -80,7 +80,7 @@ describe('Lamplight backgrounds', () => {
         expect(backgroundPreviewOf('twilight', 'light')).toContain('twilight-light-desktop.avif');
         expect(preview).not.toBe(backgroundPreviewOf('twilight', 'light'));
       } else {
-        expect(preview).toMatch(/^url\\("data:image\\/svg\\+xml,/);
+        expect(preview.startsWith('url("data:image/svg+xml,')).toBe(true);
         const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
         expect(svg).toContain('viewBox="0 ');
         expect(svg).toContain(' 1200 675"');
@@ -93,7 +93,7 @@ describe('Lamplight backgrounds', () => {
     const lake = decodeURIComponent(backgroundPreviewOf('lake', 'dark').slice('url("data:image/svg+xml,'.length, -2));
     const night = decodeURIComponent(backgroundPreviewOf('night', 'dark').slice('url("data:image/svg+xml,'.length, -2));
 
-    expect((forest.match(/translate\\(/g) ?? []).length).toBeGreaterThanOrEqual(16);
+    expect(forest.split('translate(').length - 1).toBeGreaterThanOrEqual(16);
     expect(lake).toContain('stroke-opacity=".52"');
     expect((night.match(/<circle /g) ?? []).length).toBeGreaterThanOrEqual(30);
   });
