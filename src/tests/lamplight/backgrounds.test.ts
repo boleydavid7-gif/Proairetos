@@ -32,11 +32,16 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'lamplight') continue;
       const dark = backgroundOf(background.id, 'dark');
       const light = backgroundOf(background.id, 'light');
-      expect(dark).toMatch(/^url\("data:image\/svg\+xml,/);
-      expect(light).toMatch(/^url\("data:image\/svg\+xml,/);
+      if (background.id === 'dawn') {
+        expect(dark).toBe('url("/backgrounds/dawn.webp")');
+        expect(light).toBe(dark);
+      } else {
+        expect(dark).toMatch(/^url\("data:image\/svg\+xml,/);
+        expect(light).toMatch(/^url\("data:image\/svg\+xml,/);
+        expect(dark).not.toBe(light);
+      }
       expect(dark).not.toContain('https://');
       expect(light).not.toContain('https://');
-      expect(dark).not.toBe(light);
     }
   });
 
@@ -44,10 +49,15 @@ describe('Lamplight backgrounds', () => {
     for (const background of BACKGROUND_OPTIONS) {
       if (background.id === 'lamplight') continue;
       const preview = backgroundPreviewOf(background.id, 'dark');
-      expect(preview).toMatch(/^url\("data:image\/svg\+xml,/);
-      const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
-      expect(svg).toContain('viewBox="0 ');
-      expect(svg).toContain(' 1200 675"');
+      if (background.id === 'dawn') {
+        expect(preview).toBe('url("/backgrounds/dawn.webp")');
+        expect(preview).toBe(backgroundOf('dawn', 'dark'));
+      } else {
+        expect(preview).toMatch(/^url\("data:image\/svg\+xml,/);
+        const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
+        expect(svg).toContain('viewBox="0 ');
+        expect(svg).toContain(' 1200 675"');
+      }
     }
   });
 
@@ -65,6 +75,11 @@ describe('Lamplight backgrounds', () => {
     const decode = (image: string) => decodeURIComponent(image.slice('url("data:image/svg+xml,'.length, -2));
     for (const background of BACKGROUND_OPTIONS) {
       if (background.id === 'lamplight') continue;
+      if (background.id === 'dawn') {
+        expect(backgroundOf('dawn', 'dark', '#101820')).toBe('url("/backgrounds/dawn.webp")');
+        expect(backgroundPreviewOf('dawn', 'dark')).toBe('url("/backgrounds/dawn.webp")');
+        continue;
+      }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));
       const preview = decode(backgroundPreviewOf(background.id, 'dark'));
       expect(full).toContain('<linearGradient id="ridgeFar"');
