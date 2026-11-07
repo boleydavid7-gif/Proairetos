@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900">
+<defs>
+<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#001923"/><stop offset=".40" stop-color="#00313D"/><stop offset=".74" stop-color="#005C67"/><stop offset="1" stop-color="#087E83"/></linearGradient>
+<radialGradient id="horizon" cx=".5" cy=".49" r=".57"><stop stop-color="#7CEBD0" stop-opacity=".95"/><stop offset=".24" stop-color="#36CDBB" stop-opacity=".65"/><stop offset=".60" stop-color="#07919A" stop-opacity=".20"/><stop offset="1" stop-color="#003440" stop-opacity="0"/></radialGradient>
+<linearGradient id="far" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#086F7A"/><stop offset="1" stop-color="#064B5A"/></linearGradient>
+<linearGradient id="mid" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#045260"/><stop offset="1" stop-color="#023744"/></linearGradient>
+<linearGradient id="near" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#03404D"/><stop offset="1" stop-color="#001D28"/></linearGradient>
+<linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset=".45" stop-color="#001923" stop-opacity="0"/><stop offset="1" stop-color="#00131D" stop-opacity=".60"/></linearGradient>
+<symbol id="pine" viewBox="-90 -220 180 220"><path d="M0-214 -19-151 -8-151 -42-101 -22-101 -63-43 -27-43 -86-8 -35-8 0 0 35-8 86-8 27-43 63-43 22-101 42-101 8-151 19-151Z" fill="currentColor"/></symbol>
+</defs>
+<rect width="1600" height="900" fill="url(#sky)"/><rect width="1600" height="900" fill="url(#horizon)"/>
+<path d="M0 330 C220 260 400 280 590 348 C790 420 1030 380 1220 315 C1380 260 1490 285 1600 305 L1600 650 0 650Z" fill="url(#far)"/>
+<path d="M0 390 C220 410 420 495 650 475 C900 455 1110 365 1320 385 C1440 395 1530 420 1600 420 L1600 710 0 710Z" fill="url(#mid)"/>
+<path d="M0 505 C250 520 465 615 720 620 C980 625 1270 520 1600 495 L1600 760 0 760Z" fill="url(#near)"/>
+<g opacity=".72" color="#08727B">
+<use href="#pine" x="-5" y="690" width="105" height="128"/><use href="#pine" x="105" y="690" width="110" height="134"/><use href="#pine" x="220" y="690" width="105" height="128"/><use href="#pine" x="330" y="690" width="112" height="137"/><use href="#pine" x="445" y="690" width="108" height="132"/><use href="#pine" x="560" y="690" width="112" height="137"/><use href="#pine" x="675" y="690" width="105" height="128"/><use href="#pine" x="785" y="690" width="112" height="137"/><use href="#pine" x="900" y="690" width="108" height="132"/><use href="#pine" x="1010" y="690" width="112" height="137"/><use href="#pine" x="1125" y="690" width="105" height="128"/><use href="#pine" x="1235" y="690" width="112" height="137"/><use href="#pine" x="1350" y="690" width="108" height="132"/><use href="#pine" x="1460" y="690" width="112" height="137"/>
+</g>
+<g opacity=".96" color="#064B59">
+<use href="#pine" x="-45" y="820" width="155" height="190"/><use href="#pine" x="85" y="820" width="160" height="196"/><use href="#pine" x="220" y="820" width="155" height="190"/><use href="#pine" x="350" y="820" width="160" height="196"/><use href="#pine" x="485" y="820" width="155" height="190"/><use href="#pine" x="615" y="820" width="160" height="196"/><use href="#pine" x="750" y="820" width="155" height="190"/><use href="#pine" x="880" y="820" width="160" height="196"/><use href="#pine" x="1015" y="820" width="155" height="190"/><use href="#pine" x="1145" y="820" width="160" height="196"/><use href="#pine" x="1280" y="820" width="155" height="190"/><use href="#pine" x="1410" y="820" width="160" height="196"/><use href="#pine" x="1545" y="820" width="155" height="190"/>
+</g>
+<g color="#001D28">
+<use href="#pine" x="-95" y="900" width="200" height="245"/><use href="#pine" x="70" y="900" width="205" height="250"/><use href="#pine" x="240" y="900" width="200" height="245"/><use href="#pine" x="410" y="900" width="205" height="250"/><use href="#pine" x="580" y="900" width="200" height="245"/><use href="#pine" x="750" y="900" width="205" height="250"/><use href="#pine" x="920" y="900" width="200" height="245"/><use href="#pine" x="1090" y="900" width="205" height="250"/><use href="#pine" x="1260" y="900" width="200" height="245"/><use href="#pine" x="1430" y="900" width="205" height="250"/>
+</g>
+<rect width="1600" height="900" fill="url(#shade)"/>
+</svg>
