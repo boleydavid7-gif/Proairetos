@@ -1,5 +1,5 @@
 import { identityFor } from '../lamplight/identity';
-import { backgroundFootOf, backgroundOf } from './backgrounds';
+import { backgroundFootOf, backgroundOf, backgroundWideOf } from './backgrounds';
 import type { Appearance } from '../data/storage/preferences';
 import { materialFootSvg, staticWallpaperStyleSvg, wallpaperStyleSvg } from './wallpaper';
 import { SHADE_DARK, SHADE_LIGHT, poolColor, warmedLamp, type DayLight } from '../lamplight/daylight';
@@ -116,10 +116,12 @@ export function applyLamplight(appearance: Appearance, light: boolean, app = 'pr
   if (app === 'proairetos') root.dataset.llStaticWallpaper = 'true';
   else delete root.dataset.llStaticWallpaper;
   const vars = { ...schemeVars(s), ...(app === 'proairetos' ? proairetosVars(s, appearance.wallStyle) : familyVars(s, app)) };
+  // Raster wallpapers need proportional scaling; SVG scenes retain their existing viewport sizing.
+  vars['--room-wall-size'] = app === 'proairetos' && appearance.background === 'dawn' ? 'cover' : '100% 100%';
   if (app === 'proairetos' && appearance.background !== 'lamplight') {
     const scene = backgroundOf(appearance.background, mode, s.page);
     vars['--room-wall'] = scene;
-    vars['--room-wall-wide'] = scene;
+    vars['--room-wall-wide'] = backgroundWideOf(appearance.background, mode, s.page);
     vars['--room-foot'] = backgroundFootOf();
     vars['--room-foot-wide'] = backgroundFootOf();
   }

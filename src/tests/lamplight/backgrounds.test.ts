@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BACKGROUND_OPTIONS, DEFAULT_BACKGROUND, isBackground } from '../../core/look/lamplight';
-import { backgroundOf, backgroundPreviewOf } from '../../app/backgrounds';
+import { backgroundOf, backgroundPreviewOf, backgroundWideOf } from '../../app/backgrounds';
 
 describe('Lamplight backgrounds', () => {
   it('offers the complete named collection and keeps Lamplight as the default', () => {
@@ -45,6 +45,13 @@ describe('Lamplight backgrounds', () => {
       expect(dark).not.toContain('https://');
       expect(light).not.toContain('https://');
     }
+  });
+
+  it('uses the landscape Dawn asset for wide screens without stretching the portrait image', () => {
+    const wide = backgroundWideOf('dawn', 'dark', '#101820');
+    expect(wide).toContain('dawn-preview.webp');
+    expect(wide).toContain('linear-gradient');
+    expect(backgroundWideOf('forest', 'dark')).toBe(backgroundOf('forest', 'dark'));
   });
 
   it('renders landscape previews that show the actual scene rather than cropping the portrait wallpaper', () => {

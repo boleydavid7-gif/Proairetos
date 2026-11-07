@@ -13,7 +13,7 @@
 :root[data-room]:not([data-ll-static-wallpaper]) .app-shell {
   background:
     var(--room-shade, linear-gradient(transparent, transparent)),
-    var(--room-wall) top / 100% 100% no-repeat,
+    var(--room-wall) top center / var(--room-wall-size, 100% 100%) no-repeat,
     var(--color-bg);
 }
 
@@ -21,7 +21,7 @@
   :root[data-room]:not([data-ll-static-wallpaper]) .app-shell {
     background:
       var(--room-shade, linear-gradient(transparent, transparent)) top / 100% 100% no-repeat,
-      var(--room-wall-wide) top / 100% 100% no-repeat,
+      var(--room-wall-wide) top center / var(--room-wall-size, 100% 100%) no-repeat,
       var(--color-bg);
   }
 }
@@ -41,14 +41,14 @@
   z-index: -1;
   pointer-events: none;
   background:
-    var(--room-wall) top center / 100% 100% no-repeat,
+    var(--room-wall) top center / var(--room-wall-size, 100% 100%) no-repeat,
     var(--color-bg);
 }
 
 @media (min-width: 62rem) {
   :root[data-ll-static-wallpaper] .app-shell::before {
     background:
-      var(--room-wall-wide) top center / 100% 100% no-repeat,
+      var(--room-wall-wide) top center / var(--room-wall-size, 100% 100%) no-repeat,
       var(--color-bg);
   }
 }
