@@ -34,8 +34,9 @@ describe('Lamplight backgrounds', () => {
     expect(backgroundSizeOf('forest')).toBe('cover');
     expect(backgroundSizeOf('mountains')).toBe('cover');
     expect(backgroundSizeOf('ocean')).toBe('cover');
+    expect(backgroundSizeOf('lake')).toBe('cover');
     for (const background of BACKGROUND_OPTIONS) {
-      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight' || background.id === 'night' || background.id === 'forest' || background.id === 'mountains' || background.id === 'ocean') continue;
+      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight' || background.id === 'night' || background.id === 'forest' || background.id === 'mountains' || background.id === 'ocean' || background.id === 'lake') continue;
       expect(backgroundSizeOf(background.id)).toBe('100% 100%');
     }
   });
@@ -68,6 +69,10 @@ describe('Lamplight backgrounds', () => {
       } else if (background.id === 'ocean') {
         expect(dark).toContain('ocean-dark-mobile.avif');
         expect(light).toContain('ocean-light-mobile.avif');
+        expect(dark).not.toBe(light);
+      } else if (background.id === 'lake') {
+        expect(dark).toContain('lake-dark-mobile.avif');
+        expect(light).toContain('lake-light-mobile.avif');
         expect(dark).not.toBe(light);
       } else {
         expect(dark.startsWith('url("data:image/svg+xml,')).toBe(true);
@@ -121,6 +126,13 @@ describe('Lamplight backgrounds', () => {
     expect(lightOcean).toContain('ocean-light-desktop.avif');
     expect(darkOcean).toContain('linear-gradient');
     expect(lightOcean).toContain('linear-gradient');
+
+    const darkLake = backgroundWideOf('lake', 'dark', '#101820');
+    const lightLake = backgroundWideOf('lake', 'light', '#F4F0E9');
+    expect(darkLake).toContain('lake-dark-desktop.avif');
+    expect(lightLake).toContain('lake-light-desktop.avif');
+    expect(darkLake).toContain('linear-gradient');
+    expect(lightLake).toContain('linear-gradient');
   });
 
   it('renders landscape previews that show the actual scene rather than cropping the portrait wallpaper', () => {
@@ -151,6 +163,10 @@ describe('Lamplight backgrounds', () => {
         expect(preview).toContain('ocean-dark-desktop.avif');
         expect(backgroundPreviewOf('ocean', 'light')).toContain('ocean-light-desktop.avif');
         expect(preview).not.toBe(backgroundPreviewOf('ocean', 'light'));
+      } else if (background.id === 'lake') {
+        expect(preview).toContain('lake-dark-desktop.avif');
+        expect(backgroundPreviewOf('lake', 'light')).toContain('lake-light-desktop.avif');
+        expect(preview).not.toBe(backgroundPreviewOf('lake', 'light'));
       } else {
         expect(preview.startsWith('url("data:image/svg+xml,')).toBe(true);
         const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
@@ -160,14 +176,13 @@ describe('Lamplight backgrounds', () => {
     }
   });
 
-  it('uses the bundled Forest and Night artwork in previews and keeps Lake reflections', () => {
-    const lake = decodeURIComponent(backgroundPreviewOf('lake', 'dark').slice('url("data:image/svg+xml,'.length, -2));
-
+  it('uses the bundled Forest, Night, and Lake artwork in previews', () => {
     expect(backgroundPreviewOf('forest', 'dark')).toContain('forest-dark-desktop.avif');
     expect(backgroundPreviewOf('forest', 'light')).toContain('forest-light-desktop.avif');
-    expect(lake).toContain('stroke-opacity=".52"');
     expect(backgroundPreviewOf('night', 'dark')).toContain('night-dark-desktop.avif');
     expect(backgroundPreviewOf('night', 'light')).toContain('night-light-desktop.avif');
+    expect(backgroundPreviewOf('lake', 'dark')).toContain('lake-dark-desktop.avif');
+    expect(backgroundPreviewOf('lake', 'light')).toContain('lake-light-desktop.avif');
   });
 
   it('uses the same minimalist scene artwork in full wallpapers and landscape previews', () => {
@@ -224,6 +239,15 @@ describe('Lamplight backgrounds', () => {
         expect(full).toContain('ocean-dark-mobile.avif');
         expect(wide).toContain('ocean-dark-desktop.avif');
         expect(preview).toContain('ocean-dark-desktop.avif');
+        continue;
+      }
+      if (background.id === 'lake') {
+        const full = backgroundOf('lake', 'dark', '#101820');
+        const wide = backgroundWideOf('lake', 'dark', '#101820');
+        const preview = backgroundPreviewOf('lake', 'dark');
+        expect(full).toContain('lake-dark-mobile.avif');
+        expect(wide).toContain('lake-dark-desktop.avif');
+        expect(preview).toContain('lake-dark-desktop.avif');
         continue;
       }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));
