@@ -57,18 +57,21 @@ describe('Lamplight backgrounds', () => {
     const night = decodeURIComponent(backgroundPreviewOf('night', 'dark').slice('url("data:image/svg+xml,'.length, -2));
 
     expect((forest.match(/translate\(/g) ?? []).length).toBeGreaterThanOrEqual(16);
-    expect(lake).toContain('stroke-opacity=".58"');
+    expect(lake).toContain('stroke-opacity=".52"');
     expect((night.match(/<circle /g) ?? []).length).toBeGreaterThanOrEqual(30);
   });
 
-  it('keeps the defining scenery visible in the full wallpaper, matching its landscape preview', () => {
+  it('uses the same minimalist scene artwork in full wallpapers and landscape previews', () => {
     const decode = (image: string) => decodeURIComponent(image.slice('url("data:image/svg+xml,'.length, -2));
-    for (const id of ['forest', 'mountains', 'lake', 'night'] as const) {
-      const full = decode(backgroundOf(id, 'dark', '#101820'));
-      const preview = decode(backgroundPreviewOf(id, 'dark'));
-      // Both renderers use the same scene geometry; the portrait wallpaper only adds a subtle fade at its foot.
-      expect(full).toContain('fill="' + (id === 'forest' ? '#102D36' : id === 'mountains' ? '#415B72' : id === 'lake' ? '#415E70' : '#B7D1D9') + '"');
+    for (const background of BACKGROUND_OPTIONS) {
+      if (background.id === 'lamplight') continue;
+      const full = decode(backgroundOf(background.id, 'dark', '#101820'));
+      const preview = decode(backgroundPreviewOf(background.id, 'dark'));
+      expect(full).toContain('<linearGradient id="ridgeFar"');
+      expect(full).toContain('<linearGradient id="ridgeMid"');
+      expect(preview).toContain('<linearGradient id="ridgeFar"');
       expect(preview).toContain('viewBox="0 ');
+      expect((full.match(/<path /g) ?? []).length).toBe((preview.match(/<path /g) ?? []).length);
       expect(full).toContain('<linearGradient id="fade"');
       expect(full).toContain('stop offset=".86"');
     }
