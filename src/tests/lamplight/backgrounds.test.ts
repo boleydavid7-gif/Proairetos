@@ -30,8 +30,9 @@ describe('Lamplight backgrounds', () => {
   it('keeps raster wallpapers proportional instead of stretching them to the viewport', () => {
     expect(backgroundSizeOf('dawn')).toBe('cover');
     expect(backgroundSizeOf('twilight')).toBe('cover');
+    expect(backgroundSizeOf('night')).toBe('cover');
     for (const background of BACKGROUND_OPTIONS) {
-      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight') continue;
+      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight' || background.id === 'night') continue;
       expect(backgroundSizeOf(background.id)).toBe('100% 100%');
     }
   });

@@ -30,7 +30,9 @@ const twilightDesktopAssets: Record<Mode, string> = {
 
 /** Raster wallpaper files must retain their native proportions; vector scenes use the full viewport. */
 export function backgroundSizeOf(background: SceneId): 'cover' | '100% 100%' {
-  return background === 'dawn' || background === 'twilight' ? 'cover' : '100% 100%';
+  return background === 'dawn' || background === 'twilight' || background === 'night'
+    ? 'cover'
+    : '100% 100%';
 }
 
 type Palette = {
