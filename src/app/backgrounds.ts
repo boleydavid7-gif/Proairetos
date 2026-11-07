@@ -224,6 +224,15 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   return value;
 }
 
+/** A landscape crop of Dawn for wide viewports; keep its circular sun at its native aspect ratio. */
+export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: string): string {
+  if (background === 'dawn') {
+    const dawnPage = pageColor ?? palettes.dawn[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnPreview + '")';
+  }
+  return backgroundOf(background, mode, pageColor);
+}
+
 /** The Today hero fades into the solid page surface while the selected scene continues across the shell. */
 export function backgroundFootOf(): string {
   return 'linear-gradient(180deg, transparent 0%, var(--color-bg) 100%)';
