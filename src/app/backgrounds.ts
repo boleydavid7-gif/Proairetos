@@ -153,12 +153,6 @@ function sceneShapes(id: SceneId, p: Palette): string {
         '<path d="M0 990 C210 900 390 925 560 970 C760 1025 965 890 1200 930 V1600 H0Z" fill="url(#ridgeFar)"/>' +
         '<path d="M0 1190 C220 1085 420 1110 620 1175 C825 1240 1020 1100 1200 1135 V1600 H0Z" fill="url(#ridgeMid)"/>' +
         '<path d="M0 1390 C245 1285 465 1310 680 1370 C870 1420 1040 1310 1200 1335 V1600 H0Z" fill="url(#ridgeFront)"/>';
-    case 'forest':
-      return '<path d="M0 900 C190 805 390 825 570 900 C760 980 980 815 1200 875 V1600 H0Z" fill="url(#ridgeFar)"/>' +
-        '<path d="M0 1110 C190 1000 400 1035 600 1100 C810 1165 1010 1010 1200 1050 V1600 H0Z" fill="url(#ridgeMid)"/>' +
-        fir(38, 1280, .76, p.far, .86) + fir(150, 1250, .9, p.far, .9) + fir(275, 1300, .8, p.far, .84) + fir(410, 1260, .96, p.far, .92) + fir(555, 1305, .78, p.far, .88) + fir(700, 1265, .94, p.far, .92) + fir(850, 1300, .82, p.far, .86) + fir(1000, 1255, .98, p.far, .92) + fir(1155, 1295, .82, p.far, .88) +
-        '<path d="M0 1430 C210 1345 420 1370 620 1430 C820 1490 1020 1350 1200 1390 V1600 H0Z" fill="url(#ridgeFront)"/>' +
-        fir(82, 1445, 1.12, p.base) + fir(245, 1405, 1.18, p.base) + fir(420, 1450, 1.08, p.base) + fir(600, 1410, 1.2, p.base) + fir(780, 1450, 1.1, p.base) + fir(960, 1405, 1.18, p.base) + fir(1130, 1445, 1.08, p.base);
     case 'mountains':
       return '<ellipse cx="900" cy="600" rx="500" ry="350" fill="url(#glow)" opacity=".9"/>' +
         '<path d="M0 1000 L170 810 C245 730 285 700 350 635 C415 565 460 520 520 570 C610 650 675 820 770 850 C880 885 950 735 1030 720 C1100 705 1150 765 1200 805 V1600 H0Z" fill="url(#ridgeFar)"/>' +
@@ -283,7 +277,7 @@ const previewTop: Record<SceneId, number> = {
   ocean: 700, lake: 520, desert: 560, stone: 500, aurora: 180, ember: 540,
 };
 
-/** The Appearance tiles use the same mode-matched landscape Dawn artwork as wide screens. */
+/** The Appearance tiles use the same mode-matched landscape artwork as wide screens. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   if (background === 'forest') return forestWallpaperSvg(mode, true, palettes.forest[mode].base, false);
   if (background === 'dawn') return 'url("' + dawnDesktopAssets[mode] + '")';
@@ -344,7 +338,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   return value;
 }
 
-/** Wide viewports use dedicated landscape artwork for Dawn, Twilight, and Night. */
+/** Wide viewports use dedicated landscape artwork for Horizon, Dawn, Twilight, and Night. */
 export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'forest') return forestWallpaperSvg(mode, true, pageColor ?? palettes.forest[mode].base);
   if (background === 'dawn') {
