@@ -94,6 +94,15 @@ describe('Lamplight backgrounds', () => {
         expect(preview).toContain('dawn-dark-desktop.avif');
         continue;
       }
+      if (background.id === 'twilight') {
+        const full = backgroundOf('twilight', 'dark', '#101820');
+        const wide = backgroundWideOf('twilight', 'dark', '#101820');
+        const preview = backgroundPreviewOf('twilight', 'dark');
+        expect(full).toContain('twilight-dark-mobile.avif');
+        expect(wide).toContain('twilight-dark-desktop.avif');
+        expect(preview).toContain('twilight-dark-desktop.avif');
+        continue;
+      }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));
       const preview = decode(backgroundPreviewOf(background.id, 'dark'));
       expect(full).toContain('<linearGradient id="ridgeFar"');
