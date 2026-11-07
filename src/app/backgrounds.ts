@@ -1,7 +1,4 @@
 import type { BackgroundId } from '../core/look/lamplight';
-import { DAWN_IMAGE } from './dawnImage';
-
-const DAWN_WALLPAPER = `url("${DAWN_IMAGE}")`;
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -19,8 +16,8 @@ type Palette = {
 
 const palettes: Record<SceneId, Record<Mode, Palette>> = {
   dawn: {
-    dark: { sky: '#26394B', horizon: '#B77F73', base: '#122131', glow: '#E7A98C', far: '#354B5B', near: '#182D3D', accent: '#F0BD9B', detail: '#A5B8C0' },
-    light: { sky: '#DCE8EB', horizon: '#F0D0BC', base: '#F3F0EA', glow: '#F3C6A8', far: '#A9C1C5', near: '#78959E', accent: '#D79C82', detail: '#F8E7D9' },
+    dark: { sky: '#081832', horizon: '#C9828D', base: '#10243A', glow: '#F6A58F', far: '#53677E', near: '#263F5B', accent: '#FFD09D', detail: '#655875' },
+    light: { sky: '#E2E8F0', horizon: '#E9B8AA', base: '#E6D8D0', glow: '#F5C3A1', far: '#B6B6C5', near: '#8996AA', accent: '#F6D0A6', detail: '#B7A3B6' },
   },
   twilight: {
     dark: { sky: '#171D39', horizon: '#62577E', base: '#10192B', glow: '#A27EAA', far: '#343957', near: '#1B2942', accent: '#D0A1B4', detail: '#8991B6' },
@@ -71,6 +68,9 @@ function sceneDefs(p: Palette): string {
   return '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
     '<stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/>' +
     '</linearGradient>' +
+    '<linearGradient id="dawnSky" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="' + p.sky + '"/><stop offset=".34" stop-color="' + p.detail + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset=".68" stop-color="' + p.glow + '"/><stop offset="1" stop-color="' + p.base + '"/>' +
+    '</linearGradient>' +
     '<radialGradient id="glow" cx="50%" cy="50%" r="50%">' +
     '<stop offset="0" stop-color="' + p.glow + '" stop-opacity=".72"/><stop offset=".5" stop-color="' + p.glow + '" stop-opacity=".22"/><stop offset="1" stop-color="' + p.glow + '" stop-opacity="0"/>' +
     '</radialGradient>' +
@@ -85,10 +85,11 @@ function sceneDefs(p: Palette): string {
 function sceneShapes(id: SceneId, p: Palette): string {
   switch (id) {
     case 'dawn':
-      return '<ellipse cx="850" cy="690" rx="440" ry="350" fill="url(#glow)"/><circle cx="850" cy="700" r="112" fill="' + p.accent + '" opacity=".78"/>' +
-        '<path d="M0 930 C190 835 355 835 510 900 C690 970 830 845 1000 830 C1080 820 1145 850 1200 875 V1600 H0Z" fill="url(#ridgeFar)"/>' +
-        '<path d="M0 1080 C220 970 385 1000 565 1055 C755 1110 935 960 1200 1010 V1600 H0Z" fill="url(#ridgeMid)"/>' +
-        '<path d="M0 1270 C220 1160 425 1180 630 1240 C830 1295 1000 1160 1200 1190 V1600 H0Z" fill="url(#ridgeFront)"/>';
+      return '<ellipse cx="970" cy="790" rx="500" ry="365" fill="url(#glow)"/>' +
+        '<circle cx="970" cy="780" r="168" fill="' + p.accent + '" opacity=".96"/>' +
+        '<path d="M0 900 C145 880 210 850 330 875 C445 900 520 935 640 920 C760 905 840 865 940 880 C1055 900 1120 870 1200 860 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1050 C190 980 340 995 500 1040 C650 1085 760 1050 900 1000 C1040 950 1120 980 1200 1010 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1260 C200 1190 390 1195 570 1245 C760 1295 910 1235 1200 1160 V1600 H0Z" fill="url(#ridgeFront)"/>';
     case 'twilight':
       return '<ellipse cx="840" cy="680" rx="490" ry="310" fill="url(#glow)" opacity=".8"/><circle cx="840" cy="690" r="78" fill="' + p.accent + '" opacity=".54"/>' +
         '<path d="M0 900 C210 820 390 860 555 910 C735 965 940 820 1200 855 V1600 H0Z" fill="url(#ridgeFar)"/>' +
@@ -174,8 +175,6 @@ const previewTop: Record<SceneId, number> = {
 
 /** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
-  // Dawn uses the approved, shared photographic artwork in both the preview and the full wallpaper.
-  if (background === 'dawn') return DAWN_WALLPAPER;
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -184,7 +183,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ' + previewTop[background] + ' 1200 675" preserveAspectRatio="xMidYMid slice">' +
     '<defs>' + sceneDefs(p) +
     '</defs>' +
-    '<rect width="1200" height="1600" fill="url(#sky)"/>' +
+    '<rect width="1200" height="1600" fill="' + (background === 'dawn' ? 'url(#dawnSky)' : 'url(#sky)') + '"/>' +
     sceneShapes(background, p) +
     '</svg>';
   const value = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
@@ -197,8 +196,6 @@ const cache = new Map<string, string>();
 
 /** A quiet, locally drawn scene. No remote request, animation, canvas, filter or external image asset. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
-  // The full Dawn wallpaper uses the exact same local image as its Settings preview.
-  if (background === 'dawn') return DAWN_WALLPAPER;
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
   const key = background + ':' + mode + ':' + page;
@@ -209,7 +206,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
     '<defs>' + sceneDefs(p) +
     '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
     '</defs>' +
-    '<rect width="1200" height="1600" fill="url(#sky)"/>' +
+    '<rect width="1200" height="1600" fill="' + (background === 'dawn' ? 'url(#dawnSky)' : 'url(#sky)') + '"/>' +
     sceneShapes(background, p) +
     '<rect width="1200" height="1600" fill="url(#fade)"/>' +
     '</svg>';
