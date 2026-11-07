@@ -50,6 +50,10 @@ describe('Lamplight backgrounds', () => {
         expect(dark).toContain('twilight-dark-mobile.avif');
         expect(light).toContain('twilight-light-mobile.avif');
         expect(dark).not.toBe(light);
+      } else if (background.id === 'night') {
+        expect(dark).toContain('night-dark-mobile.avif');
+        expect(light).toContain('night-light-mobile.avif');
+        expect(dark).not.toBe(light);
       } else {
         expect(dark.startsWith('url("data:image/svg+xml,')).toBe(true);
         expect(light.startsWith('url("data:image/svg+xml,')).toBe(true);
@@ -60,7 +64,7 @@ describe('Lamplight backgrounds', () => {
     }
   });
 
-  it('uses mode-matched landscape assets for Dawn and Twilight on wide screens', () => {
+  it('uses mode-matched landscape assets for Dawn, Twilight, and Night on wide screens', () => {
     const darkDawn = backgroundWideOf('dawn', 'dark', '#101820');
     const lightDawn = backgroundWideOf('dawn', 'light', '#F4F0E9');
     expect(darkDawn).toContain('dawn-dark-desktop.avif');
@@ -74,6 +78,13 @@ describe('Lamplight backgrounds', () => {
     expect(lightTwilight).toContain('twilight-light-desktop.avif');
     expect(darkTwilight).toContain('linear-gradient');
     expect(lightTwilight).toContain('linear-gradient');
+
+    const darkNight = backgroundWideOf('night', 'dark', '#101820');
+    const lightNight = backgroundWideOf('night', 'light', '#F4F0E9');
+    expect(darkNight).toContain('night-dark-desktop.avif');
+    expect(lightNight).toContain('night-light-desktop.avif');
+    expect(darkNight).toContain('linear-gradient');
+    expect(lightNight).toContain('linear-gradient');
     expect(backgroundWideOf('forest', 'dark')).toBe(backgroundOf('forest', 'dark'));
   });
 
@@ -89,6 +100,10 @@ describe('Lamplight backgrounds', () => {
         expect(preview).toContain('twilight-dark-desktop.avif');
         expect(backgroundPreviewOf('twilight', 'light')).toContain('twilight-light-desktop.avif');
         expect(preview).not.toBe(backgroundPreviewOf('twilight', 'light'));
+      } else if (background.id === 'night') {
+        expect(preview).toContain('night-dark-desktop.avif');
+        expect(backgroundPreviewOf('night', 'light')).toContain('night-light-desktop.avif');
+        expect(preview).not.toBe(backgroundPreviewOf('night', 'light'));
       } else {
         expect(preview.startsWith('url("data:image/svg+xml,')).toBe(true);
         const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
@@ -98,14 +113,14 @@ describe('Lamplight backgrounds', () => {
     }
   });
 
-  it('shows a recognizable forest, a lake with reflections, and a fuller night sky in previews', () => {
+  it('shows a recognizable forest, a lake with reflections, and the bundled Night artwork in previews', () => {
     const forest = decodeURIComponent(backgroundPreviewOf('forest', 'dark').slice('url("data:image/svg+xml,'.length, -2));
     const lake = decodeURIComponent(backgroundPreviewOf('lake', 'dark').slice('url("data:image/svg+xml,'.length, -2));
-    const night = decodeURIComponent(backgroundPreviewOf('night', 'dark').slice('url("data:image/svg+xml,'.length, -2));
 
     expect(forest.split('translate(').length - 1).toBeGreaterThanOrEqual(16);
     expect(lake).toContain('stroke-opacity=".52"');
-    expect((night.match(/<circle /g) ?? []).length).toBeGreaterThanOrEqual(30);
+    expect(backgroundPreviewOf('night', 'dark')).toContain('night-dark-desktop.avif');
+    expect(backgroundPreviewOf('night', 'light')).toContain('night-light-desktop.avif');
   });
 
   it('uses the same minimalist scene artwork in full wallpapers and landscape previews', () => {
@@ -126,6 +141,15 @@ describe('Lamplight backgrounds', () => {
         expect(full).toContain('twilight-dark-mobile.avif');
         expect(wide).toContain('twilight-dark-desktop.avif');
         expect(preview).toContain('twilight-dark-desktop.avif');
+        continue;
+      }
+      if (background.id === 'night') {
+        const full = backgroundOf('night', 'dark', '#101820');
+        const wide = backgroundWideOf('night', 'dark', '#101820');
+        const preview = backgroundPreviewOf('night', 'dark');
+        expect(full).toContain('night-dark-mobile.avif');
+        expect(wide).toContain('night-dark-desktop.avif');
+        expect(preview).toContain('night-dark-desktop.avif');
         continue;
       }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));

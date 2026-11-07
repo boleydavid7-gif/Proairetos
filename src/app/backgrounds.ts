@@ -7,6 +7,10 @@ import twilightDarkMobile from '../assets/backgrounds/twilight-dark-mobile.avif'
 import twilightLightMobile from '../assets/backgrounds/twilight-light-mobile.avif';
 import twilightDarkDesktop from '../assets/backgrounds/twilight-dark-desktop.avif';
 import twilightLightDesktop from '../assets/backgrounds/twilight-light-desktop.avif';
+import nightDarkMobile from '../assets/backgrounds/night-dark-mobile.avif';
+import nightLightMobile from '../assets/backgrounds/night-light-mobile.avif';
+import nightDarkDesktop from '../assets/backgrounds/night-dark-desktop.avif';
+import nightLightDesktop from '../assets/backgrounds/night-light-desktop.avif';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -26,6 +30,14 @@ const twilightMobileAssets: Record<Mode, string> = {
 const twilightDesktopAssets: Record<Mode, string> = {
   dark: twilightDarkDesktop,
   light: twilightLightDesktop,
+};
+const nightMobileAssets: Record<Mode, string> = {
+  dark: nightDarkMobile,
+  light: nightLightMobile,
+};
+const nightDesktopAssets: Record<Mode, string> = {
+  dark: nightDarkDesktop,
+  light: nightLightDesktop,
 };
 
 /** Raster wallpaper files must retain their native proportions; vector scenes use the full viewport. */
@@ -209,6 +221,7 @@ const previewTop: Record<SceneId, number> = {
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   if (background === 'dawn') return 'url("' + dawnDesktopAssets[mode] + '")';
   if (background === 'twilight') return 'url("' + twilightDesktopAssets[mode] + '")';
+  if (background === 'night') return 'url("' + nightDesktopAssets[mode] + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -228,7 +241,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
 const cache = new Map<string, string>();
 
-/** Static local wallpapers: Dawn uses bundled, mode-specific AVIF artwork; the remaining scenes are drawn as SVG. */
+/** Static local wallpapers: Dawn, Twilight, and Night use bundled mode- and viewport-specific AVIF artwork. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
@@ -237,6 +250,10 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   if (background === 'twilight') {
     const twilightPage = pageColor ?? palettes.twilight[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + twilightPage + ' 100%), url("' + twilightMobileAssets[mode] + '")';
+  }
+  if (background === 'night') {
+    const nightPage = pageColor ?? palettes.night[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + nightPage + ' 100%), url("' + nightMobileAssets[mode] + '")';
   }
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
@@ -259,7 +276,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   return value;
 }
 
-/** A landscape crop of Dawn for wide viewports; keep its circular sun at its native aspect ratio. */
+/** Wide viewports use dedicated landscape artwork for Dawn, Twilight, and Night. */
 export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
@@ -268,6 +285,10 @@ export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: st
   if (background === 'twilight') {
     const twilightPage = pageColor ?? palettes.twilight[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + twilightPage + ' 100%), url("' + twilightDesktopAssets[mode] + '")';
+  }
+  if (background === 'night') {
+    const nightPage = pageColor ?? palettes.night[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + nightPage + ' 100%), url("' + nightDesktopAssets[mode] + '")';
   }
   return backgroundOf(background, mode, pageColor);
 }
