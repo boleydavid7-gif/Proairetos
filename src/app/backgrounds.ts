@@ -15,6 +15,10 @@ import forestDarkMobile from '../assets/backgrounds/forest-dark-mobile.avif';
 import forestLightMobile from '../assets/backgrounds/forest-light-mobile.avif';
 import forestDarkDesktop from '../assets/backgrounds/forest-dark-desktop.avif';
 import forestLightDesktop from '../assets/backgrounds/forest-light-desktop.avif';
+import mountainsDarkMobile from '../assets/backgrounds/mountains-dark-mobile.avif';
+import mountainsLightMobile from '../assets/backgrounds/mountains-light-mobile.avif';
+import mountainsDarkDesktop from '../assets/backgrounds/mountains-dark-desktop.avif';
+import mountainsLightDesktop from '../assets/backgrounds/mountains-light-desktop.avif';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -51,10 +55,18 @@ const forestDesktopAssets: Record<Mode, string> = {
   dark: forestDarkDesktop,
   light: forestLightDesktop,
 };
+const mountainsMobileAssets: Record<Mode, string> = {
+  dark: mountainsDarkMobile,
+  light: mountainsLightMobile,
+};
+const mountainsDesktopAssets: Record<Mode, string> = {
+  dark: mountainsDarkDesktop,
+  light: mountainsLightDesktop,
+};
 
 /** Raster wallpaper files must retain their native proportions; vector scenes use the full viewport. */
 export function backgroundSizeOf(background: SceneId): 'cover' | '100% 100%' {
-  return background === 'dawn' || background === 'twilight' || background === 'night' || background === 'forest'
+  return background === 'dawn' || background === 'twilight' || background === 'night' || background === 'forest' || background === 'mountains'
     ? 'cover'
     : '100% 100%';
 }
@@ -235,6 +247,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   if (background === 'twilight') return 'url("' + twilightDesktopAssets[mode] + '")';
   if (background === 'night') return 'url("' + nightDesktopAssets[mode] + '")';
   if (background === 'forest') return 'url("' + forestDesktopAssets[mode] + '")';
+  if (background === 'mountains') return 'url("' + mountainsDesktopAssets[mode] + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -254,7 +267,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
 const cache = new Map<string, string>();
 
-/** Static local wallpapers: Dawn, Twilight, Night, and Forest use bundled mode- and viewport-specific AVIF artwork. */
+/** Static local wallpapers: Dawn, Twilight, Night, Forest, and Mountains use bundled mode- and viewport-specific AVIF artwork. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
@@ -271,6 +284,10 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   if (background === 'forest') {
     const forestPage = pageColor ?? palettes.forest[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + forestPage + ' 100%), url("' + forestMobileAssets[mode] + '")';
+  }
+  if (background === 'mountains') {
+    const mountainsPage = pageColor ?? palettes.mountains[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + mountainsPage + ' 100%), url("' + mountainsMobileAssets[mode] + '")';
   }
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
@@ -310,6 +327,10 @@ export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: st
   if (background === 'forest') {
     const forestPage = pageColor ?? palettes.forest[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + forestPage + ' 100%), url("' + forestDesktopAssets[mode] + '")';
+  }
+  if (background === 'mountains') {
+    const mountainsPage = pageColor ?? palettes.mountains[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + mountainsPage + ' 100%), url("' + mountainsDesktopAssets[mode] + '")';
   }
   return backgroundOf(background, mode, pageColor);
 }
