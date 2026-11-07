@@ -687,6 +687,7 @@ function AppearanceSection() {
                 backgroundImage: background.id === 'lamplight'
                   ? wallpaperOf(appearance.room, mode, false, appearance.wallStyle)
                   : backgroundPreviewOf(background.id, mode),
+                backgroundPosition: background.id === 'dawn' ? 'center 62%' : 'center center',
               }}
               aria-hidden="true"
             />
