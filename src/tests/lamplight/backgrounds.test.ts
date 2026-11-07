@@ -33,7 +33,7 @@ describe('Lamplight backgrounds', () => {
       const dark = backgroundOf(background.id, 'dark');
       const light = backgroundOf(background.id, 'light');
       if (background.id === 'dawn') {
-        expect(dark).toBe('url("/backgrounds/dawn.webp")');
+        expect(dark).toMatch(/^url\("data:image\/webp;base64,/);
         expect(light).toBe(dark);
       } else {
         expect(dark).toMatch(/^url\("data:image\/svg\+xml,/);
@@ -50,7 +50,7 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'lamplight') continue;
       const preview = backgroundPreviewOf(background.id, 'dark');
       if (background.id === 'dawn') {
-        expect(preview).toBe('url("/backgrounds/dawn.webp")');
+        expect(preview).toMatch(/^url\("data:image\/webp;base64,/);
         expect(preview).toBe(backgroundOf('dawn', 'dark'));
       } else {
         expect(preview).toMatch(/^url\("data:image\/svg\+xml,/);
@@ -76,8 +76,8 @@ describe('Lamplight backgrounds', () => {
     for (const background of BACKGROUND_OPTIONS) {
       if (background.id === 'lamplight') continue;
       if (background.id === 'dawn') {
-        expect(backgroundOf('dawn', 'dark', '#101820')).toBe('url("/backgrounds/dawn.webp")');
-        expect(backgroundPreviewOf('dawn', 'dark')).toBe('url("/backgrounds/dawn.webp")');
+        expect(backgroundOf('dawn', 'dark', '#101820')).toMatch(/^url\("data:image\/webp;base64,/);
+        expect(backgroundPreviewOf('dawn', 'dark')).toMatch(/^url\("data:image\/webp;base64,/);
         continue;
       }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));
