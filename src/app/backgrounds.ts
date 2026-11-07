@@ -1,4 +1,6 @@
 import type { BackgroundId } from '../core/look/lamplight';
+import dawnWallpaper from '../assets/backgrounds/dawn.webp';
+import dawnPreview from '../assets/backgrounds/dawn-preview.webp';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -175,6 +177,7 @@ const previewTop: Record<SceneId, number> = {
 
 /** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
+  if (background === 'dawn') return 'url("' + dawnPreview + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -183,7 +186,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ' + previewTop[background] + ' 1200 675" preserveAspectRatio="xMidYMid slice">' +
     '<defs>' + sceneDefs(p) +
     '</defs>' +
-    '<rect width="1200" height="1600" fill="' + (background === 'dawn' ? 'url(#dawnSky)' : 'url(#sky)') + '"/>' +
+    '<rect width="1200" height="1600" fill="url(#sky)"/>' +
     sceneShapes(background, p) +
     '</svg>';
   const value = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
@@ -194,8 +197,12 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
 const cache = new Map<string, string>();
 
-/** A quiet, locally drawn scene. No remote request, animation, canvas, filter or external image asset. */
+/** Static local wallpapers: Dawn uses bundled WebP artwork; the remaining scenes are drawn as SVG. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
+  if (background === 'dawn') {
+    const dawnPage = pageColor ?? palettes.dawn[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnWallpaper + '")';
+  }
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
   const key = background + ':' + mode + ':' + page;
@@ -206,7 +213,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
     '<defs>' + sceneDefs(p) +
     '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
     '</defs>' +
-    '<rect width="1200" height="1600" fill="' + (background === 'dawn' ? 'url(#dawnSky)' : 'url(#sky)') + '"/>' +
+    '<rect width="1200" height="1600" fill="url(#sky)"/>' +
     sceneShapes(background, p) +
     '<rect width="1200" height="1600" fill="url(#fade)"/>' +
     '</svg>';
