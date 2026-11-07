@@ -33,10 +33,9 @@ describe('Lamplight backgrounds', () => {
       const dark = backgroundOf(background.id, 'dark');
       const light = backgroundOf(background.id, 'light');
       if (background.id === 'dawn') {
-        expect(dark).toContain('dawn');
-        expect(dark).toContain('.webp');
-        expect(light).toContain('dawn');
-        expect(light).toContain('.webp');
+        expect(dark).toContain('dawn-dark-mobile.avif');
+        expect(light).toContain('dawn-light-mobile.avif');
+        expect(dark).not.toBe(light);
       } else {
         expect(dark).toMatch(/^url\("data:image\/svg\+xml,/);
         expect(light).toMatch(/^url\("data:image\/svg\+xml,/);
@@ -48,9 +47,12 @@ describe('Lamplight backgrounds', () => {
   });
 
   it('uses the landscape Dawn asset for wide screens without stretching the portrait image', () => {
-    const wide = backgroundWideOf('dawn', 'dark', '#101820');
-    expect(wide).toContain('dawn-preview.webp');
-    expect(wide).toContain('linear-gradient');
+    const darkWide = backgroundWideOf('dawn', 'dark', '#101820');
+    const lightWide = backgroundWideOf('dawn', 'light', '#F4F0E9');
+    expect(darkWide).toContain('dawn-dark-desktop.avif');
+    expect(lightWide).toContain('dawn-light-desktop.avif');
+    expect(darkWide).toContain('linear-gradient');
+    expect(lightWide).toContain('linear-gradient');
     expect(backgroundWideOf('forest', 'dark')).toBe(backgroundOf('forest', 'dark'));
   });
 
@@ -59,9 +61,9 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'lamplight') continue;
       const preview = backgroundPreviewOf(background.id, 'dark');
       if (background.id === 'dawn') {
-        expect(preview).toContain('dawn-preview');
-        expect(preview).toContain('.webp');
-        expect(preview).toBe(backgroundPreviewOf('dawn', 'light'));
+        expect(preview).toContain('dawn-dark-desktop.avif');
+        expect(backgroundPreviewOf('dawn', 'light')).toContain('dawn-light-desktop.avif');
+        expect(preview).not.toBe(backgroundPreviewOf('dawn', 'light'));
       } else {
         expect(preview).toMatch(/^url\("data:image\/svg\+xml,/);
         const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
@@ -88,8 +90,8 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'dawn') {
         const full = backgroundOf('dawn', 'dark', '#101820');
         const preview = backgroundPreviewOf('dawn', 'dark');
-        expect(full).toContain('dawn.webp');
-        expect(preview).toContain('dawn-preview.webp');
+        expect(full).toContain('dawn-dark-mobile.avif');
+        expect(preview).toContain('dawn-dark-desktop.avif');
         continue;
       }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));

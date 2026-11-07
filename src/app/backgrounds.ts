@@ -1,9 +1,20 @@
 import type { BackgroundId } from '../core/look/lamplight';
-import dawnWallpaper from '../assets/backgrounds/dawn.webp';
-import dawnPreview from '../assets/backgrounds/dawn-preview.webp';
+import dawnDarkMobile from '../assets/backgrounds/dawn-dark-mobile.avif';
+import dawnLightMobile from '../assets/backgrounds/dawn-light-mobile.avif';
+import dawnDarkDesktop from '../assets/backgrounds/dawn-dark-desktop.avif';
+import dawnLightDesktop from '../assets/backgrounds/dawn-light-desktop.avif';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
+
+const dawnMobileAssets: Record<Mode, string> = {
+  dark: dawnDarkMobile,
+  light: dawnLightMobile,
+};
+const dawnDesktopAssets: Record<Mode, string> = {
+  dark: dawnDarkDesktop,
+  light: dawnLightDesktop,
+};
 
 type Palette = {
   sky: string;
@@ -175,9 +186,9 @@ const previewTop: Record<SceneId, number> = {
   ocean: 700, lake: 520, desert: 560, stone: 500, aurora: 180, ember: 540,
 };
 
-/** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
+/** The Appearance tiles use the same mode-matched landscape Dawn artwork as wide screens. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
-  if (background === 'dawn') return 'url("' + dawnPreview + '")';
+  if (background === 'dawn') return 'url("' + dawnDesktopAssets[mode] + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -197,11 +208,11 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
 const cache = new Map<string, string>();
 
-/** Static local wallpapers: Dawn uses bundled WebP artwork; the remaining scenes are drawn as SVG. */
+/** Static local wallpapers: Dawn uses bundled, mode-specific AVIF artwork; the remaining scenes are drawn as SVG. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
-    return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnWallpaper + '")';
+    return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnMobileAssets[mode] + '")';
   }
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
@@ -228,7 +239,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
 export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
-    return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnPreview + '")';
+    return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnDesktopAssets[mode] + '")';
   }
   return backgroundOf(background, mode, pageColor);
 }
