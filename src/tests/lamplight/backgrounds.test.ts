@@ -52,7 +52,7 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'lamplight') continue;
       const preview = backgroundPreviewOf(background.id, 'dark');
       if (background.id === 'dawn') {
-        expect(preview).toContain('dawn');
+        expect(preview).toContain('dawn-preview');
         expect(preview).toContain('.webp');
         expect(preview).toBe(backgroundPreviewOf('dawn', 'light'));
       } else {
@@ -82,8 +82,8 @@ describe('Lamplight backgrounds', () => {
         const full = backgroundOf('dawn', 'dark', '#101820');
         const preview = backgroundPreviewOf('dawn', 'dark');
         expect(full).toContain(preview);
-        expect(preview).toContain('dawn');
-        expect(preview).toContain('.webp');
+        expect(full).toContain('dawn.webp');
+        expect(preview).toContain('dawn-preview.webp');
         continue;
       }
       const full = decode(backgroundOf(background.id, 'dark', '#101820'));

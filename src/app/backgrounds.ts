@@ -1,5 +1,6 @@
 import type { BackgroundId } from '../core/look/lamplight';
 import dawnWallpaper from '../assets/backgrounds/dawn.webp';
+import dawnPreview from '../assets/backgrounds/dawn-preview.webp';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -176,7 +177,7 @@ const previewTop: Record<SceneId, number> = {
 
 /** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
-  if (background === 'dawn') return 'url("' + dawnWallpaper + '")';
+  if (background === 'dawn') return 'url("' + dawnPreview + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
