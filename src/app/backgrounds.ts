@@ -3,6 +3,10 @@ import dawnDarkMobile from '../assets/backgrounds/dawn-dark-mobile.avif';
 import dawnLightMobile from '../assets/backgrounds/dawn-light-mobile.avif';
 import dawnDarkDesktop from '../assets/backgrounds/dawn-dark-desktop.avif';
 import dawnLightDesktop from '../assets/backgrounds/dawn-light-desktop.avif';
+import twilightDarkMobile from '../assets/backgrounds/twilight-dark-mobile.avif';
+import twilightLightMobile from '../assets/backgrounds/twilight-light-mobile.avif';
+import twilightDarkDesktop from '../assets/backgrounds/twilight-dark-desktop.avif';
+import twilightLightDesktop from '../assets/backgrounds/twilight-light-desktop.avif';
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -14,6 +18,14 @@ const dawnMobileAssets: Record<Mode, string> = {
 const dawnDesktopAssets: Record<Mode, string> = {
   dark: dawnDarkDesktop,
   light: dawnLightDesktop,
+};
+const twilightMobileAssets: Record<Mode, string> = {
+  dark: twilightDarkMobile,
+  light: twilightLightMobile,
+};
+const twilightDesktopAssets: Record<Mode, string> = {
+  dark: twilightDarkDesktop,
+  light: twilightLightDesktop,
 };
 
 type Palette = {
@@ -189,6 +201,7 @@ const previewTop: Record<SceneId, number> = {
 /** The Appearance tiles use the same mode-matched landscape Dawn artwork as wide screens. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   if (background === 'dawn') return 'url("' + dawnDesktopAssets[mode] + '")';
+  if (background === 'twilight') return 'url("' + twilightDesktopAssets[mode] + '")';
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -213,6 +226,10 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnMobileAssets[mode] + '")';
+  }
+  if (background === 'twilight') {
+    const twilightPage = pageColor ?? palettes.twilight[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + twilightPage + ' 100%), url("' + twilightMobileAssets[mode] + '")';
   }
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
@@ -240,6 +257,10 @@ export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: st
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnDesktopAssets[mode] + '")';
+  }
+  if (background === 'twilight') {
+    const twilightPage = pageColor ?? palettes.twilight[mode].base;
+    return 'linear-gradient(180deg, transparent 86%, ' + twilightPage + ' 100%), url("' + twilightDesktopAssets[mode] + '")';
   }
   return backgroundOf(background, mode, pageColor);
 }
