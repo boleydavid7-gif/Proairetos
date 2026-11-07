@@ -35,7 +35,7 @@ describe('Lamplight backgrounds', () => {
     expect(backgroundSizeOf('mountains')).toBe('cover');
     expect(backgroundSizeOf('ocean')).toBe('cover');
     for (const background of BACKGROUND_OPTIONS) {
-      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight' || background.id === 'night' || background.id === 'forest' || background.id === 'mountains') continue;
+      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight' || background.id === 'night' || background.id === 'forest' || background.id === 'mountains' || background.id === 'ocean') continue;
       expect(backgroundSizeOf(background.id)).toBe('100% 100%');
     }
   });
