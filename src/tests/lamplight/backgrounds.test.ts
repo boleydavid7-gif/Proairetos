@@ -9,7 +9,7 @@ describe('Lamplight backgrounds', () => {
       'Dawn',
       'Twilight',
       'Night',
-      'Forest',
+      'Horizon',
       'Mountains',
       'Ocean',
       'Lake',
