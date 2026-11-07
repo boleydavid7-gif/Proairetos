@@ -159,21 +159,13 @@
   );
 }
 
-/* Wider than the column: the sides fade the same way. */
-@media (min-width: 34rem) {
-  .page-landscape {
-    left: 50%;
-    width: 34rem;
-    transform: translateX(-50%);
-  }
-
-  .page-landscape::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(90deg, var(--color-bg), rgba(var(--color-bg-rgb), 0) 14%, rgba(var(--color-bg-rgb), 0) 86%, var(--color-bg));
-  }
+/* The landscape spans the viewport at every size. Constraining it to a centered
+   34rem panel on tablets exposed the fade as a dark rectangle over the wallpaper. */
+.page-landscape {
+  left: 0;
+  right: 0;
+  width: auto;
+  transform: none;
 }
 
 /* The hero reaches the screen edges and the top, then fades into the page. */
