@@ -11,10 +11,10 @@ import nightDarkMobile from '../assets/backgrounds/night-dark-mobile.avif';
 import nightLightMobile from '../assets/backgrounds/night-light-mobile.avif';
 import nightDarkDesktop from '../assets/backgrounds/night-dark-desktop.avif';
 import nightLightDesktop from '../assets/backgrounds/night-light-desktop.avif';
-import forestDarkMobile from '../assets/backgrounds/forest-dark-mobile.svg';
-import forestLightMobile from '../assets/backgrounds/forest-light-mobile.svg';
-import forestDarkDesktop from '../assets/backgrounds/forest-dark-desktop.svg';
-import forestLightDesktop from '../assets/backgrounds/forest-light-desktop.svg';
+import forestDarkMobile from '../assets/backgrounds/forest-dark-mobile.avif';
+import forestLightMobile from '../assets/backgrounds/forest-light-mobile.avif';
+import forestDarkDesktop from '../assets/backgrounds/forest-dark-desktop.avif';
+import forestLightDesktop from '../assets/backgrounds/forest-light-desktop.avif';
 import mountainsDarkMobile from '../assets/backgrounds/mountains-dark-mobile.avif';
 import mountainsLightMobile from '../assets/backgrounds/mountains-light-mobile.avif';
 import mountainsDarkDesktop from '../assets/backgrounds/mountains-dark-desktop.avif';
@@ -253,7 +253,7 @@ const previewTop: Record<SceneId, number> = {
   ocean: 700, lake: 520, desert: 560, stone: 500, aurora: 180, ember: 540,
 };
 
-/** Bundled Appearance tiles use their matching mode-specific landscape artwork; vector scenes use a landscape crop. */
+/** Raster Appearance tiles use their matching mode-specific landscape artwork; vector scenes use a landscape crop. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   if (background === 'dawn') return 'url("' + dawnDesktopAssets[mode] + '")';
   if (background === 'twilight') return 'url("' + twilightDesktopAssets[mode] + '")';
@@ -280,7 +280,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
 const cache = new Map<string, string>();
 
-/** Static local wallpapers use bundled mode- and viewport-specific artwork. */
+/** Static local wallpapers: Dawn, Twilight, Night, and Forest use bundled mode- and viewport-specific AVIF artwork. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
