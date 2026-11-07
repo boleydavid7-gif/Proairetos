@@ -1,4 +1,7 @@
 import type { BackgroundId } from '../core/look/lamplight';
+import { DAWN_IMAGE } from './dawnImage';
+
+const DAWN_WALLPAPER = `url("${DAWN_IMAGE}")`;
 
 type SceneId = Exclude<BackgroundId, 'lamplight'>;
 type Mode = 'dark' | 'light';
@@ -172,7 +175,7 @@ const previewTop: Record<SceneId, number> = {
 /** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   // Dawn uses the approved, shared photographic artwork in both the preview and the full wallpaper.
-  if (background === 'dawn') return 'url("/backgrounds/dawn.webp")';
+  if (background === 'dawn') return DAWN_WALLPAPER;
   const key = background + ':' + mode;
   const existing = previewCache.get(key);
   if (existing) return existing;
@@ -195,7 +198,7 @@ const cache = new Map<string, string>();
 /** A quiet, locally drawn scene. No remote request, animation, canvas, filter or external image asset. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   // The full Dawn wallpaper uses the exact same local image as its Settings preview.
-  if (background === 'dawn') return 'url("/backgrounds/dawn.webp")';
+  if (background === 'dawn') return DAWN_WALLPAPER;
   const p = palettes[background][mode];
   const page = pageColor ?? p.base;
   const key = background + ':' + mode + ':' + page;
