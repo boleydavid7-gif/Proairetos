@@ -204,7 +204,11 @@ function sceneShapes(id: SceneId, p: Palette): string {
 }
 
 /** Forest's new horizon scene: warm light over layered teal hills, with separate tall and landscape compositions. */
+const forestWallpaperCache = new Map<string, string>();
 function forestWallpaperSvg(mode: Mode, wide: boolean, page: string, fade = true): string {
+  const key = JSON.stringify([mode, wide, page, fade]);
+  const cached = forestWallpaperCache.get(key);
+  if (cached) return cached;
   const w = 1200;
   const h = wide ? 675 : 1600;
   const dark = mode === 'dark';
@@ -266,7 +270,10 @@ function forestWallpaperSvg(mode: Mode, wide: boolean, page: string, fade = true
 ${hills}
 ${fade ? `<rect width="${w}" height="${h}" fill="url(#fade)"/>` : ''}
 </svg>`;
-  return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
+  const value = `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
+  if (forestWallpaperCache.size >= 16) forestWallpaperCache.delete(forestWallpaperCache.keys().next().value as string);
+  forestWallpaperCache.set(key, value);
+  return value;
 }
 
 const previewCache = new Map<string, string>();
