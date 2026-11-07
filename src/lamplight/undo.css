@@ -1,0 +1,24 @@
+/* The one undo bar (undo.tsx): Lamplight's snackbar (components.css), placed above the dock on phones, bottom right on computers. */
+.ll-undo {
+  position: fixed;
+  left: 50%;
+  bottom: var(--ll-undo-lift, calc(16px + env(safe-area-inset-bottom, 0px)));
+  z-index: 60;
+  translate: -50% 0;
+  animation: ll-undo-in 380ms var(--ll-spring-lively, cubic-bezier(0.34, 1.4, 0.64, 1)) both;
+}
+.ll-undo.is-leaving { animation: ll-undo-out 200ms ease-in both; }
+@keyframes ll-undo-in { from { opacity: 0; translate: -50% 16px; scale: 0.96; } }
+@keyframes ll-undo-out { to { opacity: 0; translate: -50% 8px; scale: 0.98; } }
+@media (min-width: 62rem) {
+  .ll-undo { left: auto; right: 28px; bottom: 28px; translate: none; }
+  @keyframes ll-undo-in { from { opacity: 0; translate: 0 16px; scale: 0.96; } }
+  @keyframes ll-undo-out { to { opacity: 0; translate: 0 8px; scale: 0.98; } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ll-undo, .ll-undo.is-leaving { animation-duration: 1ms; }
+}
+@media (forced-colors: active) {
+  .ll-undo { border: 1px solid CanvasText; }
+}
+@media print { .ll-undo { display: none; } }

@@ -1,0 +1,399 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`display facts are as they were > the Store details 1`] = `
+{
+  "askesis": {
+    "adds": "Today shows the session planned for the day, and your runs appear in Done today and in Reflect. You can get a reminder on run days.",
+    "connects": [
+      {
+        "app": "dynamis",
+        "text": "Runs and strength sessions are scheduled around each other and around your workdays.",
+      },
+      {
+        "app": "diaita",
+        "text": "Runs are kept out of your planned sleep time.",
+      },
+      {
+        "app": "hydros",
+        "text": "On run days, Hydros can add to your daily water amount.",
+      },
+    ],
+    "shots": 2,
+  },
+  "diaita": {
+    "adds": "Today shows your sleep record, and Proairetos adjusts its lighting through the day to match your waking hours.",
+    "connects": [
+      {
+        "app": "therapeia",
+        "text": "Medicine reminders can follow when you wake and sleep.",
+      },
+      {
+        "app": "askesis",
+        "text": "Runs are kept out of your sleep time.",
+      },
+      {
+        "app": "hydros",
+        "text": "Caffeine after your cutoff time shows next to your sleep.",
+      },
+      {
+        "app": "melete",
+        "text": "Study sessions are scheduled around your sleep.",
+      },
+    ],
+    "shots": 2,
+  },
+  "dynamis": {
+    "adds": "Today shows the session planned for the day.",
+    "connects": [
+      {
+        "app": "askesis",
+        "text": "Strength sessions and runs are scheduled around each other and around your workdays.",
+      },
+      {
+        "app": "diaita",
+        "text": "Sessions are kept out of your sleep time.",
+      },
+    ],
+    "shots": 2,
+  },
+  "ergon": {
+    "adds": "Chores that are due show on Today, and any chore can be added to your to-dos. Your days off come from your schedule.",
+    "connects": [],
+    "shots": 2,
+  },
+  "hydros": {
+    "adds": "Today shows what you’ve logged for the day.",
+    "connects": [
+      {
+        "app": "askesis",
+        "text": "On run days, Hydros can add to your daily amount.",
+      },
+      {
+        "app": "diaita",
+        "text": "Caffeine after your cutoff time shows next to your sleep.",
+      },
+    ],
+    "shots": 2,
+  },
+  "ktema": {
+    "adds": "Upkeep that is due shows on Today. Warranty end dates and upkeep dates show on their day in Days ahead.",
+    "connects": [
+      {
+        "app": "oikonomia",
+        "text": "You can add the cost of an upkeep task to the month’s spending.",
+      },
+    ],
+    "shots": 2,
+  },
+  "melete": {
+    "adds": "Study sessions show on Today and in Days ahead and count as busy time. Exam and due dates show on their day in Days ahead, and Today lists the day’s study time under Daily practices.",
+    "connects": [
+      {
+        "app": "diaita",
+        "text": "Free time is worked out around your sleep.",
+      },
+      {
+        "app": "askesis",
+        "text": "A run scheduled for a day shows next to it in the week.",
+      },
+      {
+        "app": "dynamis",
+        "text": "A strength session scheduled for a day shows next to it in the week.",
+      },
+    ],
+    "shots": 2,
+  },
+  "mneme": {
+    "adds": "Your notes and ideas appear in the Library. Notes aren’t shared with your household.",
+    "connects": [],
+    "shots": 0,
+  },
+  "oikonomia": {
+    "adds": "Bills due today or tomorrow show on Today, bill dates show in Days ahead, and reminders arrive as notifications.",
+    "connects": [
+      {
+        "app": "poreia",
+        "text": "Trip spending is added to the month’s totals, and each trip can have its own envelope.",
+      },
+      {
+        "app": "ktema",
+        "text": "You can add the cost of an upkeep task to the month’s spending.",
+      },
+    ],
+    "shots": 2,
+  },
+  "philia": {
+    "adds": "Birthdays in the next week show on Today and dates show in Days ahead. You can import people from Compass.",
+    "connects": [],
+    "shots": 2,
+  },
+  "phyton": {
+    "adds": "Plants that need checking show on Today.",
+    "connects": [
+      {
+        "app": "poreia",
+        "text": "Plant reminders pause while you’re away on a trip.",
+      },
+    ],
+    "shots": 2,
+  },
+  "poreia": {
+    "adds": "Trips show on Today and plans with a time show in Days ahead. Approved time off clears those days from your schedule.",
+    "connects": [
+      {
+        "app": "oikonomia",
+        "text": "Trip spending is added to the month’s totals.",
+      },
+      {
+        "app": "phyton",
+        "text": "Plant reminders pause while you’re away.",
+      },
+      {
+        "app": "therapeia",
+        "text": "The medicines you need can be added to the packing list.",
+      },
+      {
+        "app": "diaita",
+        "text": "Suggests how to adjust your sleep for a new time zone.",
+      },
+    ],
+    "shots": 2,
+  },
+  "soma": {
+    "adds": "Today lists the meals you’ve planned for the day, and meals you cooked appear in Reflect.",
+    "connects": [
+      {
+        "app": "diaita",
+        "text": "The last big meal time in Diaita opens Soma.",
+      },
+    ],
+    "shots": 1,
+  },
+  "theoria": {
+    "adds": "Today shows your reading time, and you can save a note from a reading session to Reflect.",
+    "connects": [],
+    "shots": 1,
+  },
+  "therapeia": {
+    "adds": "Doses and visits you haven’t marked show on Today.",
+    "connects": [
+      {
+        "app": "diaita",
+        "text": "Doses follow when you wake and sleep, including after night shifts.",
+      },
+      {
+        "app": "poreia",
+        "text": "Medicines for a trip can be added to its packing list.",
+      },
+    ],
+    "shots": 2,
+  },
+}
+`;
+
+exports[`display facts are as they were > the family list leaves Praxis out and keeps every name, address, icon, line and color 1`] = `
+[
+  {
+    "href": "/",
+    "icon": "/icons/icon.svg",
+    "id": "proairetos",
+    "line": "A calm planner for your days",
+    "name": "Proairetos",
+  },
+  {
+    "about": "A running plan based on how much you can run now. Choose a goal like a 5K or a marathon, or just keep running regularly, and Askesis plans the weeks.",
+    "href": "/askesis/",
+    "icon": "/askesis/icon.svg",
+    "id": "askesis",
+    "line": "A running plan for any level",
+    "name": "Askesis",
+    "tint": {
+      "accent": "#86d9b0",
+      "ground": "#0b0f0e",
+      "ink": "#e8ece9",
+    },
+  },
+  {
+    "about": "Log water and other drinks with one tap for your usual glasses. It also tracks caffeine, and you can set a daily amount if you want one.",
+    "href": "/hydros/",
+    "icon": "/hydros/icon.svg",
+    "id": "hydros",
+    "line": "Water and drink tracking",
+    "name": "Hydros",
+    "tint": {
+      "accent": "#3A9CA0",
+      "ground": "#101923",
+      "ink": "#E9F2F5",
+    },
+  },
+  {
+    "about": "Save recipes from websites, photos and other recipe apps, plan the week’s meals, and make a grocery list sorted by aisle.",
+    "href": "/soma/",
+    "icon": "/soma/icon.svg",
+    "id": "soma",
+    "line": "Recipes, meal plans and groceries",
+    "name": "Soma",
+    "tint": {
+      "accent": "#2f5a3e",
+      "ground": "#f3ede2",
+      "ink": "#2f5a3e",
+    },
+  },
+  {
+    "about": "Track your bills and subscriptions, see what’s due, and set a monthly budget. Swipe a bill to mark it paid.",
+    "href": "/oikonomia/",
+    "icon": "/oikonomia/icon.svg",
+    "id": "oikonomia",
+    "line": "Bills, budgets and spending",
+    "name": "Oikonomia",
+    "tint": {
+      "accent": "#d79572",
+      "ground": "#0d1110",
+      "ink": "#f2eee6",
+    },
+  },
+  {
+    "about": "Plan a trip from the first idea to the trip home. Keep bookings, daily plans, packing lists and costs together, and track your time off.",
+    "href": "/poreia/",
+    "icon": "/poreia/icon.svg",
+    "id": "poreia",
+    "line": "Trip planning and time off",
+    "name": "Poreia",
+    "tint": {
+      "accent": "#4cc3c7",
+      "ground": "#071c24",
+      "ink": "#d9fbf6",
+    },
+  },
+  {
+    "about": "Read books and PDFs on any device. Highlights, notes and bookmarks are saved with each book.",
+    "href": "/theoria/",
+    "icon": "/theoria/favicon.svg",
+    "id": "theoria",
+    "line": "Books, PDFs and highlights",
+    "name": "Theoria",
+    "tint": {
+      "accent": "#d9b46a",
+      "ground": "#0b1020",
+      "ink": "#ede5d3",
+    },
+  },
+  {
+    "about": "A sleep plan based on your schedule, including night shifts. It shows when to go to sleep, when to wake up and when to stop caffeine, with a source for each suggestion.",
+    "href": "/diaita/",
+    "icon": "/diaita/icon.svg",
+    "id": "diaita",
+    "line": "Sleep planning for any schedule",
+    "name": "Diaita",
+    "tint": {
+      "accent": "#e2b26e",
+      "ground": "#0e1014",
+      "ink": "#ece8e1",
+    },
+  },
+  {
+    "about": "Keep track of birthdays and other dates, gift ideas, and when you last spoke to the people you care about.",
+    "href": "/philia/",
+    "icon": "/philia/icon.svg",
+    "id": "philia",
+    "line": "Birthdays and staying in touch",
+    "name": "Philia",
+    "tint": {
+      "accent": "#e39a8f",
+      "ground": "#120f10",
+      "ink": "#f0e8e4",
+    },
+  },
+  {
+    "about": "Chores that repeat on the schedule you choose. Share them with the people you live with and take turns.",
+    "href": "/ergon/",
+    "icon": "/ergon/icon.svg",
+    "id": "ergon",
+    "line": "Shared household chores",
+    "name": "Ergon",
+    "tint": {
+      "accent": "#8fc1b5",
+      "ground": "#0e1112",
+      "ink": "#e9ece8",
+    },
+  },
+  {
+    "about": "Medicine reminders, refill tracking and appointments, with a list of questions for your doctor. Therapeia doesn’t give medical advice.",
+    "href": "/therapeia/",
+    "icon": "/therapeia/icon.svg",
+    "id": "therapeia",
+    "line": "Medicines and appointments",
+    "name": "Therapeia",
+    "tint": {
+      "accent": "#9cb8e0",
+      "ground": "#10141a",
+      "ink": "#e8edf4",
+    },
+  },
+  {
+    "about": "Strength workouts based on published research. Log your sets and weights as you go.",
+    "href": "/dynamis/",
+    "icon": "/dynamis/icon.svg",
+    "id": "dynamis",
+    "line": "Strength training and mobility",
+    "name": "Dynamis",
+    "tint": {
+      "accent": "#e0a36b",
+      "ground": "#141110",
+      "ink": "#f2ebe4",
+    },
+  },
+  {
+    "about": "Keep warranties, model and serial numbers and manuals for the things you own, and get reminders for home and car upkeep.",
+    "href": "/ktema/",
+    "icon": "/ktema/icon.svg",
+    "id": "ktema",
+    "line": "Warranties, manuals and upkeep",
+    "name": "Ktema",
+    "tint": {
+      "accent": "#c7b37a",
+      "ground": "#12130f",
+      "ink": "#efece2",
+    },
+  },
+  {
+    "about": "Reminds you when to check each plant for water, and adjusts to how often you actually water it. Look up care for about 170 plants.",
+    "href": "/phyton/",
+    "icon": "/phyton/icon.svg",
+    "id": "phyton",
+    "line": "Plant care and reminders",
+    "name": "Phyton",
+    "tint": {
+      "accent": "#9fc48a",
+      "ground": "#0f1410",
+      "ink": "#ecf0e6",
+    },
+  },
+  {
+    "about": "Notes, collections and voice notes. Voice notes are transcribed on your device.",
+    "href": "/mneme/",
+    "icon": "/mneme/icon.svg",
+    "id": "mneme",
+    "line": "Notes, collections and voice notes",
+    "name": "Mneme",
+    "tint": {
+      "accent": "#b7c7e2",
+      "ground": "#11151b",
+      "ink": "#edf1f7",
+    },
+  },
+  {
+    "about": "Keep your subjects with their exam and due dates, see when you’re free this week, and schedule study time.",
+    "href": "/melete/",
+    "icon": "/melete/icon.svg",
+    "id": "melete",
+    "line": "Study time and subjects",
+    "name": "Meletē",
+    "tint": {
+      "accent": "#b8cf73",
+      "ground": "#14170f",
+      "ink": "#f1f5e3",
+    },
+  },
+]
+`;

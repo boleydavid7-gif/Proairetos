@@ -1,0 +1,227 @@
+import LockScreen from './lock/LockScreen';
+import { lock, lockedRoutes } from './lock/lock';
+import EdgeSwipe from './back/EdgeSwipe';
+import { Suspense, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { isPasswordRecoveryPending, startSync, syncStatus } from './sync/syncController';
+import { otherCalendars } from './calendars/otherCalendars';
+import { weather } from './weather/weather';
+import NowPage from '../features/now/NowPage';
+import CapturePage from '../features/capture/CapturePage';
+import ReflectPage from '../features/reflect/ReflectPage';
+import CompassPage from '../features/compass/CompassPage';
+import DaysAheadPage from '../features/days/DaysAheadPage';
+import InboxOpener from './capture/InboxOpener';
+import TrainingClash from '../features/training/TrainingClash';
+import { takeShared } from '../features/share/shared';
+import { InsightsPage, JournalPage, laterPages, MeditatePage, OnboardingPage, ScheduleScreen, SettingsPage, WeeklyReview, ConnectionsPage, CommandPalette, SharedSheet } from './laterPages';
+import AppShell from './AppShell';
+import NoticeOpener from './notify/NoticeOpener';
+import { startHousehold } from './household/household';
+import { startInbox } from './notify/inbox';
+import { notifications } from './notify/notifications';
+import { directionBetween, markEnter, transition } from './transitions';
+import { useShortcuts } from './shortcuts';
+import OverlayProvider from './overlays/OverlayProvider';
+import { useOverlays } from './overlays/OverlayContext';
+import { LeaveContext, NavigationContext, ReturnRouteContext, type NavigateOptions } from './navigationContext';
+import { defaultRoute, parentRoute, type AppRoute } from './routes/routeTypes';
+import { depthFromHistoryState, pathForRoute, routeForPath, routeFromHistoryState } from './routes/browserRoutes';
+import { canGoBack, unwindThen } from './back/backStack';
+import { hasOnboarded, markOnboarded, startLight } from '../data/storage/preferences';
+import PasswordRecoveryPage from '../features/settings/PasswordRecoveryPage';
+
+const mainTabs: ReadonlySet<AppRoute> = new Set(['today', 'reflect', 'plan', 'calendar', 'capture', 'compass']);
+/** Lets a family app hand a short piece of text straight into Think it through. */
+function UrlOverlayOpener() {
+  const { openThinkThrough } = useOverlays();
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('open') !== 'think-through') return;
+    history.replaceState(history.state, '', window.location.pathname + window.location.hash);
+    openThinkThrough(params.get('text') ? { text: params.get('text')! } : undefined);
+  }, [openThinkThrough]);
+  return null;
+}
+
+export default function App() {
+  // Coming back from signing in (Google, Apple or the email's link) goes straight to the account, past the welcome.
+  const [started, setStarted] = useState(() => {
+    if (hasOnboarded()) return true;
+    if (new URLSearchParams(location.search).get('auth') === 'recovery') {
+      markOnboarded();
+      startLight();
+      return true;
+    }
+    if (new URLSearchParams(location.search).get('open') !== 'account') return false;
+    markOnboarded();
+    startLight();
+    return true;
+  });
+  const locked = useSyncExternalStore(lock.subscribe, lock.isLocked);
+  const passwordRecovery = useSyncExternalStore(syncStatus.subscribe, isPasswordRecoveryPending);
+  useEffect(() => lock.watchAway(), []);
+  useEffect(() => laterPages(), []);
+  useEffect(() => {
+    // The browser's assistant, only where the browser has it and the person turned it on.
+    if (typeof (document as { modelContext?: unknown }).modelContext !== 'undefined') void import('./assistant/webmcp').then((module) => module.startWebMcp());
+  }, []);
+  const [route, setRoute] = useState<AppRoute>(() => routeForPath(window.location.pathname));
+  const current = useRef(route);
+  current.current = route;
+  // Every move between places slides the way it goes (see transitions.ts).
+  const go = useCallback((next: AppRoute, options?: NavigateOptions) => {
+    if (next === current.current) return;
+    // Open sheets and sub-views close and give back their history entries first, so the new place's entry is the top.
+    unwindThen(() => move(next, options));
+  }, []);
+  const move = (next: AppRoute, options?: NavigateOptions) => {
+    const from = current.current;
+    if (next === from) return;
+    const depth = depthFromHistoryState(history.state);
+    const path = pathForRoute(next) + (options?.search ?? '');
+    if (options?.replace) history.replaceState({ proairetosRoute: next, proairetosDepth: depth }, '', path);
+    else history.pushState({ proairetosRoute: next, proairetosDepth: depth + 1 }, '', path);
+    if (options?.immediate) {
+      setRoute(next);
+      return;
+    }
+    // Main-tab changes keep the real dock out of the document view
+    // transition. The page swaps beneath it while the dock and its indicator
+    // stay anchored to the viewport.
+    if (mainTabs.has(from) && mainTabs.has(next)) {
+      // No snapshot: the new page fades in (opacity only, so Today's fixed landscape stays put).
+      markEnter(directionBetween(from, next));
+      setRoute(next);
+      return;
+    }
+    transition(directionBetween(from, next), () => setRoute(next));
+  };
+  // A page's own back goes where the person came from; opened straight from its address, to `fallback`.
+  const leave = useCallback(
+    (fallback: AppRoute) =>
+      unwindThen(() => {
+        if (depthFromHistoryState(history.state) > 0) history.back();
+        else move(fallback, { replace: true });
+      }),
+    [],
+  );
+  const [paletteOpen, setPaletteOpen] = useState(() => new URLSearchParams(location.search).get('open') === 'search');
+  const openPalette = useCallback(() => setPaletteOpen(true), []);
+  useShortcuts(go, openPalette);
+  const [lastTab, setLastTab] = useState<AppRoute>(defaultRoute);
+  // Read once at start; kept until onboarding is done, if it is not yet.
+  const [shared, setShared] = useState(takeShared);
+
+  useEffect(() => {
+    if (mainTabs.has(route)) setLastTab(route);
+  }, [route]);
+
+  // A household brings in any app newly shared with it.
+  useEffect(() => startHousehold(), []);
+  // The bell's list (and the count on the app's icon) keeps up on every page, not only Today.
+  useEffect(() => startInbox(), []);
+
+  // Give every main screen a real URL so it can be copied, opened in another tab, or restored by refresh.
+  // Capture and other sheets use the back-stack listener first; the capture phase keeps route history from
+  // consuming a browser-back gesture that is meant to close one of those surfaces.
+  useEffect(() => {
+    const currentState = history.state;
+    const state = currentState && typeof currentState === 'object' ? { ...currentState, proairetosRoute: route } : { proairetosRoute: route };
+    const parent = parentRoute[route];
+    if (parent && depthFromHistoryState(currentState) === 0 && !('proairetosBack' in state)) {
+      // Opened straight at a page under a main tab: its tab goes underneath, so back (and the page's own back) lands there.
+      history.replaceState({ proairetosRoute: parent, proairetosDepth: 0 }, '', pathForRoute(parent));
+      history.pushState({ ...state, proairetosDepth: 1 }, '', pathForRoute(route));
+    } else {
+      history.replaceState(state, '', pathForRoute(route));
+    }
+    const onPop = (event: PopStateEvent) => {
+      if (canGoBack()) return;
+      // The back-stack releases its temporary history entry after a sheet or sub-screen closes. That pop is
+      // cleanup, not a request to restore the route encoded by the old entry.
+      if (event.state && typeof event.state === 'object' && 'proairetosBack' in event.state) return;
+      const next = routeFromHistoryState(event.state) ?? routeForPath(window.location.pathname);
+      if (next === current.current) return;
+      transition(directionBetween(current.current, next), () => setRoute(next));
+    };
+    window.addEventListener('popstate', onPop, true);
+    return () => window.removeEventListener('popstate', onPop, true);
+  }, []);
+
+  useEffect(() => {
+    void startSync();
+    // Other calendars refresh on open and when the app comes back into view (at most hourly).
+    void otherCalendars.refresh();
+    void weather.refresh();
+    notifications.start();
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      void otherCalendars.refresh();
+      void weather.refresh();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    // Pull to update (Lamplight): other calendars and the weather come along with the sync.
+    const onPull = () => {
+      void otherCalendars.refresh(true);
+      void weather.refresh(true);
+    };
+    document.addEventListener('ll-refresh', onPull);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      document.removeEventListener('ll-refresh', onPull);
+    };
+  }, []);
+
+  if (!started) {
+    return (
+      <Suspense fallback={null}>
+      <OnboardingPage
+        onGetStarted={(next) => {
+          markOnboarded();
+          startLight();
+          if (next) setRoute(next);
+          setStarted(true);
+        }}
+      />
+      </Suspense>
+    );
+  }
+
+  if (passwordRecovery) return <PasswordRecoveryPage />;
+
+  return (
+    <NavigationContext.Provider value={go}>
+    <LeaveContext.Provider value={leave}>
+    <ReturnRouteContext.Provider value={lastTab}>
+    <EdgeSwipe />
+    <OverlayProvider>
+      <UrlOverlayOpener />
+      <NoticeOpener />
+      <InboxOpener />
+      <TrainingClash />
+      <AppShell route={route} onNavigate={go}>
+      <Suspense fallback={null}>
+      {route === 'today' && <NowPage />}
+      {locked && lockedRoutes.includes(route) && <LockScreen />}
+      {route === 'reflect' && !locked && <ReflectPage />}
+      {route === 'capture' && <CapturePage />}
+      {route === 'compass' && <CompassPage />}
+      {route === 'schedule' && <ScheduleScreen />}
+      {route === 'review' && !locked && <WeeklyReview />}
+      {route === 'settings' && <SettingsPage />}
+      {route === 'journal' && !locked && <JournalPage />}
+      {route === 'insights' && !locked && <InsightsPage />}
+      {route === 'plan' && <DaysAheadPage key="list" view="list" />}
+      {route === 'calendar' && <DaysAheadPage key="calendar" view="calendar" />}
+      {route === 'meditate' && <MeditatePage />}
+      {route === 'connections' && !locked && <ConnectionsPage />}
+      </Suspense>
+      </AppShell>
+      {paletteOpen && <CommandPalette onClose={() => setPaletteOpen(false)} />}
+      {shared && <SharedSheet text={shared} onClose={() => setShared(undefined)} />}
+    </OverlayProvider>
+    </ReturnRouteContext.Provider>
+    </LeaveContext.Provider>
+    </NavigationContext.Provider>
+  );
+}

@@ -1,0 +1,117 @@
+import { efforts, type Effort } from './effort';
+
+/** One stretch at one effort. Minutes may be fractional (a 20-second stride is 1/3). */
+export type Step = { effort: Effort; minutes: number; note?: string };
+/** A set repeated: "6 x (3 min hard, 2 min easy)". */
+export type Set = { repeat: number; steps: Step[] };
+export type Part = Step | Set;
+
+export type WorkoutKind =
+  | 'walk-run'
+  | 'easy'
+  | 'strides'
+  | 'long'
+  | 'tempo'
+  | 'intervals'
+  | 'hills'
+  | 'race-pace'
+  | 'walk'
+  | 'race';
+
+export type Workout = {
+  id: string;
+  kind: WorkoutKind;
+  title: string;
+  /** One line under the title. */
+  summary: string;
+  parts: Part[];
+  /** Why this session is here, in plain words. */
+  why: string;
+  tips: string[];
+};
+
+export const isSet = (part: Part): part is Set => 'repeat' in part;
+
+export const step = (effort: Effort, minutes: number, note?: string): Step => ({ effort, minutes, note });
+export const set = (repeat: number, ...steps: Step[]): Set => ({ repeat, steps });
+
+/** Every step in order, with sets unrolled; what the guide walks through. */
+export function flatten(parts: readonly Part[]): Step[] {
+  return parts.flatMap((part) =>
+    isSet(part) ? Array.from({ length: part.repeat }, () => part.steps).flat() : [part],
+  );
+}
+
+export function totalMinutes(parts: readonly Part[]): number {
+  return flatten(parts).reduce((sum, item) => sum + item.minutes, 0);
+}
+
+/** Minutes at each effort, for the balance of easy and hard. */
+export function minutesByEffort(parts: readonly Part[]): Record<Effort, number> {
+  const out = { walk: 0, recovery: 0, easy: 0, steady: 0, tempo: 0, hard: 0, stride: 0 } as Record<Effort, number>;
+  for (const item of flatten(parts)) out[item.effort] += item.minutes;
+  return out;
+}
+
+export function intenseMinutes(parts: readonly Part[]): number {
+  return flatten(parts)
+    .filter((item) => efforts[item.effort].intense)
+    .reduce((sum, item) => sum + item.minutes, 0);
+}
+
+/** "25 min", "1 h 10 min", "20 s". */
+export function lengthLabel(minutes: number): string {
+  if (minutes < 1) return `${Math.round(minutes * 60)} s`;
+  // Half minutes are part of some sessions (walk 2½ min); say them as they are.
+  if (minutes < 60 && Math.abs(minutes * 2 - Math.round(minutes * 2)) < 0.01 && Math.round(minutes * 2) % 2 === 1)
+    return `${Math.floor(minutes)}½ min`;
+  const whole = Math.round(minutes);
+  if (whole < 60) return `${whole} min`;
+  const hours = Math.floor(whole / 60);
+  const rest = whole % 60;
+  return rest ? `${hours} h ${rest} min` : `${hours} h`;
+}
+
+/** "Easy 10 min", "6 x (Hard 3 min, Easy 2 min)". */
+export function partLabel(part: Part): string {
+  if (isSet(part)) return `${part.repeat} x (${part.steps.map(partLabel).join(', ')})`;
+  return `${efforts[part.effort].name} ${lengthLabel(part.minutes)}`;
+}
+
+/** The effort most of the session asks for, for its one-line description. */
+export function mainEffort(parts: readonly Part[]): Effort {
+  const byEffort = minutesByEffort(parts);
+  const harder = (['hard', 'tempo', 'steady', 'stride'] as Effort[]).find((effort) => byEffort[effort] > 0);
+  if (harder) return harder;
+  // Any running at all makes it a run; walking is only the main effort of a walk.
+  return byEffort.easy > 0 || byEffort.recovery > 0 ? 'easy' : 'walk';
+}
+
+const doing: Record<Effort, string> = {
+  walk: 'Walk',
+  recovery: 'Run very easy',
+  easy: 'Run',
+  steady: 'Run steady',
+  tempo: 'Run comfortably hard',
+  hard: 'Run hard',
+  stride: 'Stride',
+};
+
+/**
+ * The session in plain words, one line per part: "Walk 5 min",
+ * "Run 5 min, walk 2½ min, 3 times", "Walk 7½ min". Run and Walk, with the
+ * effort only where it is not easy.
+ */
+export function sessionLines(parts: readonly Part[]): string[] {
+  const lower = (text: string) => text.charAt(0).toLowerCase() + text.slice(1);
+  const say = (item: Step, first: boolean) => {
+    const words = `${doing[item.effort]} ${lengthLabel(item.minutes)}`;
+    // Warm up, cool down and the like name the stretch first.
+    const named = item.note && !item.note.includes(' ') || item.note === 'Warm up' || item.note === 'Cool down' || item.note === 'Easy to finish';
+    const line = named ? `${item.note}: ${lower(words)}` : words;
+    return first ? line : lower(line);
+  };
+  return parts.map((part) =>
+    isSet(part) ? `${part.steps.map((item, i) => say(item, i === 0)).join(', ')}, ${part.repeat} times` : say(part, true),
+  );
+}

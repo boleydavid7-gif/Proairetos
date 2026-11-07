@@ -1,0 +1,424 @@
+import { sunTimes } from '../../core/sky/sun';
+import { addDays, atTime, toLocalDate } from '../../core/scheduling/dates';
+
+/*
+ * Diaita plans sleep, naps, light, caffeine and meals around the person's own schedule (read from
+ * Proairetos). Every line is a time, with the study it comes from; nothing is scored, and the person can
+ * change any setting it rests on.
+ */
+
+export type WorkBlock = { start: Date; end: Date; label?: string; kind?: 'COMMITTED' | 'PROTECTED' };
+
+export type RhythmSettings = {
+  /** Where the person is, rounded (Proairetos's weather place, device only), for the morning's sunrise. */
+  place?: { lat: number; lon: number };
+  /** Usual bedtime on an ordinary night, "HH:MM". */
+  bedtime: string;
+  /** Hours of sleep the person aims for. */
+  sleepHours: number;
+  /** Hours between the last caffeine and sleep. */
+  cutoffHours: number;
+  /** Minutes from leaving work to being home. */
+  commuteMinutes: number;
+  /** Minutes to move every sleep, later (+) or earlier (-). */
+  sleepShift: number;
+  /** Minutes to move every wake time, later (+) or earlier (-). */
+  wakeShift: number;
+  /** The same two, for the sleep that follows a named shift in a rotating schedule (by the shift's name). They replace the two above for that shift. */
+  shiftAdjust?: Record<string, { sleep: number; wake: number }>;
+  /** The same two, for one sleep (by its day: the evening it starts on, else the date it starts). They replace both of the above for that day. */
+  dayAdjust?: Record<string, { sleep: number; wake: number }>;
+  /** Minutes before sleep to wind down (0 for none). */
+  windDownMinutes: number;
+  /** Early-evening time for writing worries down before bed. */
+  worryTime: string;
+  /** Minutes from waking to leaving for work. */
+  readyMinutes: number;
+  meals: boolean;
+  light: boolean;
+};
+
+export const defaultRhythm: RhythmSettings = {
+  bedtime: '22:30',
+  sleepHours: 7.5,
+  cutoffHours: 6,
+  commuteMinutes: 30,
+  sleepShift: 0,
+  wakeShift: 0,
+  windDownMinutes: 45,
+  worryTime: '18:00',
+  readyMinutes: 60,
+  // Offered, not on until the person turns them on (Settings > More).
+  meals: false,
+  light: false,
+};
+
+export type SourceKey = 'sleep' | 'caffeine' | 'nap' | 'light' | 'morning-light' | 'night-meals' | 'hygiene' | 'short-nap' | 'regularity';
+
+export const SOURCES: Record<SourceKey, string> = {
+  sleep: 'Watson NF et al. Recommended amount of sleep for a healthy adult. Sleep 2015;38(6):843–844.',
+  caffeine: 'Drake C et al. Caffeine effects on sleep taken 0, 3, or 6 hours before going to bed. J Clin Sleep Med 2013;9(11):1195–1200.',
+  nap: 'Ruggiero JS, Redeker NS. Effects of napping on sleepiness and sleep-related performance deficits in night-shift workers: a systematic review. Biol Res Nurs 2014;16(2):134–142.',
+  light: 'Smith MR, Fogg LF, Eastman CI. A compromise circadian phase position for permanent night work improves mood, fatigue, and performance. Sleep 2009;32(11):1481–1489.',
+  'morning-light':
+    'Khalsa SBS et al. A phase response curve to single bright light pulses in human subjects. J Physiol 2003;549(3):945–952. Blume C, Garbazza C, Spitschan M. Effects of light on human circadian rhythms, sleep and mood. Somnologie 2019;23:147–156.',
+  'night-meals': 'Chellappa SL et al. Daytime eating prevents internal circadian misalignment and glucose intolerance in night work. Sci Adv 2021;7(49):eabg9910.',
+  'short-nap': 'Brooks A, Lack L. A brief afternoon nap following nocturnal sleep restriction: which nap duration is most recuperative? Sleep 2006;29(6):831–840.',
+  regularity: 'Phillips AJK et al. Irregular sleep/wake patterns are associated with poorer academic performance and delayed circadian and sleep/wake timing. Sci Rep 2017;7:3216.',
+  hygiene: 'Shriane AE et al. Sleep hygiene in shift workers: a systematic literature review. Sleep Med Rev 2020;53:101336.',
+};
+
+export type EntryKind = 'work' | 'sleep' | 'wake' | 'nap' | 'wind-down' | 'worry' | 'caffeine' | 'light' | 'dark' | 'meal' | 'light-food';
+
+export type Entry = {
+  key: string;
+  kind: EntryKind;
+  start: Date;
+  end?: Date;
+  title: string;
+  detail?: string;
+  source?: SourceKey;
+  /** The day this belongs to when the clock alone would say otherwise (a bedtime after midnight). */
+  day?: string;
+};
+
+export type Sleep = { start: Date; end: Date; after: 'evening' | 'night' | 'last-night'; /** The day an evening's sleep belongs to, even after midnight. */ day?: string };
+
+export type DayKind = 'off' | 'day' | 'evening' | 'night' | 'after-nights';
+
+export const DAY_NAMES: Record<DayKind, string> = {
+  off: 'Day off',
+  day: 'Day',
+  evening: 'Evening',
+  night: 'Night',
+  'after-nights': 'After nights',
+};
+
+const HOUR = 3_600_000;
+const MINUTE = 60_000;
+const later = (date: Date, minutes: number) => new Date(date.getTime() + minutes * MINUTE);
+/** As `later`, but by the clock on the wall: across a clock change, bed at 21:30 for 7.5 hours is still up at 05:00. */
+const laterOnClock = (date: Date, minutes: number) => {
+  const plain = later(date, minutes);
+  return later(plain, plain.getTimezoneOffset() - date.getTimezoneOffset());
+};
+
+/** The least time between work ending and sleep starting: the trip home, a meal, a shower. */
+const AFTER_WORK_MINUTES = 60;
+
+/** The shift a sleep follows: the work block that ended last before it (within 18 hours), by name. */
+export function followsShift(start: Date, all: readonly WorkBlock[]): string | undefined {
+  let found: WorkBlock | undefined;
+  for (const block of all) {
+    if (block.end.getTime() <= start.getTime() + HOUR && start.getTime() - block.end.getTime() < 18 * HOUR && (!found || block.end > found.end)) found = block;
+  }
+  return found?.label;
+}
+
+/** The person's own move of a sleep and its wake: for its day when set, else for its shift, else for all. */
+function adjustSleep(sleep: Sleep, all: readonly WorkBlock[], settings: RhythmSettings): Sleep {
+  const label = followsShift(sleep.start, all);
+  const own = settings.dayAdjust?.[sleep.day ?? toLocalDate(sleep.start)] ?? (label ? settings.shiftAdjust?.[label] : undefined);
+  const moveSleep = own ? own.sleep : (settings.sleepShift ?? 0);
+  const moveWake = own ? own.wake : (settings.wakeShift ?? 0);
+  if (!moveSleep && !moveWake) return sleep;
+  const start = later(sleep.start, moveSleep);
+  const end = later(sleep.end, moveWake);
+  return end > start ? { ...sleep, start, end } : { ...sleep, start };
+}
+
+const work = (blocks: readonly WorkBlock[]) =>
+  blocks.filter((block) => (block.kind ?? 'COMMITTED') === 'COMMITTED' && block.end > block.start).sort((a, b) => a.start.getTime() - b.start.getTime());
+
+/** A night is any block that runs through 03:00. */
+export function isNight(block: WorkBlock): boolean {
+  let at = atTime(toLocalDate(block.start), '03:00');
+  if (at < block.start) at = atTime(addDays(toLocalDate(block.start), 1), '03:00');
+  return at < block.end;
+}
+
+const startsOn = (block: WorkBlock, date: string) => toLocalDate(block.start) === date;
+
+export function dayKind(date: string, blocks: readonly WorkBlock[]): DayKind {
+  const all = work(blocks);
+  const today = all.filter((block) => startsOn(block, date));
+  if (today.some(isNight)) return 'night';
+  const yesterday = all.filter((block) => startsOn(block, addDays(date, -1)));
+  if (today.length === 0) return yesterday.some(isNight) ? 'after-nights' : 'off';
+  const lateEnd = today.some((block) => block.end.getTime() >= atTime(date, '21:00').getTime());
+  return lateEnd ? 'evening' : 'day';
+}
+
+/**
+ * The main sleeps from the evening before `from` to the night after `until`: after an ordinary day at
+ * bedtime (earlier for an early start, later after a late finish), after a night shift once home.
+ * After the last night of a run, a short sleep, so the night that follows is a full one.
+ */
+export function mainSleeps(from: string, until: string, blocks: readonly WorkBlock[], settings: RhythmSettings): Sleep[] {
+  const all = work(blocks);
+  const length = settings.sleepHours * 60;
+  const sleeps: Sleep[] = [];
+  for (let date = addDays(from, -1); date <= until; date = addDays(date, 1)) {
+    const night = all.find((block) => startsOn(block, date) && isNight(block));
+    if (night) {
+      // The person's own time from the end of the shift to sleep.
+      const start = later(night.end, AFTER_WORK_MINUTES);
+      const nextNight = all.find((block) => block !== night && isNight(block) && block.start > night.end && block.start.getTime() - night.end.getTime() < 24 * HOUR);
+      if (nextNight) {
+        // Up in time to eat and nap before the next night if it wants one.
+        const latest = later(nextNight.start, -(settings.readyMinutes + settings.commuteMinutes));
+        const end = new Date(Math.min(later(start, length).getTime(), latest.getTime()));
+        sleeps.push({ start, end, after: 'night' });
+      } else {
+        sleeps.push({ start, end: later(start, Math.min(length, 240)), after: 'last-night' });
+      }
+      continue;
+    }
+    let start = atTime(date, settings.bedtime);
+    if (start.getHours() < 12) start = atTime(addDays(date, 1), settings.bedtime);
+    // Finished late: the same time from the end of the shift to sleep.
+    for (const block of all) {
+      if (block.end > later(start, -AFTER_WORK_MINUTES) && block.start < start) {
+        start = new Date(Math.max(start.getTime(), later(block.end, AFTER_WORK_MINUTES).getTime()));
+      }
+    }
+    // The night before a first night shift: two hours later to bed and up, so the first night comes easier.
+    const firstNight = all.some((block) => startsOn(block, addDays(date, 1)) && isNight(block));
+    if (firstNight) start = later(start, 120);
+    let end = laterOnClock(start, length);
+    // An early start: to bed earlier so the sleep is whole.
+    const next = all.find((block) => block.start >= start && block.start.getTime() - start.getTime() < 18 * HOUR);
+    if (next) {
+      const upBy = later(next.start, -(settings.readyMinutes + settings.commuteMinutes));
+      if (upBy < end) {
+        end = upBy;
+        start = new Date(Math.max(laterOnClock(upBy, -length).getTime(), later(start, -180).getTime()));
+      }
+    }
+    if (end > start) sleeps.push({ start, end, after: 'evening', day: date });
+  }
+  return sleeps.map((sleep) => adjustSleep(sleep, all, settings));
+}
+
+/** The sleeps as worked out before any of the person's own adjusting: the times the boxes start from. */
+export function baseSleeps(from: string, until: string, blocks: readonly WorkBlock[], settings: RhythmSettings): Sleep[] {
+  return mainSleeps(from, until, blocks, { ...settings, sleepShift: 0, wakeShift: 0, shiftAdjust: undefined, dayAdjust: undefined });
+}
+
+/** The minutes to move a time from `from` to the clock time `chosen` (minutes into the day), the shorter way round. */
+export function shiftTo(from: Date, chosen: number): number {
+  const diff = (chosen - (from.getHours() * 60 + from.getMinutes())) % 1440;
+  return diff > 720 ? diff - 1440 : diff <= -720 ? diff + 1440 : diff;
+}
+
+/** Everything Diaita suggests between two dates, in time order. */
+/** The sunrise within half a day of `when` (the calendar day at the place can differ from the phone's). */
+function sunriseNear(when: Date, place: { lat: number; lon: number }): Date | undefined {
+  const day = toLocalDate(when);
+  return [addDays(day, -1), day, addDays(day, 1)]
+    .map((date) => sunTimes(date, place.lat, place.lon)?.rise)
+    .find((rise): rise is Date => rise !== undefined && Math.abs(rise.getTime() - when.getTime()) < 12 * HOUR);
+}
+
+export function planBetween(from: string, until: string, blocks: readonly WorkBlock[], settings: RhythmSettings): Entry[] {
+  const all = work(blocks);
+  const sleeps = mainSleeps(from, until, blocks, settings);
+  const entries: Entry[] = [];
+  const add = (entry: Entry) => entries.push(entry);
+  const stamp = (date: Date) => date.toISOString();
+
+  for (const block of all) {
+    add({ key: `work:${stamp(block.start)}`, kind: 'work', start: block.start, end: block.end, title: block.label || 'Work' });
+  }
+
+  for (const sleep of sleeps) {
+    add({ key: `sleep:${stamp(sleep.start)}`, kind: 'sleep', start: sleep.start, end: sleep.end, day: sleep.day, title: sleep.after === 'last-night' ? 'Short sleep' : 'Sleep', source: sleep.after === 'evening' ? 'sleep' : sleep.after === 'night' ? 'light' : 'hygiene' });
+    add({ key: `wake:${stamp(sleep.end)}`, kind: 'wake', start: sleep.end, title: 'Up' });
+    if (settings.windDownMinutes > 0 && sleep.after === 'evening') {
+      add({ key: `wind:${stamp(sleep.start)}`, kind: 'wind-down', day: sleep.day, start: later(sleep.start, -settings.windDownMinutes), end: sleep.start, title: 'Wind down', detail: 'Dim lights, screens away', source: 'hygiene' });
+    }
+    if (sleep.after === 'evening') {
+      const worryDay = sleep.day ?? toLocalDate(sleep.start);
+      const worry = atTime(worryDay, settings.worryTime);
+      if (worry < sleep.start) add({ key: `worry:${worry.toISOString()}`, kind: 'worry', day: worryDay, start: worry, title: 'Worry time', source: 'hygiene' });
+    }
+    if (settings.cutoffHours > 0) {
+      add({ key: `caffeine:${stamp(sleep.start)}`, kind: 'caffeine', day: sleep.day, start: later(sleep.start, -settings.cutoffHours * 60), title: 'Last caffeine', source: 'caffeine' });
+    }
+    if (settings.meals && sleep.after === 'evening') {
+      add({ key: `meal:${stamp(sleep.start)}`, kind: 'meal', day: sleep.day, start: later(sleep.start, -180), title: 'Last big meal', source: 'hygiene' });
+    }
+    if (settings.light && sleep.after !== 'night') {
+      const wake = sleep.end;
+      if (wake.getHours() >= 5 && wake.getHours() < 18) {
+        // Light soon after waking sets the body clock earlier and steadier (Khalsa 2003); outdoor daylight is far
+        // brighter than indoor light, even on a cloudy morning (Blume 2019).
+        // With a place, the sun's own time decides: a wake before sunrise waits for it when the sun is up within
+        // two hours and before leaving for work; otherwise the line says when it rises, and bright light indoors
+        // stands in until then.
+        let start = later(wake, 15);
+        let detail = '15 to 30 minutes, outside if you can';
+        const rise = settings.place ? sunriseNear(wake, settings.place) : undefined;
+        if (rise && rise > start) {
+          const nextWork = all.find((block) => block.start > wake);
+          const leave = nextWork ? later(nextWork.start, -settings.commuteMinutes) : undefined;
+          if (rise.getTime() - wake.getTime() <= 2 * HOUR && (!leave || later(rise, 30) <= leave)) {
+            start = rise;
+            detail = 'From sunrise, 15 to 30 minutes outside';
+          } else {
+            detail = `Sunrise ${timeText(rise)}; bright light indoors until then`;
+          }
+        }
+        add({ key: `daylight:${stamp(wake)}`, kind: 'light', start, end: later(start, 30), title: 'Morning daylight', detail, source: sleep.after === 'last-night' ? 'hygiene' : 'morning-light' });
+      }
+    }
+  }
+
+  for (const night of all.filter(isNight)) {
+    const before = sleeps.filter((sleep) => sleep.end <= night.start).pop();
+    const leave = later(night.start, -settings.commuteMinutes);
+    // A nap when the last sleep ended long before the shift (the first night of a run).
+    if (!before || night.start.getTime() - before.end.getTime() > 9 * HOUR) {
+      const end = later(leave, -60);
+      const start = later(end, -90);
+      if (!before || start.getTime() - before.end.getTime() >= 4 * HOUR) {
+        add({ key: `nap:${stamp(start)}`, kind: 'nap', start, end, title: 'Nap', detail: '90 minutes', source: 'nap' });
+      }
+    }
+    if (settings.meals) {
+      add({ key: `main-meal:${stamp(night.start)}`, kind: 'meal', start: later(leave, -45), title: 'Main meal', detail: 'Before work', source: 'night-meals' });
+      const midnight = atTime(addDays(toLocalDate(night.start), night.start.getHours() >= 12 ? 1 : 0), '00:00');
+      const lightFrom = new Date(Math.max(midnight.getTime(), night.start.getTime()));
+      const lightUntil = new Date(Math.min(later(midnight, 360).getTime(), night.end.getTime()));
+      if (lightUntil > lightFrom) {
+        add({ key: `light-food:${stamp(lightFrom)}`, kind: 'light-food', start: lightFrom, end: lightUntil, title: 'Small snacks only', source: 'night-meals' });
+      }
+    }
+    if (settings.light) {
+      const middle = new Date((night.start.getTime() + night.end.getTime()) / 2);
+      add({ key: `bright:${stamp(night.start)}`, kind: 'light', start: night.start, end: middle, title: 'Bright light', detail: 'First half of the shift', source: 'light' });
+      const after = sleeps.find((sleep) => sleep.start >= night.end && sleep.start.getTime() - night.end.getTime() < 3 * HOUR);
+      if (after?.after === 'night') {
+        add({ key: `dark:${stamp(night.end)}`, kind: 'dark', start: night.end, end: after.start, title: 'Sunglasses home', detail: 'Then a dark room', source: 'light' });
+      }
+    }
+  }
+
+  return entries.sort((a, b) => a.start.getTime() - b.start.getTime() || order(a.kind) - order(b.kind));
+}
+
+const ORDER: EntryKind[] = ['wake', 'light', 'meal', 'caffeine', 'nap', 'work', 'light-food', 'dark', 'wind-down', 'sleep'];
+const order = (kind: EntryKind) => ORDER.indexOf(kind);
+
+/** Entries for one day, by the day each belongs to (the person's day in the app; calendar days in tests). */
+export function entriesOn(date: string, entries: readonly Entry[], dayOf: (when: Date) => string = toLocalDate): Entry[] {
+  return entries.filter((entry) => (entry.day ?? dayOf(entry.start)) === date);
+}
+
+// ---------- The sleep log ----------
+
+export type SleepQuality = 'well' | 'okay' | 'poorly';
+
+export type SleepRecord = {
+  /** The day woken into. */
+  date: string;
+  /** "HH:MM" */
+  bed: string;
+  up: string;
+  how?: SleepQuality;
+  note?: string;
+  /** Optional signs the person chose to record, never interpreted as a diagnosis. */
+  snoring?: boolean;
+  gasping?: boolean;
+  /** Brought in from Apple Health (a night written here by hand is never replaced from there). */
+  from?: 'health';
+};
+
+export const QUALITY_NAMES: Record<SleepQuality, string> = { well: 'Well', okay: 'Okay', poorly: 'Poorly' };
+
+/** Minutes asleep from bed to up (past midnight when up is earlier than bed). */
+export function sleptMinutes(record: Pick<SleepRecord, 'bed' | 'up'>): number {
+  const [bh, bm] = record.bed.split(':').map(Number);
+  const [uh, um] = record.up.split(':').map(Number);
+  let minutes = uh * 60 + um - (bh * 60 + bm);
+  if (minutes <= 0) minutes += 24 * 60;
+  return minutes;
+}
+
+export function hoursText(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const rest = Math.round(minutes % 60);
+  return rest ? `${hours} h ${rest} min` : `${hours} h`;
+}
+
+/** Plain facts over a run of records: how many, the average length, and how many were marked each way. */
+export function sleepFacts(records: readonly SleepRecord[]) {
+  if (records.length === 0) return undefined;
+  const total = records.reduce((sum, record) => sum + sleptMinutes(record), 0);
+  const marked = { well: 0, okay: 0, poorly: 0 } as Record<SleepQuality, number>;
+  for (const record of records) if (record.how) marked[record.how] += 1;
+  return { nights: records.length, averageMinutes: Math.round(total / records.length), marked };
+}
+
+/**
+ * Facts for one week of sleep: the amount written down and the smallest span
+ * containing the recorded bedtimes and wake times on a clock face.
+ */
+export function sleepWeekFacts(records: readonly SleepRecord[], chosenHours: number) {
+  if (records.length === 0) return undefined;
+  const totalMinutes = records.reduce((sum, record) => sum + sleptMinutes(record), 0);
+  const clockMinutes = (value: string): number => {
+    const [hours, minutes] = value.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+  const clockSpread = (values: number[]): number => {
+    if (values.length < 2) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    const around = [...sorted, ...sorted.map((value) => value + 24 * 60)];
+    let smallest = 24 * 60;
+    for (let start = 0; start < sorted.length; start += 1) {
+      smallest = Math.min(smallest, around[start + sorted.length - 1] - around[start]);
+    }
+    return smallest;
+  };
+  return {
+    nights: records.length,
+    totalMinutes,
+    chosenMinutes: Math.round(chosenHours * 60) * records.length,
+    bedSpreadMinutes: clockSpread(records.map((record) => clockMinutes(record.bed))),
+    upSpreadMinutes: clockSpread(records.map((record) => clockMinutes(record.up))),
+  };
+}
+
+/** What the plan expects for the sleep that ended on this day, as times for the check-in. */
+export function plannedSleepInto(date: string, entries: readonly Entry[]): { bed: string; up: string } | undefined {
+  const sleep = entries.filter((entry) => entry.kind === 'sleep' && entry.end && toLocalDate(entry.end) === date).pop();
+  if (!sleep?.end) return undefined;
+  return { bed: clock(sleep.start), up: clock(sleep.end) };
+}
+
+/** The check-in is offered from waking for a few hours. Waking is the end of the last planned main sleep, so a shift pattern sets it. With no sleep in the plan, 4:00 to noon. */
+export function checkInOpen(entries: readonly Entry[], now: Date, hours = 6): boolean {
+  const ended = entries.filter((entry) => entry.kind === 'sleep' && entry.end && entry.end <= now);
+  const woke = ended.reduce<Date | undefined>((latest, entry) => (!latest || (entry.end as Date) > latest ? (entry.end as Date) : latest), undefined);
+  if (!woke) {
+    const hour = now.getHours();
+    return hour >= 4 && hour < 12;
+  }
+  return now.getTime() - woke.getTime() < hours * 3_600_000;
+}
+
+export function clock(date: Date): string {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+/** A time as the phone shows times (12 or 24 hour). */
+export function timeText(date: Date): string {
+  return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+/** A stored "HH:MM" shown as the phone shows times. */
+export function clockText(hhmm: string): string {
+  const [hours, minutes] = hhmm.split(':').map(Number);
+  return timeText(new Date(2000, 0, 1, hours, minutes));
+}

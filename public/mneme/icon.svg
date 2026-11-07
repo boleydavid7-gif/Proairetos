@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="mneme-tile" x1="1" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="#92afd8"/><stop offset="1" stop-color="#536f9b"/></linearGradient>
+    <radialGradient id="mneme-light" cx="800" cy="120" r="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#eef4ff" stop-opacity=".35"/><stop offset=".45" stop-color="#eef4ff" stop-opacity=".1"/><stop offset="1" stop-color="#eef4ff" stop-opacity="0"/></radialGradient>
+    <filter id="mneme-lift" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="-10" dy="16" stdDeviation="18" flood-color="#182238" flood-opacity=".28"/></filter>
+    <clipPath id="mneme-clip"><rect width="1024" height="1024" rx="229"/></clipPath>
+  </defs>
+  <rect width="1024" height="1024" rx="229" fill="url(#mneme-tile)"/>
+  <g clip-path="url(#mneme-clip)"><rect width="1024" height="1024" fill="url(#mneme-light)"/></g>
+  <g filter="url(#mneme-lift)">
+    <path d="M286 216 H610 L738 344 V808 H286Z" fill="#fbf8f0"/>
+    <path d="M610 216 V344 H738" fill="#d8e3f4"/>
+    <path d="M610 216 L738 344" fill="none" stroke="#b4c7e2" stroke-width="16" stroke-linejoin="round"/>
+    <path d="M386 462 H650 M386 566 H650 M386 670 H570" fill="none" stroke="#6e89ae" stroke-width="34" stroke-linecap="round"/>
+    <circle cx="370" cy="350" r="28" fill="#a9bddb"/>
+  </g>
+</svg>

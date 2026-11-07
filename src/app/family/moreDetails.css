@@ -1,0 +1,24 @@
+/* An add form's optional fields, folded (MoreDetails.tsx). */
+.more-details { display: grid; gap: var(--ll-gap, 16px); }
+.more-details__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 4px;
+  border: 0;
+  border-top: 1px solid var(--line, var(--ll-hair, rgba(255, 255, 255, 0.1)));
+  background: none;
+  color: var(--text-soft, var(--ll-ink-2, inherit));
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.more-details__chevron { transition: rotate var(--ll-calm, 240ms) var(--ll-spring, ease); }
+.more-details.is-open .more-details__chevron { rotate: 90deg; }
+.more-details__body { display: grid; gap: var(--ll-gap, 16px); animation: more-details-in var(--ll-calm, 240ms) var(--ll-ease-out, ease-out) both; }
+@keyframes more-details-in { from { opacity: 0; translate: 0 -6px; } }
+@media (prefers-reduced-motion: reduce) {
+  .more-details__chevron { transition: none; }
+  .more-details__body { animation: none; }
+}

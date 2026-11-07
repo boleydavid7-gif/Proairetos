@@ -1,0 +1,223 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import YearScreen from '../screens/YearScreen';
+import { directionAlong, transition, type Direction } from '../../app/transitions';
+import { usePlan, usePlanState, useSettings } from './state';
+import { TabBar, UndoProvider, type Tab } from './ui';
+import HomePage from '../screens/HomePage';
+import LearnPage, { ArticlePage } from '../screens/LearnPage';
+import TrainPage from '../screens/TrainPage';
+import LogPage from '../screens/LogPage';
+import EntryPage from '../screens/EntryPage';
+import MorePage from '../screens/MorePage';
+import MusicPage from '../screens/MusicPage';
+import TestPage from '../screens/TestPage';
+import WorkoutPage from '../screens/WorkoutPage';
+import GuidePage from '../screens/GuidePage';
+import WelcomePage from '../screens/WelcomePage';
+import PlanPage from '../screens/PlanPage';
+import AfterPage from '../screens/AfterPage';
+import StravaPage, { StravaOnOpen } from '../screens/StravaPage';
+import OwnPage from '../screens/OwnPage';
+import ShoesPage from '../screens/ShoesPage';
+import { AboutPage, DataPage, PacePage, SafetyPage, SettingsPage, ZonesPage } from '../screens/MorePages';
+import PwaStatus from '../../app/pwa/PwaStatus';
+import { clearSessionRecovery, readSessionRecovery, type SessionRecovery } from '../core/sessionRecovery';
+
+export type Route =
+  | { name: Tab }
+  | { name: 'welcome' }
+  | { name: 'safety'; first?: boolean }
+  | { name: 'plan'; first?: boolean }
+  | { name: 'workout'; id: string }
+  | { name: 'guide'; id: string; intention?: string }
+  | { name: 'entry'; id?: string; workoutId?: string; seconds?: number; meters?: number; intention?: string; date?: string; activity?: 'run' | 'walk' | 'other' }
+  | { name: 'article'; id: string }
+  | { name: 'zones' }
+  | { name: 'music' }
+  | { name: 'test' }
+  | { name: 'pace' }
+  | { name: 'settings' }
+  | { name: 'data' }
+  | { name: 'about' }
+  | { name: 'after'; id: string }
+  | { name: 'year' }
+  | { name: 'strava' }
+  | { name: 'own'; id?: string }
+  | { name: 'shoes' };
+
+export type Nav = {
+  go: (route: Route) => void;
+  /** Replaces the page in place (a tab, or the next step of setup). */
+  swap: (route: Route) => void;
+  back: () => void;
+};
+
+const tabNames: Tab[] = ['home', 'learn', 'train', 'log', 'more'];
+const isTab = (name: Route['name']): name is Tab => (tabNames as string[]).includes(name);
+
+/**
+ * One page at a time, kept in the browser's history so the phone's back
+ * gesture and back button always lead somewhere sensible.
+ */
+import { takeOpening } from '../../app/family/opening';
+
+export default function App() {
+  const settings = useSettings();
+  const planState = usePlanState();
+  const plan = usePlan(planState);
+  const [route, setRoute] = useState<Route>(() => (settings.started || planState ? { name: 'home' } : { name: 'welcome' }));
+  const [lastTab, setLastTab] = useState<Tab>('home');
+  const [recovery, setRecovery] = useState<SessionRecovery | undefined>(() => readSessionRecovery());
+  const routeHistory = useRef<Route[]>([]);
+  if (routeHistory.current.length === 0) routeHistory.current.push(route);
+
+  useEffect(() => {
+    history.replaceState({ askesis: route }, '');
+    const onPop = (event: PopStateEvent) => {
+      const next = (event.state as { askesis?: Route } | null)?.askesis;
+      if (!next) {
+        // The app may have been opened directly with another site beneath it.
+        // Keep the system back gesture inside Askesis in that case.
+        history.forward();
+        return;
+      }
+      routeHistory.current = routeHistory.current.length > 1 ? routeHistory.current.slice(0, -1) : [next];
+      // The phone's back gesture and button: the page slides away, the one beneath comes forward.
+      transition('back', () => setRoute(next));
+    };
+    window.addEventListener('popstate', onPop);
+    // Opened from Proairetos at a particular place: that page, with Home beneath it.
+    const open = takeOpening();
+    if (open && (settings.started || planState)) {
+      const [kind, id] = open.split(':');
+      if (kind === 'workout' && id) go({ name: 'workout', id });
+      else if (kind === 'entry' && id) go({ name: 'entry', id });
+      else if (kind === 'strava') go({ name: 'strava' });
+      else if (isTab(kind as Route['name'])) swap({ name: kind as Tab });
+    }
+    return () => window.removeEventListener('popstate', onPop);
+    // Only once: the first page is already in history.
+  }, []);
+
+  useEffect(() => {
+    if (isTab(route.name)) setLastTab(route.name);
+    window.scrollTo(0, 0);
+  }, [route]);
+
+  const current = useRef(route);
+  current.current = route;
+  /** Along the tab bar, the new page comes from the side tapped; anything else pushes in. */
+  const directionTo = (next: Route): Direction => {
+    const from = current.current.name;
+    if (isTab(from) && isTab(next.name)) return directionAlong(tabNames, from, next.name);
+    return isTab(next.name) && !isTab(from) ? 'back' : 'forward';
+  };
+  const go = useCallback((next: Route) => {
+    routeHistory.current.push(next);
+    history.pushState({ askesis: next }, '');
+    transition(directionTo(next), () => setRoute(next));
+  }, []);
+  const swap = useCallback((next: Route) => {
+    routeHistory.current[routeHistory.current.length - 1] = next;
+    history.replaceState({ askesis: next }, '');
+    if (next.name === current.current.name && isTab(next.name)) return;
+    transition(directionTo(next), () => setRoute(next));
+  }, []);
+  const back = useCallback(() => {
+    if (routeHistory.current.length > 1) {
+      routeHistory.current.pop();
+      const previous = routeHistory.current[routeHistory.current.length - 1];
+      history.replaceState({ askesis: previous }, '');
+      transition('back', () => setRoute(previous));
+      return;
+    }
+    swap({ name: lastTab });
+  }, [lastTab, swap]);
+  const nav: Nav = { go, swap, back };
+
+  const page = (() => {
+    switch (route.name) {
+      case 'welcome':
+        return <WelcomePage nav={nav} />;
+      case 'safety':
+        return <SafetyPage nav={nav} first={route.first} />;
+      case 'plan':
+        return <PlanPage nav={nav} first={route.first} />;
+      case 'home':
+        return <HomePage nav={nav} plan={plan} planState={planState} />;
+      case 'learn':
+        return <LearnPage nav={nav} />;
+      case 'train':
+        return <TrainPage nav={nav} plan={plan} planState={planState} />;
+      case 'log':
+        return <LogPage nav={nav} />;
+      case 'more':
+        return <MorePage nav={nav} plan={plan} />;
+      case 'workout':
+        return <WorkoutPage nav={nav} id={route.id} plan={plan} planState={planState} />;
+      case 'guide':
+        return <GuidePage nav={nav} id={route.id} plan={plan} intention={route.intention} />;
+      case 'entry':
+        return <EntryPage nav={nav} route={route} plan={plan} />;
+      case 'article':
+        return <ArticlePage nav={nav} id={route.id} />;
+      case 'test':
+        return <TestPage nav={nav} />;
+      case 'music':
+        return <MusicPage nav={nav} />;
+      case 'zones':
+        return <ZonesPage nav={nav} />;
+      case 'pace':
+        return <PacePage nav={nav} />;
+      case 'settings':
+        return <SettingsPage nav={nav} />;
+      case 'data':
+        return <DataPage nav={nav} />;
+      case 'about':
+        return <AboutPage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
+      case 'strava':
+        return <StravaPage nav={nav} />;
+      case 'own':
+        return <OwnPage key={route.id ?? 'new'} nav={nav} id={route.id} />;
+      case 'shoes':
+        return <ShoesPage nav={nav} />;
+      case 'after':
+        return <AfterPage nav={nav} id={route.id} />;
+    }
+  })();
+
+  const showTabs = !['welcome', 'safety', 'guide', 'test'].includes(route.name) && !(route.name === 'plan' && route.first);
+  return (
+    <UndoProvider>
+      <div className={`shell${showTabs ? ' shell--tabs' : ''}`}>
+        <PwaStatus />
+        <main key={JSON.stringify(route)} className="page-enter">
+          {page}
+        </main>
+        {route.name !== 'strava' && <StravaOnOpen />}
+        {showTabs && <TabBar current={isTab(route.name) ? route.name : lastTab} onPick={(tab) => swap({ name: tab })} />}
+        {recovery && (
+          <div className="session-recovery" role="presentation">
+            <section className="session-recovery__panel" role="dialog" aria-modal="true" aria-labelledby="session-recovery-title">
+              <span className="card__eyebrow">Saved workout</span>
+              <h2 className="card__title" id="session-recovery-title">An unfinished session was found</h2>
+              <p className="muted">The session reopens paused. GPS points from while Askesis was closed cannot be recovered.</p>
+              <div className="session-recovery__actions">
+                <button type="button" className="button-main" onClick={() => {
+                  setRecovery(undefined);
+                  go({ name: 'guide', id: recovery.workoutId, intention: recovery.intention });
+                }}>Resume session</button>
+                <button type="button" className="button-quiet" onClick={() => {
+                  clearSessionRecovery();
+                  setRecovery(undefined);
+                }}>Discard saved session</button>
+              </div>
+            </section>
+          </div>
+        )}
+      </div>
+    </UndoProvider>
+  );
+}

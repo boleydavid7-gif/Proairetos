@@ -1,0 +1,266 @@
+import { useState, type ReactNode } from 'react';
+import { useServiceData } from '../../app/hooks/useServiceData';
+import { useLeave, useNavigate } from '../../app/navigationContext';
+import { compassService, lifeService, reflectionService } from '../../app/services';
+import { pursuitCheckIns } from '../../app/pursuits';
+import { ArrowLeftIcon, CheckIcon, ClockIcon, CompassIcon, NoteIcon, ScalesIcon, SunIcon } from '../../components/icons/Icons';
+import PageHeader from '../../components/layout/PageHeader';
+import { gatherInsights, insightRange, previousRange, sideBySide, type InsightPeriod, type TimeOfDay } from '../../core/reflections/insights';
+import { captureKinds } from '../capture/captureKinds';
+import Observations from '../reflect/Observations';
+import YearInWordsCard from './YearInWordsCard';
+import { weatherOptions } from '../reflect/weather';
+
+const periods: { id: InsightPeriod; label: string }[] = [
+  { id: 'week', label: 'Week' },
+  { id: 'month', label: 'Month' },
+  { id: 'all', label: 'All time' },
+];
+
+const timeLabels: Record<TimeOfDay, string> = { MORNING: 'Morning', AFTERNOON: 'Afternoon', EVENING: 'Evening', NIGHT: 'Night' };
+
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+function InsightCard({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+  return (
+    <section className="insight-card" aria-label={title}>
+      <span className="insight-card__icon">{icon}</span>
+      <div className="insight-card__body">
+        <h2 className="insight-card__title">{title}</h2>
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function OverviewCard({ reflections, captured, done }: { reflections: number; captured: number; done: number }) {
+  return (
+    <section className="insight-card insight-card--overview" aria-label="At a glance">
+      <div className="insight-card__body">
+        <p className="eyebrow">At a glance</p>
+        <h2 className="insight-card__title">What you left a record of</h2>
+        <dl className="insight-overview">
+          <div><dd>{reflections}</dd><dt>reflections</dt></div>
+          <div><dd>{captured}</dd><dt>captures</dt></div>
+          <div><dd>{done}</dd><dt>completed</dt></div>
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+function CheckInsInsightCard({ checkIns, range }: { checkIns: ReturnType<typeof pursuitCheckIns.use>; range: { start: Date; end: Date } }) {
+  const inPeriod = checkIns.filter((checkIn) => {
+    const date = new Date(`${checkIn.date}T12:00:00`);
+    return date >= range.start && date < range.end;
+  });
+  return (
+    <InsightCard icon={<CompassIcon size={28} />} title="Check-ins">
+      <p className="insight-total">{inPeriod.length}</p>
+      <p className="insight-card__note">{plural(inPeriod.length, 'check-in', 'check-ins')} in this period.</p>
+    </InsightCard>
+  );
+}
+
+function subscribeAll(listener: () => void) {
+  const unsubscribers = [lifeService, reflectionService, compassService].map((service) => service.subscribe(listener));
+  return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
+}
+
+/**
+ * What the person recorded, gathered by period. Counts and lists only: no
+ * trends, no conclusions, no advice. The meaning is theirs to find.
+ */
+export default function InsightsPage() {
+  const navigate = useNavigate();
+  const leave = useLeave('reflect');
+  const [period, setPeriod] = useState<InsightPeriod>('week');
+  const pursuitCheckInRecords = pursuitCheckIns.use();
+  const currentRange = insightRange(period, new Date());
+  const insights = useServiceData(
+    subscribeAll,
+    async () => {
+      const [items, reflections, values, events] = await Promise.all([
+        lifeService.list(),
+        reflectionService.all(),
+        compassService.values(),
+        lifeService.historyForAll(),
+      ]);
+      const now = new Date();
+      const range = insightRange(period, now);
+      const before = previousRange(period, now);
+      return {
+        ...gatherInsights(range, items, reflections, values, events),
+        sideBySide: before ? sideBySide(range, before, items, events, reflections) : undefined,
+      };
+    },
+    [period],
+  );
+
+  const weatherTotal = insights ? Object.values(insights.weather.counts).reduce((a, b) => a + b, 0) : 0;
+  const captureTotal = insights ? Object.values(insights.captured.counts).reduce((a, b) => a + b, 0) + insights.captured.untagged : 0;
+
+  return (
+    <div className="page">
+      <button type="button" className="back-link" onClick={leave}>
+        <ArrowLeftIcon size={18} />
+        Reflect
+      </button>
+      <PageHeader title="Insights" />
+
+      <div className="segmented" role="tablist" aria-label="Period">
+        {periods.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            role="tab"
+            aria-selected={period === option.id}
+            className="segmented__option"
+            onClick={() => setPeriod(option.id)}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      {insights && (
+        <>
+          <OverviewCard
+            reflections={insights.reflections}
+            captured={captureTotal}
+            done={Object.values(insights.doneAt).reduce((sum, count) => sum + count, 0)}
+          />
+
+          <InsightCard icon={<NoteIcon size={28} />} title="What are you noticing?">
+            <p className="insight-card__note">Write what stands out to you.</p>
+            <button type="button" className="text-link insight-card__action" onClick={() => navigate('journal')}>
+              Write a reflection
+            </button>
+          </InsightCard>
+
+          <CheckInsInsightCard
+            checkIns={pursuitCheckInRecords}
+            range={currentRange}
+          />
+
+          <InsightCard icon={<SunIcon size={28} />} title="Your internal weather">
+            {weatherTotal === 0 ? (
+              <p className="insight-card__note">
+                None noted yet.
+              </p>
+            ) : (
+              <>
+                <ul className="weather-counts">
+                  {weatherOptions.map(({ id, label, icon: Icon }) => (
+                    <li key={id} className={insights.weather.counts[id] === 0 ? 'weather-counts__none' : undefined}>
+                      <Icon size={22} />
+                      <span className="weather-counts__n">{insights.weather.counts[id]}</span>
+                      <span className="visually-hidden">{label}</span>
+                    </li>
+                  ))}
+                </ul>
+                {insights.weather.unmarked > 0 && (
+                  <p className="insight-card__note">{plural(insights.weather.unmarked, 'entry', 'entries')} without one.</p>
+                )}
+              </>
+            )}
+          </InsightCard>
+
+          <InsightCard icon={<NoteIcon size={28} />} title="Things you captured">
+            {captureTotal === 0 ? (
+              <p className="insight-card__note">Nothing captured in this period.</p>
+            ) : (
+              <dl className="insight-counts">
+                {captureKinds.map((kind) => (
+                  <div key={kind.id}>
+                    <dt>{kind.label}</dt>
+                    <dd>{insights.captured.counts[kind.id]}</dd>
+                  </div>
+                ))}
+                <div>
+                  <dt>Not sorted</dt>
+                  <dd>{insights.captured.untagged}</dd>
+                </div>
+              </dl>
+            )}
+          </InsightCard>
+
+          <InsightCard icon={<ClockIcon size={28} />} title="Writing rhythm">
+            {insights.reflections === 0 ? (
+              <p className="insight-card__note">No reflections in this period.</p>
+            ) : (
+              <dl className="insight-counts">
+                {(Object.keys(timeLabels) as TimeOfDay[]).map((time) => (
+                  <div key={time}>
+                    <dt>{timeLabels[time]}</dt>
+                    <dd>{insights.writtenAt[time]}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </InsightCard>
+
+          <InsightCard icon={<CheckIcon size={28} />} title="Completed by time of day">
+            {Object.values(insights.doneAt).every((n) => n === 0) ? (
+              <p className="insight-card__note">Nothing marked done in this period.</p>
+            ) : (
+              <dl className="insight-counts">
+                {(Object.keys(timeLabels) as TimeOfDay[]).map((time) => (
+                  <div key={time}>
+                    <dt>{timeLabels[time]}</dt>
+                    <dd>{insights.doneAt[time]}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+          </InsightCard>
+
+          {insights.sideBySide && (
+            <InsightCard icon={<ScalesIcon size={28} />} title={period === 'week' ? 'This week and last' : 'This month and last'}>
+              <table className="side-by-side">
+                <thead>
+                  <tr>
+                    <th scope="col"><span className="visually-hidden">What</span></th>
+                    <th scope="col">{period === 'week' ? 'This week' : 'This month'}</th>
+                    <th scope="col">{period === 'week' ? 'Last week' : 'Last month'}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {insights.sideBySide.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row">{row.label}</th>
+                      <td>{row.now}</td>
+                      <td>{row.before}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </InsightCard>
+          )}
+
+          {insights.values.length > 0 && (
+            <InsightCard icon={<CompassIcon size={28} />} title="Your values in what you recorded">
+              <ul className="insight-lines">
+                {insights.values.map((row) => (
+                  <li key={row.name}>
+                    <strong>{row.name}</strong>:{' '}
+                    {[
+                      row.entries && plural(row.entries, 'entry', 'entries'),
+                      row.items && `${plural(row.items, 'item')} linked`,
+                      row.done && `${row.done} done`,
+                    ]
+                      .filter(Boolean)
+                      .join(', ')}
+                  </li>
+                ))}
+              </ul>
+            </InsightCard>
+          )}
+
+          <Observations period={period} />
+          <YearInWordsCard />
+        </>
+      )}
+    </div>
+  );
+}

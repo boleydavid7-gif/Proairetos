@@ -1,0 +1,831 @@
+/*
+ * Lamplight's components, built only from the tokens (tokens.css, and the colors scheme.ts makes). Any app can use
+ * them; the public guide (/lamplight/) shows each one. One lit action per screen: `.ll-button` is the lamp; the rest
+ * are tonal or plain.
+ */
+
+/* ---------- Buttons ---------- */
+.ll-button {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ll-space-2);
+  min-height: var(--ll-control-md);
+  padding: 0 var(--ll-space-5);
+  border: 0;
+  border-radius: var(--ll-radius-action);
+  background: var(--ll-lamp-fill);
+  color: var(--ll-on-lamp);
+  font: var(--ll-type-button);
+  text-decoration: none;
+  box-shadow: none;
+  cursor: pointer;
+  transition: var(--ll-state-transition);
+}
+
+.ll-button--tonal {
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+  box-shadow: none;
+}
+
+.ll-button--plain {
+  background: transparent;
+  color: var(--ll-lamp);
+  box-shadow: none;
+  padding: 0 var(--ll-space-3);
+}
+
+.ll-button--remove {
+  background: transparent;
+  color: var(--ll-remove);
+  box-shadow: none;
+}
+
+.ll-button:focus-visible,
+.ll-chip:focus-visible,
+.ll-row--interactive:focus-visible,
+.ll-card--interactive:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+  box-shadow: var(--ll-focus);
+}
+
+.ll-button--sm {
+  min-height: var(--ll-control-sm);
+  padding-inline: var(--ll-space-4);
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.ll-button--lg {
+  min-height: var(--ll-control-lg);
+  padding-inline: var(--ll-space-6);
+  font-size: var(--text-lg, 1.15rem);
+}
+
+.ll-button--plain:is(:hover, :focus-visible):not([aria-disabled='true']),
+.ll-button--remove:is(:hover, :focus-visible):not([aria-disabled='true']),
+.ll-button--tonal:is(:hover, :focus-visible):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-button--tonal:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-button:is(:disabled, [aria-disabled='true']) {
+  opacity: 0.45;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.ll-button[aria-busy='true'] {
+  cursor: progress;
+}
+
+/* ---------- Icon action ---------- */
+.ll-icon-button {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--ll-touch-target);
+  height: var(--ll-touch-target);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-ink-2);
+  cursor: pointer;
+  transition: var(--ll-state-transition);
+}
+
+.ll-icon-button--sm {
+  width: var(--ll-control-sm);
+  height: var(--ll-control-sm);
+}
+
+.ll-icon-button--lg {
+  width: var(--ll-control-lg);
+  height: var(--ll-control-lg);
+}
+
+.ll-icon-button:is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+  color: var(--ll-lamp);
+}
+
+.ll-icon-button:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+  transform: scale(0.96);
+}
+
+.ll-icon-button:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+  box-shadow: var(--ll-focus);
+}
+
+.ll-icon-button:is([aria-pressed='true'], [aria-selected='true'], [aria-checked='true']) {
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+}
+
+.ll-icon-button:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (pointer: coarse) {
+  .ll-icon-button--sm {
+    width: var(--ll-touch-target);
+    height: var(--ll-touch-target);
+  }
+}
+
+@media (pointer: coarse) {
+  .ll-button--sm {
+    min-height: var(--ll-touch-target);
+  }
+}
+
+/* ---------- Surfaces ---------- */
+.ll-card {
+  padding: var(--ll-space-4);
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-material-solid);
+  color: var(--ll-ink);
+  box-shadow: var(--ll-light-1);
+}
+
+.ll-card--inset {
+  background: var(--ll-material-inset);
+  box-shadow: none;
+}
+
+.ll-card--raised {
+  background: var(--ll-material-raised);
+  box-shadow: var(--ll-light-2);
+}
+
+.ll-card--interactive {
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .ll-card--interactive:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--ll-light-2);
+  }
+}
+
+.ll-card--interactive:active {
+  transform: scale(0.99);
+}
+
+/* ---------- A grouped list (iOS-style): rows with an icon tile and hairlines that start after it ---------- */
+.ll-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--ll-radius-md);
+  background: var(--ll-material-solid);
+  box-shadow: var(--ll-light-1);
+  overflow: hidden;
+}
+
+.ll-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ll-space-3);
+  min-height: 52px;
+  padding: var(--ll-space-2) var(--ll-space-4);
+  color: var(--ll-ink);
+  font: var(--ll-type-body);
+}
+
+.ll-row + .ll-row {
+  box-shadow: inset calc(var(--ll-space-4) + 30px + var(--ll-space-3)) 0 0 var(--ll-card), inset 0 1px 0 var(--ll-hair);
+}
+
+.ll-row__tile {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--ll-radius-xs);
+  background: var(--ll-glow);
+  color: var(--ll-lamp);
+}
+
+.ll-row__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ll-row__detail {
+  color: var(--ll-ink-3);
+  font: var(--ll-type-label);
+  font-weight: 400;
+}
+
+.ll-row--interactive {
+  cursor: pointer;
+}
+
+.ll-row--interactive:is(:hover, :focus-within):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-row--interactive:active:not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-row--interactive[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ---------- Switch ---------- */
+.ll-switch {
+  position: relative;
+  flex: none;
+  width: 51px;
+  height: 31px;
+  border: 0;
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-material-raised);
+  cursor: pointer;
+  transition: background var(--ll-calm) var(--ll-ease-out);
+}
+
+.ll-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--ll-knob);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform var(--ll-calm) var(--ll-ease-out);
+}
+
+.ll-switch[aria-checked='true'] {
+  background: var(--ll-lamp-fill);
+}
+
+.ll-switch[aria-checked='true']::after {
+  transform: translateX(20px);
+}
+
+.ll-switch:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+  box-shadow: var(--ll-focus);
+}
+
+.ll-switch:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* ---------- Fields: filled, no border until focus; focus is a ring of the lamp ---------- */
+.ll-field {
+  width: 100%;
+  min-height: var(--ll-field-md);
+  padding: 0 var(--ll-space-4);
+  border: 0;
+  border-radius: var(--ll-radius-sm);
+  background: var(--ll-material-inset);
+  color: var(--ll-ink);
+  font: var(--ll-type-body);
+}
+
+.ll-field::placeholder {
+  color: var(--ll-ink-3);
+}
+
+.ll-field:focus {
+  outline: none;
+  box-shadow: var(--ll-focus);
+}
+
+.ll-field:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+}
+
+.ll-field--sm {
+  min-height: var(--ll-field-sm);
+}
+
+.ll-field--lg {
+  min-height: var(--ll-field-lg);
+  font-size: var(--text-lg, 1.15rem);
+}
+
+.ll-field:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.ll-field[aria-invalid='true'] {
+  box-shadow: 0 0 0 2px var(--ll-state-invalid);
+}
+
+@media (pointer: coarse) {
+  .ll-field--sm {
+    min-height: var(--ll-touch-target);
+  }
+}
+
+/* ---------- Chips and a segmented choice ---------- */
+.ll-chip {
+  display: inline-flex;
+  align-self: center;
+  align-items: center;
+  min-height: var(--ll-chip-md);
+  padding: 0 var(--ll-space-4);
+  border: 1px solid var(--ll-hair);
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-ink-2);
+  font: var(--ll-type-label);
+  cursor: pointer;
+}
+
+.ll-chip:is([aria-pressed='true'], [aria-selected='true'], [aria-checked='true']) {
+  border-color: transparent;
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+}
+
+.ll-chip:not([aria-pressed='true']):not([aria-selected='true']):not([aria-checked='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-chip:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-chip--sm {
+  min-height: var(--ll-chip-sm);
+  padding-inline: var(--ll-space-3);
+  font-size: var(--text-xs, 0.75rem);
+}
+
+.ll-chip--lg {
+  min-height: var(--ll-chip-lg);
+  font-size: var(--text-md, 1rem);
+}
+
+.ll-chip:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (pointer: coarse) {
+  .ll-chip--sm {
+    min-height: var(--ll-touch-target);
+  }
+}
+
+/* ---------- Segmented choice ---------- */
+.ll-segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--ll-space-1);
+  padding: var(--ll-space-1);
+  border: 1px solid var(--ll-outline-variant);
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-surface-container-low);
+}
+
+.ll-segmented__item {
+  min-height: var(--ll-control-md);
+  padding-inline: var(--ll-space-3);
+  border: 0;
+  border-radius: var(--ll-radius-pill);
+  background: transparent;
+  color: var(--ll-on-surface-variant);
+  font: var(--ll-type-label);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--ll-state-transition);
+}
+
+.ll-segmented__item:is([aria-selected='true'], [aria-pressed='true']) {
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+  font-weight: 600;
+}
+
+.ll-segmented__item:is(:hover, :focus-visible):not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-segmented__item:focus-visible {
+  outline: var(--ll-focus-width) solid var(--ll-lamp);
+  outline-offset: var(--ll-focus-offset);
+}
+
+/* ---------- Progress and loading ---------- */
+.ll-progress {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-surface-container-high);
+}
+
+.ll-progress__value {
+  display: block;
+  width: var(--ll-progress, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ll-lamp-fill);
+  box-shadow: var(--ll-lamp-light);
+  transition: width var(--ll-calm) var(--ll-ease-out);
+}
+
+.ll-progress--indeterminate .ll-progress__value {
+  width: 35%;
+  animation: ll-progress 1.2s var(--ll-ease-in-out) infinite;
+}
+
+@keyframes ll-progress {
+  from { translate: -120% 0; }
+  to { translate: 320% 0; }
+}
+
+.ll-skeleton {
+  display: block;
+  min-height: 1em;
+  border-radius: var(--ll-radius-xs);
+  background: linear-gradient(100deg, var(--ll-surface-container-high) 20%, var(--ll-surface-container-highest) 38%, var(--ll-surface-container-high) 56%);
+  background-size: 240% 100%;
+  animation: ll-skeleton 1.5s var(--ll-ease-in-out) infinite;
+}
+
+/* A stack of them standing in for what is on its way (Placeholder.tsx): lines of text, list rows or cards. */
+.ll-skeleton-stack { display: grid; gap: 12px; padding: 4px 0; }
+.ll-skeleton-stack--lines { gap: 14px; }
+.ll-skeleton--lines { height: 14px; min-height: 0; border-radius: calc(var(--ll-radius-xs, 8px) - 1px); }
+.ll-skeleton--rows { min-height: 56px; border-radius: var(--ll-radius-md, 14px); }
+.ll-skeleton--cards { min-height: 120px; border-radius: var(--ll-radius-lg, 18px); }
+
+@keyframes ll-skeleton {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-progress__value,
+  .ll-skeleton {
+    animation: none;
+  }
+}
+
+/* ---------- The bar: translucent, where you are marked by the lamp ---------- */
+.ll-bar {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: var(--ll-space-2);
+  border-radius: var(--ll-radius-lg);
+  background: var(--ll-material-mica-surface);
+  box-shadow: var(--ll-light-2);
+}
+
+.ll-bar__item {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: var(--ll-control-md);
+  padding: var(--ll-space-2) 0;
+  border: 0;
+  border-radius: var(--ll-radius-sm);
+  background: transparent;
+  color: var(--ll-ink-3);
+  font: var(--ll-type-caption);
+  cursor: pointer;
+  transition: var(--ll-state-transition);
+}
+
+.ll-bar__item:is([aria-current='page'], [aria-selected='true']) {
+  background: var(--ll-state-selected);
+  color: var(--ll-lamp);
+}
+
+.ll-bar__item:not([aria-current='page']):not([aria-selected='true']):is(:hover, :focus-visible):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+}
+
+.ll-bar__item:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-bar__item:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* ---------- A sheet ---------- */
+.ll-sheet {
+  padding: var(--ll-space-5);
+  border-radius: var(--ll-radius-lg) var(--ll-radius-lg) 0 0;
+  background: var(--ll-material-raised);
+  color: var(--ll-ink);
+  box-shadow: var(--ll-light-3);
+}
+
+.ll-sheet__grip {
+  width: 36px;
+  height: 5px;
+  margin: 0 auto var(--ll-space-4);
+  border-radius: var(--ll-radius-pill);
+  background: var(--ll-hair);
+}
+
+/* ---------- Dialog, snackbar and empty state ---------- */
+.ll-dialog {
+  width: min(32rem, calc(100vw - var(--ll-space-6)));
+  max-height: min(80vh, 42rem);
+  padding: var(--ll-space-5);
+  border: 1px solid var(--ll-outline-variant);
+  border-radius: var(--ll-radius-lg);
+  background: var(--ll-surface-container-highest);
+  color: var(--ll-on-surface);
+  box-shadow: var(--ll-light-3);
+}
+
+.ll-dialog::backdrop {
+  background: var(--ll-scrim);
+}
+
+.ll-dialog__title {
+  margin: 0;
+  font: var(--ll-type-headline);
+}
+
+.ll-dialog__body {
+  margin: var(--ll-space-3) 0 0;
+  color: var(--ll-on-surface-variant);
+  font: var(--ll-type-body);
+}
+
+.ll-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--ll-space-2);
+  margin-top: var(--ll-space-5);
+}
+
+/* The snackbar: a raised tonal pill with one action, the family's undo bar (undo.tsx places and moves it). */
+.ll-snackbar {
+  display: flex;
+  align-items: center;
+  gap: var(--ll-space-3);
+  width: max-content;
+  max-width: min(35rem, calc(100vw - var(--ll-space-6)));
+  min-height: 52px;
+  padding: 6px 6px 6px 18px;
+  border-radius: var(--ll-radius-pill, 999px);
+  background: var(--ll-surface-container-highest, var(--ll-raised, #33434F));
+  color: var(--ll-on-surface, #E9E5DC);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28), var(--ll-light-2, 0 0 0 transparent);
+  font-family: var(--ll-sans, inherit);
+  font-size: var(--text-md, 1rem);
+  line-height: 1.3;
+}
+.ll-snackbar:not(:has(.ll-snackbar__action)) { padding-right: 18px; }
+.ll-snackbar__text { flex: 1 1 auto; min-width: 0; padding: 6px 0; }
+
+.ll-snackbar__action {
+  flex: none;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: var(--ll-radius-pill, 999px);
+  background: var(--ll-tonal, rgba(255, 255, 255, 0.08));
+  color: var(--ll-lamp, currentColor);
+  font: inherit;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.ll-snackbar__action:is(:hover, :focus-visible) {
+  background: var(--ll-tonal-strong, var(--ll-state-hover));
+}
+
+.ll-empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--ll-space-3);
+  padding: var(--ll-space-8) var(--ll-space-5);
+  border: 1px dashed var(--ll-outline-variant);
+  border-radius: var(--ll-radius-lg);
+  color: var(--ll-on-surface-variant);
+  text-align: center;
+}
+
+.ll-empty__icon {
+  display: grid;
+  width: var(--ll-icon-feature);
+  height: var(--ll-icon-feature);
+  place-items: center;
+  color: var(--ll-lamp);
+}
+
+.ll-empty__title {
+  margin: 0;
+  color: var(--ll-on-surface);
+  font: var(--ll-type-headline);
+}
+
+.ll-empty__body {
+  max-width: 30rem;
+  margin: 0;
+  font: var(--ll-type-body);
+}
+
+/* ---------- Waiting: one small light that breathes (Waiting.tsx) ---------- */
+.ll-waiting {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.ll-waiting__light {
+  flex: none;
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  animation: ll-breathe 1.4s var(--ll-ease-in-out, ease-in-out) infinite;
+}
+
+@keyframes ll-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 0.7em 0.1em color-mix(in srgb, currentColor 45%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ll-waiting__light {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
+/* ---------- Menu: a row's long-press menu (behaviors.ts), solid and raised ---------- */
+.ll-menu {
+  position: fixed;
+  z-index: 40;
+  display: grid;
+  min-width: 13rem;
+  max-width: min(18rem, calc(100vw - 24px));
+  padding: 6px;
+  border-radius: var(--ll-radius-md, 16px);
+  background: var(--ll-material-raised, #33434F);
+  color: var(--ll-ink, inherit);
+  box-shadow: var(--ll-light-3);
+  transform-origin: top center;
+  --ll-outer: var(--ll-radius-md, 16px);
+  --ll-inset: 6px;
+  animation: ll-menu-in var(--ll-calm, 240ms) var(--ll-spring-lively, ease) both;
+}
+
+.ll-menu__title {
+  margin: 0;
+  padding: 6px 12px 8px;
+  overflow: hidden;
+  color: var(--ll-ink-3, inherit);
+  font: var(--ll-type-caption);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ll-menu__item {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--ll-concentric, 10px);
+  background: none;
+  color: inherit;
+  font: var(--ll-type-body);
+  text-align: start;
+  cursor: pointer;
+}
+
+.ll-menu__item + .ll-menu__item {
+  box-shadow: inset 0 1px 0 var(--ll-hair);
+}
+
+.ll-menu__item:is(:hover, :focus-visible):not([aria-disabled='true']) {
+  background: var(--ll-state-hover);
+  box-shadow: none;
+  outline: none;
+}
+
+.ll-menu__item:focus-visible {
+  box-shadow: var(--ll-focus);
+}
+
+.ll-menu__item:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-menu__item:is(:disabled, [aria-disabled='true']) {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.ll-menu__item--danger {
+  color: var(--ll-remove, #B85C56);
+}
+
+/* The row held lifts a little toward the light before its menu opens. */
+.ll-held {
+  scale: 0.985;
+  transition: scale var(--ll-quick, 120ms) var(--ll-spring, ease);
+}
+
+:is(.swipe, .check-row, .rows > li, .detail-list > li, [data-menu]) {
+  -webkit-touch-callout: none;
+}
+
+/* Actionable rows expose the same menu that long press opens. It stays quiet on a mouse until
+   hover, but remains visible on touch where a long press is otherwise hidden knowledge. */
+:is(.swipe, .days-row, [data-menu]) {
+  position: relative;
+}
+
+.ll-row-menu-trigger {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  display: grid;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ll-radius-pill, 999px);
+  color: var(--ll-ink-3, currentColor);
+  background: transparent;
+  opacity: 0.72;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.ll-row-menu-trigger:focus-visible:not([aria-disabled='true']),
+.ll-row-menu-trigger:hover:not([aria-disabled='true']) {
+  color: var(--ll-lamp, currentColor);
+  background: var(--ll-state-hover, transparent);
+  opacity: 1;
+  outline: none;
+}
+
+.ll-row-menu-trigger:active:not(:disabled):not([aria-disabled='true']) {
+  background: var(--ll-state-pressed);
+}
+
+.ll-row-menu-trigger[aria-disabled='true'] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (hover: hover) {
+  .ll-row-menu-trigger {
+    opacity: 0;
+  }
+
+  :is(.swipe, .check-row, .days-row, [data-menu]):hover .ll-row-menu-trigger,
+  :is(.swipe, .check-row, .days-row, [data-menu]):focus-within .ll-row-menu-trigger {
+    opacity: 0.82;
+  }
+}
+
+@keyframes ll-menu-in {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}

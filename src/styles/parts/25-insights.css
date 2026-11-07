@@ -1,0 +1,197 @@
+/* ---------- Insights ---------- */
+
+.insight-card {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.insight-card--overview {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--color-accent) 11%, var(--color-surface)), var(--color-surface) 72%);
+}
+
+.insight-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+}
+
+.insight-overview div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.insight-overview dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+}
+
+.insight-overview dt {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+.insight-total {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 7vw, 3rem);
+  line-height: 1;
+}
+
+.insight-card__icon {
+  flex: none;
+  color: var(--color-accent);
+}
+
+.insight-card__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.insight-card__title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+
+.insight-card__note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.insight-card__action {
+  align-self: flex-start;
+}
+
+.weather-counts {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.weather-counts li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--color-accent);
+}
+
+.weather-counts__none {
+  opacity: 0.35;
+}
+
+.weather-counts__n {
+  color: var(--color-text);
+  font-size: var(--text-sm);
+}
+
+.insight-counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+}
+
+.insight-counts div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.insight-counts dt {
+  color: var(--color-text-muted);
+}
+
+.insight-counts dd {
+  margin: 0;
+}
+
+.insight-lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.insight-lines strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+.side-by-side {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.side-by-side th,
+.side-by-side td {
+  padding: 0.3rem 0;
+  text-align: right;
+  font-weight: normal;
+}
+
+.side-by-side th[scope='row'] {
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.side-by-side thead th {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+/* A year in your own words: folded until opened, then plain lines in the order they happened. */
+.year-words {
+  display: block;
+}
+
+.year-words__summary {
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+}
+
+.year-words__part {
+  margin-top: var(--space-4);
+}
+
+.year-words__title {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.year-words__lines {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+  white-space: pre-line;
+}
+
+.year-words__day {
+  color: var(--color-text-faint);
+  font-size: var(--text-sm);
+  margin-right: var(--space-2);
+}

@@ -1,0 +1,255 @@
+import { describe, expect, it } from 'vitest';
+import { atTime, toLocalDate } from '../../core/scheduling/dates';
+import { checkInOpen, clock, dayKind, defaultRhythm, entriesOn, isNight, baseSleeps, mainSleeps, planBetween, shiftTo, plannedSleepInto, sleepFacts, sleepWeekFacts, sleptMinutes, type WorkBlock } from './rhythm';
+
+const block = (date: string, start: string, endDate: string, end: string, label = 'Work'): WorkBlock => ({ start: atTime(date, start), end: atTime(endDate, end), label });
+
+const nights = [
+  block('2026-10-05', '19:00', '2026-10-06', '07:00'),
+  block('2026-10-06', '19:00', '2026-10-07', '07:00'),
+  block('2026-10-07', '19:00', '2026-10-08', '07:00'),
+];
+
+/** Light and meals are offered, off until chosen; these tests turn them on. */
+const withAdvice = { ...defaultRhythm, light: true, meals: true };
+
+describe('day kinds', () => {
+  it('tells nights, evenings, days and days off apart', () => {
+    expect(isNight(nights[0])).toBe(true);
+    expect(isNight(block('2026-10-05', '15:00', '2026-10-06', '01:00'))).toBe(false);
+    expect(dayKind('2026-10-05', nights)).toBe('night');
+    expect(dayKind('2026-10-08', nights)).toBe('after-nights');
+    expect(dayKind('2026-10-09', nights)).toBe('off');
+    expect(dayKind('2026-10-05', [block('2026-10-05', '14:00', '2026-10-05', '22:30')])).toBe('evening');
+    expect(dayKind('2026-10-05', [block('2026-10-05', '07:00', '2026-10-05', '15:00')])).toBe('day');
+  });
+
+  it('leaves protected time out', () => {
+    expect(dayKind('2026-10-05', [{ ...nights[0], kind: 'PROTECTED' }])).toBe('off');
+  });
+});
+
+describe('sleep', () => {
+  it('keeps the usual bedtime with nothing on', () => {
+    const [sleep] = mainSleeps('2026-10-10', '2026-10-10', [], defaultRhythm).filter((each) => clock(each.start) === '22:30' && each.start.getDate() === 10);
+    expect(clock(sleep.end)).toBe('06:00');
+  });
+
+  it('goes to bed earlier before an early start', () => {
+    const early = [block('2026-10-11', '06:00', '2026-10-11', '14:00')];
+    const sleep = mainSleeps('2026-10-10', '2026-10-10', early, defaultRhythm).find((each) => each.start.getDate() === 10)!;
+    // Up by 04:30 (an hour to get ready, half an hour to get there), 7.5 hours before that.
+    expect(clock(sleep.end)).toBe('04:30');
+    expect(clock(sleep.start)).toBe('21:00');
+  });
+
+  it('goes to bed after getting home from a late finish', () => {
+    const late = [block('2026-10-10', '15:00', '2026-10-10', '23:00')];
+    const sleep = mainSleeps('2026-10-10', '2026-10-10', late, defaultRhythm).find((each) => each.after === 'evening' && each.start >= late[0].end)!;
+    expect(clock(sleep.start)).toBe('00:00');
+  });
+
+  it('goes to bed two hours later the night before a first night', () => {
+    const before = mainSleeps('2026-10-04', '2026-10-04', nights, defaultRhythm).find((sleep) => sleep.after === 'evening' && sleep.start.getDate() === 5)!;
+    expect(clock(before.start)).toBe('00:30');
+    expect(clock(before.end)).toBe('08:00');
+  });
+
+  it('sleeps after each night once home, and briefly after the last', () => {
+    const sleeps = mainSleeps('2026-10-05', '2026-10-08', nights, defaultRhythm);
+    const afterNights = sleeps.filter((sleep) => sleep.after !== 'evening');
+    expect(afterNights.map((sleep) => clock(sleep.start))).toEqual(['08:00', '08:00', '08:00']);
+    expect(afterNights.map((sleep) => sleep.after)).toEqual(['night', 'night', 'last-night']);
+    expect(clock(afterNights[0].end)).toBe('15:30');
+    expect(clock(afterNights[2].end)).toBe('12:00');
+    // A full night follows the short sleep.
+    const back = sleeps.find((sleep) => sleep.after === 'evening' && sleep.start.getDate() === 8)!;
+    expect(clock(back.start)).toBe('22:30');
+  });
+});
+
+describe('the plan around nights', () => {
+  const plan = planBetween('2026-10-05', '2026-10-08', nights, withAdvice);
+  const of = (kind: string) => plan.filter((entry) => entry.kind === kind);
+
+  it('naps before the first night only', () => {
+    const naps = of('nap');
+    expect(naps).toHaveLength(1);
+    expect(naps[0].start.getDate()).toBe(5);
+    expect(clock(naps[0].start)).toBe('16:00');
+    expect(clock(naps[0].end!)).toBe('17:30');
+  });
+
+  it('puts bright light in the first half and sunglasses on the way home, except after the last night', () => {
+    expect(of('light').filter((entry) => entry.title === 'Bright light').map((entry) => clock(entry.end!))).toEqual(['01:00', '01:00', '01:00']);
+    expect(of('dark')).toHaveLength(2);
+  });
+
+  it('keeps meals in the day and small snacks overnight', () => {
+    expect(of('light-food').map((entry) => `${clock(entry.start)}-${clock(entry.end!)}`)).toEqual(['00:00-06:00', '00:00-06:00', '00:00-06:00']);
+    expect(of('meal').filter((entry) => entry.title === 'Main meal').map((entry) => clock(entry.start))).toEqual(['17:45', '17:45', '17:45']);
+  });
+
+  it('stops caffeine six hours before each sleep', () => {
+    const lastNight = of('caffeine').find((entry) => entry.start.getDate() === 6);
+    expect(lastNight && clock(lastNight.start)).toBe('02:00');
+  });
+
+  it('cites a source on every suggestion', () => {
+    expect(plan.filter((entry) => !['work', 'wake'].includes(entry.kind)).every((entry) => entry.source)).toBe(true);
+  });
+
+  it('groups by the day each belongs to', () => {
+    const day = entriesOn('2026-10-09', plan);
+    expect(day.every((entry) => entry.start.getDate() === 9)).toBe(true);
+  });
+
+  it('leaves out light and meals when turned off', () => {
+    const plain = planBetween('2026-10-05', '2026-10-08', nights, { ...defaultRhythm, light: false, meals: false });
+    expect(plain.some((entry) => ['light', 'dark', 'meal', 'light-food'].includes(entry.kind))).toBe(false);
+  });
+});
+
+describe('the sleep log', () => {
+  it('counts hours across midnight', () => {
+    expect(sleptMinutes({ bed: '23:00', up: '07:00' })).toBe(480);
+    expect(sleptMinutes({ bed: '08:00', up: '15:30' })).toBe(450);
+  });
+
+  it('gives facts, not a score', () => {
+    expect(sleepFacts([])).toBeUndefined();
+    expect(sleepFacts([{ date: '2026-10-01', bed: '23:00', up: '07:00', how: 'well' }, { date: '2026-10-02', bed: '23:00', up: '06:00' }])).toEqual({
+      nights: 2,
+      averageMinutes: 450,
+      marked: { well: 1, okay: 0, poorly: 0 },
+    });
+  });
+
+  it('offers the planned times for the check-in', () => {
+    const plan = planBetween('2026-10-09', '2026-10-10', [], withAdvice);
+    expect(plannedSleepInto('2026-10-10', plan)).toEqual({ bed: '22:30', up: '06:00' });
+  });
+
+  it('offers the check-in from waking, wherever the plan puts it', () => {
+    const plan = planBetween('2026-10-09', '2026-10-10', [], withAdvice);
+    expect(checkInOpen(plan, new Date(2026, 9, 10, 8, 0))).toBe(true);
+    expect(checkInOpen(plan, new Date(2026, 9, 10, 13, 0))).toBe(false);
+    const entry = (start: Date, end: Date) => ({ key: 'k', kind: 'sleep' as const, start, end, title: 'Sleep' });
+    const nights = [entry(new Date(2026, 9, 9, 8, 0), new Date(2026, 9, 9, 16, 30))];
+    expect(checkInOpen(nights, new Date(2026, 9, 9, 18, 0))).toBe(true);
+    expect(checkInOpen(nights, new Date(2026, 9, 10, 1, 0))).toBe(false);
+    expect(checkInOpen([], new Date(2026, 9, 10, 8, 0))).toBe(true);
+    expect(checkInOpen([], new Date(2026, 9, 10, 13, 0))).toBe(false);
+  });
+
+  it('places worry time before an ordinary night', () => {
+    const plan = planBetween('2026-10-10', '2026-10-10', [], withAdvice);
+    const worry = plan.find((entry) => entry.kind === 'worry' && entry.start.getDate() === 10);
+    expect(worry && clock(worry.start)).toBe('18:00');
+  });
+
+  it('keeps amount and regularity as plain weekly facts', () => {
+    const records = [
+      { date: '2026-10-01', bed: '22:30', up: '06:30' },
+      { date: '2026-10-02', bed: '23:00', up: '07:00' },
+      { date: '2026-10-03', bed: '00:00', up: '07:30' },
+    ];
+    expect(sleepWeekFacts(records, 7.5)).toEqual({
+      nights: 3,
+      totalMinutes: 1_410,
+      chosenMinutes: 1_350,
+      bedSpreadMinutes: 90,
+      upSpreadMinutes: 60,
+    });
+  });
+
+  it('treats a bedtime around midnight as close together', () => {
+    expect(sleepWeekFacts([
+      { date: '2026-10-01', bed: '23:30', up: '07:00' },
+      { date: '2026-10-02', bed: '00:30', up: '07:00' },
+    ], 7.5)?.bedSpreadMinutes).toBe(60);
+  });
+});
+
+describe('morning daylight and the sunrise', () => {
+  // A longitude where the sun's noon falls at the test's own local noon, so the cases hold in every time zone.
+  const lonHere = (date: string) => ((((-new Date(`${date}T12:00:00`).getTimezoneOffset() / 4 + 180) % 360) + 360) % 360) - 180;
+  const daylight = (date: string, bedtime: string, place?: { lat: number; lon: number }) =>
+    planBetween(date, date, [], { ...withAdvice, bedtime, sleepHours: 7, place }).find((entry) => entry.kind === 'light' && entry.title === 'Morning daylight' && entry.start.toISOString().startsWith(date.slice(0, 7)) && entry.start.getDate() === Number(date.slice(8)))!;
+
+  it('stays 15 minutes after waking without a place', () => {
+    const entry = daylight('2026-12-15', '22:00');
+    expect(entry.start.getHours() * 60 + entry.start.getMinutes()).toBe(5 * 60 + 15);
+  });
+
+  it('waits for a sunrise within two hours of waking', () => {
+    const entry = daylight('2026-03-20', '22:00', { lat: 0, lon: lonHere('2026-03-20') });
+    expect(entry.detail).toBe('From sunrise, 15 to 30 minutes outside');
+    expect(entry.start.getHours()).toBe(6);
+  });
+
+  it('names a late sunrise and keeps the time after waking', () => {
+    const entry = daylight('2026-12-15', '23:00', { lat: 60, lon: lonHere('2026-12-15') });
+    expect(entry.detail).toMatch(/^Sunrise .+; bright light indoors until then$/);
+    expect(entry.start.getHours() * 60 + entry.start.getMinutes()).toBe(6 * 60 + 15);
+  });
+});
+
+describe('what is offered, not assumed', () => {
+  it('starts with no light or meal advice until the person turns it on', () => {
+    expect(defaultRhythm.light).toBe(false);
+    expect(defaultRhythm.meals).toBe(false);
+    const kinds = new Set(planBetween('2026-10-10', '2026-10-10', [], defaultRhythm).map((entry) => entry.kind));
+    expect(kinds.has('light')).toBe(false);
+    expect(kinds.has('meal')).toBe(false);
+  });
+});
+
+describe('adjusting sleep and wake time', () => {
+  const afterNight = (settings: typeof defaultRhythm) => mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings).find((sleep) => sleep.after === 'last-night' || sleep.after === 'night');
+
+  it('starts sleep an hour after work ends by default', () => {
+    const sleep = afterNight({ ...defaultRhythm });
+    expect(sleep && clock(sleep.start)).toBe('08:00');
+  });
+
+  it('moves sleep and wake by the person’s own minutes', () => {
+    const base = afterNight({ ...defaultRhythm })!;
+    const moved = afterNight({ ...defaultRhythm, sleepShift: 30, wakeShift: -15 })!;
+    expect(moved.start.getTime() - base.start.getTime()).toBe(30 * 60_000);
+    expect(moved.end.getTime() - base.end.getTime()).toBe(-15 * 60_000);
+  });
+
+  it('uses a shift’s own adjustment in place of the general one', () => {
+    const label = nights[0].label!;
+    const base = afterNight({ ...defaultRhythm })!;
+    const moved = afterNight({ ...defaultRhythm, sleepShift: 60, shiftAdjust: { [label]: { sleep: 15, wake: 0 } } })!;
+    expect(moved.start.getTime() - base.start.getTime()).toBe(15 * 60_000);
+    expect(moved.end.getTime()).toBe(base.end.getTime());
+  });
+
+  it('uses a day’s own adjustment before a shift’s', () => {
+    const label = nights[0].label!;
+    const base = afterNight({ ...defaultRhythm })!;
+    const day = toLocalDate(base.start);
+    const moved = afterNight({ ...defaultRhythm, shiftAdjust: { [label]: { sleep: 15, wake: 0 } }, dayAdjust: { [day]: { sleep: -30, wake: 20 } } })!;
+    expect(moved.start.getTime() - base.start.getTime()).toBe(-30 * 60_000);
+    expect(moved.end.getTime() - base.end.getTime()).toBe(20 * 60_000);
+  });
+});
+
+describe('adjusting by clock time', () => {
+  it('works out the move from the planned time the shorter way round', () => {
+    const planned = atTime('2026-10-05', '23:30');
+    expect(shiftTo(planned, 23 * 60 + 45)).toBe(15);
+    expect(shiftTo(planned, 15)).toBe(45);
+    expect(shiftTo(planned, 22 * 60)).toBe(-90);
+  });
+
+  it('keeps the planned sleeps apart from the adjusted ones', () => {
+    const settings = { ...defaultRhythm, sleepShift: 30 };
+    const base = baseSleeps('2026-10-05', '2026-10-06', [nights[0]], settings);
+    const moved = mainSleeps('2026-10-05', '2026-10-06', [nights[0]], settings);
+    expect(moved[0].start.getTime() - base[0].start.getTime()).toBe(30 * 60_000);
+  });
+});

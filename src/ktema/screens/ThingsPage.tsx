@@ -1,0 +1,73 @@
+import { useState } from 'react';
+import { BoxIcon, PlusIcon, PrintIcon } from '../../app/family/icons';
+import { Empty } from '../../app/family/shell';
+import { toLocalDate } from '../../core/scheduling/dates';
+import type { KtemaNav } from '../app/App';
+import { things, upkeeps } from '../app/state';
+import { Ideas } from './TodayPage';
+import { CATEGORIES, search, warrantyText } from '../core/things';
+import { byRoom } from '../core/insurance';
+import { Segmented } from '../../askesis/app/ui';
+
+export default function ThingsPage({ nav }: { nav: KtemaNav }) {
+  const all = things.use();
+  const upkeep = upkeeps.use();
+  const [text, setText] = useState('');
+  const today = toLocalDate(new Date());
+  const [by, setBy] = useState<'kind' | 'room'>('kind');
+  const found = search(all, text).sort((a, b) => a.name.localeCompare(b.name));
+  const groups: [string, typeof found][] = by === 'room' ? byRoom(found) : CATEGORIES.map((category): [string, typeof found] => [category, found.filter((thing) => thing.category === category)]);
+  return (
+    <div className="page ktema-page">
+      <div className="page-top section-head">
+        <h1 className="title">Things</h1>
+        <button type="button" className="button-main" onClick={() => nav.go({ name: 'thing' })}><PlusIcon size={18} />Add</button>
+      </div>
+      {all.length > 5 && <input className="input" type="search" aria-label="Find a thing" placeholder="Search" value={text} onChange={(event) => setText(event.target.value)} />}
+      {all.length === 0 && <Empty icon={<BoxIcon size={28} />} title="No things yet" />}
+      {all.length > 1 && <Segmented label="Group by" value={by} options={[{ id: 'kind', label: 'Kind' }, { id: 'room', label: 'Room' }]} onChange={setBy} small />}
+      {groups.map(([group, inIt]) => {
+        if (!inIt.length) return null;
+        return (
+          <section key={group}>
+            <div className="section-head"><h2>{group}</h2></div>
+            <ul className="chore-list">
+              {inIt.map((thing) => (
+                <li key={thing.id} className="chore">
+                  <button type="button" className="chore__open" onClick={() => nav.go({ name: 'thing', id: thing.id })}>
+                    <span>{thing.name}</span>
+                    <small>{[by === 'room' ? thing.category : thing.place, [thing.make, thing.model].filter(Boolean).join(' '), warrantyText(thing, today)].filter(Boolean).join(' · ')}</small>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+      {text && !found.length && <p className="muted">Nothing matches.</p>}
+      <section>
+        <div className="section-head">
+          <h2>Upkeep</h2>
+          <button type="button" className="text-link" onClick={() => nav.go({ name: 'upkeep' })}>Add upkeep</button>
+        </div>
+        <Ideas list={upkeep} few={upkeep.length >= 4} />
+      </section>
+      {all.length > 0 && (
+        <ul className="rows">
+          <li>
+            <button type="button" className="row" onClick={() => nav.go({ name: 'print' })}>
+              <span className="row__icon"><PrintIcon size={22} /></span>
+              <span className="row__text"><span>Print the list</span></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" className="row" onClick={() => nav.go({ name: 'print', insurance: true })}>
+              <span className="row__icon"><BoxIcon size={22} /></span>
+              <span className="row__text"><span>Insurance list</span></span>
+            </button>
+          </li>
+        </ul>
+      )}
+    </div>
+  );
+}

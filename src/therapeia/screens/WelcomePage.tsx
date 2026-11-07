@@ -1,0 +1,26 @@
+import { Welcome } from '../../app/family/shell';
+import { AppMark } from '../../app/family/icons';
+import photo from '../../assets/images/scenes/therapeia-stoic.webp';
+import photoWide from '../../assets/images/scenes/therapeia-stoic-wide.webp';
+import type { TherapeiaNav } from '../app/App';
+import { settings } from '../app/state';
+
+export default function WelcomePage({ nav }: { nav: TherapeiaNav }) {
+  return (
+    <Welcome
+      name="Therapeia"
+      mark={<AppMark app="therapeia" size={44} light />}
+      line="Medicines and appointments."
+      about="Track doses, refills and appointments around your schedule."
+      photo={photo}
+      photoWide={photoWide}
+      fine="Follow the directions you were given. Therapeia reminds and records; it gives no medical advice."
+      onBegin={() => {
+        settings.save({ ...settings.load(), started: true });
+        nav.swap({ name: 'today' });
+        // The first step: a medicine to begin with. Cancel or Save lands on Today.
+        nav.go({ name: 'medicine' });
+      }}
+    />
+  );
+}

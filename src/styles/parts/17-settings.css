@@ -1,0 +1,327 @@
+/* ---------- Settings ---------- */
+
+.settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.password-recovery {
+  min-height: 100dvh;
+  justify-content: center;
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: var(--space-5);
+}
+
+.password-recovery__brand {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.password-recovery__card {
+  width: 100%;
+}
+
+.password-recovery__card .page-header__title {
+  margin-bottom: 0;
+}
+
+/* A short list of switches: rows edge to edge, a hairline between them. */
+.settings-card--rows {
+  gap: 0;
+  padding: var(--space-1) var(--space-4);
+}
+
+.settings-card .section-description {
+  margin-top: calc(var(--space-2) * -1);
+}
+
+.restore-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid rgba(var(--color-accent-rgb, 201, 162, 116), 0.3);
+  border-radius: var(--radius-sm);
+}
+
+.restore-preview p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.recovery-key {
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px dashed rgba(var(--color-accent-rgb, 201, 162, 116), 0.5);
+  border-radius: var(--radius-sm);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: var(--text-md);
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  word-break: break-all;
+  color: var(--color-accent-strong);
+  user-select: all;
+}
+
+.settings-sub {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Which server settings this build received; for whoever sets it up. */
+.setup-check summary {
+  min-height: 2.75rem;
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.setup-check ul {
+  margin: var(--space-2) 0;
+  padding-left: var(--space-4);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+/* Account: who is signed in and when it last synced, then the few things people do here. */
+.account-head__email {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.account-head .sheet__hint {
+  margin: 0;
+}
+
+.account-head__sync {
+  display: inline;
+  min-height: 0;
+  padding: 0;
+}
+
+/* Signing in and setting up: each step's buttons span the card, the main one in gold. */
+.account-wide {
+  width: 100%;
+  min-height: 2.9rem;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+/* Capture from anywhere: short, numbered steps and copyable setup values. */
+.inbox-intro,
+.inbox-result {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.inbox-steps {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inbox-step {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-3);
+}
+
+.inbox-step__number {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent) 16%, transparent);
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.inbox-step__content,
+.inbox-step__body {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.inbox-step__title {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.inbox-step__body {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.55;
+}
+
+.inbox-step__body p,
+.inbox-step__body ul {
+  margin: 0;
+}
+
+.inbox-step__body ul {
+  display: grid;
+  gap: 4px;
+  padding-left: 1.2rem;
+}
+
+.inbox-step__body strong {
+  color: var(--color-text);
+}
+
+.inbox-fields {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.inbox-field {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+}
+
+.inbox-field__row {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.inbox-field__row > span:first-child {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.inbox-field__row > :last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.inbox-field code {
+  color: var(--color-accent-strong);
+  font-size: var(--text-sm);
+  font-weight: 650;
+}
+
+.inbox-key-note {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-accent) 9%, transparent);
+  line-height: 1.5;
+}
+
+.inbox-key-note code {
+  color: var(--color-accent-strong);
+  font-weight: 650;
+}
+
+.inbox-values {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.inbox-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-width: 0;
+}
+
+.inbox-copy .sheet__label {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.inbox-copy__value {
+  grid-column: 1 / -1;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.inbox-copy .chip {
+  grid-column: 2;
+  justify-self: end;
+  min-width: 5.5rem;
+}
+
+.inbox-security-note {
+  margin: 0;
+  line-height: 1.5;
+}
+
+
+/* A switch's second line (Apple Health's "What goes where"). */
+.toggle-row__hint {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  line-height: 1.35;
+}
+/* Household creation: keep the label, input and action in a clear vertical stack. */
+.settings-card > .household-create-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.household-create-form .field__label {
+  margin: 0;
+}
+
+.household-create-form .input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.household-create-form .button-accent {
+  margin-top: var(--space-1);
+}

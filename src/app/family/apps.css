@@ -1,0 +1,719 @@
+/* Pieces Diaita, Philia and Ergon share, on top of askesis.css. Each app sets its colors on :root.<app>. */
+
+.family-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.family-unit .input {
+  min-width: 0;
+}
+
+.family-unit span {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.input-row > .field {
+  flex: 1;
+  min-width: 0;
+}
+
+.field__label {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.section-head h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.45rem;
+  font-weight: 400;
+}
+
+.button-main svg,
+.button-quiet svg {
+  vertical-align: -3px;
+  margin-right: 6px;
+}
+
+.page-top .back-link svg {
+  margin-right: 2px;
+}
+
+.list-row {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 14px;
+  border: 0;
+  background: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  color: var(--text);
+}
+
+.list-row__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.list-row__text small,
+.list-row__aside {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.list-row__aside {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tick {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--mint);
+}
+
+.tick:hover {
+  border-color: var(--mint);
+}
+
+.tick[aria-pressed='true'] {
+  background: var(--mint);
+  border-color: var(--mint);
+  color: var(--mint-ink);
+}
+
+.hero-shade-soft .hero__shade {
+  background: linear-gradient(180deg, rgba(10, 12, 14, 0.55) 0%, rgba(10, 12, 14, 0.06) 40%, rgba(10, 12, 14, 0.5) 76%, var(--bg) 100%);
+}
+
+/* Words over the picture stay light in either appearance, with a soft shadow where the picture fades into the page. */
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema, .phyton) .hero .home__sub {
+  color: rgb(255 255 255 / 0.88);
+}
+
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema, .phyton) .hero .home__words {
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.45);
+}
+
+/* Fine print inside a card lines up with the card's words. */
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema, .phyton) .card .fine {
+  text-align: left;
+}
+
+.remove-link {
+  align-self: center;
+  color: var(--danger, var(--status-error, #B85C56));
+}
+
+/* ---------- Diaita ---------- */
+
+.diaita-timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.diaita-entry + .diaita-entry {
+  border-top: 1px solid var(--line);
+}
+
+.diaita-entry__main {
+  width: 100%;
+  min-height: 56px;
+  padding: 8px 14px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  display: grid;
+  grid-template-columns: 6.6rem 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  text-align: left;
+}
+
+.diaita-entry__main--link {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+
+.diaita-entry__main:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.diaita-entry__time {
+  color: var(--text-soft);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.diaita-entry__icon {
+  color: var(--mint);
+  display: grid;
+  place-items: center;
+}
+
+.diaita-entry--work .diaita-entry__icon,
+.diaita-entry--wake .diaita-entry__icon {
+  color: var(--text-soft);
+}
+
+.diaita-entry--sleep .diaita-entry__icon,
+.diaita-entry--nap .diaita-entry__icon,
+.diaita-entry--dark .diaita-entry__icon {
+  color: color-mix(in srgb, var(--mint) 55%, #8aa4d6);
+}
+
+.diaita-entry__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.diaita-entry__text strong {
+  font-weight: 500;
+}
+
+.diaita-entry__text small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Passed lines step back in color, not opacity, so they keep readable contrast. */
+.diaita-entry--past .diaita-entry__main,
+.diaita-entry--past .diaita-entry__main :is(strong, small, .diaita-entry__time) {
+  color: var(--muted);
+}
+
+.diaita-entry--past .diaita-entry__main svg {
+  opacity: 0.6;
+}
+
+.diaita-entry--next {
+  box-shadow: inset 3px 0 0 var(--mint);
+}
+
+.diaita-entry__source {
+  margin: 0;
+  padding: 0 14px 12px calc(6.6rem + 28px + 34px);
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.diaita-next {
+  gap: 2px;
+}
+
+.diaita-next__title {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.diaita-checkin__kept {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'eyebrow chevron' 'hours chevron' 'times chevron';
+  gap: 2px 12px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+}
+
+.diaita-checkin__kept .card__eyebrow { grid-area: eyebrow; }
+.diaita-checkin__kept strong { grid-area: hours; font-family: var(--serif); font-size: 1.6rem; font-weight: 400; }
+.diaita-checkin__kept .muted { grid-area: times; }
+.diaita-checkin__kept svg { grid-area: chevron; color: var(--muted); }
+
+.diaita-schedule-link {
+  align-self: center;
+}
+
+.diaita-week {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--ll-gap, 16px);
+}
+
+.diaita-day {
+  gap: 6px;
+}
+
+.diaita-day__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto 18px;
+  gap: 10px;
+  align-items: center;
+}
+
+.diaita-day__kind {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.diaita-day--off .diaita-day__kind {
+  background: var(--surface-2);
+  color: var(--text-soft);
+}
+
+.diaita-day__head svg {
+  color: var(--muted);
+}
+
+.diaita-day__lines {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-soft);
+  font-size: 0.92rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.diaita-night__hours {
+  width: auto;
+  min-width: 52px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--mint);
+}
+
+.diaita-night {
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+}
+
+.diaita-source {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (min-width: 62rem) {
+  .diaita-week {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Philia ---------- */
+
+.person-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.initials {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.initials--large {
+  width: 72px;
+  height: 72px;
+  font-size: 1.5rem;
+}
+
+.initials {
+  overflow: hidden;
+}
+
+.initials__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.person-photo {
+  position: relative;
+  flex: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.person-photo:focus-within {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+
+.person-photo::after {
+  content: '+';
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mint);
+  color: var(--bg, #000);
+  font-weight: 700;
+  line-height: 1;
+  border: 2px solid var(--bg, #000);
+}
+
+.person-photo__remove {
+  min-height: 0;
+  padding: 4px 0 0;
+  font-size: 0.85rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.row.person-row {
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+}
+
+.row.person-row .coming-up__when,
+.coming-up__when {
+  color: var(--mint);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.person-touch {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2, 8px);
+}
+
+.person-touch .person-touch__mark {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  padding: 0;
+  margin-right: 12px;
+  border-radius: 50%;
+}
+
+.rows > li.row.philia-date,
+.rows > li.row.row--aside {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-add {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notes-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.note-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--surface-2);
+}
+
+.note-line small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.note-line button {
+  min-width: 44px;
+  min-height: 36px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+}
+
+.add-line {
+  display: flex;
+  gap: 8px;
+}
+
+.add-line .input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.add-line .button-quiet {
+  flex: none;
+  width: auto;
+  padding-inline: 18px;
+}
+
+/* ---------- Ergon ---------- */
+
+.chore {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 14px;
+}
+
+/* A row with nothing to tick (a list to open, an as-needed medicine): the words take the room. */
+.chore:not(:has(> .tick)) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.chore + .chore {
+  border-top: 1px solid var(--line);
+}
+
+.chore__open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.chore__open small {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.chore__when {
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.chore-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.chore-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.who-chip {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--mint-soft);
+  color: var(--mint);
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+
+.philia-gift > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:root:is(.diaita, .philia, .ergon, .therapeia, .dynamis, .ktema, .phyton) .home__words {
+  margin-top: auto;
+}
+
+.section-head .button-main {
+  width: auto;
+  flex: none;
+}
+
+/* ---------- A thing's own page: a head with its mark, then its details as label and value ---------- */
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.detail-head .title {
+  margin: 0;
+}
+
+.detail-head p {
+  margin: 4px 0 0;
+}
+
+.detail-head__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
+  background: var(--surface-2);
+}
+
+.detail-list {
+  margin: 0;
+  padding: 4px 16px;
+  display: grid;
+  grid-template-columns: minmax(5.5rem, max-content) minmax(0, 1fr);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.detail-list dt,
+.detail-list dd {
+  margin: 0;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+
+.detail-list dt {
+  padding-right: 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.detail-list dd {
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.detail-list dt:first-of-type,
+.detail-list dt:first-of-type + dd {
+  border-top: 0;
+}
+
+.detail-list dd button {
+  margin-left: 8px;
+}
+
+/* Pill look choices (Therapeia). */
+.pill-choices,
+.pill-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill-choice {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.pill-choice[aria-pressed='true'] {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+
+.pill-color {
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  outline: 1px solid var(--line);
+  cursor: pointer;
+}
+
+.pill-color--small {
+  width: 26px;
+  height: 26px;
+}
+
+.pill-color[aria-pressed='true'] {
+  outline: 2px solid var(--text);
+}
+
+.chore__open .pill-mark,
+.chore__name .pill-mark {
+  flex: none;
+}
+
+.chore__name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-list__with {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.detail-list__with .text-link {
+  min-height: 0;
+  padding: 0;
+}
+
+/* A labeled field beside its button: the button sits on the field's line. */
+.add-line:has(> .field) {
+  align-items: end;
+}

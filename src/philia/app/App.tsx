@@ -1,0 +1,83 @@
+import { useEffect } from 'react';
+import { startSync } from '../../app/sync/syncController';
+import { takeOpening } from '../../app/family/opening';
+import { Shell, useRoutes, type Nav, type TabDef } from '../../app/family/shell';
+import { HomeIcon, PeopleIcon, SettingsIcon } from '../../app/family/icons';
+import { people, settings } from './state';
+import { readStore } from '../../app/family/read';
+import type { CompassStatement } from '../../core/compass/types';
+import { followCompass } from '../core/people';
+import WelcomePage from '../screens/WelcomePage';
+import HomePage from '../screens/HomePage';
+import PeoplePage from '../screens/PeoplePage';
+import PersonPage from '../screens/PersonPage';
+import EditPage from '../screens/EditPage';
+import AddDatePage from '../screens/AddDatePage';
+import MorePage from '../screens/MorePage';
+import YearScreen from '../screens/YearScreen';
+
+export type Tab = 'home' | 'people' | 'more';
+export type Route = { name: 'welcome' } | { name: Tab } | { name: 'person'; id: string } | { name: 'edit'; id?: string } | { name: 'date'; personId?: string } | { name: 'year' };
+export type PhiliaNav = Nav<Route>;
+
+const tabs: readonly TabDef<Tab>[] = [
+  { id: 'home', label: 'Home', Icon: HomeIcon },
+  { id: 'people', label: 'People', Icon: PeopleIcon },
+  { id: 'more', label: 'More', Icon: SettingsIcon },
+];
+const tabNames = tabs.map((tab) => tab.id) as string[];
+
+function firstRoute(): Route {
+  // A link from another app or a notice: `person:ID`, `add`, `date`, `date:PERSON`, or a tab.
+  const opening = takeOpening();
+  if (opening?.startsWith('person:')) return { name: 'person', id: opening.slice(7) };
+  if (opening === 'add') return { name: 'edit' };
+  if (opening === 'date') return { name: 'date' };
+  if (opening?.startsWith('date:')) return { name: 'date', personId: opening.slice(5) };
+  if (opening && tabNames.includes(opening)) return { name: opening as Tab };
+  return settings.load().started || opening ? { name: 'home' } : { name: 'welcome' };
+}
+
+export default function App() {
+  const { route, nav, isTab } = useRoutes<Route>('philia', tabNames, firstRoute, { name: 'home' });
+
+  useEffect(() => {
+    void startSync();
+    // Names changed in Compass carry over to the people brought in from there.
+    void readStore<CompassStatement>('statements').then((all) => {
+      for (const person of followCompass(people.list(), all.filter((each) => each.type === 'PERSON'))) people.put(person);
+    });
+  }, []);
+
+  const page = (() => {
+    switch (route.name) {
+      case 'welcome':
+        return <WelcomePage nav={nav} />;
+      case 'home':
+        return <HomePage nav={nav} />;
+      case 'people':
+        return <PeoplePage nav={nav} />;
+      case 'person':
+        return <PersonPage nav={nav} id={route.id} />;
+      case 'edit':
+        return <EditPage nav={nav} id={route.id} />;
+      case 'date':
+        return <AddDatePage nav={nav} personId={route.personId} />;
+      case 'more':
+        return <MorePage nav={nav} />;
+      case 'year':
+        return <YearScreen nav={nav} />;
+    }
+  })();
+
+  return (
+    <Shell
+      page={page}
+      routeKey={JSON.stringify(route)}
+      tabs={tabs}
+      current={isTab ? (route.name as Tab) : undefined}
+      onPick={(tab) => nav.swap({ name: tab })}
+      showTabs={route.name !== 'welcome' && route.name !== 'edit' && route.name !== 'date'}
+    />
+  );
+}

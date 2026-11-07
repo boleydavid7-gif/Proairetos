@@ -1,0 +1,161 @@
+import { logCsv, periodComparison, periodRange, recordFacts, totalsBetween, weeklyTotals, type LogEntry } from '../../askesis/core/log';
+import { formatDuration, formatPace, paceOf, parseDistance, parseDuration } from '../../askesis/core/pace';
+import { layOut, nightNote } from '../../askesis/core/week';
+import { buildPath } from '../../askesis/core/plans';
+import type { ScheduleOccurrence } from '../../core/scheduling/types';
+
+const entry = (date: string, meters: number, seconds: number, extra: Partial<LogEntry> = {}): LogEntry => ({
+  id: `${date}-${meters}`,
+  date,
+  activity: 'run',
+  meters,
+  seconds,
+  createdAt: `${date}T10:00:00Z`,
+  ...extra,
+});
+
+describe('pace and time', () => {
+  it('reads times the way people type them', () => {
+    expect(parseDuration('26:14')).toBe(1574);
+    expect(parseDuration('1:02:03')).toBe(3723);
+    expect(parseDuration('30')).toBe(1800);
+    expect(parseDuration('26:75')).toBeUndefined();
+    expect(parseDuration('')).toBeUndefined();
+    expect(formatDuration(3723)).toBe('1:02:03');
+  });
+
+  it('works out pace from time and distance', () => {
+    const meters = parseDistance('3.1', 'mi')!;
+    expect(formatPace(paceOf(1800, meters, 'mi')!, 'mi')).toBe('9:41 /mi');
+    expect(formatPace(paceOf(1500, 5000, 'km')!, 'km')).toBe('5:00 /km');
+    expect(parseDistance('abc', 'km')).toBeUndefined();
+  });
+});
+
+describe('the log', () => {
+  const entries = [entry('2026-09-28', 3000, 1200), entry('2026-09-30', 5000, 1800), entry('2026-09-21', 4000, 1500)];
+
+  it('totals a week from Monday to Sunday, and the week before', () => {
+    const range = periodRange('week', '2026-10-02');
+    expect(range).toMatchObject({ from: '2026-09-28', to: '2026-10-04' });
+    expect(totalsBetween(entries, range.from, range.to)).toMatchObject({ count: 2, meters: 8000, seconds: 3000, longestMeters: 5000 });
+    expect(totalsBetween(entries, range.before!.from, range.before!.to).count).toBe(1);
+  });
+
+  it('gives one plain total per week, oldest first', () => {
+    const weeks = weeklyTotals(entries, 3, '2026-10-02');
+    expect(weeks.map((week) => week.meters)).toEqual([0, 4000, 8000]);
+  });
+
+  it('months and years follow the calendar', () => {
+    expect(periodRange('month', '2026-02-10')).toMatchObject({ from: '2026-02-01', to: '2026-02-28' });
+    expect(periodRange('year', '2026-02-10').before).toEqual({ from: '2025-01-01', to: '2025-12-31' });
+  });
+
+  it('compares a week with the same elapsed days in the previous week', () => {
+    expect(periodComparison('week', '2026-10-02')).toEqual({
+      current: { from: '2026-09-28', to: '2026-10-02' },
+      previous: { from: '2026-09-21', to: '2026-09-25' },
+      label: 'last week',
+    });
+  });
+
+  it('compares month-to-date with the same days of the previous month, clamping short months', () => {
+    expect(periodComparison('month', '2026-03-10')?.previous).toEqual({ from: '2026-02-01', to: '2026-02-10' });
+    expect(periodComparison('month', '2026-03-31')?.previous).toEqual({ from: '2026-02-01', to: '2026-02-28' });
+  });
+
+  it('compares year-to-date with the same dates last year, including leap-day clamping', () => {
+    expect(periodComparison('year', '2026-03-10')?.previous).toEqual({ from: '2025-01-01', to: '2025-03-10' });
+    expect(periodComparison('year', '2024-02-29')?.previous).toEqual({ from: '2023-01-01', to: '2023-02-28' });
+    expect(periodComparison('all', '2026-03-10')).toBeUndefined();
+  });
+
+  it('finds plain running records and makes a safe CSV copy', () => {
+    const records = recordFacts(
+      [
+        entry('2026-09-28', 5000, 1800, { notes: 'Felt "good"' }),
+        entry('2026-09-30', 10000, 3900),
+        entry('2026-10-01', 3000, 900, { activity: 'walk' }),
+      ],
+      'km',
+    );
+    expect(records.longestDistance?.meters).toBe(10000);
+    expect(records.longestDuration?.seconds).toBe(3900);
+    expect(records.fastestPace?.secondsPerUnit).toBe(360);
+    const csv = logCsv([entry('2026-09-28', 5000, 1800, { notes: 'Felt "good"' })], 'km');
+    expect(csv).toContain('"Distance (km)"');
+    expect(csv).toContain('"Felt ""good"""');
+  });
+});
+
+describe('laying a plan week over the calendar', () => {
+  const plan = buildPath({ aim: { kind: 'distance', meters: 10000 }, days: 3 });
+
+  it('puts sessions on the chosen weekdays and honors a move', () => {
+    const week = plan.weeks[0];
+    const days = layOut(week, '2026-10-02', [1, 3, 5], {}, []);
+    expect(days.map((day) => day.date)).toEqual(['2026-09-29', '2026-10-01', '2026-10-03']);
+    const moved = layOut(week, '2026-10-02', [1, 3, 5], { [week.workouts[0].id]: '2026-10-02' }, []);
+    expect(moved.map((day) => day.date)).toContain('2026-10-02');
+  });
+
+  it('marks a day that follows a night of work', () => {
+    const night: ScheduleOccurrence = {
+      patternId: 'p',
+      patternName: 'Work',
+      kind: 'COMMITTED',
+      date: '2026-10-02',
+      start: new Date(2026, 9, 2, 22),
+      end: new Date(2026, 9, 3, 7),
+      changed: false,
+    };
+    expect(nightNote('2026-10-03', [night])).toBeTruthy();
+    expect(nightNote('2026-10-02', [night])).toBeUndefined();
+    expect(nightNote('2026-10-03', [{ ...night, kind: 'PROTECTED' }])).toBeUndefined();
+  });
+});
+
+describe('a lighter day, and coming back', () => {
+  const plan = buildPath({ aim: { kind: 'distance', meters: 10000 }, days: 4 });
+
+  it('makes any session easier and shorter, with nothing hard', async () => {
+    const { lighterVersion, asToday } = await import('../../askesis/core/gentler');
+    const { intenseMinutes, totalMinutes } = await import('../../askesis/core/workouts');
+    const intervals = plan.weeks.flatMap((week) => week.workouts).find((workout) => workout.kind === 'intervals')!;
+    const light = lighterVersion(intervals);
+    expect(intenseMinutes(light.parts)).toBe(0);
+    expect(totalMinutes(light.parts)).toBeLessThan(totalMinutes(intervals.parts));
+    expect(light.id).toBe(intervals.id);
+    expect(asToday(intervals, { date: '2026-10-03', workoutId: intervals.id }, '2026-10-04')).toBe(intervals);
+  });
+
+  it('halves the running in a beginner walk-run', async () => {
+    const { lighterVersion } = await import('../../askesis/core/gentler');
+    const { flatten } = await import('../../askesis/core/workouts');
+    const first = buildPath({ aim: { kind: 'time', minutes: 30 }, days: 3 }).weeks[0].workouts[0];
+    const running = (w: typeof first) => flatten(w.parts).filter((s) => s.effort === 'easy').length;
+    expect(running(lighterVersion(first))).toBe(4);
+    expect(running(first)).toBe(8);
+  });
+
+  it('offers an earlier week after two weeks away, once', async () => {
+    const { comeBackOffer } = await import('../../askesis/core/gentler');
+    const runs = [entry('2026-09-01', 3000, 1200)];
+    expect(comeBackOffer(runs, 6, '2026-09-10', undefined)).toBeUndefined();
+    expect(comeBackOffer(runs, 6, '2026-09-18', undefined)).toMatchObject({ fromWeek: 6, toWeek: 5 });
+    expect(comeBackOffer(runs, 6, '2026-10-03', undefined)).toMatchObject({ toWeek: 4 });
+    expect(comeBackOffer(runs, 6, '2026-12-01', undefined)).toMatchObject({ toWeek: 1 });
+    expect(comeBackOffer(runs, 6, '2026-10-03', '2026-09-01')).toBeUndefined();
+    expect(comeBackOffer(runs, 1, '2026-10-03', undefined)).toBeUndefined();
+  });
+});
+
+describe('coming back, for a plan just begun', () => {
+  it('does not count time before the plan started', async () => {
+    const { comeBackOffer } = await import('../../askesis/core/gentler');
+    const runs = [entry('2026-09-01', 3000, 1200)];
+    expect(comeBackOffer(runs, 3, '2026-10-03', undefined, '2026-10-03')).toBeUndefined();
+    expect(comeBackOffer(runs, 3, '2026-10-20', undefined, '2026-10-03')).toMatchObject({ toWeek: 2 });
+  });
+});
