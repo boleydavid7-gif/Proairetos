@@ -77,13 +77,13 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
   // Logged from the Log tab on a day with a session still open: offer to count it as that session.
   const [linkOpen, setLinkOpen] = useState(true);
   const open =
-    !existing && !route.workoutId && plan && planState && entries && mondayOnOrBefore(date) === mondayOnOrBefore(today)
+    !route.workoutId && !existing?.workoutId && plan && planState && entries && mondayOnOrBefore(date) === mondayOnOrBefore(today)
       ? layOut(
           weekAt(plan, planState.week),
           today,
           planState.weekdays,
           planState.moves,
-          entries.filter((entry) => entry.date >= mondayOnOrBefore(today)),
+          entries.filter((entry) => entry.id !== existing?.id && entry.date >= mondayOnOrBefore(today)),
           [],
           runsPlaced(planState, today),
         ).find((day) => day.date === date && !day.done)
@@ -130,7 +130,7 @@ function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Ex
         <div className="card switches">
           <Switch
             on={linkOpen}
-            label={`This is ${dayWord(date, today)}’s ${openWorkout.title.toLowerCase()}`}
+            label={existing ? `Link this workout to ${dayWord(date, today)}’s ${openWorkout.title.toLowerCase()}` : `This is ${dayWord(date, today)}’s ${openWorkout.title.toLowerCase()}`}
             onToggle={() => setLinkOpen(!linkOpen)}
           />
         </div>
