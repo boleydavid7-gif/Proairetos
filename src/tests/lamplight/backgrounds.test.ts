@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BACKGROUND_OPTIONS, DEFAULT_BACKGROUND, isBackground } from '../../core/look/lamplight';
-import { backgroundOf, backgroundPreviewOf, backgroundWideOf } from '../../app/backgrounds';
+import { backgroundOf, backgroundPreviewOf, backgroundSizeOf, backgroundWideOf } from '../../app/backgrounds';
 
 describe('Lamplight backgrounds', () => {
   it('offers the complete named collection and keeps Lamplight as the default', () => {
@@ -25,6 +25,15 @@ describe('Lamplight backgrounds', () => {
     for (const background of BACKGROUND_OPTIONS) expect(isBackground(background.id)).toBe(true);
     expect(isBackground('unknown-wallpaper')).toBe(false);
     expect(isBackground(null)).toBe(false);
+  });
+
+  it('keeps raster wallpapers proportional instead of stretching them to the viewport', () => {
+    expect(backgroundSizeOf('dawn')).toBe('cover');
+    expect(backgroundSizeOf('twilight')).toBe('cover');
+    for (const background of BACKGROUND_OPTIONS) {
+      if (background.id === 'lamplight' || background.id === 'dawn' || background.id === 'twilight') continue;
+      expect(backgroundSizeOf(background.id)).toBe('100% 100%');
+    }
   });
 
   it('draws every optional scene locally for both appearances', () => {
