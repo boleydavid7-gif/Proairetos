@@ -61,6 +61,19 @@ describe('Lamplight backgrounds', () => {
     expect((night.match(/<circle /g) ?? []).length).toBeGreaterThanOrEqual(30);
   });
 
+  it('keeps the defining scenery visible in the full wallpaper, matching its landscape preview', () => {
+    const decode = (image: string) => decodeURIComponent(image.slice('url("data:image/svg+xml,'.length, -2));
+    for (const id of ['forest', 'mountains', 'lake', 'night'] as const) {
+      const full = decode(backgroundOf(id, 'dark', '#101820'));
+      const preview = decode(backgroundPreviewOf(id, 'dark'));
+      // Both renderers use the same scene geometry; the portrait wallpaper only adds a subtle fade at its foot.
+      expect(full).toContain('fill="' + (id === 'forest' ? '#102D36' : id === 'mountains' ? '#415B72' : id === 'lake' ? '#415E70' : '#B7D1D9') + '"');
+      expect(preview).toContain('viewBox="0 ');
+      expect(full).toContain('<linearGradient id="fade"');
+      expect(full).toContain('stop offset=".86"');
+    }
+  });
+
   it('fades the scene into the chosen page surface', () => {
     expect(backgroundOf('forest', 'dark', '#101820')).not.toBe(backgroundOf('forest', 'dark', '#182430'));
   });
