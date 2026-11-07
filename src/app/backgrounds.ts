@@ -186,7 +186,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ' + previewTop[background] + ' 1200 675" preserveAspectRatio="xMidYMid slice">' +
     '<defs>' + sceneDefs(p) +
     '</defs>' +
-    '<rect width="1200" height="1600" fill="' + (background === 'dawn' ? 'url(#dawnSky)' : 'url(#sky)') + '"/>' +
+    '<rect width="1200" height="1600" fill="' + 'url(#sky)' + '"/>' +
     sceneShapes(background, p) +
     '</svg>';
   const value = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
@@ -213,7 +213,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
     '<defs>' + sceneDefs(p) +
     '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
     '</defs>' +
-    '<rect width="1200" height="1600" fill="' + (background === 'dawn' ? 'url(#dawnSky)' : 'url(#sky)') + '"/>' +
+    '<rect width="1200" height="1600" fill="' + 'url(#sky)' + '"/>' +
     sceneShapes(background, p) +
     '<rect width="1200" height="1600" fill="url(#fade)"/>' +
     '</svg>';
