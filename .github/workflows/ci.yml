@@ -10,15 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inspect Forest and reference AVIF files
-        run: |
-          sudo apt-get update && sudo apt-get install -y ffmpeg
-          file src/assets/backgrounds/{dawn,night,forest}-dark-mobile.avif
-          for image in src/assets/backgrounds/{dawn,night}-dark-mobile.avif src/assets/backgrounds/forest-*.avif; do
-            echo "--- $image"
-            ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,pix_fmt -of default=noprint_wrappers=1 "$image" || true
-            ffmpeg -v error -i "$image" -f null - || echo "DECODE_FAILED: $image"
-          done
       - uses: actions/setup-node@v4
         with:
           node-version: 22
