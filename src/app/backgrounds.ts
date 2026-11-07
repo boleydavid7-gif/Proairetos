@@ -72,8 +72,8 @@ const palettes: Record<SceneId, Record<Mode, Palette>> = {
     light: { sky: '#E4EBF0', horizon: '#C9D8E2', base: '#F1F4F5', glow: '#B6CDD9', far: '#B5C7D0', near: '#8299A8', accent: '#6E9CAD', detail: '#FFFFFF' },
   },
   forest: {
-    dark: { sky: '#0C252D', horizon: '#37616A', base: '#0B1B25', glow: '#5F9292', far: '#31565D', near: '#102D36', accent: '#80B0A8', detail: '#A4C2B8' },
-    light: { sky: '#DDEAE7', horizon: '#BBD4CE', base: '#F0F4F0', glow: '#A9CFC4', far: '#9BBEB6', near: '#688F88', accent: '#4F8D83', detail: '#EAF3EC' },
+    dark: { sky: '#102B3C', horizon: '#B86F68', base: '#0B2834', glow: '#E99A78', far: '#486C72', near: '#183F49', accent: '#F0B184', detail: '#F6D5B5' },
+    light: { sky: '#D8E5E5', horizon: '#E8B8A4', base: '#E9E0D6', glow: '#F0B58F', far: '#A3B8B3', near: '#557B79', accent: '#D88E6F', detail: '#F6D8BE' },
   },
   mountains: {
     dark: { sky: '#17283D', horizon: '#71899A', base: '#0E1B2B', glow: '#E0AD91', far: '#415B72', near: '#1A3046', accent: '#E8C5AE', detail: '#D6E1E2' },
@@ -209,6 +209,72 @@ function sceneShapes(id: SceneId, p: Palette): string {
   return '';
 }
 
+/** Forest's new horizon scene: warm light over layered teal hills, with separate tall and landscape compositions. */
+function forestWallpaperSvg(mode: Mode, wide: boolean, page: string, fade = true): string {
+  const w = 1200;
+  const h = wide ? 675 : 1600;
+  const dark = mode === 'dark';
+  const c = dark
+    ? {
+        skyTop: '#102B3C', skyMid: '#385766', skyRose: '#A86D70', skyHorizon: '#E39A79',
+        sun: '#F2B184', sunEdge: '#D9826C', halo: '#E99A78',
+        farTop: '#486C72', farBottom: '#31535A',
+        midTop: '#28515A', midBottom: '#1A414B',
+        nearTop: '#183F49', nearBottom: '#10333F',
+        frontTop: '#12343F', frontBottom: '#0B2834',
+      }
+    : {
+        skyTop: '#D8E5E5', skyMid: '#E5D9D0', skyRose: '#E8B8A4', skyHorizon: '#F0C3A4',
+        sun: '#EBA77F', sunEdge: '#D98C6C', halo: '#EFB08E',
+        farTop: '#A3B8B3', farBottom: '#819D9B',
+        midTop: '#6F9591', midBottom: '#537A78',
+        nearTop: '#527B79', nearBottom: '#3C6565',
+        frontTop: '#3C6666', frontBottom: '#2D5557',
+      };
+  const sunX = w * 0.72;
+  const sunY = h * 0.49;
+  const sunR = h * (wide ? 0.085 : 0.078);
+  const X = (n: number) => (w * n).toFixed(1);
+  const Y = (n: number) => (h * n).toFixed(1);
+  const hills = [
+    `<path d="M0 ${Y(.57)} C${X(.13)} ${Y(.50)}, ${X(.24)} ${Y(.51)}, ${X(.36)} ${Y(.57)} C${X(.48)} ${Y(.63)}, ${X(.61)} ${Y(.56)}, ${X(.72)} ${Y(.53)} C${X(.84)} ${Y(.50)}, ${X(.92)} ${Y(.52)}, ${w} ${Y(.57)} V${h} H0Z" fill="url(#ridgeFar)"/>`,
+    `<path d="M0 ${Y(.68)} C${X(.15)} ${Y(.62)}, ${X(.29)} ${Y(.63)}, ${X(.42)} ${Y(.68)} C${X(.56)} ${Y(.74)}, ${X(.70)} ${Y(.69)}, ${X(.82)} ${Y(.65)} C${X(.90)} ${Y(.62)}, ${X(.96)} ${Y(.63)}, ${w} ${Y(.67)} V${h} H0Z" fill="url(#ridgeMid)"/>`,
+    `<path d="M0 ${Y(.79)} C${X(.18)} ${Y(.73)}, ${X(.32)} ${Y(.74)}, ${X(.46)} ${Y(.79)} C${X(.60)} ${Y(.84)}, ${X(.74)} ${Y(.79)}, ${X(.86)} ${Y(.75)} C${X(.93)} ${Y(.72)}, ${X(.98)} ${Y(.74)}, ${w} ${Y(.76)} V${h} H0Z" fill="url(#ridgeNear)"/>`,
+    `<path d="M0 ${Y(.89)} C${X(.16)} ${Y(.83)}, ${X(.31)} ${Y(.84)}, ${X(.46)} ${Y(.89)} C${X(.62)} ${Y(.95)}, ${X(.79)} ${Y(.89)}, ${X(.90)} ${Y(.85)} C${X(.95)} ${Y(.83)}, ${X(.98)} ${Y(.84)}, ${w} ${Y(.86)} V${h} H0Z" fill="url(#ridgeFront)"/>`,
+  ].join('');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin slice">
+<defs>
+  <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="${c.skyTop}"/>
+    <stop offset=".31" stop-color="${c.skyMid}"/>
+    <stop offset=".52" stop-color="${c.skyRose}"/>
+    <stop offset=".68" stop-color="${c.skyHorizon}"/>
+    <stop offset="1" stop-color="${dark ? '#294C51' : '#E7D0BD'}"/>
+  </linearGradient>
+  <radialGradient id="sun-halo" cx="50%" cy="50%" r="50%">
+    <stop offset="0" stop-color="${c.halo}" stop-opacity="${dark ? '.54' : '.38'}"/>
+    <stop offset=".58" stop-color="${c.halo}" stop-opacity=".14"/>
+    <stop offset="1" stop-color="${c.halo}" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="${c.sun}"/>
+    <stop offset="1" stop-color="${c.sunEdge}"/>
+  </linearGradient>
+  <linearGradient id="ridgeFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.farTop}"/><stop offset="1" stop-color="${c.farBottom}"/></linearGradient>
+  <linearGradient id="ridgeMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.midTop}"/><stop offset="1" stop-color="${c.midBottom}"/></linearGradient>
+  <linearGradient id="ridgeNear" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.nearTop}"/><stop offset="1" stop-color="${c.nearBottom}"/></linearGradient>
+  <linearGradient id="ridgeFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c.frontTop}"/><stop offset="1" stop-color="${c.frontBottom}"/></linearGradient>
+  ${fade ? `<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".84" stop-color="${page}" stop-opacity="0"/><stop offset="1" stop-color="${page}" stop-opacity="1"/></linearGradient>` : ''}
+</defs>
+<rect width="${w}" height="${h}" fill="url(#sky)"/>
+<ellipse cx="${sunX}" cy="${sunY}" rx="${h * .31}" ry="${h * .21}" fill="url(#sun-halo)"/>
+<circle cx="${sunX}" cy="${sunY}" r="${sunR}" fill="url(#sun)"/>
+${hills}
+${fade ? `<rect width="${w}" height="${h}" fill="url(#fade)"/>` : ''}
+</svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg.replace(/\n/g, ''))}")`;
+}
+
 const previewCache = new Map<string, string>();
 
 // Landscape crops keep the defining parts of each scene inside the 16:9 settings tiles.
@@ -219,6 +285,7 @@ const previewTop: Record<SceneId, number> = {
 
 /** The Appearance tiles use the same mode-matched landscape Dawn artwork as wide screens. */
 export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
+  if (background === 'forest') return forestWallpaperSvg(mode, true, palettes.forest[mode].base, false);
   if (background === 'dawn') return 'url("' + dawnDesktopAssets[mode] + '")';
   if (background === 'twilight') return 'url("' + twilightDesktopAssets[mode] + '")';
   if (background === 'night') return 'url("' + nightDesktopAssets[mode] + '")';
@@ -243,6 +310,7 @@ const cache = new Map<string, string>();
 
 /** Static local wallpapers: Dawn, Twilight, and Night use bundled mode- and viewport-specific AVIF artwork. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
+  if (background === 'forest') return forestWallpaperSvg(mode, false, pageColor ?? palettes.forest[mode].base);
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnMobileAssets[mode] + '")';
@@ -278,6 +346,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
 
 /** Wide viewports use dedicated landscape artwork for Dawn, Twilight, and Night. */
 export function backgroundWideOf(background: SceneId, mode: Mode, pageColor?: string): string {
+  if (background === 'forest') return forestWallpaperSvg(mode, true, pageColor ?? palettes.forest[mode].base);
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
     return 'linear-gradient(180deg, transparent 86%, ' + dawnPage + ' 100%), url("' + dawnDesktopAssets[mode] + '")';
