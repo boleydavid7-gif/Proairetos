@@ -96,7 +96,11 @@ function sceneShapes(id: SceneId, p: Palette): string {
         '<circle cx="82" cy="155" r="2"/><circle cx="168" cy="285" r="1.6"/><circle cx="250" cy="105" r="2.4"/><circle cx="330" cy="220" r="1.5"/><circle cx="418" cy="145" r="2"/><circle cx="495" cy="330" r="1.6"/>' +
         '<circle cx="575" cy="185" r="2.2"/><circle cx="660" cy="95" r="1.5"/><circle cx="742" cy="270" r="1.8"/><circle cx="825" cy="150" r="2.4"/><circle cx="910" cy="315" r="1.5"/><circle cx="1000" cy="175" r="2"/>' +
         '<circle cx="1090" cy="260" r="1.6"/><circle cx="1150" cy="115" r="2.2"/><circle cx="125" cy="470" r="1.4"/><circle cx="285" cy="405" r="1.8"/><circle cx="455" cy="485" r="1.4"/><circle cx="620" cy="390" r="1.7"/>' +
-        '<circle cx="785" cy="485" r="1.4"/><circle cx="955" cy="430" r="1.8"/><circle cx="1115" cy="510" r="1.4"/></g>' +
+        '<circle cx="785" cy="485" r="1.4"/><circle cx="955" cy="430" r="1.8"/><circle cx="1115" cy="510" r="1.4"/>' +
+        '<circle cx="45" cy="325" r="1.4"/><circle cx="220" cy="230" r="1.5"/><circle cx="365" cy="315" r="1.3"/>' +
+        '<circle cx="520" cy="80" r="1.4"/><circle cx="705" cy="175" r="1.3"/><circle cx="875" cy="75" r="1.5"/>' +
+        '<circle cx="1045" cy="390" r="1.3"/><circle cx="1170" cy="455" r="1.5"/><circle cx="145" cy="565" r="1.2"/>' +
+        '<circle cx="385" cy="555" r="1.3"/><circle cx="565" cy="540" r="1.2"/><circle cx="865" cy="555" r="1.3"/></g>' +
         '<circle cx="930" cy="610" r="44" fill="' + p.detail + '" opacity=".12"/>' +
         '<path d="M0 990 C210 900 390 925 560 970 C760 1025 965 890 1200 930 V1600 H0Z" fill="url(#ridgeFar)"/>' +
         '<path d="M0 1190 C220 1085 420 1110 620 1175 C825 1240 1020 1100 1200 1135 V1600 H0Z" fill="url(#ridgeMid)"/>' +
