@@ -40,16 +40,19 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background:
-    var(--room-wall) top center / var(--room-wall-size, 100% 100%) no-repeat,
-    var(--color-bg);
+  /* Keep the image layers separate from the fallback color. Some wallpapers contain
+     both a fade gradient and a raster image; a shorthand with a trailing color can
+     invalidate the whole declaration on mobile browsers. */
+  background-color: var(--color-bg);
+  background-image: var(--room-wall);
+  background-position: top center;
+  background-size: var(--room-wall-size, 100% 100%);
+  background-repeat: no-repeat;
 }
 
 @media (min-width: 62rem) {
   :root[data-ll-static-wallpaper] .app-shell::before {
-    background:
-      var(--room-wall-wide) top center / var(--room-wall-size, 100% 100%) no-repeat,
-      var(--color-bg);
+    background-image: var(--room-wall-wide);
   }
 }
 
