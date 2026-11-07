@@ -9,7 +9,7 @@ export const BACKGROUND_OPTIONS = [
   { id: 'dawn', name: 'Dawn', description: 'A calm start to the day.' },
   { id: 'twilight', name: 'Twilight', description: 'Quiet and balanced.' },
   { id: 'night', name: 'Night', description: 'Deep, minimal and restful.' },
-  { id: 'forest', name: 'Forest', description: 'Grounded and natural.' },
+  { id: 'forest', name: 'Horizon', description: 'Warm light over layered hills.' },
   { id: 'mountains', name: 'Mountains', description: 'Clear and expansive.' },
   { id: 'ocean', name: 'Ocean', description: 'Calm and steady.' },
   { id: 'lake', name: 'Lake', description: 'Peaceful and focused.' },
