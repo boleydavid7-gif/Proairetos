@@ -85,7 +85,9 @@ describe('Lamplight backgrounds', () => {
     expect(lightNight).toContain('night-light-desktop.avif');
     expect(darkNight).toContain('linear-gradient');
     expect(lightNight).toContain('linear-gradient');
-    expect(backgroundWideOf('forest', 'dark')).toBe(backgroundOf('forest', 'dark'));
+    expect(backgroundWideOf('forest', 'dark')).not.toBe(backgroundOf('forest', 'dark'));
+    expect(backgroundWideOf('forest', 'light')).not.toBe(backgroundOf('forest', 'light'));
+    expect(backgroundPreviewOf('forest', 'dark')).not.toBe(backgroundPreviewOf('forest', 'light'));
   });
 
   it('renders landscape previews that show the actual scene rather than cropping the portrait wallpaper', () => {
@@ -117,7 +119,10 @@ describe('Lamplight backgrounds', () => {
     const forest = decodeURIComponent(backgroundPreviewOf('forest', 'dark').slice('url("data:image/svg+xml,'.length, -2));
     const lake = decodeURIComponent(backgroundPreviewOf('lake', 'dark').slice('url("data:image/svg+xml,'.length, -2));
 
-    expect(forest.split('translate(').length - 1).toBeGreaterThanOrEqual(16);
+    expect(forest).toContain('id="sun-halo"');
+    expect(forest).toContain('fill="url(#sun)"');
+    expect(forest).toContain('id="ridgeFront"');
+    expect(forest).not.toContain('translate(');
     expect(lake).toContain('stroke-opacity=".52"');
     expect(backgroundPreviewOf('night', 'dark')).toContain('night-dark-desktop.avif');
     expect(backgroundPreviewOf('night', 'light')).toContain('night-light-desktop.avif');
