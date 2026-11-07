@@ -6,23 +6,23 @@ const partsRoot = path.join(assetRoot, 'forest-parts');
 
 const assets = {
   'forest-dark-desktop.avif': [
-    'forest-dark-desktop-00.b64',
-    'forest-dark-desktop-01.b64',
-    'forest-dark-desktop-02.b64',
+    'forest-dark-desktop.avif-00.b64',
+    'forest-dark-desktop.avif-01.b64',
+    'forest-dark-desktop.avif-02.b64',
   ],
   'forest-dark-mobile.avif': [
-    'forest-dark-mobile-00.b64',
-    'forest-dark-mobile-01.b64',
+    'forest-dark-mobile.avif-00.b64',
+    'forest-dark-mobile.avif-01.b64',
   ],
   'forest-light-desktop.avif': [
-    'forest-light-desktop-00.b64',
-    'forest-light-desktop-01.b64',
-    'forest-light-desktop-02.b64',
-    'forest-light-desktop-03.b64',
+    'forest-light-desktop.avif-00.b64',
+    'forest-light-desktop.avif-01.b64',
+    'forest-light-desktop.avif-02.b64',
+    'forest-light-desktop.avif-03.b64',
   ],
   'forest-light-mobile.avif': [
-    'forest-light-mobile-00.b64',
-    'forest-light-mobile-01.b64',
+    'forest-light-mobile.avif-00.b64',
+    'forest-light-mobile.avif-01.b64',
   ],
 };
 
