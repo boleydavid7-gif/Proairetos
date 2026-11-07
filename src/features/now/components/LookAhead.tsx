@@ -1,0 +1,166 @@
+import { useState, type FormEvent } from 'react';
+import { useServiceData } from '../../../app/hooks/useServiceData';
+import { useNavigate } from '../../../app/navigationContext';
+import { openCompassTab } from '../../compass/CompassPage';
+import { compassService, lifeService, reflectionService } from '../../../app/services';
+import { createDailyOrientation } from '../../../core/compass/orientation';
+import { isLookAheadSetAside, isValuesInviteSetAside, setLookAheadAside, setValuesInviteAside, valuesInviteReady } from '../../../data/storage/preferences';
+import NotForMe from '../../today/NotForMe';
+import { weather } from '../../../app/weather/weather';
+
+const timeOf = (iso: string) => new Date(iso).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+
+export const PREMEDITATION_PROMPT = 'What might get in the way today, and how do you want to meet it?';
+
+/**
+ * The Stoic morning premeditation, which matches mental contrasting with
+ * implementation intentions. Optional; saved as the person's own reflection.
+ */
+function Premeditation() {
+  const todays = useServiceData(reflectionService.subscribe, () => reflectionService.listFor('today'));
+  const [draft, setDraft] = useState('');
+  const [open, setOpen] = useState(false);
+  const saved = todays?.find((reflection) => reflection.promptKey === 'premeditation');
+
+  if (saved) {
+    return (
+      <div className="look-ahead__plan">
+        <p className="look-ahead__label">Your plan for what might get in the way</p>
+        <p className="look-ahead__plan-text">{saved.body}</p>
+      </div>
+    );
+  }
+  if (!open) {
+    return (
+      <button type="button" className="text-link look-ahead__plan-open" onClick={() => setOpen(true)}>
+        What might get in the way today?
+      </button>
+    );
+  }
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!draft.trim()) return;
+    await reflectionService.write({ body: draft, promptKey: 'premeditation', sky: weather.skyNow() });
+  };
+
+  return (
+    <form className="look-ahead__plan" onSubmit={submit}>
+      <label className="look-ahead__label" htmlFor="premeditation">
+        {PREMEDITATION_PROMPT}
+      </label>
+      <textarea
+        id="premeditation"
+        className="field-input field-input--area"
+        rows={2}
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+      />
+      <div className="chip-row">
+        <button type="submit" className="chip chip--accent" disabled={!draft.trim()}>
+          Keep this plan
+        </button>
+        <button type="button" className="button-quiet" onClick={() => setOpen(false)}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+/**
+ * A once-a-day look ahead built only from what the person wrote and
+ * scheduled. It stays until they set it aside, whatever time their day starts.
+ */
+export default function LookAhead() {
+  const navigate = useNavigate();
+  const [hidden, setHidden] = useState(() => isLookAheadSetAside());
+  const [inviteAside, setInviteAside] = useState(isValuesInviteSetAside);
+  const [inviteReady] = useState(() => valuesInviteReady());
+  const values = useServiceData(compassService.subscribe, () => compassService.values());
+  const statements = useServiceData(compassService.subscribe, () => compassService.statements());
+  const items = useServiceData(lifeService.subscribe, () => lifeService.list());
+
+  if (hidden || !values || !statements || !items) return null;
+
+  const orientation = createDailyOrientation(values, statements, items, new Date());
+  const setAside = () => {
+    setLookAheadAside();
+    setHidden(true);
+  };
+
+  if (orientation.values.length === 0 && orientation.remember.length === 0 && orientation.pushedAside.length === 0) {
+    // Offered, never asked twice: once turned down it stays away until values are chosen in Compass.
+    if (inviteAside || !inviteReady) return null;
+    return (
+      <section className="look-ahead-invite" aria-label="Values">
+        <p className="look-ahead-invite__title">What matters to you?</p>
+        <div className="look-ahead-invite__actions">
+          <button type="button" className="chip chip--accent" onClick={() => { openCompassTab('direction'); navigate('compass'); }}>
+            Choose a few
+          </button>
+          <button
+            type="button"
+            className="button-quiet"
+            onClick={() => {
+              setValuesInviteAside();
+              setInviteAside(true);
+            }}
+          >
+            Not now
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="look-ahead" aria-label="Look ahead">
+      <p className="look-ahead__title">Look ahead</p>
+      <p className="look-ahead__prompt">{orientation.prompt}</p>
+
+      {orientation.values.length > 0 && (
+        <ul className="look-ahead__values" aria-label="Your values">
+          {orientation.values.map((name) => (
+            <li key={name}>{name}</li>
+          ))}
+        </ul>
+      )}
+
+      {orientation.remember.map((line) => (
+        <blockquote key={line} className="look-ahead__quote">
+          {line}
+        </blockquote>
+      ))}
+
+      {orientation.pushedAside.length > 0 && (
+        <details className="look-ahead__set-down">
+          <summary>Set down · {orientation.pushedAside.length}</summary>
+          <ul>
+            {orientation.pushedAside.map((line) => <li key={line}>{line}</li>)}
+          </ul>
+        </details>
+      )}
+
+      {orientation.scheduledToday.length > 0 && (
+        <div className="look-ahead__day">
+          <p className="look-ahead__label">On your day</p>
+          <ul>
+            {orientation.scheduledToday.map((item) => (
+              <li key={item.id}>
+                <time dateTime={item.scheduledAt}>{timeOf(item.scheduledAt!)}</time> {item.title}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <Premeditation />
+
+      <button type="button" className="button-quiet look-ahead__aside" onClick={setAside}>
+        Set aside for today
+      </button>
+      <NotForMe part="look-ahead" />
+    </section>
+  );
+}

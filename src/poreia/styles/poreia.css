@@ -1,0 +1,2165 @@
+/* Poreia's colors: sea at dusk and lighthouse aqua. The look is askesis.css; Appearance follows Proairetos. */
+
+:root.poreia {
+  --app-name: 'Poreia';
+  color-scheme: dark;
+  --bg: var(--app-background, #071c24);
+  --surface: var(--app-surface, #0d2730);
+  --surface-2: var(--app-surface-input, #12333d);
+  --line: var(--app-border, #22474f);
+  --text: var(--app-text-primary, #e8f5f2);
+  --text-soft: var(--app-text-secondary, #c3dcd9);
+  --muted: var(--app-text-muted, #9dbdbc);
+  --mint: var(--app-accent, #4cc3c7);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #4cc3c7 14%, transparent));
+  --mint-ink: var(--app-on-accent, #062127);
+  --bar: var(--ll-mica, rgba(7, 28, 36, 0.95));
+  --placeholder: var(--app-text-muted, #7a9b9c);
+  --glow-top: var(--app-surface-raised, #12343e);
+  --switch-off: var(--app-border, #31555b);
+  --accent: var(--app-accent, #4cc3c7);
+  --poreia-planned: #9dbdbc;
+  --poreia-requested: #e3b35c;
+  --poreia-approved: #4cc3c7;
+}
+
+:root.poreia[data-theme='light'] {
+  color-scheme: light;
+  --bg: var(--app-background, #edf6f4);
+  --surface: var(--app-surface, #f9fcfb);
+  --surface-2: var(--app-surface-input, #dcebe8);
+  --line: var(--app-border, #c6dbd7);
+  --text: var(--app-text-primary, #12302f);
+  --text-soft: var(--app-text-secondary, #2f4f50);
+  --muted: var(--app-text-muted, #4f6d6e);
+  --mint: var(--app-accent, #0a6f75);
+  --mint-soft: var(--app-accent-soft, color-mix(in srgb, #0a6f75 13%, transparent));
+  --mint-ink: var(--app-on-accent, #ffffff);
+  --bar: var(--ll-mica, rgba(237, 246, 244, 0.96));
+  --placeholder: var(--app-text-muted, #7a9496);
+  --glow-top: var(--app-surface-raised, #d6e9e5);
+  --switch-off: var(--app-border, #c5d8d5);
+  --accent: var(--app-accent, #0a6f75);
+  --poreia-planned: #6d8687;
+  --poreia-requested: #9a6a12;
+  --poreia-approved: #0a6f75;
+}
+
+@media (prefers-color-scheme: light) {
+  :root.poreia[data-theme='system'] {
+    color-scheme: light;
+    --bg: var(--app-background, #edf6f4);
+    --surface: var(--app-surface, #f9fcfb);
+    --surface-2: var(--app-surface-input, #dcebe8);
+    --line: var(--app-border, #c6dbd7);
+    --text: var(--app-text-primary, #12302f);
+    --text-soft: var(--app-text-secondary, #2f4f50);
+    --muted: var(--app-text-muted, #4f6d6e);
+    --mint: var(--app-accent, #0a6f75);
+    --mint-soft: var(--app-accent-soft, color-mix(in srgb, #0a6f75 13%, transparent));
+    --mint-ink: var(--app-on-accent, #ffffff);
+    --bar: var(--ll-mica, rgba(237, 246, 244, 0.96));
+    --placeholder: var(--app-text-muted, #7a9496);
+    --glow-top: var(--app-surface-raised, #d6e9e5);
+    --switch-off: var(--app-border, #c5d8d5);
+    --accent: var(--app-accent, #0a6f75);
+    --poreia-planned: #6d8687;
+    --poreia-requested: #9a6a12;
+    --poreia-approved: #0a6f75;
+  }
+}
+
+/* Trip rows: an initial on the sea's color, then name and when. */
+.poreia-trip-row__badge {
+  flex: none;
+  display: block;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--mint-soft);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+}
+
+.poreia-scene-tile {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Under way: a ring in the sea's color. Back: the picture rests, a little faded. */
+.poreia-trip-row__badge--now {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--mint);
+}
+
+.poreia-trip-row__badge--past .poreia-scene-tile {
+  opacity: 0.55;
+  filter: saturate(0.5);
+}
+
+/* A trip's picture across the top of its page, ending above the title. */
+.poreia-trip {
+  position: relative;
+}
+
+.poreia-scene {
+  position: absolute;
+  top: calc(-1 * var(--ll-safe-top, 0px));
+  left: 0;
+  right: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: calc(var(--ll-title-anchor-top, 156px) + var(--ll-safe-top, 0px) - 18px);
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent);
+}
+
+.poreia-trip > :not(.poreia-scene, .poreia-tabs) {
+  position: relative;
+  z-index: 1;
+}
+
+.poreia-trip-row__when {
+  flex: none;
+  margin-left: auto;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* A reference beside a field: the time off a trip's dates take, the year's travel budget. */
+.poreia-reference {
+  margin-top: calc(var(--ll-gap, 16px) * -0.5);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A day's agenda: time on the left, what on the right. */
+.poreia-agenda {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-agenda > li,
+.poreia-agenda .poreia-agenda__plan.swipe__front {
+  padding: 0;
+}
+
+.poreia-agenda .poreia-agenda__plan {
+  display: flex;
+  align-items: center;
+}
+
+.poreia-agenda .poreia-agenda__plan > .poreia-agenda__row {
+  flex: 1;
+  min-width: 0;
+}
+
+/* The row's own menu button sits at its end (Lamplight's long-press menu), where the chevron would be. */
+.poreia-agenda .swipe:has(.ll-row-menu-trigger) .poreia-agenda__row > svg {
+  visibility: hidden;
+}
+
+/* A plan without a time can be pulled to another place among the day's others by its grip (arrow keys too). */
+.poreia-grip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 44px;
+  margin-left: -10px;
+  margin-right: -26px;
+  position: relative;
+  z-index: 1;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.poreia-agenda li.is-dragging {
+  position: relative;
+  z-index: 2;
+  background: var(--surface-2, var(--surface));
+  box-shadow: var(--ll-light-3);
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Each line opens its booking or plan: time, then what and where, then a chevron. */
+.poreia-agenda__row {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-agenda__row > svg {
+  color: var(--faint, var(--muted));
+}
+
+.poreia-agenda__what {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.poreia-agenda__what > .muted {
+  overflow: hidden;
+  font-size: var(--text-sm);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poreia-agenda__row--booking .poreia-agenda__what > span:first-child {
+  color: var(--mint);
+}
+
+.poreia-agenda > li + li {
+  border-top: 1px solid var(--line);
+}
+
+.poreia-agenda__time {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+
+.poreia-days {
+  display: grid;
+  gap: var(--ll-gap, 16px);
+}
+
+.poreia-day {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface);
+}
+
+.poreia-day__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 4px;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.poreia-add-day {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 5.9rem) auto auto;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.poreia-add-day__open,
+.poreia-add-day__close {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--mint);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.poreia-add-day__close {
+  justify-content: center;
+  width: 36px;
+  color: var(--muted);
+}
+
+.poreia-add-day .input.poreia-add-day__time {
+  width: 100%;
+  min-width: 0;
+  padding-inline: 8px;
+}
+
+.poreia-fold {
+  margin: var(--ll-gap, 16px) 0;
+}
+
+.poreia-fold > summary {
+  padding: 10px 0;
+  color: var(--text-soft);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Place search: a list of matches under the field. */
+.poreia-place {
+  position: relative;
+}
+
+.poreia-place__list {
+  position: absolute;
+  z-index: 5;
+  inset: calc(100% - 10px) 0 auto;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  max-height: 16rem;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--ll-light-2);
+}
+
+.poreia-place__list button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-place__list button:hover,
+.poreia-place__list button:focus-visible {
+  background: var(--mint-soft);
+}
+
+.poreia-money__currency {
+  flex: 0 0 6rem;
+}
+
+.poreia-select {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+/* Chips that scroll sideways on a phone instead of wrapping into rows. */
+.chip-row.poreia-scroll-chips {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-inline: calc(var(--ll-gutter, 20px) * -1);
+  padding-inline: var(--ll-gutter, 20px);
+}
+
+.chip-row.poreia-scroll-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.poreia-scroll-chips .chip {
+  flex: none;
+}
+
+.card .poreia-scroll-chips {
+  margin-inline: -16px;
+  padding-inline: 16px;
+}
+
+/* Outside links: a site and a line under it, opening in the browser. */
+.poreia-links {
+  margin: 8px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-links li + li {
+  border-top: 1px solid var(--line);
+}
+
+.poreia-links .poreia-out {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 44px;
+  padding: 10px 0;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.poreia-links .poreia-out > span:first-child {
+  color: var(--mint);
+  font-weight: 600;
+}
+
+.poreia-out {
+  color: var(--mint);
+}
+
+.poreia-weather {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-weather li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr auto auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 8px 0;
+}
+
+.poreia-weather li + li {
+  border-top: 1px solid var(--line);
+}
+
+.poreia-weather__temps,
+.poreia-weather__rain {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.poreia-weather__rain {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-guide__image {
+  display: block;
+  width: calc(100% + 32px);
+  max-height: 12rem;
+  margin: -16px -16px 12px;
+  object-fit: cover;
+  border-radius: var(--ll-outer, 18px) var(--ll-outer, 18px) 0 0;
+}
+
+.poreia-plain-list {
+  margin: 4px 0;
+  padding-left: 1.1rem;
+}
+
+.poreia-plain-list li + li {
+  margin-top: 4px;
+}
+
+/* Sights and events: a small picture, a name, a line. */
+.poreia-sights {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-sights li {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.poreia-sights li + li {
+  border-top: 1px solid var(--line);
+}
+
+.poreia-sights img,
+.poreia-sights__blank {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.poreia-sights__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.poreia-sights__text > span:first-child {
+  font-weight: 600;
+}
+
+/* A trip's page: its head, then views. */
+.poreia-trip__head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: var(--ll-gap, 16px);
+}
+
+.poreia-trip__head .text-link {
+  padding-inline: 0;
+}
+
+/* A trip's six places: icon and name in equal columns, a lit pill sliding to the open one, held under the top bar. */
+.poreia-tabs {
+  --at: 0;
+  --count: 6;
+  position: sticky;
+  top: calc(var(--ll-safe-top, 0px) + 6px);
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(var(--count), minmax(0, 1fr));
+  margin: 0 0 var(--ll-gap, 16px);
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: var(--ll-light-1);
+}
+
+:root.ll-bar-on .poreia-tabs {
+  top: calc(var(--ll-safe-top, 0px) + 54px);
+}
+
+.poreia-tabs::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--count));
+  border-radius: 16px;
+  background: var(--mint-soft);
+  translate: calc(var(--at) * 100%) 0;
+  transition: translate var(--ll-spring, 320ms cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+.poreia-tabs__tab {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 52px;
+  padding: 7px 0 6px;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 160ms ease;
+}
+
+.poreia-tabs__tab > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poreia-tabs__tab[aria-selected='true'] {
+  color: var(--mint);
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poreia-tabs::before {
+    transition: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  .poreia-tabs__tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: var(--text-sm);
+  }
+}
+
+/* On computers the trip's picture is a band across the top of the column, with the title under it. */
+@media (min-width: 62rem) {
+  :root .page.poreia-page.poreia-trip {
+    padding-top: 196px;
+  }
+
+  .poreia-scene {
+    top: 0;
+    height: 220px;
+    border-radius: 0 0 var(--ll-outer, 24px) var(--ll-outer, 24px);
+    -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent);
+    mask-image: linear-gradient(to bottom, #000 70%, transparent);
+  }
+}
+
+.poreia-off-card .button-row {
+  margin-top: 10px;
+}
+
+.poreia-status {
+  flex: none;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.poreia-status--planned {
+  color: var(--poreia-planned);
+}
+
+.poreia-status--requested {
+  color: var(--poreia-requested);
+}
+
+.poreia-status--approved {
+  color: var(--poreia-approved);
+}
+
+.poreia-status--canceled {
+  border-style: dashed;
+  color: var(--muted);
+}
+
+.poreia-provider-status__row {
+  cursor: default;
+}
+
+.poreia-provider-status__state {
+  flex: none;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  text-align: right;
+}
+
+.poreia-notes {
+  white-space: pre-wrap;
+}
+
+.poreia-kind-letter {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  font-weight: 700;
+}
+
+/* Packing. */
+.poreia-pack-group + .poreia-pack-group {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-pack {
+  list-style: none;
+}
+
+.poreia-pack__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-pack__row .check-row__box {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--muted);
+  border-radius: 999px;
+  color: var(--mint-ink);
+  transition: background-color 160ms ease, border-color 160ms ease;
+}
+
+.poreia-pack__row[aria-pressed='true'] .check-row__box {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.poreia-pack__done {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+/* Money and hours: one large figure. */
+.poreia-money-card__total,
+.poreia-balance__hours {
+  margin: 2px 0 6px;
+  font-family: var(--serif);
+  font-size: var(--text-3xl, 2rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.poreia-spend.swipe__front {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 10px 16px;
+}
+
+.poreia-spend .row__text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 2px;
+}
+
+.poreia-spend__amount {
+  flex: none;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The year at a glance: twelve small months. */
+.poreia-year__months {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px 12px;
+  margin-top: 8px;
+}
+
+.poreia-year__name {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.poreia-year__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.poreia-year__grid > :first-child {
+  grid-column-start: calc(var(--lead) + 1);
+}
+
+.poreia-year__day {
+  display: inline-block;
+  aspect-ratio: 1;
+  min-width: 6px;
+  border-radius: 2px;
+  background: var(--surface-2);
+}
+
+.poreia-year__day--planned {
+  background: var(--poreia-planned);
+}
+
+.poreia-year__day--requested {
+  background: var(--poreia-requested);
+}
+
+.poreia-year__day--approved {
+  background: var(--poreia-approved);
+}
+
+.poreia-year__key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.poreia-year__key .poreia-year__day {
+  width: 10px;
+  height: 10px;
+  margin-left: 6px;
+}
+
+.poreia-year__key .poreia-year__day:first-child {
+  margin-left: 0;
+}
+
+@media (min-width: 48rem) {
+  .poreia-year__months {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 62rem) {
+  .poreia-year__months {
+    grid-template-columns: repeat(6, 1fr);
+  }
+
+  .poreia-scroll-chips,
+  .card .poreia-scroll-chips {
+    flex-wrap: wrap;
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+}
+
+/* Rows here carry a badge or icon, the words, a figure or status, and a chevron, in one line. */
+:root.poreia .row {
+  display: flex;
+  align-items: center;
+}
+
+:root.poreia .row > .row__text {
+  flex: 1;
+  min-width: 0;
+}
+
+:root.poreia .row > .row__icon {
+  flex: none;
+  width: 32px;
+}
+
+:root.poreia .row > svg {
+  flex: none;
+}
+
+/* ---------- The map and what is around ---------- */
+
+.poreia-around {
+  display: grid;
+  gap: 12px;
+  margin-bottom: var(--ll-gap, 16px);
+}
+
+.poreia-map {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface-2);
+  margin-bottom: 12px;
+}
+
+.poreia-map__canvas {
+  /* MapLibre makes its container position: relative, so it is sized directly rather than by insets. */
+  width: 100%;
+  height: 100%;
+}
+
+.poreia-map__note {
+  position: absolute;
+  inset: auto 12px 12px;
+  margin: 0;
+}
+
+/* The map's own controls take the room's colors instead of plain white. */
+.poreia-map .maplibregl-ctrl-group {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: none;
+}
+
+.poreia-map .maplibregl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+}
+
+.poreia-map .maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--line);
+}
+
+:root.poreia:not([data-theme='light']) .poreia-map .maplibregl-ctrl-icon {
+  filter: invert(1) brightness(1.4);
+}
+
+.poreia-map .maplibregl-ctrl-attrib,
+.poreia-map .maplibregl-ctrl-attrib.maplibregl-compact {
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--text-xs);
+}
+
+.poreia-map .maplibregl-ctrl-attrib a {
+  color: var(--text-soft);
+}
+
+.poreia-map .maplibregl-cooperative-gesture-screen {
+  background: rgb(0 0 0 / 0.45);
+  font-size: var(--text-sm);
+}
+
+/* Pins: a dot in the kind's color with a ring of the surface, larger when chosen. */
+.poreia-pin {
+  --pin: var(--mint);
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  background: var(--pin);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  cursor: pointer;
+  transition: width var(--ll-quick, 180ms) ease, height var(--ll-quick, 180ms) ease;
+}
+
+.poreia-pin.is-chosen {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+/* A larger, invisible target than the dot. */
+.poreia-pin::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+}
+
+.poreia-pin--home { --pin: var(--text); width: 12px; height: 12px; }
+.poreia-pin--see { --pin: #e3b35c; }
+.poreia-pin--do { --pin: #c58cf0; }
+.poreia-pin--eat { --pin: #ef7d6a; }
+.poreia-pin--coffee { --pin: #c49a6c; }
+.poreia-pin--drink { --pin: #e889b7; }
+.poreia-pin--outdoors { --pin: #6fcf8a; }
+.poreia-pin--sleep { --pin: #6fa8ff; }
+.poreia-pin--shop { --pin: #f0a35c; }
+.poreia-pin--around { --pin: #8fb3c7; }
+.poreia-pin--essentials { --pin: #f06a6a; }
+.poreia-pin--event { --pin: #ff8fd0; }
+.poreia-pin--saved { --pin: var(--mint); }
+.poreia-pin--plan { --pin: var(--mint); }
+
+/* A booking's confirmation, large enough to show at a desk, copied with a tap. */
+.poreia-code {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  margin: 0 0 var(--ll-gap, 16px);
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-code__value {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.poreia-day > .text-link {
+  margin-bottom: 8px;
+}
+
+.poreia-spots__photo,
+.poreia-spots__dot {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--surface-2);
+}
+
+.poreia-spots__dot {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.poreia-spots__dot::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pin, var(--mint));
+}
+
+.poreia-spots .row.is-chosen {
+  background: var(--mint-soft);
+}
+
+.poreia-place-page__photo {
+  display: block;
+  width: 100%;
+  max-height: 14rem;
+  margin: 0 0 12px;
+  border-radius: var(--ll-outer, 18px);
+  object-fit: cover;
+}
+
+/* Flight results: price first, then the airline and each way's times. */
+.poreia-flights {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-flight {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.poreia-flight__price {
+  grid-column: 2;
+  grid-row: 1;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-flight__airline {
+  grid-column: 1;
+  grid-row: 1;
+  font-weight: 600;
+}
+
+.poreia-flight__slice {
+  grid-column: 1 / -1;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-flight__more {
+  padding: 8px 14px 4px;
+}
+
+.poreia-map .maplibregl-ctrl-attrib-button {
+  background-color: var(--surface);
+}
+
+:root.poreia:not([data-theme='light']) .poreia-map .maplibregl-ctrl-attrib-button {
+  filter: invert(1);
+}
+
+/* The clock at the place and how far apart it is from home. */
+.poreia-time__row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.poreia-time__row p {
+  margin: 0;
+}
+
+.poreia-time__clock {
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-time .poreia-fold {
+  margin: 12px 0 0;
+}
+
+.poreia-agenda > li.poreia-shift {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr;
+  gap: 10px;
+  padding: 10px 0;
+}
+
+/* A row offering something with another app, its button at the end. */
+.poreia-with-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-with {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.poreia-with + .poreia-with {
+  border-top: 1px solid var(--line);
+}
+
+.poreia-with__text {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+}
+
+.poreia-with__text > .muted {
+  font-size: var(--text-sm);
+}
+
+.poreia-with > .button-quiet {
+  flex: none;
+  width: auto;
+  margin: 0;
+}
+
+/* A trip of several places: each stop in the form, and the chips that pick one on Overview and Around. */
+.poreia-stops {
+  display: grid;
+  gap: var(--ll-gap, 16px);
+}
+
+.poreia-stop {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--ll-outer, 18px);
+  background: var(--surface);
+}
+
+.poreia-stop .section-head {
+  margin: 0 0 4px;
+}
+
+.poreia-stop-chips .chip .muted {
+  font-size: var(--text-sm);
+}
+
+.poreia-day__place {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+/* Travel together: who is going, as chips; the fewest payments that even things out. */
+.poreia-people {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-people .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.poreia-people__remove {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin: -4px -8px -4px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.poreia-together .add-line {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.poreia-together .add-line .input {
+  flex: 1;
+  min-width: 0;
+}
+
+.poreia-settle {
+  display: grid;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Documents and arriving. */
+.poreia-doc__fact.is-near {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.poreia-doc__number {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-doc__photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.poreia-doc__photo {
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line, rgba(127, 127, 127, 0.25));
+  border-radius: var(--ll-inset, 12px);
+  background: var(--surface-2, transparent);
+  color: inherit;
+}
+
+.poreia-doc__photo img,
+.poreia-doc__big img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.poreia-doc__big {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.poreia-doc__big img {
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  border-radius: var(--ll-inset, 12px);
+}
+
+.poreia-arriving__line {
+  display: block;
+}
+
+.poreia-arriving__tipping {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+/* Days that fit: the day's sky, walks between placed plans, stretches with nothing set. */
+.poreia-day__sky {
+  margin: -4px 0 8px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-agenda > li.poreia-agenda__between {
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  padding: 0 0 8px calc(4.6rem + 10px);
+  border: 0;
+  color: var(--muted);
+  font-size: var(--text-xs);
+  list-style: none;
+}
+
+/* Saving toward a trip, and its goal in Compass. */
+.poreia-saving__add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.poreia-saving__bar {
+  height: 6px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--text) 12%, transparent);
+}
+
+.poreia-saving__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent, currentColor);
+}
+
+.poreia-goal {
+  margin: 0;
+  font-family: var(--serif, inherit);
+  font-size: var(--text-lg);
+}
+
+.poreia-trip-row__dates {
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-balance {
+  display: grid;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Weather rows keep one line each; the sky's word gives way first. */
+.poreia-weather li {
+  grid-template-columns: 6.2rem minmax(0, 1fr) auto auto;
+}
+
+.poreia-weather li > .muted {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Packing's add line: the words across, then the group and Add. */
+.poreia-pack-add {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-pack-add > .input:first-child {
+  grid-column: 1 / -1;
+}
+
+/* Empty states: the lit mark inside a dashed route that turns slowly, like a path drawn on a map. */
+.poreia-empty .list-empty {
+  padding: 36px 16px 28px;
+}
+
+.poreia-empty .list-empty__mark {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+  background: radial-gradient(circle at 60% 35%, color-mix(in srgb, var(--mint) 34%, transparent), var(--mint-soft) 70%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mint) 22%, transparent), 0 8px 28px color-mix(in srgb, var(--mint) 22%, transparent);
+}
+
+.poreia-empty .list-empty__mark::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border: 1.5px dashed color-mix(in srgb, var(--mint) 45%, transparent);
+  border-radius: 50%;
+  animation: poreia-route 40s linear infinite;
+}
+
+.poreia-empty .list-empty__mark::after {
+  content: '';
+  position: absolute;
+  top: -17px;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--mint);
+  transform-origin: 3.5px 49px;
+  animation: poreia-route 40s linear infinite;
+}
+
+@keyframes poreia-route {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poreia-empty .list-empty__mark::before,
+  .poreia-empty .list-empty__mark::after {
+    animation: none;
+  }
+}
+
+.poreia-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.poreia-empty__actions .button-main,
+.poreia-empty__actions .button-quiet {
+  margin-top: 0;
+  width: auto;
+}
+
+.poreia-packed {
+  margin-bottom: var(--ll-gap, 16px);
+}
+
+.poreia-packed__count {
+  margin: 0;
+  color: var(--text-soft);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-quiet {
+  padding: 12px 0;
+}
+
+.poreia-arriving a {
+  color: var(--mint);
+}
+
+/* A trip under way: the day first. */
+.poreia-today {
+  background:
+    radial-gradient(120% 90% at 64% -10%, color-mix(in srgb, var(--mint) 16%, transparent), transparent 60%),
+    var(--surface);
+}
+
+.poreia-today__eyebrow {
+  margin: 0;
+  color: var(--mint);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.poreia-today__title {
+  margin: 2px 0 4px;
+  font-family: var(--serif);
+  font-size: var(--text-2xl, 1.6rem);
+  font-weight: 500;
+}
+
+.poreia-today__actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.poreia-today__action {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-height: 64px;
+  padding: 10px 4px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--mint) 6%, transparent);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.poreia-today__action svg {
+  color: var(--mint);
+}
+
+.poreia-more > summary {
+  font-weight: 600;
+}
+
+.poreia-next-action__title {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--text-xl, 1.35rem);
+}
+
+.poreia-next-action .button-main {
+  margin-top: 4px;
+}
+
+/* One rhythm between blocks on every Poreia page: blocks that follow one another stand apart by the family's gap,
+   and a section's label sits close above its block. */
+.poreia-page :is(.card, .rows, .button-row, .poreia-empty, .poreia-fold, .poreia-tabs, .poreia-stop-chips, .poreia-around, .poreia-days, .poreia-packed, .poreia-pack-group, .poreia-pack-add, .list-empty, .poreia-weather-card)
+  + :is(.card, .rows, .button-row, .poreia-empty, .poreia-fold, .ll-section-label, .poreia-around, .poreia-days, .poreia-pack-group, .poreia-pack-add, .text-link, .button-quiet, .button-main, p) {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-page .ll-section-label + :is(.card, .rows) {
+  margin-top: var(--ll-label-gap, 8px);
+}
+
+.poreia-page .vt-panel > :first-child {
+  margin-top: 0;
+}
+
+.poreia-page .vt-panel {
+  padding-bottom: var(--ll-section-gap, 28px);
+}
+
+/* Rows of chips that scroll sideways fade at their ends, so a cut chip reads as "more this way". */
+.poreia-scroll-chips {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 24px), transparent);
+  padding-inline: 12px 24px;
+  margin-inline: -12px -4px;
+}
+
+.card .poreia-scroll-chips {
+  margin-inline: -16px;
+  padding-inline: 16px 28px;
+}
+
+.poreia-page .vt-panel > * + *,
+.poreia-page .poreia-fold > :not(summary) + * {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-page .vt-panel > .ll-section-label + * {
+  margin-top: var(--ll-label-gap, 8px);
+}
+
+.poreia-time__row {
+  flex-wrap: wrap;
+}
+
+.poreia-time__clock {
+  white-space: nowrap;
+}
+
+.poreia-time__row > .muted {
+  margin-left: auto;
+  text-align: right;
+}
+
+/* The trip at the top of Trips opens it. */
+.poreia-home__lead {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Dates as two tiles: the name small, the date written out, the phone's picker over the whole tile. */
+.poreia-dates {
+  margin-top: var(--ll-gap, 16px);
+}
+
+.poreia-dates__tiles {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.poreia-dates__arrow {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+}
+
+.poreia-date {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 10px 14px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease;
+}
+
+.poreia-date.is-set {
+  border-color: color-mix(in srgb, var(--mint) 45%, var(--line));
+  background: color-mix(in srgb, var(--mint) 7%, var(--surface));
+}
+
+.poreia-date:focus-within {
+  outline: 2px solid var(--mint);
+  outline-offset: 2px;
+}
+
+.poreia-date__label {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-date__value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  color: var(--muted);
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.poreia-date.is-set .poreia-date__value {
+  color: var(--text);
+}
+
+.poreia-date__value svg {
+  flex: none;
+  color: var(--mint);
+}
+
+/* Unseen but tappable everywhere on the tile; 16 px so iPhones do not zoom. */
+.poreia-date__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  font-size: 16px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.poreia-date__input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.poreia-dates__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-dates__foot .text-link {
+  margin-left: auto;
+}
+
+/* When to go: one range bar a month on one scale; the chosen month full, the rest softer; text stays in text colors. */
+.poreia-when__picked {
+  margin: 0 0 12px;
+  color: var(--text-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-when__picked strong {
+  color: var(--text);
+}
+
+.poreia-when__chart {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.poreia-when__month {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.poreia-when__month.is-picked {
+  background: color-mix(in srgb, var(--mint) 10%, transparent);
+  color: var(--text);
+  font-weight: 600;
+}
+
+.poreia-when__track {
+  position: relative;
+  width: 100%;
+  height: 104px;
+}
+
+.poreia-when__bar {
+  position: absolute;
+  top: var(--top);
+  left: 50%;
+  width: min(14px, 70%);
+  height: max(4px, var(--height));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--mint) 55%, transparent);
+  translate: -50% 0;
+}
+
+.poreia-when__month.is-picked .poreia-when__bar {
+  background: var(--mint);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+.poreia-when__mark {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.poreia-when__mark.is-on {
+  background: var(--mint);
+}
+
+.poreia-when__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-when__table :is(th, td) {
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+
+.poreia-when__table :is(thead th, tbody th) {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* Explore: the place picked, with its picture across the top of the card. */
+:root .card.poreia-place-scene {
+  overflow: hidden;
+  padding: 0;
+}
+
+.poreia-place-scene__image {
+  display: block;
+  width: 100%;
+  height: 132px;
+  object-fit: cover;
+}
+
+.poreia-place-scene__words {
+  display: grid;
+  gap: 2px;
+  padding: 12px 16px 16px;
+}
+
+.poreia-place-scene__words p {
+  margin: 0;
+}
+
+.poreia-place-scene__name {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: var(--text-2xl, 1.6rem);
+  font-weight: 500;
+}
+
+.poreia-place-scene__facts {
+  color: var(--mint);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+/* What a search opens with: from, to, when, who, so a site opened at its front page is quick to fill. */
+.poreia-search-for {
+  margin: 4px 0 0;
+  font-size: var(--text-sm);
+}
+
+:root .poreia-links .poreia-out .fine {
+  margin: 0;
+  padding: 0;
+}
+
+/* Forwarded emails: the address to forward to, and each email waiting for a trip. */
+.poreia-mail__address {
+  margin: 0;
+  font-family: var(--ll-mono, ui-monospace, monospace);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+  user-select: all;
+}
+
+.poreia-mail__row {
+  display: grid;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+/* Flight status: departure and arrival side by side, the time large, what changed struck through beside it. */
+.poreia-flight__ends {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.poreia-flight__end p {
+  margin: 0;
+}
+
+.poreia-flight__time {
+  font-size: var(--text-2xl);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The route of a trip with stops: numbered places, each leg's distance between them. */
+.poreia-route__legs {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-route__legs li {
+  display: grid;
+  gap: 2px;
+}
+
+.poreia-route__stop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.poreia-route__number {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--mint) 22%, transparent);
+  color: var(--mint);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-route__leg {
+  margin: 0 0 6px 11px;
+  padding: 2px 0 2px 21px;
+  border-left: 2px dashed color-mix(in oklab, var(--mint) 45%, transparent);
+  font-size: var(--text-sm);
+}
+
+/* Google's details on a place: the line of facts, a sideways strip of photos, hours and reviews folded. */
+.poreia-google__line {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.poreia-google__photos {
+  display: flex;
+  gap: 8px;
+  margin: 8px calc(var(--ll-gutter, 20px) * -1) 0;
+  padding: 0 var(--ll-gutter, 20px);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
+.poreia-google__photos figure {
+  flex: 0 0 auto;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.poreia-google__photos img {
+  display: block;
+  width: 220px;
+  height: 150px;
+  border-radius: var(--ll-inset, 12px);
+  object-fit: cover;
+}
+
+.poreia-google__hours,
+.poreia-google__reviews {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-google__reviews li + li {
+  margin-top: 12px;
+}
+
+/* Budget: what the year has cost, then what its trips still take, on one bar. */
+.poreia-budget-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  margin: 10px 0 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--text) 10%, transparent);
+}
+
+.poreia-budget-bar span {
+  min-width: 0;
+  transition: width var(--ll-calm, 400ms) var(--ll-spring, ease);
+}
+
+.poreia-budget-bar__spent {
+  border-radius: 999px 0 0 999px;
+  background: var(--ll-lamp, var(--mint));
+}
+
+.poreia-budget-bar__planned {
+  background: color-mix(in oklab, var(--ll-lamp, var(--mint)) 38%, transparent);
+}
+
+/* The journal is a quiet, readable log rather than another dense list. */
+.poreia-journal {
+  display: grid;
+  gap: 18px;
+}
+
+.poreia-journal__form {
+  display: grid;
+  gap: 12px;
+}
+
+.poreia-journal__list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-journal__item.swipe__front {
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--ll-inset, 12px);
+  background: color-mix(in oklab, var(--surface) 90%, transparent);
+}
+
+.poreia-journal__open {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  font: inherit;
+}
+
+.poreia-journal__open strong {
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+.poreia-journal__open > span:last-child {
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.poreia-journal__meta {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-preview__text {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.poreia-trip-form__budget {
+  display: grid;
+  gap: 10px;
+}
+
+/* Journal & log: an editorial timeline with generous space for writing and photographs. */
+.poreia-journal-page {
+  display: grid;
+  gap: 22px;
+}
+
+.poreia-journal-page__top {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.poreia-journal-page__top .title {
+  margin-bottom: 0;
+}
+
+.poreia-journal-page__count {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.poreia-journal-page .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 5px;
+  color: var(--mint);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-page__filters {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.poreia-journal-page__filters .chip-row {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  padding-bottom: 2px;
+}
+
+.poreia-journal-page__filters .chip {
+  flex: 0 0 auto;
+}
+
+.poreia-journal-page__log {
+  display: grid;
+  gap: 12px;
+}
+
+.poreia-journal-page__log .section-head {
+  margin-bottom: 0;
+}
+
+.poreia-journal-page__list {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.poreia-journal-card {
+  display: grid;
+  grid-template-columns: minmax(92px, 0.35fr) minmax(0, 1fr);
+  gap: 16px;
+  padding: 17px;
+  border: 1px solid color-mix(in oklab, var(--line) 90%, transparent);
+  border-radius: 18px;
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  box-shadow: var(--ll-light-1);
+}
+
+.poreia-journal-card__date {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-card__date strong {
+  color: var(--text);
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-lg);
+  font-weight: 500;
+}
+
+.poreia-journal-card__body {
+  min-width: 0;
+}
+
+.poreia-journal-card__meta {
+  color: var(--mint);
+  font-size: var(--text-sm);
+}
+
+.poreia-journal-card h3 {
+  margin: 5px 0 6px;
+  font-family: var(--font-serif, Georgia, serif);
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+
+.poreia-journal-card p {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.poreia-journal-card__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 13px;
+}
+
+.poreia-journal-card__actions .text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.poreia-danger {
+  color: var(--poreia-requested);
+}
+
+.poreia-journal__photos {
+  display: grid;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.poreia-journal-page .attachment-grid,
+.poreia-journal .attachment-grid {
+  margin-top: 4px;
+}
+
+@media (max-width: 520px) {
+  .poreia-journal-card {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+}

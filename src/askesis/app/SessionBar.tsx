@@ -1,0 +1,36 @@
+import type { CSSProperties } from 'react';
+import { flatten, type Part } from '../core/workouts';
+
+/** The session at a glance: one block per stretch, as long as it lasts, colored by effort; the stretches grow in, in order. */
+export default function SessionBar({ parts, small, large }: { parts: readonly Part[]; small?: boolean; large?: boolean }) {
+  return (
+    <div className={`session-bar ll-signature${small ? ' session-bar--small' : ''}${large ? ' session-bar--large' : ''}`} aria-hidden="true">
+      {flatten(parts).map((item, i) => (
+        <span key={i} className={`session-bar__seg session-bar__seg--${item.effort}${small ? '' : ' ll-grow ll-lit'}`} style={{ flexGrow: item.minutes, '--i': i } as CSSProperties} />
+      ))}
+    </div>
+  );
+}
+
+/** What the colors mean, for the efforts in this session. */
+export function SessionKey({ parts }: { parts: readonly Part[] }) {
+  const present = new Set(flatten(parts).map((item) => item.effort));
+  const keys: [string, string][] = [];
+  if (present.has('walk')) keys.push(['walk', 'Walk']);
+  if (present.has('easy') || present.has('recovery')) keys.push(['easy', 'Run easy']);
+  if (present.has('steady')) keys.push(['steady', 'Steady']);
+  if (present.has('tempo')) keys.push(['tempo', 'Comfortably hard']);
+  if (present.has('hard')) keys.push(['hard', 'Hard']);
+  if (present.has('stride')) keys.push(['stride', 'Strides']);
+  if (keys.length < 2) return null;
+  return (
+    <ul className="session-key" aria-hidden="true">
+      {keys.map(([effort, name]) => (
+        <li key={effort}>
+          <span className={`session-key__dot session-bar__seg--${effort}`} />
+          {name}
+        </li>
+      ))}
+    </ul>
+  );
+}

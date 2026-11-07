@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": { "correctness": "error", "suspicious": "off" },
+  "rules": {
+    "unicorn/no-thenable": "off",
+    "unicorn/no-useless-fallback-in-spread": "off"
+  }
+}

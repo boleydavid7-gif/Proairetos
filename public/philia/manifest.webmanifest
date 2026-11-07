@@ -1,0 +1,79 @@
+{
+  "id": "/philia/",
+  "name": "Philia by Proairetos",
+  "short_name": "Philia",
+  "description": "Birthdays, gift ideas and time with the people in your life.",
+  "start_url": "/philia/",
+  "scope": "/philia/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#120f10",
+  "theme_color": "#120f10",
+  "icons": [
+    {
+      "src": "/philia/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/philia/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/philia/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/philia/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Philia"
+    },
+    {
+      "src": "/philia/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Philia"
+    },
+    {
+      "src": "/philia/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Philia"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add someone",
+      "short_name": "Add",
+      "url": "/philia/?open=add",
+      "icons": [
+        {
+          "src": "/philia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "People",
+      "short_name": "People",
+      "url": "/philia/?open=people",
+      "icons": [
+        {
+          "src": "/philia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

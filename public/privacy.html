@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy · Proairetos</title>
+    <link rel="canonical" href="https://proairetos.com/privacy.html" />
+    <meta name="description" content="How Proairetos treats what you write: it stays on your device, encrypted if you sync, never read or sold." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0c0e;
+        --text: #f2ece2;
+        --muted: #a39d93;
+        --accent: #c9a274;
+        --border: rgba(255, 255, 255, 0.08);
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          color-scheme: light;
+          --bg: #f6efe4;
+          --text: #2b251f;
+          --muted: #6b5f52;
+          --accent: #8a6a46;
+          --border: rgba(43, 37, 31, 0.15);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font: 17px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif;
+      }
+      main { max-width: 40rem; margin: 0 auto; padding: 3rem 1rem 4rem; }
+      h1, h2 { font-family: 'EB Garamond', Georgia, serif; font-weight: 500; line-height: 1.2; }
+      h1 { font-size: 2.4rem; margin: 0 0 0.5rem; }
+      h2 { font-size: 1.45rem; margin: 2.2rem 0 0.4rem; border-top: 1px solid var(--border); padding-top: 1.6rem; }
+      p, li { color: var(--muted); }
+      strong { color: var(--text); font-weight: 600; }
+      a { color: var(--accent); }
+      .lead { font-size: 1.1rem; color: var(--text); }
+      footer { margin-top: 3rem; font-size: 0.9rem; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Privacy</h1>
+      <p class="lead">
+        This covers all fifteen apps: Proairetos, Askesis, Soma, Oikonomia, Hydros, Praxis, Theoria, Diaita, Philia, Ergon, Therapeia, Dynamis, Ktema, Phyton and Poreia. What you add stays on your device. It is never read by anyone else, sold, or used for advertising.
+      </p>
+
+      <h2>What stays on your device</h2>
+      <p>
+        Everything you add (tasks, plans, reflections, runs, recipes, bills, drinks, study time, books and highlights) is stored in your browser on your device. You do not need an account. Proairetos has no analytics, no advertising, and no
+        trackers, and its fonts ship with the app, so no font service sees your visits.
+      </p>
+
+      <h2>If you turn on sync</h2>
+      <p>
+        When sync is on, your data is <strong>encrypted on your device</strong> before it is uploaded,
+        with a key the server never has. The server cannot read your items, notes, reflections, or schedule.
+      </p>
+      <p>
+        The server can see: your email address (to sign you in; with Google or Apple sign-in, the address they share); how many records you have, their rough sizes and
+        kinds, and when they changed; the times reminders are due; and the address each of your devices uses for
+        notifications.
+      </p>
+
+      <h2>Your own storage (only if you choose it)</h2>
+      <p>
+        You can sync through your own Google Drive, Dropbox or OneDrive instead. Proairetos asks for its own Proairetos folder
+        there and can reach nothing else of yours, and writes only records encrypted on your device. Your storage company
+        cannot read them either. The server then keeps none of your records: it holds which storage you chose and the
+        permission to reach it, encrypted with your key, so your other devices can follow. Sign-in, reminders and
+        shared lists still go through the server as described here. While you sync this way, a daily backup (and any
+        backup you save) also goes into that folder, encrypted the same way, so another of your devices can restore it;
+        the last fourteen days are kept.
+      </p>
+
+      <h2>Reminders</h2>
+      <p>
+        Your device works out what to remind you of. The server holds only when each reminder is due and its words, encrypted with your key, so it cannot read them. Your device opens them when the reminder arrives.
+      </p>
+
+      <h2>Capture from anywhere (only if you turn it on)</h2>
+      <p>
+        A Shortcut on your device sends your words to this site with your inbox token. They are locked at once with a key
+        only your device holds, and kept that way until Proairetos opens them and deletes the locked copy. The server keeps
+        a fingerprint of the token, never the token itself.
+      </p>
+
+      <h2>Apple Health and Health Connect (only if you turn it on)</h2>
+      <p>
+        Health Auto Export on your iPhone, or Health Connect Webhook on Android, sends your health data to your own address on this site. Only workouts, sleep,
+        water and a few readings (weight, blood pressure, blood sugar, temperature, resting heart rate, oxygen) are read
+        out of it; the rest is dropped unread. What is kept is locked at once with a key that only your apps can open, and
+        deleted once they bring it in. Nothing from it is logged.
+      </p>
+
+      <h2>A shared list, household or care circle (only if you make or join one)</h2>
+      <p>
+        Each grocery line in Soma, each chore in an Ergon household, each plant in a shared Phyton home, and each medicine
+        in a Therapeia care circle, is encrypted with that list’s own key, which
+        travels only inside the invite link. The server stores them without being able to read them, and only people
+        who joined with the link can see them.
+      </p>
+
+      <h2>Signing in another app from Proairetos (only if you turn it on)</h2>
+      <p>
+        Proairetos keeps a copy of your unlock key on that device so it can make a one-time pass. The pass carries the
+        key sealed; the key that opens it is held by the server for two minutes, given once, only to you after you
+        sign in, and then deleted. The server never sees your unlock key itself. Signing out removes the copy.
+      </p>
+
+      <h2>Passkeys (only if you add one)</h2>
+      <p>
+        A passkey lives in your device's password manager (iCloud Keychain, Google Password Manager, Windows Hello).
+        The server keeps its public key, to check that a sign-in came from it, and your unlock key sealed with a secret
+        only the passkey gives on your device, after Face ID, a fingerprint or the device's PIN. The server cannot open
+        it. Removing a passkey in Account removes both.
+      </p>
+
+      <h2>Other things that reach the internet, only when you use them</h2>
+      <p>
+        Phyton on Android may check tonight's low in the background now and then; only the place, rounded to about a
+        kilometer, is sent to Open-Meteo. Reading text from a photo (a medicine label, a rating plate, a bill) happens on your device; the photo is not
+        sent anywhere. Mneme's Transcribe turns a voice note into text on your device with the Whisper speech model; the recording is not sent anywhere. The model itself (about 77 MB, or 250 MB for the more accurate one) is downloaded once from Hugging Face and kept in your browser. Scanning a barcode in Soma sends only its number to Open Food Facts, for the product's name.
+        Looking up a word in Theoria sends only that word to the Free Dictionary API. Recipe ideas come from
+        TheMealDB, and a recipe link you bring in passes through proairetos.com without being stored. Distance by GPS
+        in Askesis stays on your device: only the distance is saved, never where you ran. A bank statement you bring
+        into Oikonomia is read on your device, and only money out is kept.
+      </p>
+
+      <h2 id="first-week">Emails in your first week (when you make an account)</h2>
+      <p>
+        A new account gets three short emails in its first week: getting started, planning around your week, and the
+        day your free trial ends (not sent if you already chose a plan). They go to your sign-in address through Resend,
+        our email service, which sees only the address and the email. Each has a link that stops them for good. Nothing
+        in your apps is read to write them.
+      </p>
+
+      <h2 id="waitlist">The newsletter (only if you sign up)</h2>
+      <p>
+        If you leave your email in the newsletter box on the front page, it is kept with the date you signed up and the
+        page you signed up on, and used only to send the newsletter. It is never sold or shared. To stop it, reply to any
+        issue or write to us, and your email is deleted.
+      </p>
+
+      <h2>Buying an app (only when you buy one)</h2>
+      <p>
+        Proairetos is free. Buying an add-on opens Stripe's own payment page (stripe.com); your card details go to Stripe,
+        never to Proairetos. Stripe tells proairetos.com that the payment went through, and your account keeps a note of
+        which app you bought, the amount and the date, so it opens on every device you sign in on. Nothing about what is
+        inside your apps is involved.
+      </p>
+
+      <h2>Plants outside (Phyton)</h2>
+      <p>
+        If you turn on weather for plants outside (rain, frost, hot days), only the place you choose, rounded to about a kilometer, goes to Open-Meteo.
+        Phyton does not send plant photos anywhere; looking up a plant reads a list that is part of the app. Photos you keep of a plant stay on your device.
+      </p>
+
+      <h2>Looking up places for a trip (Poreia)</h2>
+      <p>
+        When Poreia shows a place, only that place's name or its coordinates, and a trip's dates where they matter, go to
+        the services that answer: Open-Meteo (places and weather), OpenFreeMap (map tiles), OpenStreetMap (what is nearby,
+        asked through proairetos.com with the coordinates rounded to about 100 m, from its Overpass and Nominatim
+        servers; the answer is kept at proairetos.com for a day, with nothing about you), Wikivoyage and Wikipedia (the guide), the European Central Bank's rates through Frankfurter,
+        Nager.Date (holidays) and REST Countries. Events, stays with prices and flights go through proairetos.com to
+        Ticketmaster, LiteAPI and Duffel, with only the place or airports, the dates and how many are traveling;
+        proairetos.com keeps nothing. Your trips, bookings, time off and saved places are not sent to any of them.
+        Booking happens on the provider's own site, under its terms. "Keep for offline" saves the map around a place,
+        the guide and places nearby on your device only. Reminders for bookings and plans are written on your device
+        like every other reminder. Tipping notes come from the country's Wikivoyage page (only the country's name is sent).
+        A trip you share with the people going is sealed on your device with the trip's own key, which travels only in
+        the invite link after "#", so the server stores it without being able to read it. Documents (passports, visas,
+        insurance) sync sealed like your other records and are never put in a shared trip; their photos stay on your
+        device, out of backups and sync. Your Compass goal and Oikonomia envelope for a trip are yours alone.
+      </p>
+
+      <h2>Calendar link (only if you turn it on)</h2>
+      <p>
+        If you create a calendar subscription link, the calendar file is the one thing the server can read, and so can
+        anyone who has the link. It holds only the categories you switch on in Settings: your commitments (titled
+        “Busy” unless you choose your own names), protected time, to-dos with a day or time, bill names and due dates,
+        trip names, dates and place names, and bookings and plans with a time. It never holds bill amounts,
+        confirmation codes, addresses, routes or notes. Turning the link off deletes the file. Apple, Google and
+        Outlook keep a copy of what they have already fetched, so remove the subscription in the calendar app too.
+      </p>
+
+      <h2>Other calendars (only if you add them)</h2>
+      <p>
+        If you add a Google, Apple, or Outlook calendar link, its events are shown on your device and stay there; they
+        are never uploaded or synced. Because most calendar services block web apps from fetching directly, the
+        calendar passes through proairetos.com on its way to you. Nothing is stored or logged there.
+      </p>
+
+      <h2>Weather (only if you turn it on)</h2>
+      <p>
+        Weather comes from Open-Meteo, a free service with no account or tracking. Your place is kept on your device,
+        rounded to about a kilometer, and only that rounded place is sent to ask for the forecast. The sky at the time
+        you write is saved with your reflections, encrypted like everything else if you sync.
+      </p>
+
+      <h2>Dictation (only if you use it)</h2>
+      <p>
+        If you use the microphone, your device maker’s speech service (Apple or Google) turns your speech into text, as
+        your keyboard’s microphone does. Proairetos asks before the first use and only ever receives the text.
+      </p>
+
+      <h2>Backups</h2>
+      <p>
+        Backups are files you download and keep yourself. You can lock a backup with a password, so only you can open
+        it.
+      </p>
+
+      <h2>Deleting</h2>
+      <p>
+        <strong>Settings → Delete everything</strong> removes all data from your device. If you use sync,
+        <strong>Settings → Account and sync → Delete my account</strong> removes your account and everything stored on
+        the server.
+      </p>
+
+      <h2>What the app never does</h2>
+      <p>
+        It does not read, analyze, or score what you write, guess your mood, or show you advertising. Nothing you write
+        is used to train AI.
+      </p>
+
+      <footer>
+        <p>Questions about privacy: <a href="mailto:boleydavid1227@outlook.com">boleydavid1227@outlook.com</a></p>
+        <p>Proairetos · <a href="/">Open the app</a></p>
+      </footer>
+          <p><a href="/welcome/">All the apps, and how to add them to your Home Screen</a></p>
+    </main>
+  </body>
+</html>

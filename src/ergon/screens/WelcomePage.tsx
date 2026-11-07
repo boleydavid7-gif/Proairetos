@@ -1,0 +1,23 @@
+import { Welcome } from '../../app/family/shell';
+import { AppMark } from '../../app/family/icons';
+import photo from '../../assets/images/scenes/ergon-stoic.webp';
+import photoWide from '../../assets/images/scenes/ergon-stoic-wide.webp';
+import type { ErgonNav } from '../app/App';
+import { settings } from '../app/state';
+
+export default function WelcomePage({ nav }: { nav: ErgonNav }) {
+  return (
+    <Welcome
+      name="Ergon"
+      mark={<AppMark app="ergon" size={44} light />}
+      line="Household chores."
+      about="Recurring chores, shared with your household."
+      photo={photo}
+      photoWide={photoWide}
+      onBegin={() => {
+        settings.save({ ...settings.load(), started: true });
+        nav.swap({ name: 'today' });
+      }}
+    />
+  );
+}

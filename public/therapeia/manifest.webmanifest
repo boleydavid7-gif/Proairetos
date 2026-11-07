@@ -1,0 +1,106 @@
+{
+  "id": "/therapeia/",
+  "name": "Therapeia by Proairetos",
+  "short_name": "Therapeia",
+  "description": "Medicines at the times you set or around your sleep, refills and appointments.",
+  "start_url": "/therapeia/",
+  "scope": "/therapeia/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10141a",
+  "theme_color": "#10141a",
+  "icons": [
+    {
+      "src": "/therapeia/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/therapeia/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/therapeia/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/therapeia/screenshots/narrow-1.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Therapeia"
+    },
+    {
+      "src": "/therapeia/screenshots/narrow-2.webp",
+      "sizes": "780x1688",
+      "type": "image/webp",
+      "form_factor": "narrow",
+      "label": "Therapeia"
+    },
+    {
+      "src": "/therapeia/screenshots/wide-1.webp",
+      "sizes": "1280x800",
+      "type": "image/webp",
+      "form_factor": "wide",
+      "label": "Therapeia"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today",
+      "short_name": "Today",
+      "url": "/therapeia/?open=today",
+      "icons": [
+        {
+          "src": "/therapeia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Add a medicine",
+      "short_name": "Add",
+      "url": "/therapeia/?open=add",
+      "icons": [
+        {
+          "src": "/therapeia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Add a reading",
+      "short_name": "Reading",
+      "url": "/therapeia/?open=readings",
+      "icons": [
+        {
+          "src": "/therapeia/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/therapeia/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "files",
+          "accept": [
+            "image/*"
+          ]
+        }
+      ]
+    }
+  }
+}

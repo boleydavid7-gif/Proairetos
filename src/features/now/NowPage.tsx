@@ -1,0 +1,340 @@
+import { Fragment, useState, type ReactNode } from 'react';
+import { useClock } from '../../app/hooks/useClock';
+import { usePersonalDay } from '../../app/hooks/usePersonalDay';
+import { useTodayParts } from '../../app/hooks/useTodayParts';
+import { useTodayLayout } from '../../app/hooks/useTodayLayout';
+import type { TodaySection } from '../../core/today/layout';
+import TodayEditor from './TodayEditor';
+import { otherCalendars } from '../../app/calendars/otherCalendars';
+import { calendarStore } from '../../app/providers/calendar';
+import { eventsFromLines } from '../../app/providers/calendarView';
+import TodayWeather from '../today/TodayWeather';
+import NotForMe from '../today/NotForMe';
+import TodayOnThisDay from '../today/TodayOnThisDay';
+import { DailyPractices, WorthYourAttention } from '../today/TodayAppsOverview';
+import { useServiceData } from '../../app/hooks/useServiceData';
+import { useNavigate } from '../../app/navigationContext';
+import { useAddedApps } from '../../app/family/added';
+import { openSettingsAt } from '../settings/settingsViews';
+import { useOverlays } from '../../app/overlays/OverlayContext';
+import { compassService, lifeService, scheduleService } from '../../app/services';
+import { goalLines } from '../../core/compass/goals';
+import { ChevronRightIcon } from '../../components/icons/Icons';
+import Landscape from '../../components/layout/Landscape';
+import SettingsButton from '../../components/layout/SettingsButton';
+import SearchButton from '../../components/layout/SearchButton';
+import { RETURN_AFTER_DAYS, daysAway, fromEarlierDays, pauseOffer, readyToCheckBack } from '../../core/rhythm/rhythm';
+import { addDays, atTime } from '../../core/scheduling/dates';
+import { dailyLineFor } from '../../core/stoic/dailyLine';
+import {
+  answeredPauseOffers,
+  displayName,
+  isLookAheadSetAside,
+  keepConcern,
+  keptConcerns,
+  previousVisitDate,
+} from '../../data/storage/preferences';
+import { fromAWhileAgo } from '../../core/rhythm/aWhileAgo';
+import AWhileAgo from '../today/AWhileAgo';
+import PauseOfferCard from '../pause/PauseOfferCard';
+import { formatLocalDay } from '../schedule/format';
+import AlsoToday from '../today/AlsoToday';
+import CheckBackNudges from '../today/CheckBackNudges';
+import DayChangeSheet, { type DayChangeTarget } from '../today/DayChangeSheet';
+import DayTimeline from '../today/DayTimeline';
+import DoneToday from '../today/DoneToday';
+import NowCard from '../today/NowCard';
+import RevisitNudges, { useDecisionsToRevisit } from '../today/RevisitNudges';
+import WelcomeBack from '../today/WelcomeBack';
+import Intention from '../today/Intention';
+import CloseDay from '../today/CloseDay';
+import OpenTime from '../today/OpenTime';
+import { setDaysAheadOpening } from '../days/daysAhead';
+import Overlaps from '../today/Overlaps';
+import { nextOpen, overlaps } from '../../core/rhythm/overlaps';
+
+import { itemSpan, openStretches } from '../../core/rhythm/openTime';
+import { loadQuietHours } from '../../data/storage/preferences';
+import BackupOffer from '../today/BackupOffer';
+import DailyLine from '../today/DailyLine';
+import { closingFrom } from '../../core/rhythm/personalDay';
+import { greeting } from '../today/greeting';
+import { blockTitle, buildDayTimeline } from '../today/timeline';
+import { ImportantCard, NotificationsButton } from '../notifications/Notifications';
+import ImportantItems from './components/ImportantItems';
+import LookAhead from './components/LookAhead';
+import NowEmptyState from './components/NowEmptyState';
+import ScheduledItems from './components/ScheduledItems';
+import UnsortedPreview from './components/UnsortedPreview';
+import WaitingItems from './components/WaitingItems';
+import { useNow } from './hooks/useNow';
+
+function subscribeCalendars(listener: () => void): () => void {
+  const offOther = otherCalendars.subscribe(listener);
+  const offStore = calendarStore.subscribe(listener);
+  return () => { offOther(); offStore(); };
+}
+
+/**
+ * Today, kept calm: at most one message card, then capture, what is happening
+ * now, the person's own three, and the day's timeline. Everything else folds
+ * into one line of counts.
+ */
+export default function NowPage() {
+  const clock = useClock();
+  const navigate = useNavigate();
+  const addedApps = useAddedApps();
+  const { openItem } = useOverlays();
+  const [away] = useState(() => daysAway(previousVisitDate(), new Date()));
+  const [name] = useState(displayName);
+  const [kept, setKept] = useState(keptConcerns);
+  const shows = useTodayParts();
+  const layout = useTodayLayout();
+  const [editing, setEditing] = useState(false);
+  const [welcomeDismissed, setWelcomeDismissed] = useState(false);
+  const [cleared, setCleared] = useState<ReadonlySet<string>>(new Set());
+  const { today, rangeOf, blocks } = usePersonalDay(clock);
+  const [changing, setChanging] = useState<DayChangeTarget | null>(null);
+  // Today shows today; other days live in Days ahead.
+  const date = today;
+  const line = dailyLineFor(date);
+
+  const now = useNow();
+  const items = useServiceData(lifeService.subscribe, () => lifeService.list()) ?? [];
+  const patterns = useServiceData(scheduleService.subscribe, () => scheduleService.patterns());
+  const dayOccurrences = useServiceData(scheduleService.subscribe, () => scheduleService.day(date), [date]) ?? [];
+  const nearOccurrences =
+    useServiceData(
+      scheduleService.subscribe,
+      () => scheduleService.occurrencesBetween(atTime(addDays(today, -1), '00:00'), atTime(addDays(today, 3), '00:00')),
+      [today],
+    ) ?? [];
+  const toRevisit = useDecisionsToRevisit();
+  const statements = useServiceData(compassService.subscribe, () => compassService.statements()) ?? [];
+  const linesForGoals = goalLines(statements, items, patterns ?? []);
+
+  const calendarEvents =
+    useServiceData(subscribeCalendars, async () => {
+      const from = atTime(date, '00:00');
+      const until = atTime(addDays(date, 1), '00:00');
+      return [...otherCalendars.eventsBetween(from, until), ...eventsFromLines(await calendarStore.lines({ from, until }))];
+    }, [date]) ?? [];
+  const todayRange = rangeOf(today);
+  const todayEvents =
+    useServiceData(subscribeCalendars, async () => {
+      return [...otherCalendars.eventsBetween(todayRange.start, todayRange.end), ...eventsFromLines(await calendarStore.lines({ from: todayRange.start, until: todayRange.end }))];
+    }, [todayRange.start.getTime()]) ?? [];
+  const busy = [
+    ...nearOccurrences,
+    ...todayEvents.filter((event) => !event.allDay),
+    ...items.filter((item) => (item.status === 'OPEN' || item.status === 'WAITING') && item.scheduledAt).map((item) => itemSpan(item.scheduledAt!, item.endsAt)),
+  ];
+  const stretches = openStretches(todayRange, clock, busy, loadQuietHours());
+  const clashes = overlaps(
+    items,
+    [
+      ...nearOccurrences.map((block) => ({ start: block.start, end: block.end, title: blockTitle(block) })),
+      ...todayEvents.filter((event) => !event.allDay).map((event) => ({ start: event.start, end: event.end, title: event.title })),
+    ],
+    clock,
+    todayRange.end,
+  );
+  const entries = patterns ? buildDayTimeline(date, dayOccurrences, items, patterns, calendarEvents) : [];
+  const earlier = fromEarlierDays(items, clock).filter((item) => !cleared.has(item.id));
+  const earlierIds = new Set(earlier.map((item) => item.id));
+  const ready = readyToCheckBack(items, clock);
+  const readyIds = new Set(ready.map((item) => item.id));
+  const offer = patterns ? pauseOffer(clock, nearOccurrences, patterns, answeredPauseOffers()) : undefined;
+  const hasAnything = entries.length > 0 || (now && !now.isEmpty);
+
+  // Only one message at a time, most time-sensitive first.
+  const message = offer
+    ? 'pause'
+    : away >= RETURN_AFTER_DAYS && !welcomeDismissed
+      ? 'welcome'
+      : !isLookAheadSetAside() && shows('look-ahead')
+        ? 'look-ahead'
+        : null;
+
+  const aWhileAgo = fromAWhileAgo(items, clock, kept);
+  const waiting = now?.waiting.filter((item) => !readyIds.has(item.id)) ?? [];
+  const alsoSections = now
+    ? [
+        { id: 'check-back', label: 'Check back', count: ready.length, content: <CheckBackNudges items={ready} /> },
+        {
+          id: 'a-while-ago',
+          label: 'From a while ago',
+          count: shows('a-while-ago') ? aWhileAgo.length : 0,
+          content: (
+            <AWhileAgo
+              items={aWhileAgo}
+              onKeep={(id) => {
+                keepConcern(id);
+                setKept(keptConcerns());
+              }}
+            />
+          ),
+        },
+        { id: 'revisit', label: 'Look back', count: toRevisit.length, content: <RevisitNudges /> },
+        { id: 'important', label: 'Important', count: now.important.length, content: <ImportantItems items={now.important} /> },
+        { id: 'waiting', label: 'Waiting', count: waiting.length, content: <WaitingItems items={waiting} /> },
+        { id: 'unsorted', label: 'Not sorted', count: now.unsortedCount, content: <UnsortedPreview count={now.unsortedCount} items={items} today={today} /> },
+        {
+          id: 'earlier',
+          label: 'From earlier days',
+          count: message === 'welcome' ? 0 : earlier.length,
+          content: (
+            <ScheduledItems label="From earlier days" items={now.scheduled.filter((item) => earlierIds.has(item.id))} />
+          ),
+        },
+      ]
+    : [];
+
+  const foot = (
+    <>
+      {/* One setup prompt at a time: the schedule waits while another message is showing. */}
+      {!message && patterns && patterns.length === 0 && shows('schedule-prompt') && (
+        <div className="quiet-row-wrap">
+          <button type="button" className="quiet-row" onClick={() => navigate('schedule')}>
+            <span className="quiet-row__text">
+              <span>Add your schedule</span>
+            </span>
+            <ChevronRightIcon size={18} className="quiet-row__chevron" />
+          </button>
+          <NotForMe part="schedule-prompt" />
+        </div>
+      )}
+      {/* After the schedule, and only while nothing from the Store is added: one quiet way to the Store. */}
+      {!message && patterns && !(patterns.length === 0 && shows('schedule-prompt')) && addedApps.length === 0 && shows('apps-prompt') && (
+        <div className="quiet-row-wrap">
+          <button type="button" className="quiet-row" onClick={() => { openSettingsAt('store'); navigate('settings'); }}>
+            <span className="quiet-row__text">
+              <span>Add apps</span>
+            </span>
+            <ChevronRightIcon size={18} className="quiet-row__chevron" />
+          </button>
+          <NotForMe part="apps-prompt" />
+        </div>
+      )}
+      <BackupOffer today={today} recordCount={items.length} />
+      {now && !hasAnything && patterns && patterns.length > 0 && <NowEmptyState />}
+    </>
+  );
+
+  // Today's sections in the person's order (Edit Today); each keeps its own conditions.
+  const sectionNodes: Record<TodaySection, ReactNode> = {
+    intention: shows('intention') && <Intention date={date} isToday items={items} />,
+    together: null,
+    next: <NowCard now={clock} occurrences={nearOccurrences} items={items} showNext={!entries.some((entry) => 'start' in entry && entry.start > clock)} />,
+    day: (
+      <>
+        {entries.length > 0 && (
+        <section className="stack-tight" aria-label="Your day">
+          <div className="section-heading">
+            <h2 className="section-label">Your day</h2>
+            <span className="section-heading__actions">
+              <button
+                type="button"
+                className="text-link"
+                onClick={() => {
+                  setDaysAheadOpening({ start: date });
+                  navigate('plan');
+                }}
+              >
+                Days ahead
+              </button>
+              <button type="button" className="text-link" onClick={() => navigate('schedule')}>
+                Schedule
+              </button>
+            </span>
+          </div>
+          <DayTimeline
+            date={date}
+            entries={entries}
+            now={clock}
+            onChangeDay={setChanging}
+            onOpenItem={openItem}
+            goalLines={linesForGoals}
+            onOpenEntry={(key) => {
+              setDaysAheadOpening({ start: date, focusKey: key });
+              navigate('plan');
+            }}
+          />
+        </section>
+      )}
+        <Overlaps overlaps={clashes} moveTo={nextOpen(stretches, clock)} />
+      </>
+    ),
+    'daily-practices': <DailyPractices today={today} range={rangeOf(today)} />,
+    'worth-attention': <WorthYourAttention today={today} range={rangeOf(today)} />,
+    'on-this-day': <TodayOnThisDay today={today} />,
+    'open-time': shows('open-time') && items.some((item) => item.status === 'OPEN' && !item.scheduledAt) && (
+      <OpenTime stretches={stretches} items={items} today={today} />
+    ),
+    also: <AlsoToday sections={alsoSections} />,
+    done: <DoneToday today={today} range={rangeOf(today)} />,
+    'close-day': shows('close-day') && (
+      <CloseDay today={today} range={rangeOf(today)} items={items} now={clock} availableFrom={closingFrom(rangeOf(today), blocks)} />
+    ),
+    line: shows('line') && <DailyLine key={date} line={line} />,
+  };
+
+  return (
+    <div className="page page--landscape">
+      <header className="page-header today-header">
+        <div className="page-header__actions">
+          <TodayWeather />
+          <SearchButton />
+          <NotificationsButton />
+          <SettingsButton />
+        </div>
+        <h1 className="page-header__title">{greeting(clock, name)}</h1>
+        <div className="day-stepper">
+          <span className="day-stepper__date">
+            {formatLocalDay(date, { weekday: 'short', month: 'short', day: 'numeric' })}
+          </span>
+        </div>
+      </header>
+
+      <>
+
+      {/* Only while something important came in; its × clears it. */}
+      <ImportantCard />
+      {message === 'pause' && offer && <PauseOfferCard key={offer.start.toISOString()} occurrence={offer} />}
+      {message === 'welcome' && (
+        <WelcomeBack
+          days={away}
+          earlier={earlier}
+          onDismiss={() => setWelcomeDismissed(true)}
+          onCleared={(ids) => setCleared(new Set(ids))}
+        />
+      )}
+      {message === 'look-ahead' && <LookAhead />}
+
+      {layout.order.map((section) => {
+        if (layout.off.includes(section)) return null;
+        const node = sectionNodes[section];
+        // The setup prompts and the backup offer keep their place just above the daily thought, wherever it goes.
+        return section === 'line' ? (
+          <Fragment key={section}>
+            {foot}
+            {node}
+          </Fragment>
+        ) : (
+          <Fragment key={section}>{node}</Fragment>
+        );
+      })}
+
+      <button type="button" className="text-link today-edit-link" onClick={() => setEditing(true)}>
+        Edit Today
+      </button>
+
+      </>
+
+      <Landscape />
+
+      {changing && <DayChangeSheet target={changing} onClose={() => setChanging(null)} />}
+      {editing && <TodayEditor onClose={() => setEditing(false)} />}
+    </div>
+  );
+}

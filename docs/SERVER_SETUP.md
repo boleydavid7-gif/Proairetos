@@ -1,0 +1,583 @@
+# Setting up sync and reminders
+
+Proairetos works fully without a server. These steps add encrypted sync
+across devices and private reminders. Allow about 30 minutes. Everything
+here fits Supabase's free tier.
+
+You will end up with three public values for Cloudflare and a few secrets
+that stay in Supabase. Never put the Supabase **service role** key or the
+VAPID **private** key in Cloudflare or in this repository.
+
+---
+
+## 1. Create the Supabase project
+
+1. Sign up at https://supabase.com and choose **New project**.
+2. Pick a region close to you. Save the database password somewhere safe
+   (you will rarely need it).
+3. Wait for the project to finish starting.
+
+## 2. Create the tables
+
+1. Open **SQL Editor** and choose **New query**.
+2. Paste the whole contents of
+   `supabase/migrations/20261001000000_proairetos_sync.sql` and choose **Run**.
+3. It is safe to run again if anything was interrupted.
+4. For the calendar subscription link, run `supabase/migrations/20261002000000_calendar_feed.sql`
+   and then `supabase/migrations/20261111000000_calendar_feed_format.sql`, one after the other in
+   the same session. Never run the first on its own: only the second makes the server accept the
+   corrected file format. Skip both if you do not want the link.
+5. And with `supabase/migrations/20261003000000_askesis_sync.sql`, so Askesis
+   (the training app) can sync its workouts and plan with the same account.
+   Until it runs, Askesis keeps them on the phone and Proairetos syncs as usual.
+6. And with `supabase/migrations/20261010000000_soma_sync.sql`, so Soma
+   (recipes) syncs its recipes and grocery list too. Until it runs, Soma keeps
+   them on the phone.
+7. Run `supabase/migrations/20261104000000_device_registry.sql` to enable the Devices & Sessions registry. It stores device labels, platform, connected app IDs, last-seen times and revocation status only; never passwords, tokens or encryption keys.
+
+These migrations create the sync tables and account device registry, each locked so a person can only ever reach their own rows:
+
+| Table | Holds | Readable by the server? |
+| --- | --- | --- |
+| `records` | Your data, sealed on your device | No: encrypted |
+| `user_keys` | Your data key, locked by your passphrase and by your recovery key | No: encrypted |
+| `push_subscriptions` | Where to deliver notifications to your devices | Yes (an address, no content) |
+| `reminders` | When to remind you, as times and hashed ids | Times only |
+| `calendar_feeds` | Only if you turn on the calendar link: the calendar file with the categories you switched on (format 2; never bill amounts, confirmation codes, addresses or notes) | Yes, by your choice |
+| `account_devices` | Device label, platform, connected app IDs, last active time and revocation status | Yes (metadata only) |
+
+## 3. Sign-in emails
+
+1. **Authentication → Sign In / Providers → Email**: make sure Email is
+   enabled.
+2. **Authentication → URL Configuration**: set **Site URL** to
+   `https://proairetos.com`. Under **Redirect URLs**, add
+   `https://proairetos.com/**` (and `https://www.proairetos.com/**` if you
+   use www).
+
+That is all that is required. Supabase's standard email contains a sign-in
+**link**, and the app accepts it two ways:
+
+- **Paste it** (works everywhere, including the iPhone Home Screen app):
+  long-press the link in the email, choose **Copy**, and paste it into the
+  "Code or link from the email" box. Do not open the link first; a link
+  works once.
+- **Open it** in the same browser you use the app in (a computer, or
+  Android): you are signed in directly.
+
+**Optional: a 6-digit code instead.** On the free plan the email templates
+are locked (greyed out) while Supabase's built-in sender is used. To unlock
+them, add your own sender under **Authentication → Emails → SMTP Settings**
+(for example a Gmail app password, or a provider such as Resend). Then edit
+both the **Magic Link** and **Confirm signup** templates to include the code:
+
+```html
+<h2>Your Proairetos code</h2>
+<p>Enter this code in the app: <strong>{{ .Token }}</strong></p>
+<p>If you did not ask for it, you can ignore this email.</p>
+```
+
+Your own sender also lifts Supabase's limit of a few emails per hour, which
+matters if other people will use the app.
+
+## 4. Copy the public settings
+
+- **Project URL** (becomes `VITE_SUPABASE_URL`): the **Connect** button on
+  the project's home page shows it; so does **Project Settings → Data API**.
+  It is always `https://YOUR_PROJECT_REF.supabase.co`, where the ref is the
+  last part of the dashboard address (`supabase.com/dashboard/project/REF`).
+- **Key** (becomes `VITE_SUPABASE_ANON_KEY`): **Project Settings → API Keys**,
+  the **Publishable** key (`sb_publishable_…`); or under **Legacy API keys**,
+  the **anon public** key (`eyJ…`). Never the secret or service_role key.
+
+The anon key is designed to be public; the table locks from step 2 are what
+protect your data.
+
+## 5. Create reminder keys (VAPID)
+
+On any computer with Node.js:
+
+```
+npx web-push generate-vapid-keys
+```
+
+It prints a **Public Key** and a **Private Key**.
+
+- The public key becomes `VITE_VAPID_PUBLIC_KEY` (Cloudflare).
+- The private key is a secret for Supabase only (step 7).
+
+## 6. Add the settings to Cloudflare
+
+Proairetos is deployed as a Cloudflare **Worker** connected to GitHub. The
+three values are needed when the app is **built**, so they go in the build
+settings, not the runtime ones.
+
+1. Cloudflare dashboard → **Workers & Pages** → **proairetos** →
+   **Settings** → **Build**.
+2. Check the build configuration:
+   - **Build command:** `npm run build`
+   - **Deploy command:** `npx wrangler deploy`
+   - **Root directory:** `/` (leave empty if it shows a blank field)
+3. Under **Build → Variables and secrets** (sometimes labelled **Build
+   variables**), add:
+
+   | Name | Value |
+   | --- | --- |
+   | `VITE_SUPABASE_URL` | Project URL from step 4 |
+   | `VITE_SUPABASE_ANON_KEY` | Publishable or anon key from step 4 |
+   | `VITE_VAPID_PUBLIC_KEY` | Public key from step 5 |
+
+   Do not add them under the Worker's runtime **Variables and Secrets**;
+   the app reads them only while being built.
+4. Start a new build: **Deployments → View build history → Retry build**,
+   or push any commit to `main`.
+
+These values are baked into the app, so rebuild after changing them.
+
+At this point **sync works**. Reminders need two more steps.
+
+## 7. Deploy the reminder function
+
+**Without a computer (Supabase dashboard):** **Edge Functions → Secrets**,
+add the four secrets below. Then **Edge Functions → Deploy a new function →
+Via editor**, name it `send-reminders`, paste the contents of
+`supabase/functions/send-reminders/index.ts`, deploy, and in the function's
+**Details** turn **Enforce JWT verification** off. Repeat for
+`delete-account` (leave JWT verification on) and, if you want the calendar
+link, `calendar-feed` (JWT verification off).
+
+**With a computer:** install the Supabase CLI (https://supabase.com/docs/guides/cli), then from
+this repository:
+
+```
+supabase login
+supabase link --project-ref YOUR_PROJECT_REF
+supabase secrets set \
+  VAPID_PUBLIC_KEY="public key from step 5" \
+  VAPID_PRIVATE_KEY="private key from step 5" \
+  VAPID_SUBJECT="mailto:you@example.com" \
+  CRON_SECRET="a long random string you make up"
+supabase functions deploy send-reminders --no-verify-jwt
+```
+
+So people can delete their account and server data themselves (Settings →
+Account and sync), deploy:
+
+```
+supabase functions deploy delete-account
+```
+
+Leave JWT verification on for this one: only a signed-in person can call
+it, and only for their own account.
+
+For the calendar subscription link, also deploy:
+
+```
+supabase functions deploy calendar-feed --no-verify-jwt
+```
+
+Here `--no-verify-jwt` is needed because calendar apps cannot sign in; the
+function serves a feed only to a link holding its long random token.
+
+`YOUR_PROJECT_REF` is the part before `.supabase.co` in your Project URL.
+`--no-verify-jwt` is correct here: the function instead checks
+`CRON_SECRET`, so only your scheduled job can run it.
+
+## 8. Run it every minute
+
+1. **Database → Extensions**: enable `pg_cron` and `pg_net`.
+2. **SQL Editor**, new query, with your values filled in:
+
+   ```sql
+   select cron.schedule(
+     'proairetos-reminders',
+     '* * * * *',
+     $$
+     select net.http_post(
+       url := 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-reminders',
+       headers := jsonb_build_object(
+         'Content-Type', 'application/json',
+         'x-cron-secret', 'THE SAME CRON_SECRET AS STEP 7'
+       ),
+       body := '{}'::jsonb
+     );
+     $$
+   );
+   ```
+
+To stop it later: `select cron.unschedule('proairetos-reminders');`
+
+## 9. Try it
+
+1. Open the app, tap the gear (top right), then **Account and sync**.
+2. Enter your email, then paste the link (or code) from the email.
+3. Choose a passphrase. **Write down the recovery key it shows.** It is the
+   only way back in if you forget the passphrase. Nobody, including
+   Supabase, can recover it for you.
+4. On a second device, sign in with the same email and enter the passphrase.
+5. Calendar link (optional): **Settings → Calendar subscription → Create
+   link**, then use the Apple, Google, or Outlook button it shows. Order for a project
+   that has no calendar table yet: both migrations (step 2.4), then deploy `calendar-feed`,
+   then release the app (`docs/CALENDAR_FEED_FIX.md`).
+6. Notifications on **iPhone**: open the site in Safari, **Share → Add to
+   Home Screen**, open Proairetos from the Home Screen (iOS 16.4 or newer).
+   Then **Settings → Notifications → Allow notifications**, and switch on
+   **Also when the app is closed**. On **Android**, do the same in Settings
+   directly.
+
+---
+
+## What the server can and cannot see
+
+- **Cannot see:** anything you write: items, notes, reflections, decisions,
+  values, schedules. These are encrypted on your device with a key the
+  server never has.
+- **Can see:** your email address; how many records you have, their rough
+  sizes, which kind each is (for example "reflections"), and when they
+  changed; the times reminders are due; and the push address of each device
+  with reminders on.
+- Notifications are written on your phone when the (empty) push arrives,
+  from what is on the device; the server never sees the words. Settings →
+  Notifications → On the lock screen can hide the details there too.
+- **Calendar link, only if you turn it on:** the calendar file you chose to
+  publish is readable by the server and by anyone with the link. It holds only
+  the categories you switch on (commitments titled "Busy" by default; bill names and due dates, trips, and bookings
+  and plans with a time when chosen), never bill amounts, confirmation codes, addresses, routes or notes.
+  Turning it off deletes it.
+
+## Good to know
+
+- **The phone stays the main copy.** The app works offline; sync catches up
+  when you are back online. If the same thing was changed on two devices
+  between syncs, the device that syncs later keeps its version.
+- **Free projects pause** after about a week with no activity. Your phone
+  keeps working; sync resumes once you restore the project from the
+  Supabase dashboard.
+- **Signing out** keeps your data on the device and in your encrypted
+  account; it only stops syncing.
+- **Delete everything** in Settings signs the device out first, so it clears
+  only that device.
+- Keep using **Back up** now and then. It is independent of the server.
+
+## Theoria books
+
+Theoria keeps book files on the device by default. A person can choose their own Google Drive, Dropbox or OneDrive in
+Proairetos under Account › Where it syncs; sealed book copies go there and do not use Proairetos cloud storage. Reading
+progress, highlights, notes and sessions remain small encrypted records in the normal sync. The old Theoria server
+buckets are no longer used for new books.
+
+## Settings and files sync (migration 20261016000000)
+
+Run `supabase/migrations/20261016000000_preferences_files_sync.sql`. It lets settings and photo/file details sync, and creates the private `proairetos-files` bucket (12 MB limit; files arrive already encrypted). Redeploy `delete-account` so it also clears a person's files: `supabase functions deploy delete-account`. Until the migration runs, these are held on the device and everything else syncs as before.
+
+## Reminders from every app (migration 20261017000000)
+
+So reminders from Hydros (water), Oikonomia (bills), Askesis (run days), Praxis (the end of a study block),
+Diaita (wind down, nap), Philia (birthdays, keeping in touch) and Ergon (chores)
+arrive with their own words on a phone where Proairetos is the app that receives pushes:
+
+1. In the SQL editor, run `supabase/migrations/20261017000000_reminder_sources.sql`. It gives each app its own
+   reminder rows (so one app never removes another's) and a column for the words, sealed on the phone with your
+   account key. The server passes them along and cannot read them.
+2. Redeploy the reminder function with the new code: **Edge Functions → send-reminders → Code**, paste
+   `supabase/functions/send-reminders/index.ts`, and deploy (or `supabase functions deploy send-reminders --no-verify-jwt`).
+   The cron job and keys stay as they are.
+3. Open each app you use once while signed in (Proairetos, Hydros, Oikonomia, Askesis, Praxis, Diaita, Philia, Ergon), so each sends its
+   times. Keep reminders turned on in Proairetos; the other apps add theirs to it.
+
+For iPhone Declarative Web Push, also run `supabase/migrations/20261022000000_reminder_previews.sql` and redeploy
+`send-reminders` from the current source. The optional preview is written only when **Details on the lock screen**
+is on; turning it off clears the preview on the next sync while sealed reminders continue to work.
+
+Run step 1 before step 2. Until both are done, Proairetos's own reminders keep working exactly as now.
+
+## Shared lists and households (migration 20261018000000)
+
+Run `supabase/migrations/20261018000000_shared_lists.sql`. It makes Soma's shared grocery list and Ergon's
+shared household work: every line or chore is sealed on the phone with that list's own key, which travels only
+in the invite link, so the server stores them without being able to read them. Both people need to be signed in
+(any account; no passphrase needed for a shared list). Nothing else changes.
+
+All four migrations above are safe to run again; running them in date order on a server that already has some
+of them does no harm.
+
+## Family sharing and member management (migrations 20261031000000 through 20261106000000)
+
+Run these in order after `20261018000000_shared_lists.sql`:
+
+1. `supabase/migrations/20261031000000_household_invites.sql` enables encrypted invitations by email.
+2. `supabase/migrations/20261103000000_household_app_sharing.sql` adds server-enforced per-app sharing permissions.
+3. `supabase/migrations/20261104000000_household_member_roles.sql` adds owner, administrator and member permissions, member removal, and restricts email invitations to owners and administrators.
+4. `supabase/migrations/20261105000000_household_ownership_lifecycle.sql` adds secure ownership transfer and household deletion.
+5. `supabase/migrations/20261106000000_household_membership_sync.sql` keeps the person who enabled an app share connected to that app list when they leave the household, while revoking other departing members.
+
+The household creator is the owner. Members are ordinary members by default; the owner can promote or demote administrators.
+Owners and administrators can invite people. Administrators can remove ordinary members, while only the owner can
+change administrator roles or remove another administrator. The optional household link is a bearer invite: anyone
+holding it can join, so share it only with people you trust. Removing someone blocks future server access to household
+lists and enabled app lists on their next sync. Leaving a household also revokes access to connected app lists the person does not own. It cannot recall copies already downloaded to their devices.
+
+Names and email display details remain encrypted in the household list. Roles and membership are server-authoritative
+so changing a role or removing a person cannot be bypassed by editing local data. Ownership transfer is limited to an
+existing member; the former owner becomes a regular member. Deleting a household removes its membership, invitations,
+and app-sharing connections. It does not delete the separate app lists or their content: the household owner, each
+app-list creator, and each person who originally enabled an app share retain their list access; other household
+members lose access on their next sync. Data already downloaded to a device cannot be recalled. Apply all five
+migrations before using the complete Family management and membership-sync controls.
+
+## Sign in other apps from Proairetos (migration 20261019000000)
+
+On an iPhone each Home Screen app keeps its own storage, so each would need its own sign-in. With this, Proairetos
+copies a one-time pass and the other app pastes it: signed in and unlocked, no email, no passphrase.
+
+1. In the SQL editor, run `supabase/migrations/20261019000000_sign_in_handoff.sql`.
+2. Deploy the new function: **Edge Functions → Deploy a new function → Via editor**, name it `sign-in-handoff`,
+   paste `supabase/functions/sign-in-handoff/index.ts`, deploy (or `supabase functions deploy sign-in-handoff`).
+   Keep JWT verification on.
+
+The function makes a one-time sign-in for the person asking (no email is sent). The data key travels in the pass
+sealed; the key that opens it waits on the server for two minutes and is given once, only to the same person
+after signing in.
+
+## Passkeys (migration 20261020000000)
+
+Face ID, a fingerprint or the device's PIN signs in and opens the data in every app, with nothing typed. A passkey
+belongs to the site, so one added in any app works in all of them, including each iPhone Home Screen app.
+
+1. In the SQL editor, run `supabase/migrations/20261020000000_passkeys.sql`.
+2. Deploy the function: **Edge Functions → Deploy a new function → Via editor**, name it exactly `passkey-sign-in`,
+   paste `supabase/functions/passkey-sign-in/index.ts` (one file, nothing else needed), and turn **Verify JWT**
+   off: it is called before anyone is signed in and trusts only the passkey's signature. (Or
+   `supabase functions deploy passkey-sign-in --no-verify-jwt`.)
+
+No secrets or build variables. Passkeys made on proairetos.com work only there (not on the old workers.dev address).
+
+## Sign in with Google or Apple (optional)
+
+The email code keeps working either way. Your passphrase still unlocks your data after any sign-in: Google
+or Apple only proves who you are; they never see what you write.
+
+**First, in Supabase:** Authentication → URL Configuration → Redirect URLs → add `https://proairetos.com/**`.
+
+**Google** (free):
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project, then **APIs & Services →
+   OAuth consent screen** (External; app name Proairetos; your email). Publish it.
+2. **Credentials → Create credentials → OAuth client ID → Web application.** Under *Authorized redirect URIs*
+   add `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`.
+3. Copy the Client ID and Client secret into Supabase: **Authentication → Sign In / Providers → Google**, turn it on, save.
+
+**Apple** (needs the Apple Developer Program):
+1. In Certificates, Identifiers & Profiles, make an **App ID** with *Sign in with Apple*, then a **Services ID**
+   (for example `com.proairetos.web`) with *Sign in with Apple* configured: domain `YOUR_PROJECT_REF.supabase.co`,
+   return URL `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`.
+2. Make a **Key** with *Sign in with Apple*, download the `.p8` file.
+3. In Supabase, **Authentication → Sign In / Providers → Apple**: Services ID as the client ID, and the secret
+   made from the key (Supabase's Apple page has a generator; the secret lasts six months, so renew it).
+
+**Then show the buttons:** in Cloudflare (Workers → proairetos → Settings → Variables and secrets, *build*
+variables), add `VITE_SIGN_IN_WITH` with `google`, `apple` or `google,apple`, and deploy again. The buttons
+appear in Proairetos's account page and in every app's account card.
+
+On an iPhone Home Screen app, try it once: if the sign-in finishes in Safari instead of the app, use the email
+code there; it signs in the same account.
+
+## Shared grocery lists (migration 20261018000000)
+
+Run `supabase/migrations/20261018000000_shared_lists.sql` in the SQL editor. It adds shared lists for Soma:
+a list's lines are sealed on the phone with the list's own key, which travels only inside the invite link
+(after the `#`, which is never sent to a server), so the server stores lines it cannot read. Only people who
+joined with the link can see or change a list, and anyone can leave. Nothing else needs deploying. Until it
+runs, Soma's Shared view says the server is not set up yet.
+
+## Your own storage: Google Drive, Dropbox, OneDrive (optional, migration 20261021000000)
+
+People can choose to sync through their own Google Drive, Dropbox or OneDrive instead of Proairetos's server
+(Settings > Account > Where your data syncs). Records are sealed on the device first, as always. Proairetos uses the
+same registrations as Noesis; each only needs Proairetos's return address added. It is exactly:
+
+    https://proairetos.com/storage-connected/
+
+1. **SQL Editor** (Proairetos's project): run `supabase/migrations/20261021000000_storage_links.sql`.
+2. **Google Drive**: console.cloud.google.com > Noesis's project > APIs & Services > Credentials > the OAuth client
+   (Web application) > Authorized redirect URIs > Add the address above > Save. Then in Cloudflare, add to the
+   **proairetos** Worker the same two values Noesis's Worker has, as type Secret: `GOOGLE_DRIVE_CLIENT_ID` and
+   `GOOGLE_DRIVE_CLIENT_SECRET`. (Same permission as Noesis, `drive.file`: a visible "Proairetos" folder, nothing else.)
+3. **Dropbox**: dropbox.com/developers/apps > Noesis's app > Settings > Redirect URIs > add the address above. Its app
+   key is already in `wrangler.jsonc`. Files go in a "Proairetos" folder inside the app folder, beside Noesis's.
+4. **OneDrive**: entra.microsoft.com (or portal.azure.com) > App registrations > Noesis's app > Authentication >
+   the **Single-page application** platform > Add URI > the address above > Save. Its client id is already in
+   `wrangler.jsonc`. Files go in a "Proairetos" folder inside the app folder.
+
+Push to `main` (any change) so the Worker picks up the secrets; `https://proairetos.com/api/storage` then lists the
+providers that are ready.
+
+OneDrive as a single-page registration keeps a connection for about a day without use; after that the Account page
+offers "Connect OneDrive again". To keep it longer: in the same registration add a **Web** platform with the address
+above, make a client secret, and add it to the proairetos Worker as `ONEDRIVE_CLIENT_SECRET` (Proairetos then trades
+through its Worker, like Google).
+
+Moving: the device that moves the account brings itself up to date first, then sends everything to the new place;
+after a move to someone's own storage, the sealed copy on Proairetos's server is removed. Other devices and apps follow
+on their next sync. Sign-in, keys, reminders and shared lists stay on Proairetos's server either way.
+
+## Identifying plants in Phyton (optional)
+
+Phyton names a plant from a photo through Pl@ntNet. Without a key the app works as usual and Identify says it is not set up.
+
+1. Make a free account at https://my.plantnet.org, then copy your API key from its settings.
+2. In Cloudflare, open the Worker (proairetos) > Settings > Variables and Secrets > Add, type **Secret**, name `PLANTNET_KEY`, value the key. (Or from a computer: `npx wrangler secret put PLANTNET_KEY`.)
+
+The free plan allows 500 identifications a day and is for non-commercial use; if the apps are sold later, Pl@ntNet's paid plan is needed. Photos pass through `/api/plant` (`worker/plantProxy.ts`) and are not stored.
+
+## The Store: monthly plans (optional, migrations 20261025000000, 20261029000000 and 20261030000000)
+
+Proairetos stays free. The Core plan (every app) is $9.99/month or $107.99/year (about 10% below twelve months) (`core`, `coreyear`); Soma and Phyton are no longer sold on their own; Proairetos cloud sync is
+$2.99/month. Entitlements are kept with the signed-in account in `purchases`, so they follow the person to every
+device. Until all payment secrets are set, checkout stays closed: only the owner and beta testers have the add-ons. Code: `worker/store.ts`,
+`src/app/family/purchases.ts`.
+
+1. Run `supabase/migrations/20261025000000_purchases.sql`, `supabase/migrations/20261029000000_beta_access.sql` and
+   `supabase/migrations/20261030000000_recurring_purchases.sql` in the SQL editor. Each person can only read their own rows;
+   only the Worker (service role) writes them.
+2. Stripe: make an account at https://dashboard.stripe.com and finish activation (business details, bank account).
+   Developers > API keys: copy the **Secret key** (`sk_live_…`; use `sk_test_…` first to try it with card 4242 4242 4242 4242).
+3. Stripe > Developers > Webhooks > Add endpoint: `https://proairetos.com/api/store/webhook`, events
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `customer.subscription.updated` and
+   `customer.subscription.deleted`. Copy its **Signing secret** (`whsec_…`).
+4. Cloudflare > the proairetos Worker > Settings > Variables and Secrets, each as type **Secret** (never plain text,
+   never in the repo):
+   - `STRIPE_SECRET_KEY`: the secret key from step 2.
+   - `STRIPE_WEBHOOK_SECRET`: the signing secret from step 3.
+   - `SUPABASE_SERVICE_ROLE_KEY`: Supabase > Project Settings > API keys > service_role (secret).
+   - `SUPABASE_URL` and `SUPABASE_ANON_KEY` should already be there from Capture from anywhere.
+5. The only owner account is `boleydavid7@gmail.com`. The Store settings page shows the owner a Beta access list. Enter
+   a person's signed-in email there to grant seven days of app access; beta access never includes Proairetos cloud.
+   Remove a person early from the same list. Expiry removes the apps from that person's Proairetos family and locks them
+   again. Local storage and the person's own connected cloud remain available.
+   The same owner-only page shows the signed-in user directory and refreshes beta entries with a live time remaining.
+6. Refunds and cancellations: Stripe subscription webhooks mark the related rows inactive. For a manual correction, use
+   `update purchases set active = false where user_id = '…' and app = 'soma';`.
+
+Once the Worker has every secret, the Store shows the plans, Subscribe opens Stripe's own page, and the person comes
+back to the Store, which activates the plan as soon as Stripe has told the Worker. People must be signed in to buy (the
+subscription belongs to the account). An app that is added but not entitled shows its welcome card; its records are kept.
+
+Note: Pl@ntNet's free plan (Phyton's Identify) is for non-commercial use; once Phyton is sold, its paid plan is needed.
+
+## The waitlist (migration 20261026000000)
+
+The front page (`/welcome/`) and each app's page (`/welcome/<app>/`) have a "Hear when it opens" form. It posts to
+`/api/waitlist` (`worker/waitlist.ts`), which keeps the email and the apps ticked through the RPC `join_waitlist` with
+the publishable key, then sends the visitor to `/welcome/thanks/`. Nobody can read the table through the API.
+
+1. Run `supabase/migrations/20261026000000_waitlist.sql` in the SQL editor.
+2. `SUPABASE_URL` and `SUPABASE_ANON_KEY` must be set on the Worker (they are, if Capture from anywhere is set up).
+3. Read it: `select email, apps, source, created_at from public.waitlist order by created_at;` (`source` is the page it
+   came from: `welcome` or an app's name). Export with the SQL editor's Download CSV.
+4. On launch day, email the list, then add early testers' emails to `STORE_TESTERS` if you want them to keep the apps free.
+
+
+The newsletter is its own box on the form (migration `20261101000000_waitlist_letters.sql`, run after the one
+above): `letters` is true only for people who ticked it, with `letters_at` the date; a later visit never clears it.
+Send the newsletter only to `select email from public.waitlist where letters;`.
+## Poreia's live searches (optional)
+
+Each is a free sign-up whose key becomes a **Secret** on the proairetos Worker (runtime, not a build variable):
+Cloudflare → **Workers & Pages** → **proairetos** → **Settings** → **Variables and Secrets** → **+ Add** → Type
+**Secret**, the name below, paste the key → **Deploy**. Or from a computer: `npx wrangler secret put NAME`.
+Check with https://proairetos.com/api/travel: each one set up reads `true`.
+
+1. **Events — `TICKETMASTER_KEY`.** Register at developer.ticketmaster.com, sign in, open **My Apps**; the app made for
+   you shows a **Consumer Key**: that is the key. Free: 5,000 calls a day.
+2. **Stays with prices — `LITEAPI_KEY`.** Sign up at dashboard.liteapi.travel. **Profile** shows a sandbox key (sample
+   prices, to try it). For real prices add a card under **Payment Methods**, which unlocks the production key; use that.
+   Searching is free within a fair search-to-booking ratio.
+3. **Flights with prices — `DUFFEL_KEY`.** Sign up at app.duffel.com. With the dashboard in **Test mode**, open
+   **Developers → Access tokens → Create token** (it starts `duffel_test_`; results are Duffel's sample airline). For real
+   flights complete activation (card details under billing), switch to live mode and create a live token. Searches are free
+   up to a search-to-booking ratio; above it Duffel charges per search.
+
+4. **Flight status on the day — `AERODATABOX_KEY`.** Sign up at rapidapi.com, open the **AeroDataBox** API, subscribe
+   to a plan (the free Basic plan allows a few hundred calls a month; Pro is a few dollars), then copy the
+   **X-RapidAPI-Key** shown on its **Endpoints** page. Poreia looks at a flight every five minutes only while a trip page
+   with a flight today or tomorrow is open, and the Worker keeps each answer five minutes, so use stays small.
+
+5. **Google ratings, hours and photos — `GOOGLE_PLACES_KEY`.** In console.cloud.google.com make a project, turn on
+   billing, open **APIs & Services → Library**, enable **Places API (New)**, then **Credentials → Create credentials → API
+   key**. Restrict it: **API restrictions → Places API (New)** only (no website restriction: the Worker calls it, not the
+   browser). Each place page asks once a week per device and the Worker keeps answers a day. Google charges per request
+   above a monthly free amount (Text Search with reviews and photos is its higher tier); set a budget alert under
+   **Billing → Budgets**.
+
+Keep the keys only in Cloudflare; never in the repository or a plain variable.
+
+## Soma recipe ideas
+
+Soma's Ideas search combines TheMealDB (direct from the browser) with the community Cookbook on Wikibooks (through the
+Worker's `/api/recipe-ideas`). Neither needs a key. Spoonacular and Tasty were removed on Nov 5 (their free plans are
+small and their terms limit caching), so `SPOONACULAR_API_KEY`, `TASTY_API_KEY` and `TASTY_RAPIDAPI_KEY` are no longer
+read: delete them from Cloudflare if you set them. Recipes come in through Import (link, pasted text, photo, files from
+other recipe apps).
+
+## Oikonomia online receipt reader (reserved)
+
+The Worker path is reserved for a future explicit online receipt option. The current Oikonomia interface exposes only its
+offline receipt OCR. If the option is enabled later, the photo will be sent through `/api/receipt` to Azure AI Document
+Intelligence's prebuilt receipt model; the Worker returns merchant, total, date, currency, and tax fields without storing
+the photo or provider response. Add these as Worker secrets when enabling it:
+
+```bash
+npx wrangler secret put AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT
+npx wrangler secret put AZURE_DOCUMENT_INTELLIGENCE_KEY
+```
+
+Create a Document Intelligence resource in Azure, copy its endpoint and key, and enable the prebuilt receipt model. The
+online action remains unavailable until both secrets exist. The user always reviews the fields before saving an expense.
+
+## Apple Health (migration 20261028000000)
+
+Health Auto Export (iPhone) posts the person's Health data to `/api/health/<token>`. The Worker keeps only workouts, sleep,
+water and readings, sealed for the person's apps.
+
+1. Supabase → **SQL Editor**: run `supabase/migrations/20261028000000_health_inbox.sql`.
+2. The Worker needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` (already set for Capture from anywhere).
+3. In Proairetos: Settings → Apple Health → Turn on, and follow the steps on that page.
+
+## Poreia's forwarding address (migration 20261027000000)
+
+Booking emails forwarded to `trips.<code>@proairetos.com` become bookings on their trip. The Worker reads each email,
+seals it for the person's device and keeps only the sealed copy.
+
+1. Supabase → **SQL Editor**: run `supabase/migrations/20261027000000_trip_inbox.sql`.
+2. The Worker needs `SUPABASE_URL` and `SUPABASE_ANON_KEY` (already set for Capture from anywhere).
+3. Cloudflare → **proairetos.com** (the domain, not the Worker) → **Email** → **Email Routing** → **Get started**; let it
+   add its MX and TXT records. If the domain already receives mail elsewhere, use a subdomain instead (ask Claude to
+   change `MAIL_DOMAIN` in `src/poreia/app/mailInbox.ts`).
+4. **Routing rules** → **Catch-all address** → Action **Send to a Worker** → **proairetos** → Save, and turn it on.
+   Addresses that are not `trips.<code>` are turned away. Any address you add as its own rule still goes where you send it.
+5. In Poreia: More → Forward booking emails → Make my address. Forward a confirmation to it and open Poreia.
+
+## First-week emails (migration 20261102000000, Resend)
+
+Three emails to each new account (day 1, day 3, and the day before the trial ends; the last skipped when a plan was
+bought), sent by the Worker's daily schedule (`triggers.crons` in `wrangler.jsonc`, 15:23 UTC) from `worker/firstWeek.ts`.
+
+1. Run `supabase/migrations/20261102000000_first_week_emails.sql` in the SQL editor.
+2. In Resend (resend.com): add the domain `proairetos.com`, then add the DNS records it shows in Cloudflare (DNS >
+   Records). Wait until Resend says Verified.
+3. In Resend, create an API key (Sending access).
+4. Cloudflare > Workers > proairetos > Settings > Variables and Secrets, add as **Secrets**:
+   - `RESEND_API_KEY`: the key from step 3.
+   - `EMAIL_SIGNING_SECRET`: any long random text (it signs the stop links; keep it the same afterwards).
+   - `SUPABASE_SERVICE_ROLE_KEY` is already there for the Store.
+5. Optional variable `EMAIL_FROM` (default `Proairetos <hello@proairetos.com>`). Replies go to that address, so use one
+   you read, or set up Email Routing to forward it to proairetosapp@gmail.com.
+
+Until `RESEND_API_KEY` and `EMAIL_SIGNING_SECRET` are set, nothing is sent. Who stopped them:
+`select user_id, stopped_at from public.email_stops;`
+
+The same `RESEND_API_KEY`, `EMAIL_FROM`, `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` settings also send
+household invitations from Settings → Household. An invitation to an existing account is kept as the encrypted
+`household_invites` row and appears in that person's Today card and notification bell; an address without a ready account key
+receives a secure household link instead. No service-role key is shipped to the browser.
+

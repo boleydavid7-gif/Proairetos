@@ -1,0 +1,430 @@
+import { useMemo } from 'react';
+import { mondayOnOrBefore } from '../../core/scheduling/dates';
+import type { Nav } from '../app/App';
+import { CheckIcon, ChevronIcon, ClockIcon, Mark, PulseIcon } from '../app/icons';
+import askesisHero from '../../assets/images/scenes/askesis-stoic-wide.webp';
+import { updatePlan, useEntries, useSettings, useToday, useWeekSchedule } from '../app/state';
+import { Brand, dayLabel, Hero, useUndo } from '../app/ui';
+import { efforts } from '../core/effort';
+import { feelings, type LogEntry } from '../core/log';
+import { aimWords, isLastWeek, lastWeekOf, weekAt, type Plan } from '../core/plans';
+import LookBack from './LookBack';
+import SessionBar from '../app/SessionBar';
+import { moreGradual, stageBuilds, suggestWeek, weeksToAim, type Suggestion } from '../core/progress';
+import { lineFor } from '../core/stoic';
+import { asToday, comeBackOffer, gapWords } from '../core/gentler';
+import { layOut, weekdayNames, weekDates, type DayPlan } from '../core/week';
+import { lengthLabel, mainEffort, totalMinutes } from '../core/workouts';
+import type { Unit } from '../core/pace';
+import { savePlan, type PlanState } from '../data/store';
+import RunWeather from '../app/RunWeather';
+import { useRunsPlaced } from '../app/fitted';
+import { trainingTimeOn } from '../../app/family/trainingWeek';
+import { runTitle } from '../../app/askesis/runs';
+
+export default function HomePage({ nav, plan, planState }: { nav: Nav; plan?: Plan; planState?: PlanState }) {
+  const today = useToday();
+  const settings = useSettings();
+  const entries = useEntries() ?? [];
+  const blocks = useWeekSchedule(today, settings.readSchedule);
+  const placed = useRunsPlaced(today, planState, entries.length);
+  const line = lineFor(today);
+  const undo = useUndo();
+
+  const monday = mondayOnOrBefore(today);
+  const dates = weekDates(today);
+  const thisWeeks = entries.filter((entry) => entry.date >= dates[0] && entry.date <= dates[6]);
+  const thisWeeksKey = thisWeeks.map((entry) => `${entry.id}:${entry.date}:${entry.workoutId ?? ''}`).join('|');
+
+  const resting = planState?.restWeek === monday;
+  const week = plan && planState && !resting ? weekAt(plan, planState.week) : undefined;
+  const newWeek = planState && planState.weekOf < monday;
+  const finished = Boolean(plan && planState && isLastWeek(plan, planState.week) && newWeek);
+  const suggestion = plan && planState && newWeek && !finished ? suggestWeek(plan, planState.week, entries, monday) : undefined;
+
+  const days: DayPlan[] = useMemo(
+    () =>
+      week && planState
+        ? layOut(week, today, planState.weekdays, planState.moves, thisWeeks, blocks, placed).map((day) => ({
+            ...day,
+            workout: day.date === today ? asToday(day.workout, planState.lighter, today) : day.workout,
+          }))
+        : [],
+    [week, planState, today, thisWeeksKey, blocks, placed],
+  );
+  const comeBack =
+    planState && !newWeek
+      ? comeBackOffer(entries, planState.week, today, planState.comeBackAsked, planState.startedOn)
+      : undefined;
+  const focus =
+    days.find((day) => day.date === today && !day.done) ?? days.find((day) => day.date > today && !day.done);
+
+  const focusTime = focus ? trainingTimeOn('askesis', focus.date, focus.workout.id) ?? planState?.runAt : undefined;
+
+  return (
+    <div className="home">
+      <Hero image={askesisHero} tall>
+        <Brand light />
+        <div className="home__words">
+          <h1 className="home__title">{week ? `Week ${week.n}` : resting ? 'Rest week' : 'Askesis'}</h1>
+        </div>
+      </Hero>
+
+      <div className="page page--under-hero home-grid">
+        {resting && planState ? (
+          <div className="home-top">
+          <section className="card" aria-label="A week of rest">
+            <h2 className="card__title">A week of rest</h2>
+            <p className="muted">Nothing planned.</p>
+            <button type="button" className="button-quiet" onClick={() => updatePlan({ restWeek: undefined })}>
+              Back to the plan this week
+            </button>
+          </section>
+          </div>
+        ) : !plan || !planState || !week ? (
+          <div className="home-top">
+          <section className="card">
+            <h2 className="card__title">Weekly plan</h2>
+            <button type="button" className="button-main" onClick={() => nav.go({ name: 'plan' })}>
+              Start your running plan
+            </button>
+          </section>
+          </div>
+        ) : (
+          <>
+            <div className="home-top">
+            {comeBack && (
+              <section className="card card--offer" aria-label="Coming back">
+                <h2 className="card__title">It has been {gapWords(comeBack.gapDays)}</h2>
+                <p className="muted">Week {comeBack.toWeek} eases back in. Week {comeBack.fromWeek} carries on.</p>
+                <div className="button-row">
+                  <button
+                    type="button"
+                    className="button-main"
+                    onClick={() =>
+                      updatePlan({ week: comeBack.toWeek, weekOf: monday, moves: {}, comeBackAsked: comeBack.lastDate })
+                    }
+                  >
+                    Start at week {comeBack.toWeek}
+                  </button>
+                  <button
+                    type="button"
+                    className="button-quiet"
+                    onClick={() => updatePlan({ comeBackAsked: comeBack.lastDate })}
+                  >
+                    Carry on at week {comeBack.fromWeek}
+                  </button>
+                </div>
+              </section>
+            )}
+
+            {newWeek && (
+              <section className="card card--offer" aria-label="A new week">
+                {finished ? (
+                  <LookBack nav={nav} plan={plan} state={planState} entries={entries} today={today} />
+                ) : (
+                  suggestion && (
+                    <NewWeek
+                      plan={plan}
+                      current={planState.week}
+                      suggestion={suggestion}
+                      dated={Boolean(planState.raceDate)}
+                      reason={planState.why}
+                      onPick={(n) =>
+                        updatePlan({ week: n, weekOf: monday, moves: {}, again: n === planState.week ? (planState.again ?? 0) + 1 : 0 })
+                      }
+                      gradual={
+                        (suggestion.why === 'again' || suggestion.why === 'earlier') &&
+                        ((planState.again ?? 0) >= 1 || suggestion.reading.hard >= 2)
+                          ? moreGradual(planState)
+                          : undefined
+                      }
+                      onGradual={(joinWeek) => {
+                        const before = planState;
+                        updatePlan({ gentler: true, joinWeek, weekOf: monday, moves: {}, again: 0 });
+                        undo('A more gradual path', () => savePlan(before));
+                      }}
+                    />
+                  )
+                )}
+              </section>
+            )}
+
+            </div>
+
+            <div className="home-main">
+            <section className="card" aria-label="Today’s focus" data-ll-lit={focus ? true : undefined}>
+              <span className="card__eyebrow">
+                {focus?.date === today ? 'Today’s focus' : focus ? `Next: ${dayLabel(focus.date, today)}` : 'This week'}
+              </span>
+              {focus ? (
+                <>
+                  <button
+                    type="button"
+                    className="focus"
+                    onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
+                  >
+                    <span className={`focus__length focus__length--${mainEffort(focus.workout.parts)}`} aria-hidden="true">
+                      {focus.workout.kind === 'race' ? (
+                        <Mark size={30} />
+                      ) : (
+                        <>
+                          <b>{Math.round(totalMinutes(focus.workout.parts))}</b>
+                          <small>min</small>
+                        </>
+                      )}
+                    </span>
+                    <span className="focus__text">
+                      <span className="focus__title">{focus.workout.title}</span>
+                      <span className="focus__facts">
+                        {focus.workout.kind !== 'race' && (
+                          <span>
+                            <ClockIcon size={16} /> {lengthLabel(totalMinutes(focus.workout.parts))}
+                          </span>
+                        )}
+                        <span>
+                          <PulseIcon size={16} /> {efforts[mainEffort(focus.workout.parts)].name}
+                        </span>
+                      </span>
+                    </span>
+                    <ChevronIcon size={18} />
+                  </button>
+                  {focus.workout.kind !== 'race' && <SessionBar parts={focus.workout.parts} small />}
+                  {(focusTime || planState.place) && (
+                    <p className="muted">{[focusTime && clock(focusTime), planState.place].filter(Boolean).join(' · ')}</p>
+                  )}
+                  {focus.date === today && <RunWeather date={today} runAt={focusTime} compact />}
+                  {focus.date === today && planState.ifThen && (
+                    <p className="hint">If something gets in the way: {planState.ifThen}</p>
+                  )}
+                  {focus.date === today && (
+                    <div className="button-row">
+                      <button
+                        type="button"
+                        className="button-main"
+                        onClick={() => nav.go({ name: 'workout', id: focus.workout.id })}
+                      >
+                        Start
+                      </button>
+                      <button
+                        type="button"
+                        className="button-quiet"
+                        onClick={() => nav.go({ name: 'entry', workoutId: focus.workout.id, date: focus.date })}
+                      >
+                        Log it
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="muted">Nothing left this week.</p>
+              )}
+            </section>
+
+            <WeekCalendar dates={dates} plans={days} entries={thisWeeks} today={today} nav={nav} unit={settings.unit} />
+
+            </div>
+
+            <div className="home-plan">
+            <button type="button" className="card card--link" onClick={() => nav.swap({ name: 'train' })}>
+              <span className="card__eyebrow">{planState.aimWords ?? aimWords(plan.aim, settings.unit)}</span>
+              <span className="card__title">{week.stage}</span>
+              <span className="muted">{week.theme}</span>
+              <span className="card__foot">
+                Week {week.n}
+                {plan.cycleFrom ? '' : ` · ${toAimWords(weeksToAim(plan, week.n))}`}
+                <ChevronIcon size={18} />
+              </span>
+            </button>
+            </div>
+          </>
+        )}
+
+        {settings.dailyLine && (
+          <figure className="daily-line home-bottom">
+            <blockquote>{line.text}</blockquote>
+            <figcaption>{line.by}</figcaption>
+          </figure>
+        )}
+      </div>
+    </div>
+  );
+}
+
+type WeekCalendarProps = {
+  dates: string[];
+  plans: DayPlan[];
+  entries: LogEntry[];
+  today: string;
+  nav: Nav;
+  unit: Unit;
+};
+
+/** A quiet seven-day view: see the week's shape, open a planned run, or log an unplanned day. */
+function WeekCalendar({ dates, plans, entries, today, nav, unit }: WeekCalendarProps) {
+  const done = plans.filter((day) => day.done).length;
+  const summary = plans.length ? `${done} of ${plans.length} done` : 'No sessions placed';
+  const latestEntry = (date: string) => entries
+    .filter((entry) => entry.date === date)
+    .slice()
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+
+  return (
+    <section className="card week-calendar" aria-label="Training calendar">
+      <div className="week-calendar__head">
+        <div>
+          <span className="card__eyebrow">Your training</span>
+          <h2 className="card__title card__title--small">This week</h2>
+        </div>
+        <span className="week-calendar__summary">{summary}</span>
+      </div>
+      <div className="week-calendar__days">
+        {dates.map((date, index) => {
+          const scheduled = plans.filter((day) => day.date === date);
+          const completedCount = scheduled.filter((day) => day.done).length;
+          const completed = scheduled.length > 0 && completedCount === scheduled.length;
+          const logged = latestEntry(date);
+          const next = scheduled.find((day) => !day.done) ?? scheduled[0];
+          const dateLabel = new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+            weekday: 'long',
+            month: 'long',
+            day: 'numeric',
+          });
+          const detail = scheduled.length
+            ? `${scheduled.length} planned ${scheduled.length === 1 ? 'session' : 'sessions'}${completedCount ? `, ${completedCount} completed` : ''}`
+            : logged ? 'Logged activity' : 'No session planned';
+          return (
+            <button
+              key={date}
+              type="button"
+              className={`week-calendar__day${date === today ? ' week-calendar__day--today' : ''}${completed ? ' week-calendar__day--done' : completedCount ? ' week-calendar__day--partial' : ''}${scheduled.length ? ' week-calendar__day--planned' : ''}`}
+              aria-label={`${dateLabel}. ${detail}. ${scheduled.length || logged ? 'Open details' : 'Log an activity'}.`}
+              aria-current={date === today ? 'date' : undefined}
+              disabled={!scheduled.length && !logged && date > today}
+              onClick={() => {
+                if (next?.done) nav.go({ name: 'entry', id: next.done.id });
+                else if (next) nav.go({ name: 'workout', id: next.workout.id });
+                else if (logged) nav.go({ name: 'entry', id: logged.id });
+                else nav.go({ name: 'entry', date });
+              }}
+            >
+              <span className="week-calendar__weekday">{weekdayNames[index].slice(0, 3)}</span>
+              <span className="week-calendar__date">{Number(date.slice(-2))}</span>
+              <span className="week-calendar__indicator" aria-hidden="true">
+                {completed ? <CheckIcon size={16} /> : scheduled.length || logged ? <span /> : null}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {entries.length > 0 ? (
+        <ul className="week-calendar__logged">
+          {entries
+            .slice()
+            .sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt))
+            .map((entry) => (
+              <li key={entry.id}>
+                <button type="button" className="entry-row" onClick={() => nav.go({ name: 'entry', id: entry.id })}>
+                  <span className="entry-row__day">{dayLabel(entry.date, today, true)}</span>
+                  <span className="entry-row__text">
+                    <span>{runTitle(entry, unit)}</span>
+                    <span className="entry-row__facts">{entry.workoutTitle ? `Planned: ${entry.workoutTitle}` : 'Logged workout'}</span>
+                  </span>
+                  <span className="entry-row__felt">{entry.felt ? feelings[entry.felt] : ''}</span>
+                  <ChevronIcon size={16} />
+                </button>
+              </li>
+            ))}
+        </ul>
+      ) : (
+        <button type="button" className="text-link" onClick={() => nav.go({ name: 'entry' })}>
+          Log a workout
+        </button>
+      )}
+    </section>
+  );
+}
+
+function toAimWords(weeks: number | undefined): string {
+  if (weeks === undefined) return '';
+  return weeks === 1 ? 'the week of your aim' : `about ${weeks} weeks to your aim`;
+}
+
+/** A new week: what was logged, the week that fits it, and how far that leaves the aim. The choice stays with the runner. */
+function NewWeek({
+  plan,
+  current,
+  suggestion,
+  dated,
+  reason: ownWhy,
+  onPick,
+  gradual,
+  onGradual,
+}: {
+  plan: Plan;
+  current: number;
+  suggestion: Suggestion;
+  dated: boolean;
+  reason?: string;
+  onPick: (week: number) => void;
+  gradual?: { joinWeek: number; addedWeeks?: number };
+  onGradual: (joinWeek: number) => void;
+}) {
+  const { week, why, reading } = suggestion;
+  const theme = weekAt(plan, week).theme;
+  const facts =
+    why === 'quiet'
+      ? 'Nothing logged last week.'
+      : `Last week: ${lengthLabel(reading.lastWeek)} running` +
+        (reading.sessionsDone ? `, ${reading.sessionsDone} of ${reading.sessions} sessions` : '') +
+        (reading.lastLongest ? `, longest ${lengthLabel(reading.lastLongest)}` : '') +
+        '.';
+  const reason = {
+    next: `Next: week ${week}, ${theme.charAt(0).toLowerCase() + theme.slice(1)}.`,
+    ahead: `More than week ${current} asked. Week ${week} fits it, with no more than about 10% added.`,
+    again: reading.hard >= 2 ? `Two or more runs felt hard. Week ${current} again lets it settle.` : `Week ${current} again, to settle into it.`,
+    earlier: `Week ${week} is closer to what you ran.`,
+    quiet: `Week ${current} again, or move on.`,
+  }[why];
+  const left = weeksToAim(plan, week);
+  const others = [current + 1, current].filter(
+    (n, i, all) => n !== week && all.indexOf(n) === i && (plan.cycleFrom || n <= lastWeekOf(plan)),
+  );
+  return (
+    <>
+      <h2 className="card__title">{week === current ? 'A new week' : `Week ${week} is ready`}</h2>
+      {ownWhy && <p className="own-words">“{ownWhy}”</p>}
+      <p className="muted">{facts}</p>
+      <p className="muted">{reason}</p>
+      {week !== current && <p className="muted">What it builds: {stageBuilds[weekAt(plan, week).stage].charAt(0).toLowerCase() + stageBuilds[weekAt(plan, week).stage].slice(1)}</p>}
+      {left !== undefined && !dated && <p className="muted">From there, {toAimWords(left)}.</p>}
+      <button type="button" className="button-main" onClick={() => onPick(week)}>
+        {week === current ? `Week ${week} again` : `Start week ${week}`}
+      </button>
+      <div className="button-row">
+        {others.map((n) => (
+          <button key={n} type="button" className="button-quiet" onClick={() => onPick(n)}>
+            {n === current ? `Stay on week ${n}` : `Week ${n}`}
+          </button>
+        ))}
+      </div>
+      {gradual && (
+        <div className="gradual">
+          <p className="muted">
+            Or take the rest more gradually: the bigger steps twice, a slower build
+            {gradual.addedWeeks ? `, about ${gradual.addedWeeks} more ${gradual.addedWeeks === 1 ? 'week' : 'weeks'} to your aim` : ''}.
+          </p>
+          <button type="button" className="button-quiet" onClick={() => onGradual(gradual.joinWeek)}>
+            More gradually
+          </button>
+        </div>
+      )}
+    </>
+  );
+}
+
+/** "06:30" in the phone's own way of writing a time. */
+function clock(time: string): string {
+  const [h, m] = time.split(':').map(Number);
+  return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+}

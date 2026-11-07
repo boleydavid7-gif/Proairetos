@@ -1,0 +1,118 @@
+/* ---------- Rows: settings and "more" lists ---------- */
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 3.5rem;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  border: 0;
+  border-bottom: 1px solid var(--color-border);
+  background: transparent;
+  text-align: left;
+}
+
+.settings-row:last-child {
+  border-bottom: 0;
+}
+
+.settings-row__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--color-accent);
+}
+
+.settings-row__text {
+  flex: 1 1 auto;
+  /* A long value beside it wraps instead of running over the title. */
+  min-width: min-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.settings-row__detail {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.settings-row__value {
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: right;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Delete everything sits on its own, away from the rows people use. */
+.settings-list--apart {
+  margin-top: var(--space-5);
+}
+
+.settings-row__chevron {
+  flex: none;
+  color: var(--color-text-faint);
+}
+
+/* Settings in a few small groups, each under a quiet heading. */
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.settings-group__label {
+  margin: var(--space-2) 0 0 var(--space-1);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* A sibling app's own icon, in Settings > More apps. */
+.settings-row__app {
+  display: block;
+  border-radius: 7px;
+}
+
+/* A run from Askesis in Reflect: the title, then the person's own words. */
+.run-entry__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.run-entry__words {
+  color: var(--color-text-muted);
+}
+
+/* The box that finds a setting by name. */
+.settings-find {
+  position: relative;
+  display: block;
+  margin-bottom: var(--space-1);
+}
+.settings-find > svg {
+  position: absolute;
+  inset-inline-start: 14px;
+  top: 50%;
+  translate: 0 -50%;
+  color: var(--color-text-faint, var(--text-muted));
+  pointer-events: none;
+}
+.settings-find .field-input {
+  padding-inline-start: 40px;
+}

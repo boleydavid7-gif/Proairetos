@@ -1,0 +1,341 @@
+import { useEffect, useState } from 'react';
+import { runsPlaced } from '../app/fitted';
+import type { Nav, Route } from '../app/App';
+import { FeltFace } from '../app/icons';
+import { newId, useEntries, usePlanState, useSettings, useToday } from '../app/state';
+import { asToday } from '../core/gentler';
+import { BackLink, Segmented, Switch, useUndo } from '../app/ui';
+import { mondayOnOrBefore } from '../../core/scheduling/dates';
+import { layOut } from '../core/week';
+import { activities, feelings, type Activity, type Felt, type LogEntry } from '../core/log';
+import { formatDistance, formatDuration, formatPace, inUnit, METERS, paceOf, parseDistance, type Unit } from '../core/pace';
+import { weekAt, type Plan } from '../core/plans';
+import { tap } from '../../app/feel';
+import { deleteEntry, putEntry } from '../data/store';
+import { locate } from './WorkoutPage';
+import { useShoes } from '../app/shoes';
+import { defaultShoe } from '../core/shoes';
+
+const digits = (text: string) => text.replace(/[^\d]/g, '').slice(0, 2);
+
+function EntryForm({ nav, route, plan, existing, onDone }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan; existing?: LogEntry; onDone?: () => void }) {
+  const settings = useSettings();
+  const shoes = useShoes();
+  const defaultShoeId = defaultShoe(shoes)?.id;
+  const today = useToday();
+  const entries = useEntries();
+  const planState = usePlanState();
+  const located = route.workoutId ? locate(route.workoutId, plan) : undefined;
+  const session = located && { ...located, workout: asToday(located.workout, planState?.lighter, today) };
+
+  const [activity, setActivity] = useState<Activity>('run');
+  const [shoeId, setShoeId] = useState(existing?.shoeId ?? defaultShoeId ?? '');
+  const [date, setDate] = useState(route.date ?? today);
+  const [unit, setUnit] = useState<Unit>(settings.unit);
+  const [distance, setDistance] = useState('');
+  const [h, setH] = useState('');
+  const [m, setM] = useState('');
+  const [s, setS] = useState('');
+  const [hr, setHr] = useState('');
+  const [felt, setFelt] = useState<Felt>();
+  const [notes, setNotes] = useState('');
+  const [wentWell, setWentWell] = useState('');
+  const [nextTime, setNextTime] = useState('');
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (loaded) return;
+    if (route.id && !existing) return;
+    const seconds = existing?.seconds ?? route.seconds;
+    if (seconds) {
+      setH(seconds >= 3600 ? String(Math.floor(seconds / 3600)) : '');
+      setM(String(Math.floor((seconds % 3600) / 60)));
+      setS(String(Math.round(seconds % 60)).padStart(2, '0'));
+    }
+    if (!existing && route.meters) setDistance(inUnit(route.meters, unit).toFixed(2).replace(/\.?0+$/, ''));
+    if (!existing && route.activity) setActivity(route.activity as Activity);
+    if (existing) {
+      setActivity(existing.activity);
+      setShoeId(existing.shoeId ?? '');
+      setDate(existing.date);
+      if (existing.meters) setDistance(inUnit(existing.meters, unit).toFixed(2).replace(/\.?0+$/, ''));
+      if (existing.avgHr) setHr(String(existing.avgHr));
+      setFelt(existing.felt);
+      setNotes(existing.notes ?? '');
+      setWentWell(existing.wentWell ?? '');
+      setNextTime(existing.nextTime ?? '');
+    } else {
+      setShoeId(defaultShoeId ?? '');
+      if (session?.workout.kind === 'walk') setActivity('walk');
+    }
+    setLoaded(true);
+  }, [existing, loaded, defaultShoeId]);
+
+  const seconds = (Number(h) || 0) * 3600 + (Number(m) || 0) * 60 + (Number(s) || 0);
+  const meters = parseDistance(distance, unit);
+  const pace = meters && seconds ? paceOf(seconds, meters, unit) : undefined;
+  // Logged from the Log tab on a day with a session still open: offer to count it as that session.
+  const [linkOpen, setLinkOpen] = useState(true);
+  const open =
+    !existing && !route.workoutId && plan && planState && entries && mondayOnOrBefore(date) === mondayOnOrBefore(today)
+      ? layOut(
+          weekAt(plan, planState.week),
+          today,
+          planState.weekdays,
+          planState.moves,
+          entries.filter((entry) => entry.date >= mondayOnOrBefore(today)),
+          [],
+          runsPlaced(planState, today),
+        ).find((day) => day.date === date && !day.done)
+      : undefined;
+  const openWorkout = open && asToday(open.workout, planState?.lighter, today);
+  const linked = openWorkout && linkOpen ? openWorkout : undefined;
+  const title = existing?.workoutTitle ?? session?.workout.title ?? linked?.title;
+
+  const switchUnit = (next: Unit) => {
+    if (meters) setDistance((meters / METERS[next]).toFixed(2).replace(/\.?0+$/, ''));
+    setUnit(next);
+  };
+
+  const save = async () => {
+    const entry: LogEntry = {
+      id: existing?.id ?? newId(),
+      createdAt: existing?.createdAt ?? new Date().toISOString(),
+      date: date || today,
+      activity,
+      seconds: seconds || undefined,
+      meters,
+      avgHr: Number(hr) > 30 && Number(hr) < 240 ? Math.round(Number(hr)) : undefined,
+      felt,
+      notes: notes.trim() || undefined,
+      wentWell: wentWell.trim() || undefined,
+      nextTime: nextTime.trim() || undefined,
+      intention: existing?.intention ?? route.intention,
+      workoutId: existing?.workoutId ?? route.workoutId ?? linked?.id,
+      workoutTitle: title,
+      shoeId: activity === 'run' ? shoeId || undefined : undefined,
+    };
+    await putEntry(entry);
+    tap();
+    if (existing && onDone) onDone();
+    else nav.swap({ name: 'after', id: entry.id });
+  };
+
+  return (
+    <div className="page entry">
+      <BackLink label={existing ? 'Cancel' : 'Back'} onBack={existing && onDone ? onDone : nav.back} />
+      <h1 className="title">{existing ? 'Edit workout' : 'Log workout'}</h1>
+      {title && !openWorkout && <p className="muted">{title}</p>}
+      {openWorkout && (
+        <div className="card switches">
+          <Switch
+            on={linkOpen}
+            label={`This is ${dayWord(date, today)}’s ${openWorkout.title.toLowerCase()}`}
+            onToggle={() => setLinkOpen(!linkOpen)}
+          />
+        </div>
+      )}
+
+      <Segmented
+        label="Activity"
+        value={activity}
+        options={(Object.keys(activities) as Activity[]).map((id) => ({ id, label: activities[id] }))}
+        onChange={setActivity}
+        small
+      />
+
+      {activity === 'run' && (
+        <section className="field">
+          <label className="label" htmlFor="running-shoe">Running shoes</label>
+          {shoes.length > 0 ? (
+            <>
+              <select id="running-shoe" className="input" value={shoeId} onChange={(event) => setShoeId(event.target.value)}>
+                <option value="">No shoe selected</option>
+                {shoes.filter((shoe) => !shoe.retiredOn || shoe.id === shoeId).map((shoe) => (
+                  <option key={shoe.id} value={shoe.id}>
+                    {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}{shoe.isDefault ? ' · Default' : ''}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className="text-link" onClick={() => nav.go({ name: 'shoes' })}>Manage shoes</button>
+            </>
+          ) : (
+            <button type="button" className="text-link" onClick={() => nav.go({ name: 'shoes' })}>Add a pair of shoes</button>
+          )}
+        </section>
+      )}
+
+      <label className="field">
+        <span className="label">Date</span>
+        <input className="input" type="date" value={date} max={today} onChange={(event) => setDate(event.target.value)} />
+      </label>
+
+      <div className="field">
+        <label className="label" htmlFor="distance">
+          Distance
+        </label>
+        <div className="input-row">
+          <input
+            id="distance"
+            className="input"
+            inputMode="decimal"
+           
+            value={distance}
+            onChange={(event) => setDistance(event.target.value)}
+          />
+          <Segmented
+            label="Unit"
+            value={unit}
+            options={[
+              { id: 'mi', label: 'mi' },
+              { id: 'km', label: 'km' },
+            ]}
+            onChange={switchUnit}
+            small
+          />
+        </div>
+      </div>
+
+      <fieldset className="field time-field">
+        <legend className="label">Time</legend>
+        <div className="time-boxes">
+          <input className="input" inputMode="numeric" aria-label="Hours" value={h} onChange={(event) => setH(digits(event.target.value))} />
+          <span aria-hidden="true">:</span>
+          <input className="input" inputMode="numeric" aria-label="Minutes" value={m} onChange={(event) => setM(digits(event.target.value))} />
+          <span aria-hidden="true">:</span>
+          <input className="input" inputMode="numeric" aria-label="Seconds" value={s} onChange={(event) => setS(digits(event.target.value))} />
+        </div>
+        {pace && <p className="hint">Pace {formatPace(pace, unit)}</p>}
+      </fieldset>
+
+      <label className="field">
+        <span className="label">Average heart rate</span>
+        <input className="input" inputMode="numeric" value={hr} onChange={(event) => setHr(event.target.value.replace(/[^\d]/g, '').slice(0, 3))} />
+      </label>
+
+      <div className="field">
+        <span className="label" id="felt-label">
+          How did it feel?
+        </span>
+        <div className="faces" role="group" aria-labelledby="felt-label">
+          {(Object.keys(feelings) as Felt[]).map((id) => (
+            <button key={id} type="button" className="face" aria-pressed={felt === id} onClick={() => {
+                tap();
+                setFelt(felt === id ? undefined : id);
+              }}>
+              <FeltFace felt={id} />
+              <span>{feelings[id]}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className="field">
+        <span className="label">Notes</span>
+        <textarea className="input textarea" rows={3} value={notes} onChange={(event) => setNotes(event.target.value)} />
+      </label>
+
+      <details className="more-words" open={Boolean(wentWell || nextTime) || undefined}>
+        <summary>Notes</summary>
+        <label className="field">
+          <span className="label">What went well?</span>
+          <input className="input" value={wentWell} onChange={(event) => setWentWell(event.target.value)} />
+        </label>
+        <label className="field">
+          <span className="label">Next time</span>
+          <input className="input" value={nextTime} onChange={(event) => setNextTime(event.target.value)} />
+        </label>
+      </details>
+      {(existing?.intention ?? route.intention) && <p className="hint">Before you started: “{existing?.intention ?? route.intention}”</p>}
+
+      <button type="button" className="button-main" onClick={() => void save()}>
+        Save workout
+      </button>
+    </div>
+  );
+}
+
+/** A logged workout as it was written down; Edit opens the form. */
+function EntryView({ nav, entry, onEdit }: { nav: Nav; entry: LogEntry; onEdit: () => void }) {
+  const settings = useSettings();
+  const shoes = useShoes();
+  const shoe = entry.shoeId ? shoes.find((each) => each.id === entry.shoeId) : undefined;
+  const undo = useUndo();
+  const unit = settings.unit;
+  const pace = entry.seconds && entry.meters ? paceOf(entry.seconds, entry.meters, unit) : undefined;
+  const tiles = [
+    entry.meters ? ['Distance', formatDistance(entry.meters, unit)] : undefined,
+    entry.seconds ? ['Time', formatDuration(entry.seconds)] : undefined,
+    pace ? ['Average pace', formatPace(pace, unit)] : undefined,
+    entry.avgHr ? ['Average heart rate', `${entry.avgHr} bpm`] : undefined,
+  ].filter((tile): tile is string[] => Boolean(tile));
+  const remove = async () => {
+    await deleteEntry(entry.id);
+    undo('Workout removed', () => void putEntry(entry));
+    nav.back();
+  };
+
+  return (
+    <div className="page entry">
+      <div className="entry-view__top">
+        <BackLink label="Back" onBack={nav.back} />
+        <button type="button" className="text-link" onClick={onEdit}>Edit</button>
+      </div>
+      <p className="label">{new Date(`${entry.date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+      <h1 className="title">{entry.workoutTitle ?? activities[entry.activity]}</h1>
+      <div className="entry-view__context">
+        <span className="muted">{activities[entry.activity]}</span>
+        {entry.workoutTitle && <span className="card__eyebrow">Planned session</span>}
+        {shoe && <span className="muted">Shoes: {shoe.name}{shoe.retiredOn ? ' · Retired' : ''}</span>}
+      </div>
+      {tiles.length > 0 && (
+        <section className="entry-view__metrics" aria-label="Workout measurements">
+          <span className="card__eyebrow">Workout summary</span>
+          <div className="tiles">
+            {tiles.map(([label, value]) => (
+              <div key={label} className="tile">
+                <span className="tile__label">{label}</span>
+                <span className="tile__value">{value}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+      {entry.felt && (
+        <section className="entry-view__effort" aria-label="How the workout felt">
+          <span className="card__eyebrow">How it felt</span>
+          <p className="entry-view__felt"><FeltFace felt={entry.felt} size={26} /> {feelings[entry.felt]}</p>
+        </section>
+      )}
+      {(entry.notes || entry.wentWell || entry.nextTime || entry.intention) && (
+        <section className="card entry-view__words">
+          {entry.intention && <p><span className="label">Before you started</span>{entry.intention}</p>}
+          {entry.notes && <p><span className="label">Notes</span>{entry.notes}</p>}
+          {entry.wentWell && <p><span className="label">What went well</span>{entry.wentWell}</p>}
+          {entry.nextTime && <p><span className="label">Next time</span>{entry.nextTime}</p>}
+        </section>
+      )}
+      <button type="button" className="button-quiet" onClick={() => void remove()}>
+        Remove this workout
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Logging a workout by hand: from a watch, or from memory. Only the date is needed; everything else can be left
+ * blank. An earlier entry opens as it was written down, with Edit.
+ */
+export default function EntryPage({ nav, route, plan }: { nav: Nav; route: Extract<Route, { name: 'entry' }>; plan?: Plan }) {
+  const entries = useEntries();
+  const existing = route.id ? entries?.find((entry) => entry.id === route.id) : undefined;
+  const [editing, setEditing] = useState(false);
+  if (route.id && !entries) return null;
+  if (existing && !editing) return <EntryView nav={nav} entry={existing} onEdit={() => setEditing(true)} />;
+  return <EntryForm key={existing?.id ?? 'new'} nav={nav} route={route} plan={plan} existing={existing} onDone={() => setEditing(false)} />;
+}
+
+function dayWord(date: string, today: string): string {
+  if (date === today) return 'today';
+  return new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { weekday: 'long' });
+}

@@ -1,0 +1,59 @@
+import { useEffect, useMemo, useState } from 'react';
+import { LeafIcon } from '../../app/family/icons';
+import { offerUndo } from '../../app/family/shell';
+import { ideas, migrateLegacyIdeas, newId, type Idea, type IdeaStage } from '../app/state';
+
+/** An idea's name: its first line or sentence. */
+function ideaTitle(text: string): string {
+  return text.trim().split(/\n|[.!?](?:\s|$)/)[0].trim() || 'Untitled idea';
+}
+
+const stages: { id: IdeaStage; label: string; hint: string }[] = [
+  { id: 'spark', label: 'New ideas', hint: 'Raw thoughts' },
+  { id: 'shape', label: 'Developing', hint: 'Worth exploring' },
+  { id: 'next', label: 'Next step', hint: 'Ready to act' },
+  { id: 'parked', label: 'Later', hint: 'Keep for later' },
+];
+
+export default function IdeasPage() {
+  const allIdeas = ideas.use();
+  const [dump, setDump] = useState('');
+  const [stage, setStage] = useState<IdeaStage | 'all'>('all');
+
+  useEffect(() => { migrateLegacyIdeas(); }, []);
+
+  const visible = useMemo(() => allIdeas
+    .filter((idea) => stage === 'all' || idea.stage === stage)
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)), [allIdeas, stage]);
+
+  const addDump = () => {
+    const thoughts = dump.split(/\n\s*\n|\n(?=\s*[-•])/).map((item) => item.replace(/^\s*[-•]\s*/, '').trim()).filter(Boolean);
+    if (!thoughts.length) return;
+    const now = new Date().toISOString();
+    thoughts.forEach((text, index) => ideas.put({ id: newId('idea'), text, stage: 'spark', createdAt: now, updatedAt: new Date(Date.now() + index).toISOString() }));
+    setDump('');
+  };
+
+  const move = (idea: Idea, next: IdeaStage) => ideas.put({ ...idea, stage: next, updatedAt: new Date().toISOString() });
+  const remove = (idea: Idea) => {
+    ideas.remove(idea.id);
+    offerUndo(`“${ideaTitle(idea.text)}” cleared`, () => ideas.put(idea));
+  };
+
+  return <main className="mneme-page mneme-ideas">
+    <div className="mneme-heading-row"><h1>Ideas</h1></div>
+    <section className="mneme-idea-composer" aria-labelledby="idea-dump-title">
+      <div className="mneme-idea-composer__heading"><span className="mneme-idea-action__mark"><LeafIcon size={20} /></span><span><strong id="idea-dump-title">Idea dump</strong></span></div>
+      <textarea id="mneme-idea-dump" value={dump} onChange={(event) => setDump(event.target.value)} rows={3} />
+      <button type="button" className="mneme-primary mneme-primary--wide" onClick={addDump} disabled={!dump.trim()}>Add to New ideas</button>
+    </section>
+    <div className="mneme-filters" role="tablist" aria-label="Idea stages"><button type="button" role="tab" aria-selected={stage === 'all'} onClick={() => setStage('all')}>All</button>{stages.map((item) => <button type="button" role="tab" key={item.id} aria-selected={stage === item.id} onClick={() => setStage(item.id)}>{item.label}</button>)}</div>
+    {visible.length ? <div className="mneme-idea-list">{visible.map((idea) => <IdeaCard key={idea.id} idea={idea} onMove={(next) => move(idea, next)} onRemove={() => remove(idea)} onToggleReflect={(include) => ideas.put({ ...idea, inReflect: include, updatedAt: new Date().toISOString() })} />)}</div> : null}
+  </main>;
+}
+
+function IdeaCard({ idea, onMove, onRemove, onToggleReflect }: { idea: Idea; onMove: (stage: IdeaStage) => void; onRemove: () => void; onToggleReflect: (include: boolean) => void }) {
+  const title = ideaTitle(idea.text);
+  const body = idea.text.trim().slice(title.length).replace(/^[.!?]?\s*/, '').trim();
+  return <article className="mneme-idea-card"><div className="mneme-idea-card__mark"><LeafIcon size={18} /></div><div className="mneme-idea-card__content"><strong>{title}</strong>{body && <p>{body}</p>}<div className="mneme-idea-card__actions"><label><input type="checkbox" checked={idea.inReflect === true} onChange={(event) => onToggleReflect(event.target.checked)} /> Show in Reflect</label><select value={idea.stage} onChange={(event) => onMove(event.target.value as IdeaStage)} aria-label="Idea stage">{stages.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}</select><button type="button" onClick={onRemove}>Clear</button></div></div></article>;
+}

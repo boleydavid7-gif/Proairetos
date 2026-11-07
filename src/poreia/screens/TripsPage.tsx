@@ -1,0 +1,93 @@
+import { Brand } from '../../app/family/shell';
+import { useAppPermissions } from '../../app/household/household';
+import { AppMark, PlusIcon } from '../../app/family/icons';
+import { DailyLine } from '../../app/family/DailyLine';
+import photoWide from '../../assets/images/scenes/poreia-stoic-wide.webp';
+import type { PoreiaNav } from '../app/App';
+import { today, trips } from '../app/state';
+import { NextUpCard } from './TripPage';
+import LookBack from '../components/LookBack';
+import { TripRow } from '../app/ui';
+import { phaseOf, sortTrips } from '../core/model';
+import RouteEmpty from '../components/RouteEmpty';
+
+export default function TripsPage({ nav }: { nav: PoreiaNav }) {
+  const can = useAppPermissions('poreia');
+  const list = trips.use();
+  const day = today();
+  const { now, ahead, someday, past } = sortTrips(list, day);
+  const lead = now[0] ?? ahead[0];
+  const leadPhase = lead ? phaseOf(lead, day) : undefined;
+  const open = (id: string) => nav.go({ name: 'trip', id });
+
+  return (
+    <div className="home poreia-home">
+      <div className="hero hero--tall hero-shade-soft">
+        <picture>
+          <img className="hero__image" src={photoWide} alt="" fetchPriority="high" decoding="async" />
+        </picture>
+        <div className="hero__shade" />
+        <div className="hero__content">
+          <Brand name="Poreia" mark={<AppMark app="poreia" size={30} light />} light />
+          <div className="home__words">
+            <h1 className="home__title">Trips</h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="page page--under-hero">
+        {list.length === 0 ? (
+          <RouteEmpty glyph="plane" title="No trips yet">
+              {can.write && (
+                <button type="button" className="button-main" onClick={() => nav.go({ name: 'trip-form' })}>
+                  <PlusIcon size={18} />
+                  Plan a trip
+                </button>
+              )}
+          </RouteEmpty>
+        ) : (
+          <>
+            <LookBack list={list} today={day} nav={nav} />
+            {lead && (leadPhase?.kind === 'now' || (leadPhase?.kind === 'ahead' && leadPhase.days <= 30)) && <NextUpCard trip={lead} nav={nav} day={day} home />}
+
+            <div className="section-head">
+              <h2>Trips</h2>
+              {can.write && (
+                <button type="button" className="text-link" onClick={() => nav.go({ name: 'trip-form' })}>
+                  Plan a trip
+                </button>
+              )}
+            </div>
+            {/* Every trip under way or ahead is listed, the one at the top too, so each can be opened and changed. */}
+            {[...now, ...ahead].length > 0 ? (
+              <ul className="rows">{[...now, ...ahead].map((trip) => <TripRow key={trip.id} trip={trip} today={day} onOpen={() => open(trip.id)} />)}</ul>
+            ) : (
+              <p className="muted">Nothing booked ahead.</p>
+            )}
+
+            {someday.length > 0 && (
+              <>
+                <div className="section-head">
+                  <h2>Ideas</h2>
+                </div>
+                <ul className="rows">{someday.map((trip) => <TripRow key={trip.id} trip={trip} today={day} onOpen={() => open(trip.id)} />)}</ul>
+              </>
+            )}
+
+            {past.length > 0 && (
+              <details className="poreia-fold">
+                <summary>Been</summary>
+                <ul className="rows">{past.map((trip) => <TripRow key={trip.id} trip={trip} today={day} onOpen={() => open(trip.id)} />)}</ul>
+                <button type="button" className="text-link" onClick={() => nav.go({ name: 'been' })}>
+                  Where you’ve been
+                </button>
+              </details>
+            )}
+          </>
+        )}
+
+        {list.length > 0 && <DailyLine app="poreia" />}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,113 @@
+import type { Notice } from '../../core/notify/notices';
+import { addDays, atTime } from '../../core/scheduling/dates';
+import { daysOf, entryTitle, type Booking, type PackItem, type PlanItem, type Trip } from './model';
+
+/*
+ * Poreia's reminders, written on the device like every other app's: travel a chosen time before it leaves, a flight's
+ * check-in a day ahead, check-in and check-out at a stay, a car's pick-up and return, timed tickets and the person's own
+ * timed plans, and an evening line the day before a trip with its first thing and what is left to pack. Times are the
+ * phone's local time, which is the place's own time once the phone has moved there.
+ *
+ * A reminder says what and when. It never carries a confirmation code, a stay's address or where a trip leaves from: those stay in
+ * the booking, whatever the lock screen shows.
+ */
+
+export type TripNoticeChoices = {
+  on: boolean;
+  /** Minutes before a flight, train, bus or cruise leaves. */
+  travelLead: number;
+  /** A flight's check-in, 24 hours before it leaves. */
+  checkIn: boolean;
+  /** Minutes before a stay, car, ticket or plan with a time. */
+  otherLead: number;
+  /** The evening before a trip starts. */
+  dayBefore: boolean;
+  /** Minutes before a flight to be at the airport; 0 (or unset with no trip there) leaves the notice out. */
+  atAirport?: number;
+  /** How long it takes to get from home to the airport, and which airport that is. */
+  toAirport?: { minutes: number; code?: string };
+};
+
+export const defaultTripNotices: TripNoticeChoices = { on: true, travelLead: 180, checkIn: true, otherLead: 60, dayBefore: true, atAirport: 120 };
+
+const TRAVEL = new Set<Booking['kind']>(['flight', 'train', 'bus', 'cruise']);
+const MORNING = '09:00';
+const EVENING = '18:00';
+
+const clock = (time: string) => {
+  const [h, m] = time.split(':').map(Number);
+  return new Date(2000, 0, 1, h, m).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+};
+const less = (at: Date, minutes: number) => new Date(at.getTime() - minutes * 60_000);
+const words = (...parts: (string | undefined)[]) => parts.filter(Boolean).join(' · ');
+
+export function tripNotices(
+  trips: readonly Trip[],
+  bookings: readonly Booking[],
+  plans: readonly PlanItem[],
+  packing: readonly PackItem[],
+  choices: TripNoticeChoices,
+  now: Date,
+  until: Date,
+): Notice[] {
+  if (!choices.on) return [];
+  const notices: Notice[] = [];
+  const add = (notice: Notice) => {
+    if (notice.at >= now && notice.at <= until) notices.push(notice);
+  };
+
+  for (const booking of bookings) {
+    if (!trips.some((trip) => trip.id === booking.tripId)) continue;
+    const open = `poreia:booked:${booking.id}`;
+    if (booking.startDate && booking.startTime) {
+      const leaves = atTime(booking.startDate, booking.startTime);
+      if (TRAVEL.has(booking.kind)) {
+        add({ key: `poreia:leave:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.travelLead), title: booking.title, body: words(`Leaves ${clock(booking.startTime)}`), open });
+        // Leave for the airport: the flight's time, less the time to be there early and the time to get there from home.
+        const early = choices.atAirport ?? defaultTripNotices.atAirport!;
+        const trip = trips.find((each) => each.id === booking.tripId);
+        const fromHome = booking.kind === 'flight' && choices.toAirport && (choices.toAirport.code ? booking.from?.toUpperCase().includes(choices.toAirport.code) : booking.startDate === trip?.start);
+        if (fromHome && early > 0 && choices.toAirport) {
+          const go = less(leaves, early + choices.toAirport.minutes);
+          add({ key: `poreia:go:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: go, title: 'Leave for the airport', body: words(booking.title, `Flight ${clock(booking.startTime)}`, `about ${choices.toAirport.minutes} min to get there`), open });
+        }
+        if (booking.kind === 'flight' && choices.checkIn) {
+          add({ key: `poreia:checkin:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, 24 * 60), title: booking.title, body: words('Check-in usually opens now'), open });
+        }
+      } else {
+        const what = booking.kind === 'stay' ? `Check-in from ${clock(booking.startTime)}` : booking.kind === 'car' ? `Pick-up at ${clock(booking.startTime)}` : `At ${clock(booking.startTime)}`;
+        add({ key: `poreia:start:${booking.id}:${booking.startDate}T${booking.startTime}`, kind: 'trip', at: less(leaves, choices.otherLead), title: booking.title, body: words(what), open });
+      }
+    } else if (booking.startDate && booking.kind === 'stay') {
+      add({ key: `poreia:start:${booking.id}:${booking.startDate}`, kind: 'trip', at: atTime(booking.startDate, MORNING), title: booking.title, body: words('Check-in today'), open });
+    }
+    if ((booking.kind === 'stay' || booking.kind === 'car') && booking.endDate && booking.endDate !== booking.startDate) {
+      const what = booking.kind === 'stay' ? 'Check-out' : 'Return';
+      const at = booking.endTime ? less(atTime(booking.endDate, booking.endTime), choices.otherLead) : atTime(booking.endDate, MORNING);
+      add({ key: `poreia:end:${booking.id}:${booking.endDate}T${booking.endTime ?? ''}`, kind: 'trip', at, title: booking.title, body: booking.endTime ? `${what} by ${clock(booking.endTime)}` : `${what} today`, open });
+    }
+  }
+
+  for (const item of plans) {
+    if (!item.time || !trips.some((trip) => trip.id === item.tripId)) continue;
+    add({ key: `poreia:plan:${item.id}:${item.date}T${item.time}`, kind: 'trip', at: less(atTime(item.date, item.time), choices.otherLead), title: item.title, body: words(`At ${clock(item.time)}`, item.where), open: `poreia:plan:${item.id}` });
+  }
+
+  if (choices.dayBefore) {
+    for (const trip of trips) {
+      if (!trip.start) continue;
+      const eve = addDays(trip.start, -1);
+      const first = daysOf(trip, bookings.filter((each) => each.tripId === trip.id), plans.filter((each) => each.tripId === trip.id)).find((day) => day.date === trip.start)?.entries[0];
+      const left = packing.filter((each) => each.tripId === trip.id && !each.packed).length;
+      add({
+        key: `poreia:eve:${trip.id}:${trip.start}`,
+        kind: 'trip',
+        at: atTime(eve, EVENING),
+        title: `${trip.name} tomorrow`,
+        body: words(first ? `${first.time ? `${clock(first.time)} ` : ''}${entryTitle(first)}` : undefined, left ? `${left} ${left === 1 ? 'thing' : 'things'} left to pack` : undefined) || trip.place?.label || trip.place?.name || 'Starts tomorrow',
+        open: `poreia:trip:${trip.id}`,
+      });
+    }
+  }
+  return notices;
+}

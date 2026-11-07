@@ -1,0 +1,100 @@
+import type { TagColor } from '../look/tagColors';
+import type { RepeatRule } from './repeat';
+
+export type LifeItemType =
+  | 'DO'
+  | 'REMEMBER'
+  | 'MAKE_TIME_FOR'
+  | 'THINKING_ABOUT';
+
+/** How something arrived through Capture, as the person tagged it. Only a label; nothing acts on it. */
+export type CaptureKind = 'THOUGHT' | 'EMOTION' | 'CONCERN' | 'IDEA';
+
+/** The person's own grouping for Plan. Important is the separate `important` mark. */
+export type PlanGroup = 'MAINTENANCE' | 'MEANINGFUL';
+
+export type ChecklistLine = { id: string; text: string; done: boolean };
+
+export type LifeItemStatus =
+  | 'OPEN'
+  | 'WAITING'
+  | 'DONE'
+  | 'LET_GO';
+
+export type LifeItemSource =
+  | 'MANUAL'
+  | 'CAPTURE'
+  | 'CALENDAR'
+  | 'IMPORT'
+  | 'ASSISTANT_CONFIRMED';
+
+/** A sibling app can tag the records it owns while sharing the family store. */
+export type LifeItemApp = 'praxis';
+
+/**
+ * The Stoic dichotomy of control, written by the person for a Thinking
+ * about item: what they can act on, and what they cannot.
+ */
+export interface ControlSplit {
+  inMyControl: string[];
+  notInMyControl: string[];
+}
+
+export interface LifeItem {
+  id: string;
+  userId: string;
+  /** Optional owner app for shared family records. Omitted for Proairetos items. */
+  app?: LifeItemApp;
+  type: LifeItemType | null;
+  title: string;
+  /** Planned length for a focused block, when the item represents one. */
+  plannedMinutes?: number;
+  notes?: string;
+  status: LifeItemStatus;
+  important: boolean;
+  scheduledAt?: string;
+  /** When it ends, if the person gave an end. Moves with the start, keeping its length. */
+  endsAt?: string;
+  /**
+   * Reminders, as minutes before `scheduledAt` (0 is at the time). Absent
+   * means at the time; an empty list means no reminder.
+   */
+  remind?: number[];
+  checkBackAt?: string;
+  source: LifeItemSource;
+  carried: boolean;
+  /** Values the person chose to connect. Always optional. */
+  valueIds?: string[];
+  /** Where it happens, in the person's words. */
+  location?: string;
+  /** A color the person gave it, for the days-ahead view. */
+  color?: TagColor;
+  /** A goal (Compass statement) this is a step toward, as the person linked it. */
+  goalId?: string;
+  controlSplit?: ControlSplit;
+  /** The very next small, concrete action, in the person's words. */
+  nextStep?: string;
+  /** When or where the next step will happen: the cue of an implementation intention. */
+  nextStepCue?: string;
+  /** "If something gets in the way, I will...", the person's own plan. */
+  ifObstacle?: string;
+  captureKind?: CaptureKind;
+  planGroup?: PlanGroup;
+  /** Local date ("YYYY-MM-DD") planned for, without a time. */
+  plannedFor?: string;
+  /**
+   * Lines of a list. On a routine, the ticks clear each time it comes
+   * round, so the list returns fresh: nothing carries over.
+   */
+  checklist?: ChecklistLine[];
+  /** A routine: repeats from scheduledAt. */
+  repeat?: RepeatRule;
+  /** Local date ("YYYY-MM-DD") the person put this on their to-do for that day. */
+  pickedFor?: string;
+  /** When it was picked, so the three keep the order they were chosen in. */
+  pickedAt?: string;
+  /** Hidden from everyday lists, but retained in the archive. */
+  archivedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}

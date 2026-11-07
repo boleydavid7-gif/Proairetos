@@ -1,0 +1,295 @@
+/* The Store (Settings) and the app grid beside the gear. */
+
+.store {
+  display: grid;
+  gap: 18px;
+}
+
+.store__paywall {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+}
+.store__paywall h2, .store__paywall p { margin: 0; }
+.store__paywall > p:not(.eyebrow) { color: var(--color-text-muted); line-height: 1.45; }
+.store__plans { display: grid; gap: 10px; margin-top: 4px; }
+.store__plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 12px;
+  align-items: center;
+  padding: 13px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-surface-raised) 80%, transparent);
+}
+.store__plan h3, .store__plan p { margin: 0; }
+.store__plan p { color: var(--color-text-muted); font-size: var(--text-sm); }
+.store__plan strong { white-space: nowrap; font-size: var(--text-sm); }
+.store__plan button { grid-column: 1 / -1; justify-self: start; min-height: 38px; padding-inline: 18px; }
+.store__plan-choices { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; }
+.store__plan-choices button { min-height: 38px; padding-inline: 18px; }
+.store__share button { grid-column: 1 / -1; justify-self: start; }
+.store__plan-state { grid-column: 1 / -1; color: var(--color-accent); font-size: var(--text-sm); }
+
+.store__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+
+.store__banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: -14px -14px 2px;
+  padding: 26px 16px 22px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent-app) 30%, transparent), transparent 70%),
+    var(--ground);
+  text-align: center;
+}
+
+.store__logo {
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.28);
+}
+
+.store__name {
+  margin: 6px 0 0;
+  font-family: var(--font-serif, Georgia, serif);
+  font-weight: 500;
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+  color: var(--ink);
+}
+
+.store__by {
+  margin: 0;
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--ink) 72%, transparent);
+}
+
+.store__price {
+  flex: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.store__button {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+
+.store__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-surface) 88%, transparent); }
+.store__row-open { display: flex; flex: 1; min-width: 0; align-items: center; gap: 12px; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.store__row-icon { flex: none; border-radius: 12px; }
+.store__row-text { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.store__row-text small { color: var(--color-text-muted); font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.store__row-act { flex: none; display: flex; align-items: center; }
+.store__button--compact { flex: none; min-height: 36px; padding-inline: 16px; }
+.store-app { display: flex; flex-direction: column; gap: var(--ll-gap, 16px); }
+.store-app__back { display: none; }
+@media (min-width: 62rem) { .store-app__back { display: inline-flex; } }
+.store-app__banner { margin: 0; border-radius: var(--radius-md); }
+.store-app__buy { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.store-app__buy .store__button { flex: 1; }
+.store-app__shots { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 4px; }
+.store-app__shots img { flex: none; height: 22rem; width: auto; border-radius: var(--radius-md); scroll-snap-align: start; }
+.store-app__section { display: flex; flex-direction: column; gap: var(--ll-label-gap, 8px); }
+.store-app__section h3 { margin: 0; font-size: var(--text-lg); }
+.store-app__section p { margin: 0; color: var(--color-text-muted); }
+.store-app__about { margin: 0; color: var(--color-text); }
+.store__list { grid-template-columns: minmax(0, 1fr); }
+.store__list > li { min-width: 0; }
+.store-app__connects { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.store-app__link { display: flex; align-items: flex-start; gap: 12px; }
+.store-app__link-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.store-app__link-detail { color: var(--color-text-muted); font-size: var(--text-sm); }
+.store-app__mini { flex: none; border-radius: 9px; }
+.store-app__state { margin-left: 8px; color: var(--color-text-muted); font-size: var(--text-xs); font-weight: 400; }
+.apps-grid {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
+  gap: 14px 8px;
+}
+
+.apps-grid__app {
+  width: 100%;
+  min-height: 96px;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.apps-grid__app img {
+  border-radius: 14px;
+}
+
+.apps-grid__store {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 1.5px dashed var(--color-border);
+  font-size: var(--text-2xl);
+  color: var(--color-text-muted);
+}
+
+@media (min-width: 62rem) {
+  .store__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .store-app { max-width: 40rem; }
+}
+
+/* Passkeys on the account page. */
+.passkeys__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.passkeys__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 44px;
+  border-bottom: 1px solid var(--color-border, rgba(127, 127, 127, 0.2));
+}
+.passkeys__detail {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.passkey-now {
+  display: grid;
+  gap: 8px;
+}
+
+/* Where the data syncs: one row each, the chosen one marked with a filled ring. */
+.storage-choice__row {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: 6px 0;
+  background: none;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.storage-choice__mark {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-text-muted);
+}
+.storage-choice__row[aria-checked='true'] .storage-choice__mark {
+  border-color: var(--color-accent, #d9b46a);
+  box-shadow: inset 0 0 0 4px var(--color-surface, #1b2027);
+  background: var(--color-accent, #d9b46a);
+}
+
+/* Paying: a short line under an app after Buy, and one plain line under the list. */
+.store__note {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.store__fine {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.store__beta { margin: var(--space-4) 0; padding: var(--space-3); border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 14px; background: var(--color-surface-raised, rgba(0,0,0,.12)); }
+.store__beta h2 { margin: 0 0 4px; font-size: var(--text-lg); }
+.store__beta p { margin: 0 0 var(--space-2); color: var(--color-text-muted); font-size: var(--text-sm); line-height: 1.45; }
+.store__beta-form { display: flex; gap: 8px; }
+.store__beta-form input { min-width: 0; flex: 1; min-height: 44px; padding: 0 12px; border: 1px solid var(--color-border, rgba(255,255,255,.14)); border-radius: 10px; color: var(--color-text); background: var(--color-surface, rgba(0,0,0,.12)); font: inherit; }
+.store__beta-form button { flex: none; min-height: 44px; padding: 0 12px; border: 0; border-radius: 10px; }
+.store__beta-list { display: flex; flex-direction: column; gap: 8px; margin: var(--space-3) 0 0; padding: 0; list-style: none; }
+.store__beta-list li { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.store__beta-list strong, .store__beta-list small { display: block; }
+.store__beta-list small { margin-top: 2px; color: var(--color-text-muted); font-size: var(--text-xs); }
+
+/* ---------- Today: the shared list ---------- */
+
+.together .check-row__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.together__add {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin-top: var(--space-2);
+}
+
+.together__add .input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.together__done-toggle {
+  margin-top: var(--space-2);
+}
+
+.together-join .button-row {
+  margin-top: var(--space-2);
+}
+
+/* The free trial, said under the Store's heading where it is seen first. */
+.store__paywall > p.store__trial { color: var(--color-text); font-weight: 600; }
+
+/* Pinning keeps an app in the computer's side rail; phones have no rail, so no Pin or Unpin there. */
+@media (max-width: 61.99rem) {
+  .apps-grid__pin {
+    display: none;
+  }
+}
+
+/* Noesis, one row in Settings > About. */
+.about-noesis { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--ll-radius-card, 16px); background: var(--color-surface); color: inherit; text-decoration: none; }
+.about-noesis img { border-radius: 10px; }
+.about-noesis span { display: grid; flex: 1; }
+.about-noesis small { color: var(--color-text-muted); font-size: var(--text-sm); }
+
+.store__row-note { flex-basis: 100%; margin: 0; }
