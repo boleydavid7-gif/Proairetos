@@ -105,9 +105,6 @@ const palettes: Record<SceneId, Record<Mode, Palette>> = {
   },
 };
 
-const fir = (x: number, y: number, scale: number, fill: string, opacity = 1) =>
-  '<path d="M0 -205 C-12 -177 -37 -135 -70 -96 C-48 -101 -31 -91 -22 -77 C-45 -45 -72 -16 -94 19 C-63 9 -39 14 -24 29 C-53 63 -77 95 -99 124 H99 C77 95 53 63 24 29 C39 14 63 9 94 19 C72 -16 45 -45 22 -77 C31 -91 48 -101 70 -96 C37 -135 12 -177 0 -205Z" fill="' + fill + '" opacity="' + opacity + '" transform="translate(' + x + ' ' + y + ') scale(' + scale + ')"/>';
-
 function sceneDefs(p: Palette): string {
   return '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
     '<stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/>' +
