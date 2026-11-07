@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Inspect Forest and reference AVIF files
+        run: |
+          file src/assets/backgrounds/{dawn,night,forest}-dark-mobile.avif
+          ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,pix_fmt -of default=noprint_wrappers=1 src/assets/backgrounds/dawn-dark-mobile.avif src/assets/backgrounds/night-dark-mobile.avif src/assets/backgrounds/forest-dark-mobile.avif
       - uses: actions/setup-node@v4
         with:
           node-version: 22
