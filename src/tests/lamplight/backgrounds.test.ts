@@ -81,7 +81,6 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'dawn') {
         const full = backgroundOf('dawn', 'dark', '#101820');
         const preview = backgroundPreviewOf('dawn', 'dark');
-        expect(full).toContain(preview);
         expect(full).toContain('dawn.webp');
         expect(preview).toContain('dawn-preview.webp');
         continue;

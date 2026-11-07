@@ -197,7 +197,7 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
 const cache = new Map<string, string>();
 
-/** A quiet, locally drawn scene. No remote request, animation, canvas, filter or external image asset. */
+/** Static local wallpapers: Dawn uses bundled WebP artwork; the remaining scenes are drawn as SVG. */
 export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string): string {
   if (background === 'dawn') {
     const dawnPage = pageColor ?? palettes.dawn[mode].base;
