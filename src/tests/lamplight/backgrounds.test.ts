@@ -88,6 +88,7 @@ describe('Lamplight backgrounds', () => {
     expect(backgroundWideOf('forest', 'dark')).not.toBe(backgroundOf('forest', 'dark'));
     expect(backgroundWideOf('forest', 'light')).not.toBe(backgroundOf('forest', 'light'));
     expect(backgroundPreviewOf('forest', 'dark')).not.toBe(backgroundPreviewOf('forest', 'light'));
+    expect(backgroundWideOf('forest', 'dark')).not.toBe(backgroundWideOf('forest', 'light'));
   });
 
   it('renders landscape previews that show the actual scene rather than cropping the portrait wallpaper', () => {
@@ -115,7 +116,7 @@ describe('Lamplight backgrounds', () => {
     }
   });
 
-  it('shows a recognizable forest, a lake with reflections, and the bundled Night artwork in previews', () => {
+  it('shows the Horizon sun and hills, lake reflections, and the bundled Night artwork in previews', () => {
     const forest = decodeURIComponent(backgroundPreviewOf('forest', 'dark').slice('url("data:image/svg+xml,'.length, -2));
     const lake = decodeURIComponent(backgroundPreviewOf('lake', 'dark').slice('url("data:image/svg+xml,'.length, -2));
 
@@ -167,6 +168,22 @@ describe('Lamplight backgrounds', () => {
       expect(full).toContain('<linearGradient id="fade"');
       expect(full).toContain('stop offset=".86"');
     }
+  });
+
+  it('builds four proportional Horizon variants for mobile and desktop in both appearances', () => {
+    const decode = (image: string) => decodeURIComponent(image.slice('url("data:image/svg+xml,'.length, -2));
+    const mobileDark = decode(backgroundOf('forest', 'dark'));
+    const mobileLight = decode(backgroundOf('forest', 'light'));
+    const desktopDark = decode(backgroundWideOf('forest', 'dark'));
+    const desktopLight = decode(backgroundWideOf('forest', 'light'));
+
+    expect(mobileDark).toContain('viewBox="0 0 1200 1600"');
+    expect(mobileLight).toContain('viewBox="0 0 1200 1600"');
+    expect(desktopDark).toContain('viewBox="0 0 1200 675"');
+    expect(desktopLight).toContain('viewBox="0 0 1200 675"');
+    expect(mobileDark).toContain('#102B3C');
+    expect(mobileLight).toContain('#D8E5E5');
+    expect(desktopDark).not.toBe(desktopLight);
   });
 
   it('fades the scene into the chosen page surface', () => {
