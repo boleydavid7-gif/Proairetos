@@ -50,7 +50,7 @@ describe('Lamplight backgrounds', () => {
       if (background.id === 'lamplight') continue;
       const preview = backgroundPreviewOf(background.id, 'dark');
       if (background.id === 'dawn') {
-        expect(preview).toMatch(/^url\\("data:image\\/svg\\+xml,/);
+        expect(preview.startsWith('url("data:image/svg+xml,')).toBe(true);
         const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
         expect(svg).toContain('viewBox="0 560 1200 675"');
         expect(svg).toContain('<linearGradient id="dawnSky"');
@@ -87,8 +87,6 @@ describe('Lamplight backgrounds', () => {
         expect((full.match(/<path /g) ?? []).length).toBe((preview.match(/<path /g) ?? []).length);
         continue;
       }
-      const full = decode(backgroundOf(background.id, 'dark', '#101820'));
-      const preview = decode(backgroundPreviewOf(background.id, 'dark'));
       expect(full).toContain('<linearGradient id="ridgeFar"');
       expect(full).toContain('<linearGradient id="ridgeMid"');
       expect(preview).toContain('<linearGradient id="ridgeFar"');
