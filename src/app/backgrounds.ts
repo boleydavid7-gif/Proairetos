@@ -61,97 +61,98 @@ const palettes: Record<SceneId, Record<Mode, Palette>> = {
   },
 };
 
-const fir = (x: number, y: number, scale: number, fill: string) =>
-  '<path d="M0 -190 L-58 -84 H-29 L-82 0 H-42 L-101 88 H101 L42 0 H82 L29 -84 H58 Z" fill="' + fill + '" transform="translate(' + x + ' ' + y + ') scale(' + scale + ')"/>';
+const fir = (x: number, y: number, scale: number, fill: string, opacity = 1) =>
+  '<path d="M0 -205 C-12 -177 -37 -135 -70 -96 C-48 -101 -31 -91 -22 -77 C-45 -45 -72 -16 -94 19 C-63 9 -39 14 -24 29 C-53 63 -77 95 -99 124 H99 C77 95 53 63 24 29 C39 14 63 9 94 19 C72 -16 45 -45 22 -77 C31 -91 48 -101 70 -96 C37 -135 12 -177 0 -205Z" fill="' + fill + '" opacity="' + opacity + '" transform="translate(' + x + ' ' + y + ') scale(' + scale + ')"/>';
+
+function sceneDefs(p: Palette): string {
+  return '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/>' +
+    '</linearGradient>' +
+    '<radialGradient id="glow" cx="50%" cy="50%" r="50%">' +
+    '<stop offset="0" stop-color="' + p.glow + '" stop-opacity=".72"/><stop offset=".5" stop-color="' + p.glow + '" stop-opacity=".22"/><stop offset="1" stop-color="' + p.glow + '" stop-opacity="0"/>' +
+    '</radialGradient>' +
+    '<linearGradient id="ridgeFar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.far + '"/><stop offset="1" stop-color="' + p.near + '"/></linearGradient>' +
+    '<linearGradient id="ridgeMid" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.near + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
+    '<linearGradient id="ridgeFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.near + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
+    '<linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.horizon + '"/><stop offset=".22" stop-color="' + p.near + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
+    '<linearGradient id="reflection" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.accent + '" stop-opacity=".52"/><stop offset=".45" stop-color="' + p.accent + '" stop-opacity=".12"/><stop offset="1" stop-color="' + p.accent + '" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="stone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + p.far + '"/><stop offset=".52" stop-color="' + p.near + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>';
+}
 
 function sceneShapes(id: SceneId, p: Palette): string {
   switch (id) {
     case 'dawn':
-      return '<circle cx="880" cy="600" r="300" fill="url(#glow)" opacity=".9"/>' +
-        '<path d="M0 910 C220 800 390 830 590 760 S960 690 1200 790 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1100 C240 930 430 1010 640 910 S980 850 1200 960 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 1290 C250 1160 490 1210 710 1100 S1030 1060 1200 1130 V1600 H0Z" fill="' + p.base + '"/>';
+      return '<ellipse cx="850" cy="690" rx="440" ry="350" fill="url(#glow)"/><circle cx="850" cy="700" r="112" fill="' + p.accent + '" opacity=".78"/>' +
+        '<path d="M0 930 C190 835 355 835 510 900 C690 970 830 845 1000 830 C1080 820 1145 850 1200 875 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1080 C220 970 385 1000 565 1055 C755 1110 935 960 1200 1010 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1270 C220 1160 425 1180 630 1240 C830 1295 1000 1160 1200 1190 V1600 H0Z" fill="url(#ridgeFront)"/>';
     case 'twilight':
-      return '<ellipse cx="870" cy="610" rx="430" ry="250" fill="url(#glow)" opacity=".72"/>' +
-        '<path d="M0 860 C250 800 390 900 620 830 S980 740 1200 830 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1040 C220 950 430 1030 670 950 S1000 900 1200 980 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 1280 C270 1170 470 1230 710 1140 S1010 1110 1200 1180 V1600 H0Z" fill="' + p.base + '"/>' +
-        '<path d="M160 540 C330 500 420 520 570 490" fill="none" stroke="' + p.detail + '" stroke-opacity=".14" stroke-width="7" stroke-linecap="round"/>';
+      return '<ellipse cx="840" cy="680" rx="490" ry="310" fill="url(#glow)" opacity=".8"/><circle cx="840" cy="690" r="78" fill="' + p.accent + '" opacity=".54"/>' +
+        '<path d="M0 900 C210 820 390 860 555 910 C735 965 940 820 1200 855 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1080 C205 970 410 1000 610 1060 C820 1125 1000 980 1200 1015 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1280 C245 1175 455 1195 650 1255 C850 1315 1040 1190 1200 1215 V1600 H0Z" fill="url(#ridgeFront)"/>';
     case 'night':
-      return '<g fill="' + p.detail + '" opacity=".72">' +
-        '<circle cx="80" cy="180" r="2"/><circle cx="150" cy="270" r="3"/><circle cx="210" cy="120" r="1.8"/>' +
-        '<circle cx="300" cy="210" r="2.2"/><circle cx="350" cy="190" r="2"/><circle cx="430" cy="300" r="1.8"/>' +
-        '<circle cx="540" cy="330" r="2.5"/><circle cx="620" cy="120" r="2.5"/><circle cx="700" cy="260" r="1.8"/>' +
-        '<circle cx="760" cy="210" r="2"/><circle cx="840" cy="160" r="1.8"/><circle cx="890" cy="470" r="2"/>' +
-        '<circle cx="960" cy="240" r="2.2"/><circle cx="1010" cy="300" r="3"/><circle cx="1080" cy="150" r="2"/>' +
-        '<circle cx="1120" cy="260" r="1.8"/><circle cx="240" cy="500" r="2"/><circle cx="60" cy="420" r="1.5"/>' +
-        '<circle cx="185" cy="370" r="1.4"/><circle cx="275" cy="430" r="1.6"/><circle cx="390" cy="90" r="1.5"/>' +
-        '<circle cx="470" cy="170" r="1.4"/><circle cx="515" cy="510" r="1.6"/><circle cx="585" cy="430" r="1.4"/>' +
-        '<circle cx="675" cy="70" r="1.5"/><circle cx="735" cy="390" r="1.5"/><circle cx="815" cy="330" r="1.4"/>' +
-        '<circle cx="925" cy="100" r="1.5"/><circle cx="985" cy="430" r="1.7"/><circle cx="1060" cy="520" r="1.5"/>' +
-        '<circle cx="1150" cy="390" r="1.4"/><circle cx="325" cy="560" r="1.4"/><circle cx="745" cy="560" r="1.4"/>' +
-        '</g>' +
-        '<path d="M0 1010 C230 910 420 950 620 900 S970 840 1200 930 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1210 C220 1120 430 1160 670 1080 S1000 1060 1200 1120 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 1390 C280 1290 470 1340 720 1260 S1000 1250 1200 1310 V1600 H0Z" fill="' + p.base + '"/>';
+      return '<g fill="' + p.detail + '" opacity=".78">' +
+        '<circle cx="82" cy="155" r="2"/><circle cx="168" cy="285" r="1.6"/><circle cx="250" cy="105" r="2.4"/><circle cx="330" cy="220" r="1.5"/><circle cx="418" cy="145" r="2"/><circle cx="495" cy="330" r="1.6"/>' +
+        '<circle cx="575" cy="185" r="2.2"/><circle cx="660" cy="95" r="1.5"/><circle cx="742" cy="270" r="1.8"/><circle cx="825" cy="150" r="2.4"/><circle cx="910" cy="315" r="1.5"/><circle cx="1000" cy="175" r="2"/>' +
+        '<circle cx="1090" cy="260" r="1.6"/><circle cx="1150" cy="115" r="2.2"/><circle cx="125" cy="470" r="1.4"/><circle cx="285" cy="405" r="1.8"/><circle cx="455" cy="485" r="1.4"/><circle cx="620" cy="390" r="1.7"/>' +
+        '<circle cx="785" cy="485" r="1.4"/><circle cx="955" cy="430" r="1.8"/><circle cx="1115" cy="510" r="1.4"/></g>' +
+        '<circle cx="930" cy="610" r="44" fill="' + p.detail + '" opacity=".12"/>' +
+        '<path d="M0 990 C210 900 390 925 560 970 C760 1025 965 890 1200 930 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1190 C220 1085 420 1110 620 1175 C825 1240 1020 1100 1200 1135 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1390 C245 1285 465 1310 680 1370 C870 1420 1040 1310 1200 1335 V1600 H0Z" fill="url(#ridgeFront)"/>';
     case 'forest':
-      return '<path d="M0 880 C220 720 420 820 620 700 S980 650 1200 760 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1060 C210 900 420 960 650 850 S1000 850 1200 940 V1600 H0Z" fill="' + p.near + '"/>' +
-        fir(20, 1270, .78, p.near) + fir(145, 1290, .88, p.near) + fir(275, 1260, .78, p.near) +
-        fir(405, 1300, .92, p.near) + fir(560, 1275, .8, p.near) + fir(720, 1300, .9, p.near) +
-        fir(870, 1265, .78, p.near) + fir(1010, 1295, .9, p.near) + fir(1165, 1270, .8, p.near) +
-        '<path d="M0 1430 C270 1340 490 1400 720 1330 S1030 1350 1200 1390 V1600 H0Z" fill="' + p.base + '"/>' +
-        fir(75, 1390, 1.15, p.base) + fir(220, 1355, 1.02, p.base) + fir(365, 1410, 1.2, p.base) +
-        fir(525, 1360, 1.02, p.base) + fir(690, 1400, 1.18, p.base) + fir(850, 1360, 1.02, p.base) +
-        fir(1010, 1405, 1.2, p.base) + fir(1150, 1365, 1.05, p.base);
+      return '<path d="M0 900 C190 805 390 825 570 900 C760 980 980 815 1200 875 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1110 C190 1000 400 1035 600 1100 C810 1165 1010 1010 1200 1050 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        fir(38, 1280, .76, p.far, .86) + fir(150, 1250, .9, p.far, .9) + fir(275, 1300, .8, p.far, .84) + fir(410, 1260, .96, p.far, .92) + fir(555, 1305, .78, p.far, .88) + fir(700, 1265, .94, p.far, .92) + fir(850, 1300, .82, p.far, .86) + fir(1000, 1255, .98, p.far, .92) + fir(1155, 1295, .82, p.far, .88) +
+        '<path d="M0 1430 C210 1345 420 1370 620 1430 C820 1490 1020 1350 1200 1390 V1600 H0Z" fill="url(#ridgeFront)"/>' +
+        fir(82, 1445, 1.12, p.base) + fir(245, 1405, 1.18, p.base) + fir(420, 1450, 1.08, p.base) + fir(600, 1410, 1.2, p.base) + fir(780, 1450, 1.1, p.base) + fir(960, 1405, 1.18, p.base) + fir(1130, 1445, 1.08, p.base);
     case 'mountains':
-      return '<path d="M0 1010 L190 770 L310 900 L520 560 L760 910 L900 700 L1200 1030 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M410 690 L520 560 L650 720 L585 680 L540 700 L510 650 L480 700Z" fill="' + p.detail + '" opacity=".9"/>' +
-        '<path d="M0 1120 L250 850 L420 1040 L690 690 L900 1010 L1040 820 L1200 1050 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M575 830 L690 690 L790 840 L730 800 L690 815 L660 775 L635 820Z" fill="' + p.detail + '" opacity=".8"/>' +
-        '<path d="M0 1330 C280 1240 480 1300 720 1210 S1030 1220 1200 1280 V1600 H0Z" fill="' + p.base + '"/>';
+      return '<ellipse cx="900" cy="600" rx="500" ry="350" fill="url(#glow)" opacity=".9"/>' +
+        '<path d="M0 1000 L170 810 C245 730 285 700 350 635 C415 565 460 520 520 570 C610 650 675 820 770 850 C880 885 950 735 1030 720 C1100 705 1150 765 1200 805 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M350 635 C415 565 460 520 520 570 C575 620 625 760 690 815 C620 780 590 720 550 685 C515 655 475 655 440 695 C405 730 380 765 350 790Z" fill="' + p.detail + '" opacity=".82"/>' +
+        '<path d="M0 1120 C180 960 310 910 430 925 C560 940 620 1080 770 1070 C930 1060 1000 900 1100 900 C1140 900 1170 925 1200 950 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1335 C235 1200 425 1220 610 1285 C800 1350 990 1195 1200 1245 V1600 H0Z" fill="url(#ridgeFront)"/>';
     case 'ocean':
-      return '<path d="M0 850 C180 790 340 820 520 870 S900 950 1200 850 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1000 C180 900 340 940 520 1010 S920 1100 1200 960 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 1180 C210 1080 380 1110 570 1180 S960 1260 1200 1120 V1600 H0Z" fill="' + p.far + '" opacity=".7"/>' +
-        '<path d="M-20 1010 C220 930 360 980 560 1030 S930 1100 1220 1000" fill="none" stroke="' + p.accent + '" stroke-opacity=".55" stroke-width="8"/>' +
-        '<path d="M0 1320 C250 1240 430 1280 650 1340 S980 1380 1200 1300" fill="none" stroke="' + p.detail + '" stroke-opacity=".22" stroke-width="5"/>';
+      return '<path d="M0 880 C180 830 340 850 500 890 C720 945 930 835 1200 870 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 965 C190 905 360 930 540 980 C750 1035 980 920 1200 950 V1600 H0Z" fill="url(#water)"/>' +
+        '<path d="M0 1070 C180 1005 370 1040 555 1095 C770 1160 1000 1030 1200 1060 V1600 H0Z" fill="url(#ridgeMid)" opacity=".72"/>' +
+        '<path d="M0 1205 C200 1135 390 1170 575 1230 C790 1290 1000 1160 1200 1190 V1600 H0Z" fill="url(#water)"/>' +
+        '<path d="M-30 1020 C220 955 370 985 550 1035 C760 1090 990 975 1230 1005" fill="none" stroke="' + p.accent + '" stroke-opacity=".52" stroke-width="7" stroke-linecap="round"/>' +
+        '<path d="M0 1370 C250 1300 450 1335 650 1390 C850 1445 1040 1325 1200 1350" fill="none" stroke="' + p.detail + '" stroke-opacity=".2" stroke-width="5" stroke-linecap="round"/>';
     case 'lake':
-      return '<path d="M0 850 L210 670 L360 800 L540 590 L760 820 L920 690 L1200 870 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M430 700 L540 590 L650 720 L590 685 L550 690 L520 650 L495 690Z" fill="' + p.detail + '" opacity=".85"/>' +
-        '<path d="M0 920 C250 900 440 930 620 910 S980 900 1200 920 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 940 C210 900 370 920 500 965 C560 990 640 990 700 965 C850 910 1030 900 1200 940 V1600 H0Z" fill="' + p.accent + '" opacity=".48"/>' +
-        '<path d="M0 940 C220 900 370 930 500 975 C570 1000 640 1000 710 975 C850 925 1030 900 1200 940" fill="none" stroke="' + p.detail + '" stroke-opacity=".65" stroke-width="8"/>' +
-        '<g fill="none" stroke="' + p.detail + '" stroke-linecap="round">' +
-          '<path d="M430 1040 Q600 1055 770 1040" stroke-opacity=".58" stroke-width="7"/>' +
-          '<path d="M330 1120 Q600 1140 870 1120" stroke-opacity=".42" stroke-width="6"/>' +
-          '<path d="M220 1220 Q600 1245 980 1220" stroke-opacity=".32" stroke-width="5"/>' +
-          '<path d="M120 1340 Q600 1370 1080 1340" stroke-opacity=".22" stroke-width="4"/>' +
-        '</g>';
+      return '<ellipse cx="870" cy="700" rx="430" ry="260" fill="url(#glow)" opacity=".78"/>' +
+        '<path d="M0 960 L155 815 C250 730 330 670 400 690 C475 710 520 820 590 850 C660 880 720 785 800 710 C870 645 930 650 1000 730 C1080 820 1130 875 1200 900 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1030 C210 955 400 965 580 1020 C780 1080 1000 960 1200 1000 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1050 C220 1010 420 1020 600 1050 C790 1080 1000 1010 1200 1035 V1600 H0Z" fill="url(#water)"/>' +
+        '<path d="M0 1070 C180 1050 360 1065 520 1080 C720 1100 960 1060 1200 1075 V1600 H0Z" fill="url(#reflection)" opacity=".52"/>' +
+        '<path d="M0 1090 C200 1110 380 1125 570 1100 C760 1075 990 1100 1200 1090 V1600 H0Z" fill="url(#water)" opacity=".72"/>' +
+        '<path d="M500 1035 C590 1050 660 1050 750 1035 C830 1020 920 1025 1010 1035" fill="none" stroke="' + p.detail + '" stroke-opacity=".52" stroke-width="5" stroke-linecap="round"/>' +
+        '<g fill="none" stroke="' + p.detail + '" stroke-linecap="round"><path d="M390 1160 Q600 1175 810 1160" stroke-opacity=".28" stroke-width="5"/><path d="M280 1250 Q600 1270 920 1250" stroke-opacity=".2" stroke-width="4"/><path d="M180 1360 Q600 1380 1020 1360" stroke-opacity=".14" stroke-width="3"/></g>';
     case 'desert':
-      return '<circle cx="850" cy="630" r="290" fill="url(#glow)" opacity=".9"/>' +
-        '<path d="M0 1010 C220 830 460 850 640 970 S990 1080 1200 900 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1120 C250 980 430 1000 650 1110 S1010 1200 1200 1060 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 1370 C260 1200 460 1230 700 1350 S1010 1400 1200 1280 V1600 H0Z" fill="' + p.base + '"/>' +
-        '<path d="M220 1100 C390 1010 510 1030 650 1100" fill="none" stroke="' + p.accent + '" stroke-opacity=".25" stroke-width="6"/>';
+      return '<ellipse cx="875" cy="690" rx="470" ry="340" fill="url(#glow)"/><circle cx="875" cy="700" r="105" fill="' + p.accent + '" opacity=".76"/>' +
+        '<path d="M0 1020 C170 900 350 855 525 900 C690 940 810 1055 970 1015 C1080 990 1140 930 1200 890 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1160 C190 1030 360 1010 530 1050 C720 1095 845 1210 1010 1160 C1090 1135 1150 1080 1200 1050 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1390 C205 1250 390 1250 570 1300 C770 1355 925 1470 1200 1320 V1600 H0Z" fill="url(#ridgeFront)"/>' +
+        '<path d="M120 1160 C310 1055 440 1060 600 1110" fill="none" stroke="' + p.accent + '" stroke-opacity=".22" stroke-width="5" stroke-linecap="round"/>';
     case 'stone':
-      return '<path d="M-80 500 L360 250 L690 430 L1280 120 L1280 700 L760 880 L310 760 L-80 1040Z" fill="' + p.far + '"/>' +
-        '<path d="M-80 830 L300 620 L650 780 L1280 520 L1280 1110 L790 1240 L330 1110 L-80 1360Z" fill="' + p.near + '"/>' +
-        '<path d="M-80 1180 L360 1000 L700 1130 L1280 900 L1280 1600 L-80 1600Z" fill="' + p.base + '"/>' +
-        '<path d="M-40 510 L360 270 L690 450" fill="none" stroke="' + p.detail + '" stroke-opacity=".24" stroke-width="7"/>' +
-        '<path d="M-20 850 L300 650 L650 800 L1220 560" fill="none" stroke="' + p.detail + '" stroke-opacity=".16" stroke-width="6"/>';
+      return '<path d="M-80 760 C110 620 260 555 410 610 C570 670 690 820 850 780 C1010 740 1130 590 1280 560 V1600 H-80Z" fill="url(#stone)"/>' +
+        '<path d="M-80 950 C120 820 285 760 440 820 C600 885 735 1030 890 980 C1050 930 1150 800 1280 780 V1600 H-80Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M-80 1170 C120 1050 300 1010 470 1065 C640 1120 770 1250 930 1210 C1080 1170 1180 1060 1280 1030 V1600 H-80Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M-80 1380 C140 1260 330 1250 510 1300 C710 1355 850 1470 1030 1415 C1140 1380 1210 1320 1280 1300 V1600 H-80Z" fill="url(#ridgeFront)"/>' +
+        '<path d="M-20 760 C150 635 290 590 410 640 C565 705 690 845 850 805 C1010 765 1130 620 1220 600" fill="none" stroke="' + p.detail + '" stroke-opacity=".22" stroke-width="5"/>';
     case 'aurora':
-      return '<path d="M-80 500 C180 220 420 280 610 500 S960 770 1280 350" fill="none" stroke="' + p.accent + '" stroke-opacity=".26" stroke-width="150" stroke-linecap="round"/>' +
-        '<path d="M-80 540 C180 260 420 320 610 540 S960 810 1280 390" fill="none" stroke="' + p.detail + '" stroke-opacity=".25" stroke-width="42" stroke-linecap="round"/>' +
-        '<path d="M-80 700 C180 440 430 450 630 650 S990 900 1280 610" fill="none" stroke="' + p.accent + '" stroke-opacity=".18" stroke-width="90" stroke-linecap="round"/>' +
-        '<path d="M0 1040 C240 950 420 990 640 920 S1000 930 1200 1000 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1260 C260 1150 450 1200 700 1120 S1020 1140 1200 1190 V1600 H0Z" fill="' + p.base + '"/>';
+      return '<path d="M-100 510 C120 330 320 290 500 405 C690 525 835 565 1010 420 C1100 345 1170 285 1300 270" fill="none" stroke="' + p.accent + '" stroke-opacity=".2" stroke-width="190" stroke-linecap="round"/>' +
+        '<path d="M-100 500 C120 320 320 280 500 395 C690 515 835 555 1010 410 C1100 335 1170 275 1300 260" fill="none" stroke="' + p.detail + '" stroke-opacity=".3" stroke-width="42" stroke-linecap="round"/>' +
+        '<path d="M-100 690 C130 520 340 470 520 580 C700 690 860 740 1030 610 C1140 530 1200 490 1300 470" fill="none" stroke="' + p.accent + '" stroke-opacity=".16" stroke-width="105" stroke-linecap="round"/>' +
+        '<path d="M0 1040 C210 935 420 955 610 1015 C810 1075 1000 940 1200 980 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1280 C230 1165 440 1190 640 1250 C840 1310 1030 1180 1200 1210 V1600 H0Z" fill="url(#ridgeFront)"/>';
     case 'ember':
-      return '<circle cx="900" cy="610" r="320" fill="url(#glow)" opacity=".88"/>' +
-        '<path d="M0 930 C210 810 410 840 620 900 S990 940 1200 820 V1600 H0Z" fill="' + p.far + '"/>' +
-        '<path d="M0 1110 C230 970 430 1000 660 1080 S1000 1130 1200 1000 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 1360 C240 1230 470 1260 700 1340 S1010 1370 1200 1270 V1600 H0Z" fill="' + p.base + '"/>' +
-        '<g fill="' + p.accent + '" opacity=".52"><circle cx="210" cy="760" r="4"/><circle cx="390" cy="680" r="3"/><circle cx="1040" cy="780" r="4"/><circle cx="760" cy="720" r="2.5"/></g>';
+      return '<ellipse cx="880" cy="730" rx="450" ry="330" fill="url(#glow)"/><circle cx="880" cy="735" r="100" fill="' + p.accent + '" opacity=".68"/>' +
+        '<path d="M0 960 C180 850 350 850 520 900 C710 955 890 850 1040 835 C1110 830 1160 850 1200 875 V1600 H0Z" fill="url(#ridgeFar)"/>' +
+        '<path d="M0 1140 C190 1015 390 1025 570 1080 C770 1140 980 1030 1200 1065 V1600 H0Z" fill="url(#ridgeMid)"/>' +
+        '<path d="M0 1370 C220 1240 420 1265 620 1325 C820 1385 1010 1260 1200 1300 V1600 H0Z" fill="url(#ridgeFront)"/>' +
+        '<g fill="' + p.accent + '" opacity=".48"><circle cx="210" cy="760" r="3"/><circle cx="390" cy="680" r="2"/><circle cx="1040" cy="780" r="3"/><circle cx="760" cy="720" r="2"/></g>';
   }
   return '';
 }
@@ -160,17 +161,8 @@ const previewCache = new Map<string, string>();
 
 // Landscape crops keep the defining parts of each scene inside the 16:9 settings tiles.
 const previewTop: Record<SceneId, number> = {
-  dawn: 540,
-  twilight: 500,
-  night: 220,
-  forest: 760,
-  mountains: 440,
-  ocean: 700,
-  lake: 560,
-  desert: 520,
-  stone: 170,
-  aurora: 150,
-  ember: 500,
+  dawn: 560, twilight: 500, night: 220, forest: 760, mountains: 420,
+  ocean: 700, lake: 520, desert: 560, stone: 500, aurora: 180, ember: 540,
 };
 
 /** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
@@ -181,12 +173,9 @@ export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
 
   const p = palettes[background][mode];
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ' + previewTop[background] + ' 1200 675" preserveAspectRatio="xMidYMid slice">' +
-    '<defs>' +
-    '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
-    '<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="' + p.glow + '" stop-opacity=".66"/><stop offset=".48" stop-color="' + p.glow + '" stop-opacity=".2"/><stop offset="1" stop-color="' + p.glow + '" stop-opacity="0"/></radialGradient>' +
+    '<defs>' + sceneDefs(p) +
     '</defs>' +
     '<rect width="1200" height="1600" fill="url(#sky)"/>' +
-    '<ellipse cx="850" cy="520" rx="540" ry="430" fill="url(#glow)"/>' +
     sceneShapes(background, p) +
     '</svg>';
   const value = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
@@ -206,9 +195,7 @@ export function backgroundOf(background: SceneId, mode: Mode, pageColor?: string
   if (existing) return existing;
 
   const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1600" preserveAspectRatio="xMidYMin slice">' +
-    '<defs>' +
-    '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
-    '<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="' + p.glow + '" stop-opacity=".66"/><stop offset=".48" stop-color="' + p.glow + '" stop-opacity=".2"/><stop offset="1" stop-color="' + p.glow + '" stop-opacity="0"/></radialGradient>' +
+    '<defs>' + sceneDefs(p) +
     '<linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset=".86" stop-color="' + page + '" stop-opacity="0"/><stop offset="1" stop-color="' + page + '" stop-opacity="1"/></linearGradient>' +
     '</defs>' +
     '<rect width="1200" height="1600" fill="url(#sky)"/>' +
