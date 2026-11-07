@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BACKGROUND_OPTIONS, DEFAULT_BACKGROUND, isBackground } from '../../core/look/lamplight';
-import { backgroundOf } from '../../app/backgrounds';
+import { backgroundOf, backgroundPreviewOf } from '../../app/backgrounds';
 
 describe('Lamplight backgrounds', () => {
   it('offers the complete named collection and keeps Lamplight as the default', () => {
@@ -38,6 +38,27 @@ describe('Lamplight backgrounds', () => {
       expect(light).not.toContain('https://');
       expect(dark).not.toBe(light);
     }
+  });
+
+  it('renders landscape previews that show the actual scene rather than cropping the portrait wallpaper', () => {
+    for (const background of BACKGROUND_OPTIONS) {
+      if (background.id === 'lamplight') continue;
+      const preview = backgroundPreviewOf(background.id, 'dark');
+      expect(preview).toMatch(/^url\("data:image\/svg\+xml,/);
+      const svg = decodeURIComponent(preview.slice('url("data:image/svg+xml,'.length, -2));
+      expect(svg).toContain('viewBox="0 ');
+      expect(svg).toContain(' 1200 675"');
+    }
+  });
+
+  it('shows a recognizable forest, a lake with reflections, and a fuller night sky in previews', () => {
+    const forest = decodeURIComponent(backgroundPreviewOf('forest', 'dark').slice('url("data:image/svg+xml,'.length, -2));
+    const lake = decodeURIComponent(backgroundPreviewOf('lake', 'dark').slice('url("data:image/svg+xml,'.length, -2));
+    const night = decodeURIComponent(backgroundPreviewOf('night', 'dark').slice('url("data:image/svg+xml,'.length, -2));
+
+    expect((forest.match(/translate\(/g) ?? []).length).toBeGreaterThanOrEqual(16);
+    expect(lake).toContain('stroke-opacity=".58"');
+    expect((night.match(/<circle /g) ?? []).length).toBeGreaterThanOrEqual(30);
   });
 
   it('fades the scene into the chosen page surface', () => {

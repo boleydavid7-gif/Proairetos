@@ -35,7 +35,7 @@ import { useOverlays } from '../../app/overlays/OverlayContext';
 import { useTodayParts } from '../../app/hooks/useTodayParts';
 import { applyAppearance } from '../../app/appearance';
 import { BACKGROUND_OPTIONS, LAMP_COLORS, ROOMS, WALL_STYLES, colorFor, swatchOf, wallpaperOf } from '../../app/lamplight';
-import { backgroundOf } from '../../app/backgrounds';
+import { backgroundPreviewOf } from '../../app/backgrounds';
 import { ownHue } from '../../core/look/lamplight';
 import { FEEDBACK_EMAIL } from '../../app/siteAddress';
 import { feedbackLink } from '../../app/family/feedback';
@@ -686,7 +686,7 @@ function AppearanceSection() {
               style={{
                 backgroundImage: background.id === 'lamplight'
                   ? wallpaperOf(appearance.room, mode, false, appearance.wallStyle)
-                  : backgroundOf(background.id, mode),
+                  : backgroundPreviewOf(background.id, mode),
               }}
               aria-hidden="true"
             />

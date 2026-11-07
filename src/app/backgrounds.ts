@@ -78,16 +78,32 @@ function sceneShapes(id: SceneId, p: Palette): string {
         '<path d="M0 1280 C270 1170 470 1230 710 1140 S1010 1110 1200 1180 V1600 H0Z" fill="' + p.base + '"/>' +
         '<path d="M160 540 C330 500 420 520 570 490" fill="none" stroke="' + p.detail + '" stroke-opacity=".14" stroke-width="7" stroke-linecap="round"/>';
     case 'night':
-      return '<g fill="' + p.detail + '" opacity=".62"><circle cx="150" cy="270" r="3"/><circle cx="350" cy="190" r="2"/><circle cx="540" cy="330" r="2.5"/><circle cx="760" cy="210" r="2"/><circle cx="1010" cy="300" r="3"/><circle cx="890" cy="470" r="2"/><circle cx="240" cy="500" r="2"/><circle cx="620" cy="120" r="2.5"/><circle cx="1080" cy="150" r="2"/></g>' +
+      return '<g fill="' + p.detail + '" opacity=".72">' +
+        '<circle cx="80" cy="180" r="2"/><circle cx="150" cy="270" r="3"/><circle cx="210" cy="120" r="1.8"/>' +
+        '<circle cx="300" cy="210" r="2.2"/><circle cx="350" cy="190" r="2"/><circle cx="430" cy="300" r="1.8"/>' +
+        '<circle cx="540" cy="330" r="2.5"/><circle cx="620" cy="120" r="2.5"/><circle cx="700" cy="260" r="1.8"/>' +
+        '<circle cx="760" cy="210" r="2"/><circle cx="840" cy="160" r="1.8"/><circle cx="890" cy="470" r="2"/>' +
+        '<circle cx="960" cy="240" r="2.2"/><circle cx="1010" cy="300" r="3"/><circle cx="1080" cy="150" r="2"/>' +
+        '<circle cx="1120" cy="260" r="1.8"/><circle cx="240" cy="500" r="2"/><circle cx="60" cy="420" r="1.5"/>' +
+        '<circle cx="185" cy="370" r="1.4"/><circle cx="275" cy="430" r="1.6"/><circle cx="390" cy="90" r="1.5"/>' +
+        '<circle cx="470" cy="170" r="1.4"/><circle cx="515" cy="510" r="1.6"/><circle cx="585" cy="430" r="1.4"/>' +
+        '<circle cx="675" cy="70" r="1.5"/><circle cx="735" cy="390" r="1.5"/><circle cx="815" cy="330" r="1.4"/>' +
+        '<circle cx="925" cy="100" r="1.5"/><circle cx="985" cy="430" r="1.7"/><circle cx="1060" cy="520" r="1.5"/>' +
+        '<circle cx="1150" cy="390" r="1.4"/><circle cx="325" cy="560" r="1.4"/><circle cx="745" cy="560" r="1.4"/>' +
+        '</g>' +
         '<path d="M0 1010 C230 910 420 950 620 900 S970 840 1200 930 V1600 H0Z" fill="' + p.far + '"/>' +
         '<path d="M0 1210 C220 1120 430 1160 670 1080 S1000 1060 1200 1120 V1600 H0Z" fill="' + p.near + '"/>' +
         '<path d="M0 1390 C280 1290 470 1340 720 1260 S1000 1250 1200 1310 V1600 H0Z" fill="' + p.base + '"/>';
     case 'forest':
       return '<path d="M0 880 C220 720 420 820 620 700 S980 650 1200 760 V1600 H0Z" fill="' + p.far + '"/>' +
         '<path d="M0 1060 C210 900 420 960 650 850 S1000 850 1200 940 V1600 H0Z" fill="' + p.near + '"/>' +
-        fir(85, 1230, .9, p.base) + fir(230, 1290, 1.1, p.base) + fir(395, 1260, .82, p.base) +
-        fir(850, 1280, .95, p.base) + fir(1030, 1310, 1.15, p.base) + fir(1160, 1250, .78, p.base) +
-        '<path d="M0 1430 C270 1340 490 1400 720 1330 S1030 1350 1200 1390 V1600 H0Z" fill="' + p.base + '"/>';
+        fir(20, 1270, .78, p.near) + fir(145, 1290, .88, p.near) + fir(275, 1260, .78, p.near) +
+        fir(405, 1300, .92, p.near) + fir(560, 1275, .8, p.near) + fir(720, 1300, .9, p.near) +
+        fir(870, 1265, .78, p.near) + fir(1010, 1295, .9, p.near) + fir(1165, 1270, .8, p.near) +
+        '<path d="M0 1430 C270 1340 490 1400 720 1330 S1030 1350 1200 1390 V1600 H0Z" fill="' + p.base + '"/>' +
+        fir(75, 1390, 1.15, p.base) + fir(220, 1355, 1.02, p.base) + fir(365, 1410, 1.2, p.base) +
+        fir(525, 1360, 1.02, p.base) + fir(690, 1400, 1.18, p.base) + fir(850, 1360, 1.02, p.base) +
+        fir(1010, 1405, 1.2, p.base) + fir(1150, 1365, 1.05, p.base);
     case 'mountains':
       return '<path d="M0 1010 L190 770 L310 900 L520 560 L760 910 L900 700 L1200 1030 V1600 H0Z" fill="' + p.far + '"/>' +
         '<path d="M410 690 L520 560 L650 720 L585 680 L540 700 L510 650 L480 700Z" fill="' + p.detail + '" opacity=".9"/>' +
@@ -104,8 +120,14 @@ function sceneShapes(id: SceneId, p: Palette): string {
       return '<path d="M0 850 L210 670 L360 800 L540 590 L760 820 L920 690 L1200 870 V1600 H0Z" fill="' + p.far + '"/>' +
         '<path d="M430 700 L540 590 L650 720 L590 685 L550 690 L520 650 L495 690Z" fill="' + p.detail + '" opacity=".85"/>' +
         '<path d="M0 920 C250 900 440 930 620 910 S980 900 1200 920 V1600 H0Z" fill="' + p.near + '"/>' +
-        '<path d="M0 930 C220 970 420 960 600 950 S990 970 1200 930 V1600 H0Z" fill="' + p.far + '" opacity=".38"/>' +
-        '<g stroke="' + p.detail + '" stroke-opacity=".24" stroke-width="5"><path d="M180 1050 H1020"/><path d="M310 1130 H900"/><path d="M120 1230 H1080"/><path d="M400 1330 H830"/></g>';
+        '<path d="M0 940 C210 900 370 920 500 965 C560 990 640 990 700 965 C850 910 1030 900 1200 940 V1600 H0Z" fill="' + p.accent + '" opacity=".48"/>' +
+        '<path d="M0 940 C220 900 370 930 500 975 C570 1000 640 1000 710 975 C850 925 1030 900 1200 940" fill="none" stroke="' + p.detail + '" stroke-opacity=".65" stroke-width="8"/>' +
+        '<g fill="none" stroke="' + p.detail + '" stroke-linecap="round">' +
+          '<path d="M430 1040 Q600 1055 770 1040" stroke-opacity=".58" stroke-width="7"/>' +
+          '<path d="M330 1120 Q600 1140 870 1120" stroke-opacity=".42" stroke-width="6"/>' +
+          '<path d="M220 1220 Q600 1245 980 1220" stroke-opacity=".32" stroke-width="5"/>' +
+          '<path d="M120 1340 Q600 1370 1080 1340" stroke-opacity=".22" stroke-width="4"/>' +
+        '</g>';
     case 'desert':
       return '<circle cx="850" cy="630" r="290" fill="url(#glow)" opacity=".9"/>' +
         '<path d="M0 1010 C220 830 460 850 640 970 S990 1080 1200 900 V1600 H0Z" fill="' + p.far + '"/>' +
@@ -132,6 +154,45 @@ function sceneShapes(id: SceneId, p: Palette): string {
         '<g fill="' + p.accent + '" opacity=".52"><circle cx="210" cy="760" r="4"/><circle cx="390" cy="680" r="3"/><circle cx="1040" cy="780" r="4"/><circle cx="760" cy="720" r="2.5"/></g>';
   }
   return '';
+}
+
+const previewCache = new Map<string, string>();
+
+// Landscape crops keep the defining parts of each scene inside the 16:9 settings tiles.
+const previewTop: Record<SceneId, number> = {
+  dawn: 540,
+  twilight: 500,
+  night: 220,
+  forest: 760,
+  mountains: 440,
+  ocean: 700,
+  lake: 560,
+  desert: 520,
+  stone: 170,
+  aurora: 150,
+  ember: 500,
+};
+
+/** A dedicated landscape crop for the small Appearance previews; the full wallpaper remains portrait. */
+export function backgroundPreviewOf(background: SceneId, mode: Mode): string {
+  const key = background + ':' + mode;
+  const existing = previewCache.get(key);
+  if (existing) return existing;
+
+  const p = palettes[background][mode];
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 ' + previewTop[background] + ' 1200 675" preserveAspectRatio="xMidYMid slice">' +
+    '<defs>' +
+    '<linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + p.sky + '"/><stop offset=".58" stop-color="' + p.horizon + '"/><stop offset="1" stop-color="' + p.base + '"/></linearGradient>' +
+    '<radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="' + p.glow + '" stop-opacity=".66"/><stop offset=".48" stop-color="' + p.glow + '" stop-opacity=".2"/><stop offset="1" stop-color="' + p.glow + '" stop-opacity="0"/></radialGradient>' +
+    '</defs>' +
+    '<rect width="1200" height="1600" fill="url(#sky)"/>' +
+    '<ellipse cx="850" cy="520" rx="540" ry="430" fill="url(#glow)"/>' +
+    sceneShapes(background, p) +
+    '</svg>';
+  const value = 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
+  if (previewCache.size >= 24) previewCache.delete(previewCache.keys().next().value as string);
+  previewCache.set(key, value);
+  return value;
 }
 
 const cache = new Map<string, string>();
