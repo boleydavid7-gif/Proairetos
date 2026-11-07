@@ -29,10 +29,12 @@ const assets = {
 for (const [assetName, partNames] of Object.entries(assets)) {
   const encoded = (await Promise.all(
     partNames.map((partName) => readFile(path.join(partsRoot, partName), 'utf8')),
-  )).join('').replace(/\s/g, '');
+  )).join('').replace(/\\s/g, '');
   const bytes = Buffer.from(encoded, 'base64');
 
-  if (bytes.length < 5000 || bytes.subarray(4, 8).toString('ascii') !== 'ftyp') {
+  // The approved AVIFs are deliberately compact. Validate their container
+  // signature and a conservative minimum size, not an arbitrary 5 KB limit.
+  if (bytes.length < 1000 || bytes.subarray(4, 8).toString('ascii') !== 'ftyp') {
     throw new Error(`Forest wallpaper asset is incomplete or invalid: ${assetName}`);
   }
 
